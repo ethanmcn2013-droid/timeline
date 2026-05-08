@@ -5,27 +5,14 @@ export const alt = "roadmap — ship what matters";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
-/**
- * Root OG image.
- * Wordmark-only composition — same restraint as studio. OG.
- * Background: --bg #fafaf7 (warm-stone canvas token from globals.css)
- * Wordmark: hairline SVG mark (—•—) + "roadmap" text
- *   - text color:    #18181b (--ink-900)
- *   - hairline:      #71717a (--ink-500 / --ink-quiet, matches SVG stroke in component)
- *   - dot fill:      #4f46e5 (--indigo-600 / --brand)
- * SVG mark scaled to be a legible accent at thumbnail size:
- *   lineW=120, dotR=9 → total SVG 138×20
- */
 export default async function OG() {
-  const fontSize = 330;
+  const fontSize = 240;
 
-  // SVG hairline mark — proportional to the brand component, fixed size
-  const lineW = 120;
-  const dotR = 9;
+  const lineW = 96;
+  const dotR = 8;
   const svgW = lineW + dotR * 2;
-  const svgH = dotR * 2 + 2;
+  const svgH = dotR * 2 + 4;
   const midY = svgH / 2;
-  // Dot rests at 70% along the line (RESTING = 0.7)
   const dotCx = dotR + lineW * 0.7;
 
   return new ImageResponse(
@@ -37,25 +24,21 @@ export default async function OG() {
           justifyContent: "center",
           width: "100%",
           height: "100%",
-          background: "#fafaf7",
+          background: "#f0f1ff",
           fontFamily: "-apple-system, 'Helvetica Neue', sans-serif",
         }}
       >
         <div
           style={{
             display: "flex",
-            alignItems: "baseline",
-            gap: Math.round(fontSize * 0.45 * 0.45), // ~0.45em gap scaled
-            marginLeft: "-0.15ch",
+            alignItems: "center",
+            gap: 32,
           }}
         >
-          {/* Hairline + dot mark — static version of the animated SVG lockup */}
           <svg
             width={svgW}
             height={svgH}
             viewBox={`0 0 ${svgW} ${svgH}`}
-            // Align to text baseline: shift down so it sits at cap-height midpoint
-            style={{ display: "flex", alignSelf: "center", marginBottom: 8 }}
           >
             <line
               x1={dotR}
@@ -68,19 +51,17 @@ export default async function OG() {
             />
             <circle cx={dotCx} cy={midY} r={dotR} fill="#4f46e5" />
           </svg>
-
-          {/* Wordmark text */}
-          <span
+          <div
             style={{
-              display: "flex",
               fontSize,
               fontWeight: 600,
-              letterSpacing: "-0.01em",
+              letterSpacing: "-0.02em",
               color: "#18181b",
+              lineHeight: 1,
             }}
           >
             roadmap
-          </span>
+          </div>
         </div>
       </div>
     ),
