@@ -6,7 +6,7 @@ export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
 export default async function OG() {
-  const fontSize = 240;
+  const fontSize = 260;
 
   const lineW = 96;
   const dotR = 8;
