@@ -22,7 +22,7 @@ import { sql } from "drizzle-orm";
 import * as schema from "../src/server/db/schema";
 
 const WORKSPACE_SLUG = "tasks";
-const WORKSPACE_NAME = "Tasks";
+const WORKSPACE_NAME = "studio. shipping log";
 const WORKSPACE_DESCRIPTION =
   "What we're building next, written in plain English.";
 const PROJECT_SLUG = "product";
@@ -46,63 +46,63 @@ const db = drizzle(client, { schema });
 const ITEMS = [
   {
     id: `${WORKSPACE_SLUG}-${PROJECT_SLUG}-001`,
-    title: "Realtime sync across tabs",
+    title: "Workspace onboarding — paste your markdown",
     description:
-      "Board, list, timeline, and calendar all reflect changes instantly — no page refresh needed. Built on server-sent events.",
-    status: "shipped" as schema.Status,
+      "First-run experience for new workspaces. Paste a markdown roadmap, we parse it into structured items. Zero forms, zero dropdowns.",
+    status: "in-flight" as schema.Status,
     kind: "cycle" as schema.Kind,
     sortOrder: 1,
   },
   {
     id: `${WORKSPACE_SLUG}-${PROJECT_SLUG}-002`,
-    title: "Magic link sign-in",
+    title: "Proof card on the marketing homepage",
     description:
-      "Passwordless auth via Clerk magic links. One email, one click, straight into the workspace.",
-    status: "shipped" as schema.Status,
+      "A live screenshot of the demo workspace embedded in the homepage hero — so the product sells itself without a separate demo page. Blocked on screenshot infra.",
+    status: "blocked" as schema.Status,
     kind: "cycle" as schema.Kind,
     sortOrder: 2,
   },
   {
     id: `${WORKSPACE_SLUG}-${PROJECT_SLUG}-003`,
-    title: "Calendar ICS feed",
+    title: "Invite-only beta",
     description:
-      "Subscribe to any workspace in Apple Calendar, Google Calendar, or Outlook. Tasks with due dates appear automatically.",
-    status: "shipped" as schema.Status,
+      "Gated signup behind an invite code. Small cohort, high-signal feedback. No public self-serve until the onboarding is solid.",
+    status: "in-flight" as schema.Status,
     kind: "cycle" as schema.Kind,
     sortOrder: 3,
   },
   {
     id: `${WORKSPACE_SLUG}-${PROJECT_SLUG}-004`,
-    title: "Public roadmap surface",
+    title: "Shared comment threads on roadmap items",
     description:
-      "Share a public URL for your roadmap — no login required for readers. Shows what you're building, what shipped, and what you said no to.",
-    status: "shipped" as schema.Status,
+      "Stakeholders can leave comments on individual roadmap items. Auth-gated for writes; public for reads. Keeps the conversation in context.",
+    status: "in-flight" as schema.Status,
     kind: "cycle" as schema.Kind,
     sortOrder: 4,
   },
   {
     id: `${WORKSPACE_SLUG}-${PROJECT_SLUG}-005`,
-    title: "Cinematic demo mode",
+    title: "Composite-PK multi-tenancy",
     description:
-      "Auto-running showcase that walks visitors through every view — board, list, timeline, calendar — with a live task being created and moved.",
-    status: "in-flight" as schema.Status,
+      "Project slugs are now scoped per workspace — two teams can each have a project called \"blog\" without colliding. Schema migration shipped cleanly.",
+    status: "shipped" as schema.Status,
     kind: "cycle" as schema.Kind,
     sortOrder: 5,
   },
   {
     id: `${WORKSPACE_SLUG}-${PROJECT_SLUG}-006`,
-    title: "Mobile app",
+    title: "studio. brand integration in nav + footer",
     description:
-      "Native iOS + Android. Blocked by: the web product needs to ship and find product-market fit first. Building mobile before we know what matters would be expensive guessing.",
-    status: "refused" as schema.Status,
-    kind: "refusal" as schema.Kind,
+      "The studio. parent brand whisper is now in the nav and footer — links Tasks and Roadmap under one roof without making it a big deal.",
+    status: "shipped" as schema.Status,
+    kind: "cycle" as schema.Kind,
     sortOrder: 6,
   },
   {
     id: `${WORKSPACE_SLUG}-${PROJECT_SLUG}-007`,
-    title: "AI task suggestions",
+    title: "AI-generated roadmap items",
     description:
-      "Refused: not in year one. Tasks is for non-tech teams who want clarity, not automation. AI suggestions risk making the product feel like every other productivity app.",
+      "Not this year. The product's value is structured clarity, not generated content. If we ship AI suggestions before the manual workflow is proven, we're solving the wrong problem.",
     status: "refused" as schema.Status,
     kind: "refusal" as schema.Kind,
     sortOrder: 7,

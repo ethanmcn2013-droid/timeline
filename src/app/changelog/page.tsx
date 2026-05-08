@@ -13,32 +13,32 @@ export const metadata: Metadata = {
 const ENTRIES = [
   {
     date: "May 8, 2026",
-    title: "Composite-PK multi-tenancy + demo workspace seeded",
+    title: "The day the slugs collided (and then didn't)",
     items: [
-      "Workspace slugs now form a composite primary key with project slugs — no more cross-workspace collisions.",
-      "Demo workspace at /tasks seeded with real roadmap items: product discovery, design system pass, public beta, changelog page.",
-      "Portfolio backfill: existing single-project workspaces migrated to the new schema without data loss.",
-      "Comments are now auth-gated — public visitors can read, only workspace owners can write.",
+      "Two workspaces, each with a project named \"blog\" — the kind of thing that should be fine and quietly wasn't. A composite primary key on (workspace, project) means they're both fine now.",
+      "The demo workspace is live at /tasks. Real items, real statuses — Roadmap managing its own roadmap. If that's not eating your own cooking, nothing is.",
+      "Existing workspaces migrated forward cleanly. Nobody noticed, which is the correct outcome for a schema change.",
+      "Comments now require a login to leave. Public visitors can still read everything — the room is open, the pen is behind the counter.",
     ],
   },
   {
     date: "May 8, 2026",
-    title: "Studio brand integration",
+    title: "The quiet line in the nav that explains everything",
     items: [
-      "studio. parent-brand whisper added to site nav — a subtle separator and link that places Roadmap in its product family.",
-      "Footer cross-links to studio. and Tasks; the 'Made by' column renders the full product suite.",
-      "Wordmark component extracted with animated dot — same motion primitive as Tasks, different brand context.",
-      "NEXT_PUBLIC_STUDIO_URL env var wired through; falls back to production URL in local dev.",
+      "A small \"studio.\" appears before the wordmark — a whisper, not a billboard. Click it and you land on the umbrella brand that also ships Tasks. The connection was always there; now it's visible.",
+      "The footer learned the full product family. Tasks and Roadmap live side by side, linked. The \"Made by\" column earns its column now.",
+      "The animated dot on the wordmark is the same primitive as Tasks, different context. Shared motion language without feeling like a copy.",
+      "One env var wires the studio link; local dev falls back to production. One fewer thing to remember to set.",
     ],
   },
   {
     date: "May 8, 2026",
-    title: "Branded 404 on unknown workspace slugs",
+    title: "A 404 that knows where it lives",
     items: [
-      "Unknown workspace slugs now render a custom not-found page instead of Next.js default.",
-      "Not-found surface uses the full site chrome: nav, footer, wordmark — no orphaned pages.",
-      "Reserved slug list added (sign-in, sign-up, app, pricing, demo, about, tasks, etc.) to prevent workspace creation that would shadow marketing routes.",
-      "Workspace-level 404 links back to /demo so confused visitors land somewhere useful.",
+      "Type a workspace slug that doesn't exist and you used to get Next.js's default not-found page — no nav, no wordmark, no way back. You don't anymore.",
+      "The not-found surface keeps the full site chrome: nav, footer, wordmark. A wrong turn shouldn't feel like you left the building.",
+      "A reserved slug list stops someone from registering \"pricing\" as a workspace and quietly breaking the marketing route. Small guardrail, obvious-in-hindsight.",
+      "The page links back to /demo so a confused visitor has somewhere to go. It's not a great landing, but it's a landing.",
     ],
   },
 ] as const;
