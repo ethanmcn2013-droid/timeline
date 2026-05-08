@@ -19,9 +19,10 @@ export function SiteFooter() {
         <FooterCol
           heading="Product"
           links={[
-            { href: "/pricing", label: "Pricing" },
-            { href: "/demo",    label: "Demo"    },
-            { href: "/about",   label: "About"   },
+            { href: "/pricing",   label: "Pricing"   },
+            { href: "/demo",      label: "Demo"      },
+            { href: "/about",     label: "About"     },
+            { href: "/changelog", label: "Changelog" },
           ]}
         />
         <FooterCol
@@ -71,7 +72,7 @@ function FooterCol({
 }) {
   return (
     <div>
-      <div className="mb-3 text-[12px] font-medium uppercase tracking-[0.14em] text-ink-quiet">
+      <div className="mb-3 text-[12px] font-medium uppercase tracking-[0.16em] text-ink-quiet">
         {heading}
       </div>
       <ul className="space-y-2 text-[13.5px] text-ink-soft">

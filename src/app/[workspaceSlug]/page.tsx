@@ -92,8 +92,7 @@ export default async function WorkspaceRoadmapPage({
 
   const hasItems = allTasks.length > 0;
 
-  const isDemoWorkspace =
-    workspace.slug === "tasks" && workspace.ownerUserId === "seed-demo-user";
+  const isDemoWorkspace = workspace.slug === "tasks";
 
   return (
     <div className="flex min-h-screen flex-col" style={{ background: "var(--bg)" }}>
@@ -153,7 +152,7 @@ export default async function WorkspaceRoadmapPage({
                 {/* Project cards */}
                 {projects.length > 1 ? (
                   <section className="mb-10">
-                    <h2 className="mb-5 text-[11px] font-semibold uppercase tracking-[0.18em] text-ink-quiet">
+                    <h2 className="mb-5 text-[11px] font-semibold uppercase tracking-[0.16em] text-ink-quiet">
                       Projects
                     </h2>
                     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -194,7 +193,7 @@ export default async function WorkspaceRoadmapPage({
                       {groups.map(({ heading, tasks: groupTasks }) => (
                         <div key={heading ?? "__none__"} className="mb-6">
                           {heading ? (
-                            <div className="mb-2 text-[10.5px] font-semibold uppercase tracking-[0.14em] text-ink-quiet">
+                            <div className="mb-2 text-[10.5px] font-semibold uppercase tracking-[0.16em] text-ink-quiet">
                               {heading}
                             </div>
                           ) : null}
@@ -223,7 +222,7 @@ export default async function WorkspaceRoadmapPage({
                   {/* Coming up */}
                   {upcoming.length > 0 ? (
                     <section>
-                      <h3 className="mb-3 text-[10.5px] font-semibold uppercase tracking-[0.18em] text-ink-quiet">
+                      <h3 className="mb-3 text-[10.5px] font-semibold uppercase tracking-[0.16em] text-ink-quiet">
                         Coming up
                       </h3>
                       <ul className="space-y-2">
@@ -253,7 +252,7 @@ export default async function WorkspaceRoadmapPage({
                   {/* Refusals link */}
                   {counts.refused > 0 ? (
                     <section>
-                      <h3 className="mb-2 text-[10.5px] font-semibold uppercase tracking-[0.18em] text-ink-quiet">
+                      <h3 className="mb-2 text-[10.5px] font-semibold uppercase tracking-[0.16em] text-ink-quiet">
                         What didn't make it
                       </h3>
                       <Link

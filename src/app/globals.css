@@ -51,6 +51,28 @@
   --status-done:     #10b981;
   --status-blocked:  #ef4444;
 
+  /* ── Roadmap status tokens (canonical vocabulary: shipped/in-flight/next/blocked/refused)
+   *   Mirrors the Tasks design system so lifted components render correctly. */
+  --status-shipped:    #10b981;
+  --status-shipped-bg: #d1fae5;
+  --status-flight:     #f59e0b;
+  --status-flight-bg:  #fef3c7;
+  --status-next:       #6366f1;
+  --status-next-bg:    #eef2ff;
+  --status-blocked-bg: #fee2e2;
+  --status-refused:    #71717a;
+  --status-refused-bg: #f4f4f5;
+
+  /* ── Additional background tokens used by lifted components ── */
+  --bg-tinted:  color-mix(in srgb, var(--brand) 6%, var(--bg));
+  --line-faint: color-mix(in srgb, var(--border) 50%, transparent);
+
+  /* ── Roadmap extra pill palette tokens ──────────────────────── */
+  --roadmap-indigo-bg: #eef2ff;
+  --roadmap-indigo-fg: #3730a3;
+  --roadmap-stone-bg:  #f5f5f4;
+  --roadmap-stone-fg:  #57534e;
+
   /* ── Roadmap pill palette — categorical badges on /roadmap.
    *   Tokenized so the surface stays in the design system; raw
    *   hex strings in component files would drift if the palette
@@ -215,11 +237,20 @@
   --color-aud-wedding:   var(--aud-wedding);
 
   /* Status tokens */
-  --color-status-todo:     var(--status-todo);
-  --color-status-progress: var(--status-progress);
-  --color-status-review:   var(--status-review);
-  --color-status-done:     var(--status-done);
-  --color-status-blocked:  var(--status-blocked);
+  --color-status-todo:        var(--status-todo);
+  --color-status-progress:    var(--status-progress);
+  --color-status-review:      var(--status-review);
+  --color-status-done:        var(--status-done);
+  --color-status-blocked:     var(--status-blocked);
+  --color-status-shipped:     var(--status-shipped);
+  --color-status-shipped-bg:  var(--status-shipped-bg);
+  --color-status-flight:      var(--status-flight);
+  --color-status-flight-bg:   var(--status-flight-bg);
+  --color-status-next:        var(--status-next);
+  --color-status-next-bg:     var(--status-next-bg);
+  --color-status-blocked-bg:  var(--status-blocked-bg);
+  --color-status-refused:     var(--status-refused);
+  --color-status-refused-bg:  var(--status-refused-bg);
 
   /* Semantic surfaces */
   --color-bg:          var(--bg);
@@ -227,8 +258,10 @@
   --color-bg-elevated: var(--bg-elev);
   --color-bg-deep:     var(--bg-deep);
   --color-bg-sunken:   var(--bg-deep);
+  --color-bg-tinted:   var(--bg-tinted);
   --color-line:        var(--line);
   --color-line-soft:   var(--line-soft);
+  --color-line-faint:  var(--line-faint);
   --color-border:      var(--border);
   --color-border-soft: var(--border-soft);
   --color-text:        var(--text);

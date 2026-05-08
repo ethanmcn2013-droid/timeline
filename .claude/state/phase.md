@@ -6,4 +6,4 @@ Each cycle ships one named artifact with a date, a number, and a story-first cha
 
 ## Current
 
-Cycle 1 — Repo init · scaffold + brand tokens + placeholder homepage · 2026-05-08
+Cycle 6 — Public surface · /[workspaceSlug]/* renders someone's roadmap to the world · 2026-05-08

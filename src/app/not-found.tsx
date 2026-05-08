@@ -1,15 +1,11 @@
 import Link from "next/link";
-import { Wordmark } from "@/components/brand/wordmark";
+import { SiteNav } from "@/components/marketing/site-nav";
 import { SiteFooter } from "@/components/marketing/site-footer";
 
-export default function WorkspaceNotFound() {
+export default function NotFound() {
   return (
-    <div className="flex min-h-screen flex-col" style={{ background: "var(--bg)" }}>
-      <header className="border-b px-6 py-4" style={{ borderColor: "var(--line-soft)" }}>
-        <div className="mx-auto w-full max-w-[1240px]">
-          <Wordmark size="md" />
-        </div>
-      </header>
+    <div className="flex min-h-screen flex-col">
+      <SiteNav />
 
       <main className="flex flex-1 flex-col items-center justify-center px-6 py-24 text-center">
         <div className="mx-auto max-w-sm">
@@ -23,13 +19,13 @@ export default function WorkspaceNotFound() {
             className="mb-4 text-[clamp(1.75rem,1.4rem+1.5vw,2.5rem)] font-semibold leading-[1.1]"
             style={{ letterSpacing: "-0.035em", color: "var(--ink)" }}
           >
-            This workspace doesn&apos;t exist.
+            This roadmap doesn&apos;t exist yet.
           </h1>
           <p
             className="mb-10 text-[15px] leading-[1.55]"
             style={{ color: "var(--ink-soft)" }}
           >
-            The workspace you&apos;re looking for isn&apos;t here. You could create your own.
+            The page you&apos;re looking for isn&apos;t here. You could create one though.
           </p>
           <div className="flex flex-wrap justify-center gap-3">
             <Link

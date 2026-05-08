@@ -15,17 +15,26 @@ export const metadata: Metadata = {
 
 const ANTI_FEATURES = [
   {
+    index: "01",
     label: "Not a project management tool",
     note: "No tickets, no sprints, no velocity. Roadmap is for communicating direction, not managing work.",
   },
   {
+    index: "02",
     label: "Not a slide deck",
     note: "It's a live URL, not a PDF your customers can't find six months later.",
   },
   {
+    index: "03",
     label: "Not for your engineering team",
     note: "Your engineers already know what's happening. This is for everyone else — customers, stakeholders, the people who just want to know when the thing they asked for is coming.",
   },
+] as const;
+
+const WHO_ITS_FOR = [
+  { index: "01", line: "Product teams sharing direction with customers." },
+  { index: "02", line: "Startup founders who need a public changelog." },
+  { index: "03", line: "Solo makers who want public accountability." },
 ] as const;
 
 export default function AboutPage() {
@@ -38,7 +47,7 @@ export default function AboutPage() {
 
           {/* Eyebrow */}
           <p
-            className="mb-5 text-[11px] font-semibold uppercase tracking-[0.14em]"
+            className="mb-5 text-[11px] font-semibold uppercase tracking-[0.16em]"
             style={{ color: "var(--brand)" }}
           >
             About
@@ -91,7 +100,7 @@ export default function AboutPage() {
 
           {/* What this isn't */}
           <div
-            className="mb-2 text-[11px] font-semibold uppercase tracking-[0.14em]"
+            className="mb-2 text-[11px] font-semibold uppercase tracking-[0.16em]"
             style={{ color: "var(--ink-quiet)" }}
           >
             What this isn&apos;t
@@ -103,6 +112,12 @@ export default function AboutPage() {
                 className="border-t pt-5"
                 style={{ borderColor: "var(--border)" }}
               >
+                <p
+                  className="mb-0.5 text-[10px] font-semibold uppercase tracking-[0.16em]"
+                  style={{ color: "var(--brand)" }}
+                >
+                  {af.index}
+                </p>
                 <p
                   className="mb-1.5 text-[15px] font-semibold"
                   style={{ color: "var(--ink)", letterSpacing: "-0.01em" }}
@@ -119,8 +134,46 @@ export default function AboutPage() {
             ))}
           </ul>
 
+          {/* Who it's for */}
+          <div
+            className="mb-2 mt-16 text-[11px] font-semibold uppercase tracking-[0.16em]"
+            style={{ color: "var(--ink-quiet)" }}
+          >
+            Who it&apos;s for
+          </div>
+          <ul className="mt-5 space-y-4">
+            {WHO_ITS_FOR.map((item) => (
+              <li
+                key={item.index}
+                className="flex items-start gap-4 border-t pt-4"
+                style={{ borderColor: "var(--border)" }}
+              >
+                <span
+                  className="mt-px text-[10px] font-semibold uppercase tracking-[0.16em]"
+                  style={{ color: "var(--brand)", minWidth: "1.5rem" }}
+                >
+                  {item.index}
+                </span>
+                <p
+                  className="text-[14px] leading-[1.55]"
+                  style={{ color: "var(--ink-soft)" }}
+                >
+                  {item.line}
+                </p>
+              </li>
+            ))}
+          </ul>
+
+          {/* Founding note */}
+          <p
+            className="mt-12 mb-2 text-[13px] italic"
+            style={{ color: "var(--ink-soft)" }}
+          >
+            Made by one designer. Shipped, not promised.
+          </p>
+
           {/* CTA */}
-          <div className="mt-16 flex flex-wrap gap-3">
+          <div className="mt-6 flex flex-wrap gap-3">
             <Link
               href="/sign-up"
               className="inline-flex items-center gap-1.5 rounded-full bg-ink px-5 py-2.5 text-[14px] font-medium text-white shadow-sm transition-transform hover:-translate-y-px hover:shadow-md"
