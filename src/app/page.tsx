@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { SiteNav } from "@/components/marketing/site-nav";
 import { SiteFooter } from "@/components/marketing/site-footer";
@@ -167,7 +168,7 @@ export default function HomePage() {
             This is what your customers would see.
           </h2>
 
-          {/* Demo card */}
+          {/* Demo card — real screenshot of the live workspace */}
           <Link
             href="/tasks"
             className="group block max-w-2xl overflow-hidden rounded-2xl border transition-shadow hover:shadow-[var(--shadow-2)]"
@@ -177,100 +178,32 @@ export default function HomePage() {
               boxShadow: "var(--shadow-1)",
             }}
           >
-            {/* Card header strip */}
-            <div
-              className="border-b px-6 py-4"
-              style={{ borderColor: "var(--border)", background: "var(--bg-deep)" }}
-            >
-              <div className="flex items-center gap-2.5">
-                <div className="flex gap-1.5" aria-hidden>
-                  <span className="h-2.5 w-2.5 rounded-full" style={{ background: "var(--ink-200)" }} />
-                  <span className="h-2.5 w-2.5 rounded-full" style={{ background: "var(--ink-200)" }} />
-                  <span className="h-2.5 w-2.5 rounded-full" style={{ background: "var(--ink-200)" }} />
-                </div>
-                <span
-                  className="rounded px-2 py-0.5 font-mono text-[11px]"
-                  style={{ background: "var(--bg-elev)", color: "var(--ink-quiet)", border: "1px solid var(--border)" }}
-                >
-                  roadmap-ebon-eight.vercel.app/tasks
-                </span>
-              </div>
-            </div>
-
-            {/* Card body — preview of the demo workspace */}
-            <div className="px-6 py-6">
-              <div className="mb-1 flex items-center gap-2">
-                <span
-                  className="h-2 w-2 rounded-full"
-                  style={{ background: "var(--brand)" }}
-                  aria-hidden
-                />
-                <span
-                  className="text-[11px] font-semibold uppercase tracking-[0.16em]"
-                  style={{ color: "var(--ink-quiet)" }}
-                >
-                  Demo workspace
-                </span>
-              </div>
-              <h3
-                className="mb-3 text-[20px] font-semibold"
-                style={{ letterSpacing: "-0.02em", color: "var(--ink)" }}
-              >
-                Roadmap
-              </h3>
-              <p
-                className="mb-5 text-[13.5px] leading-[1.55]"
-                style={{ color: "var(--ink-soft)" }}
-              >
-                The product roadmap for Roadmap itself — seeded with real items across design, engineering, and growth.
-              </p>
-
-              {/* Sample items */}
-              <ul className="mb-6 space-y-2 overflow-hidden rounded-xl border" style={{ borderColor: "var(--border)" }}>
-                {[
-                  { title: "Public changelog page", status: "Shipped", tone: "shipped" },
-                  { title: "Proof + how-it-works on homepage", status: "Shipped", tone: "shipped" },
-                  { title: "Pricing FAQ rework", status: "Shipped", tone: "shipped" },
-                  { title: "Demo framing page", status: "In flight", tone: "flight" },
-                ].map((item, i) => (
-                  <li
-                    key={item.title}
-                    className="flex items-center justify-between border-t px-4 py-3 first:border-t-0"
-                    style={{ borderColor: "var(--border)" }}
-                  >
-                    <span className="text-[13px]" style={{ color: "var(--ink)", letterSpacing: "-0.005em" }}>
-                      {item.title}
-                    </span>
-                    <span
-                      className="rounded-full px-2 py-0.5 text-[11px] font-medium"
-                      style={
-                        item.tone === "shipped"
-                          ? { background: "var(--status-shipped-bg)", color: "var(--status-shipped)" }
-                          : { background: "var(--status-flight-bg)", color: "var(--status-flight)" }
-                      }
-                    >
-                      {item.status}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-
-              <div className="flex items-center justify-between">
-                <p
-                  className="text-[12px]"
-                  style={{ color: "var(--ink-quiet)" }}
-                >
-                  No login. No paywall. Just a URL.
-                </p>
-                <span
-                  className="text-[13px] font-medium transition-colors group-hover:text-ink"
-                  style={{ color: "var(--brand)" }}
-                >
-                  See it live →
-                </span>
-              </div>
-            </div>
+            <Image
+              src="/proof-workspace.png"
+              alt="Public roadmap workspace — live demo"
+              width={1440}
+              height={665}
+              priority
+              className="h-auto w-full"
+            />
           </Link>
+
+          {/* Caption + CTA below the screenshot */}
+          <div className="mt-4 flex max-w-2xl items-center justify-between">
+            <p
+              className="text-[12px]"
+              style={{ color: "var(--ink-quiet)" }}
+            >
+              No login. No paywall. Just a URL.
+            </p>
+            <Link
+              href="/tasks"
+              className="text-[13px] font-medium transition-colors hover:text-ink"
+              style={{ color: "var(--brand)" }}
+            >
+              See it live →
+            </Link>
+          </div>
         </div>
       </section>
 
