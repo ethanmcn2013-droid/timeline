@@ -93,7 +93,7 @@ export default async function WorkspaceRoadmapPage({
   const hasItems = allTasks.length > 0;
 
   const isDemoWorkspace =
-    workspace.slug === "tasks" && workspace.ownerUserId === "portfolio";
+    workspace.slug === "tasks" && workspace.ownerUserId === "seed-demo-user";
 
   return (
     <div className="flex min-h-screen flex-col" style={{ background: "var(--bg)" }}>
