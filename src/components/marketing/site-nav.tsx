@@ -17,13 +17,13 @@ export function SiteNav() {
         <div className="flex items-center gap-2.5">
           {/* studio. parent-brand whisper — hidden on mobile to avoid crowding */}
           <a
-            href={`${STUDIO_URL}/about`}
+            href={`${STUDIO_URL}`}
             target="_blank"
             rel="noopener noreferrer"
             className="hidden items-center gap-2.5 md:flex"
             aria-label="studio. — the studio behind Roadmap"
           >
-            <span className="text-[11px] font-medium tracking-wide text-ink-quiet transition-colors hover:text-ink-soft">
+            <span className="text-[11px] font-medium tracking-[-0.05em] text-ink-quiet transition-colors hover:text-ink-soft">
               studio.
             </span>
             <span className="h-3 w-px bg-line-soft" aria-hidden="true" />
