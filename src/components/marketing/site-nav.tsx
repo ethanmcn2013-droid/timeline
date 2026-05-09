@@ -4,30 +4,66 @@ import { Wordmark } from "@/components/brand/wordmark";
 const STUDIO_URL =
   process.env.NEXT_PUBLIC_STUDIO_URL ?? "https://studio-sigma-pied-75.vercel.app";
 
+const TASKS_URL =
+  process.env.NEXT_PUBLIC_TASKS_URL ?? "https://tasks-nu-hazel.vercel.app";
+
+const ANALYTICS_URL =
+  process.env.NEXT_PUBLIC_ANALYTICS_URL ?? "https://analytics-phi-ten.vercel.app";
+
 const NAV = [
-  { href: "/pricing", label: "Pricing" },
-  { href: "/about",   label: "About"   },
-  { href: "/demo",    label: "Demo"    },
+  { href: "/pricing",    label: "Pricing"    },
+  { href: "/templates",  label: "Templates"  },
+  { href: "/about",      label: "About"      },
+  { href: "/demo",       label: "Demo"       },
+  { href: "/changelog",  label: "Changelog"  },
 ];
 
 export function SiteNav() {
   return (
     <header className="sticky top-0 z-50 border-b border-line-soft/60 bg-bg/72 backdrop-blur-md backdrop-saturate-150">
-      <div className="mx-auto flex h-14 w-full max-w-[1240px] items-center justify-between px-6">
-        <div className="flex items-center gap-2.5">
-          {/* studio. parent-brand whisper — hidden on mobile to avoid crowding */}
+      {/* ── Suite chrome — cross-product strip ──────────────────── */}
+      <div
+        className="border-b border-border-soft"
+        style={{ background: "color-mix(in srgb, var(--bg-deep) 55%, transparent)" }}
+      >
+        <div
+          className="mx-auto flex h-7 w-full max-w-[1240px] items-center px-6"
+          style={{ gap: 16 }}
+        >
           <a
-            href={`${STUDIO_URL}`}
+            href={STUDIO_URL}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-1.5 md:gap-2.5"
-            aria-label="studio. — the studio behind Roadmap"
+            style={{ fontSize: 11, color: "var(--ink-quiet)", fontWeight: 400, textDecoration: "none", letterSpacing: "-0.01em" }}
           >
-            <span className="text-[10px] font-medium tracking-[-0.05em] text-ink-quiet transition-colors hover:text-ink-soft md:text-[11px]">
-              studio.
-            </span>
-            <span className="h-3 w-px bg-line-soft" aria-hidden="true" />
+            signal studio<span style={{ color: "#c9a96a" }}>.</span>
           </a>
+          <span aria-hidden style={{ color: "var(--ink-faint)", fontSize: 10 }}>·</span>
+          <a
+            href={TASKS_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ fontSize: 11, color: "var(--ink-quiet)", fontWeight: 400, textDecoration: "none", letterSpacing: "-0.01em" }}
+          >
+            tasks
+          </a>
+          <span style={{ fontSize: 11, color: "var(--ink)", fontWeight: 600, letterSpacing: "-0.01em" }}>
+            roadmap
+          </span>
+          <a
+            href={ANALYTICS_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ fontSize: 11, color: "var(--ink-quiet)", fontWeight: 400, textDecoration: "none", letterSpacing: "-0.01em" }}
+          >
+            analytics
+          </a>
+        </div>
+      </div>
+
+      <div className="mx-auto flex h-14 w-full max-w-[1240px] items-center justify-between px-6">
+        {/* Brand lockup: Roadmap wordmark */}
+        <div className="flex items-center gap-0">
           <Wordmark size="md" />
         </div>
         <nav className="hidden items-center gap-7 text-[13px] text-ink-soft md:flex">

@@ -3,7 +3,11 @@ import { Wordmark } from "@/components/brand/wordmark";
 
 const STUDIO_URL =
   process.env.NEXT_PUBLIC_STUDIO_URL ?? "https://studio-sigma-pied-75.vercel.app";
-const TASKS_URL = "https://tasks-nu-hazel.vercel.app";
+const TASKS_URL =
+  process.env.NEXT_PUBLIC_TASKS_URL ?? "https://tasks-nu-hazel.vercel.app";
+
+const ANALYTICS_URL =
+  process.env.NEXT_PUBLIC_ANALYTICS_URL ?? "https://analytics-phi-ten.vercel.app";
 
 export function SiteFooter() {
   return (
@@ -26,26 +30,17 @@ export function SiteFooter() {
           ]}
         />
         <FooterCol
-          heading="Made by"
+          heading="Suite"
           links={[
-            {
-              href:     `${STUDIO_URL}/about`,
-              label:    "studio.",
-              external: true,
-              note:     "The studio behind Roadmap",
-            },
-            {
-              href:     TASKS_URL,
-              label:    "Tasks",
-              external: true,
-              note:     "Our other product",
-            },
+            { href: STUDIO_URL,    label: "Signal Studio",    external: true },
+            { href: TASKS_URL,     label: "Signal Tasks",     external: true },
+            { href: ANALYTICS_URL, label: "Signal Analytics", external: true },
           ]}
         />
       </div>
       <div className="mx-auto mt-12 flex w-full max-w-[1240px] flex-col items-start justify-between gap-2 border-t border-line-soft/70 px-6 pt-6 text-[12px] text-ink-quiet md:flex-row md:items-center">
         <span>
-          © {new Date().getFullYear()} Roadmap.{" "}
+          © {new Date().getFullYear()} Signal Roadmap.{" "}
           A{" "}
           <a
             href={`${STUDIO_URL}/about`}
@@ -53,7 +48,7 @@ export function SiteFooter() {
             rel="noopener noreferrer"
             className="font-medium transition-colors hover:text-ink"
           >
-            studio.
+            Signal Studio
           </a>{" "}
           product.
         </span>

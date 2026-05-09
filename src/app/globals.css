@@ -144,6 +144,10 @@
   --user-david: #00a3b8;
   --user-alex:  #7c5cff;
 
+  /* ── Cinematic demo cursor colors ─────────────────────────── */
+  --cursor-author:   #4f46e5; /* brand indigo — the roadmap author */
+  --cursor-customer: #e4356d; /* rose — the public viewer / commenter */
+
   /* ── Motion · springs ─────────────────────────────────────── */
   --spring-snap:  cubic-bezier(.2, .9, .2, 1.2);   /* overshoot — drops, lifts */
   --spring-soft:  cubic-bezier(.32, .72, 0, 1);    /* settle — cards, panels */
@@ -395,6 +399,30 @@ body {
 }
 
 /* ────────────────────────────────────────────────────────────
+   Roadmap wordmark dot — single slide on mount.
+   Pattern echoes Tasks' dot but plays once, not continuously.
+   Roadmap's gesture is "moving toward a destination," not
+   "live signal." Same typographic family — lowercase word +
+   indigo dot — keeps it inside the suite vocabulary.
+   ──────────────────────────────────────────────────────────── */
+@keyframes roadmap-dot-slide {
+  0%   { transform: translateY(-0.36em) translateX(-0.5em); opacity: 0; }
+  55%  { transform: translateY(-0.36em) translateX(0.05em); opacity: 1; }
+  100% { transform: translateY(-0.36em) translateX(0);      opacity: 1; }
+}
+.roadmap-dot {
+  display: inline-block;
+  width: 0.30em;
+  height: 0.30em;
+  background-color: var(--brand);
+  border-radius: 50%;
+  margin-left: 0.14em;
+  transform: translateY(-0.36em);
+  box-shadow: 0 0 12px var(--brand-glow);
+  animation: roadmap-dot-slide 0.85s var(--spring-glide) both;
+}
+
+/* ────────────────────────────────────────────────────────────
    Texture + utilities
    ──────────────────────────────────────────────────────────── */
 .grain::after {
@@ -498,6 +526,34 @@ body {
   box-shadow: 0 0 0 3px rgba(74, 222, 128, 0.25);
   animation: live-pulse 1.6s ease-in-out infinite;
   display: inline-block;
+}
+
+/* ────────────────────────────────────────────────────────────
+   Skeleton shimmer — ghost-chrome loading / empty states
+   Used by: src/app/app/loading.tsx, src/app/[workspaceSlug]/[projectSlug]/loading.tsx
+   ──────────────────────────────────────────────────────────── */
+@keyframes skeleton-sweep {
+  0%   { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+
+.skeleton-shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--bg-deep) 0%,
+    color-mix(in srgb, var(--bg-deep) 40%, var(--bg-elev)) 40%,
+    color-mix(in srgb, var(--bg-deep) 40%, var(--bg-elev)) 60%,
+    var(--bg-deep) 100%
+  );
+  background-size: 800px 100%;
+  animation: skeleton-sweep 1.4s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton-shimmer {
+    animation: none;
+    background: var(--bg-deep);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -2,6 +2,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { SiteNav } from "@/components/marketing/site-nav";
 import { SiteFooter } from "@/components/marketing/site-footer";
+import { CinematicDemo } from "@/components/showcase/cinematic-demo";
+import { ItemAnatomy } from "@/components/marketing/anatomy";
 
 // ── Feature grid data ───────────────────────────────────────────────────────
 
@@ -15,7 +17,7 @@ const FEATURES = [
     body: "One URL your customers can bookmark. No login, no paywall — just your roadmap, live.",
   },
   {
-    title: "Built for stakeholders, not engineers",
+    title: "Built to be read, not parsed",
     body: "Status labels your whole team understands. Shipped, doing, blocked. Nothing else.",
   },
 ] as const;
@@ -48,68 +50,73 @@ export default function HomePage() {
       <SiteNav />
 
       {/* ── Hero ─────────────────────────────────────────────────── */}
-      <main className="flex flex-1 flex-col items-start justify-center px-6 py-28 md:py-36">
-        <div className="mx-auto w-full max-w-3xl">
+      <main className="flex flex-1 flex-col justify-center px-6 py-20 md:py-28">
+        <div className="mx-auto w-full max-w-[1240px]">
+          <div className="grid items-center gap-16 lg:grid-cols-[1fr_1.1fr] lg:gap-20">
 
-          {/* Eyebrow */}
-          <div className="rise mb-6 flex items-center gap-2" style={{ animationDelay: "0ms" }}>
-            <span className="live-dot" aria-hidden />
-            <span
-              className="text-[11px] font-semibold uppercase tracking-[0.16em]"
-              style={{ color: "var(--brand)" }}
-            >
-              Now in early access
-            </span>
-          </div>
-
-          {/* H1 */}
-          <h1
-            className="rise h-display mb-6 font-display"
-            style={{ animationDelay: "80ms" }}
-          >
-            Show your work,<br />
-            not your <span className="marker">Jira</span>.
-          </h1>
-
-          {/* Subhead */}
-          <p
-            className="rise mb-10 max-w-md text-[18px] leading-[1.55]"
-            style={{ color: "var(--ink-soft)", animationDelay: "160ms" }}
-          >
-            A public roadmap your customers can actually read — written in plain English, parsed from markdown, live in seconds.
-          </p>
-
-          {/* CTAs */}
-          <div className="rise flex flex-wrap items-center gap-3" style={{ animationDelay: "240ms" }}>
-            <Link
-              href="/demo"
-              className="inline-flex items-center gap-1.5 rounded-full bg-ink px-5 py-2.5 text-[14px] font-medium text-white shadow-sm transition-transform hover:-translate-y-px hover:shadow-md"
-            >
-              See it live
-              <svg
-                width="13"
-                height="13"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2.4"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                aria-hidden
+            {/* Left — text */}
+            <div>
+              {/* Eyebrow */}
+              <p
+                className="rise mb-6 font-mono text-[11px] font-semibold uppercase text-ink-quiet"
+                style={{ letterSpacing: "0.14em", animationDelay: "0ms" }}
               >
-                <path d="M5 12h14M13 5l7 7-7 7" />
-              </svg>
-            </Link>
-            <Link
-              href="/sign-up"
-              className="inline-flex items-center rounded-full border px-5 py-2.5 text-[14px] font-medium transition-colors hover:border-ink-soft hover:text-ink"
-              style={{
-                borderColor: "var(--border)",
-                color: "var(--ink-soft)",
-              }}
-            >
-              Create yours →
-            </Link>
+                Signal Roadmap &middot; Direction clarity
+              </p>
+
+              <h1
+                className="rise h-display mb-6 font-display"
+                style={{ animationDelay: "80ms" }}
+              >
+                Show your work, not your Jira.
+              </h1>
+
+              <p
+                className="rise mb-10 max-w-md text-[18px] leading-[1.55]"
+                style={{ color: "var(--ink-soft)", animationDelay: "160ms" }}
+              >
+                A public roadmap your customers can actually read — written in
+                plain English, parsed from markdown, live in seconds.
+              </p>
+
+              {/* CTAs */}
+              <div className="rise flex flex-wrap items-center gap-3" style={{ animationDelay: "240ms" }}>
+                <Link
+                  href="/demo"
+                  className="inline-flex items-center gap-1.5 rounded-full bg-ink px-5 py-2.5 text-[14px] font-medium text-white shadow-sm transition-transform hover:-translate-y-px hover:shadow-md"
+                >
+                  See it live
+                  <svg
+                    width="13"
+                    height="13"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.4"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden
+                  >
+                    <path d="M5 12h14M13 5l7 7-7 7" />
+                  </svg>
+                </Link>
+                <Link
+                  href="#how-it-works"
+                  className="inline-flex items-center rounded-full border px-5 py-2.5 text-[14px] font-medium transition-colors hover:border-ink-soft hover:text-ink"
+                  style={{
+                    borderColor: "var(--border)",
+                    color: "var(--ink-soft)",
+                  }}
+                >
+                  How it works
+                </Link>
+              </div>
+            </div>
+
+            {/* Right — animated demo */}
+            <div className="rise w-full" style={{ animationDelay: "320ms" }}>
+              <CinematicDemo />
+            </div>
           </div>
         </div>
       </main>
@@ -151,6 +158,14 @@ export default function HomePage() {
         <div style={{ height: "1px", background: "var(--border)" }} />
       </div>
 
+      {/* ── Anatomy ──────────────────────────────────────────────── */}
+      <ItemAnatomy />
+
+      {/* ── Divider ──────────────────────────────────────────────── */}
+      <div className="mx-auto w-full max-w-[1240px] px-6" aria-hidden>
+        <div style={{ height: "1px", background: "var(--border)" }} />
+      </div>
+
       {/* ── Proof section ────────────────────────────────────────── */}
       <section className="px-6 py-20">
         <div className="mx-auto w-full max-w-[1240px]">
@@ -170,7 +185,7 @@ export default function HomePage() {
 
           {/* Demo card — real screenshot of the live workspace */}
           <Link
-            href="/tasks"
+            href="/demo"
             className="group block max-w-2xl overflow-hidden rounded-2xl border transition-shadow hover:shadow-[var(--shadow-2)]"
             style={{
               background: "var(--bg-elev)",
@@ -197,7 +212,7 @@ export default function HomePage() {
               No login. No paywall. Just a URL.
             </p>
             <Link
-              href="/tasks"
+              href="/demo"
               className="text-[13px] font-medium transition-colors hover:text-ink"
               style={{ color: "var(--brand)" }}
             >
@@ -213,7 +228,7 @@ export default function HomePage() {
       </div>
 
       {/* ── How it works ─────────────────────────────────────────── */}
-      <section className="px-6 py-20">
+      <section id="how-it-works" className="px-6 py-20">
         <div className="mx-auto w-full max-w-[1240px]">
           {/* Eyebrow */}
           <p
