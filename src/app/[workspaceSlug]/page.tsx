@@ -253,7 +253,7 @@ export default async function WorkspaceRoadmapPage({
                   {counts.refused > 0 ? (
                     <section>
                       <h3 className="mb-2 text-[10.5px] font-semibold uppercase tracking-[0.16em] text-ink-quiet">
-                        What didn't make it
+                        What didn&apos;t make it
                       </h3>
                       <Link
                         href={`/${workspaceSlug}/refusals`}

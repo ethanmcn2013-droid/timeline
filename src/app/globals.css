@@ -22,7 +22,7 @@
   --indigo-700: #4338ca;
   --indigo-800: #3730a3;
   --indigo-900: #312e81;
-  --highlight:  #7c5cff; /* marker underline accent on display headlines */
+  --highlight:  var(--indigo-600); /* marker underline accent on display headlines */
 
   /* ── Ink ramp (neutrals) ──────────────────────────────────── */
   --ink-0:   #ffffff;
@@ -142,7 +142,7 @@
   /* ── User presence (cinematic demo + real users) ──────────── */
   --user-chloe: #e4356d;
   --user-david: #00a3b8;
-  --user-alex:  #7c5cff;
+  --user-alex:  #6366f1;
 
   /* ── Cinematic demo cursor colors ─────────────────────────── */
   --cursor-author:   #4f46e5; /* brand indigo — the roadmap author */

@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useRef } from "react";
+import { useActionState, useEffect, useRef } from "react";
 import Link from "next/link";
 import type { Comment } from "@/server/db/schema";
 import { addCommentAction } from "@/server/actions/workspaces";
@@ -35,11 +35,11 @@ export function Comments({
 
   const formRef = useRef<HTMLFormElement>(null);
 
-  // Clear textarea on successful submission
-  if (state.ok && formRef.current) {
-    const ta = formRef.current.querySelector("textarea");
+  useEffect(() => {
+    if (!state.ok) return;
+    const ta = formRef.current?.querySelector("textarea");
     if (ta) ta.value = "";
-  }
+  }, [state.ok]);
 
   return (
     <section className="mt-12">

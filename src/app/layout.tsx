@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
+import { ROADMAP_URL } from "@/lib/product-urls";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -14,14 +15,14 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Roadmap — public product roadmaps for the 80% who don't work in tech",
+  title: "Signal Roadmap — direction clarity",
   description:
-    "Your roadmap shouldn't require a glossary. Roadmap makes it readable for the people who actually use what you're building.",
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "https://roadmap-ebon-eight.vercel.app"),
+    "Public plans, decisions, and changes written in plain English.",
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? ROADMAP_URL),
   openGraph: {
-    title: "Roadmap — public product roadmaps for the 80% who don't work in tech",
+    title: "Signal Roadmap — direction clarity",
     description:
-      "Your roadmap shouldn't require a glossary.",
+      "Public plans, decisions, and changes written in plain English.",
     type: "website",
   },
 };

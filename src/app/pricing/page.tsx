@@ -5,6 +5,7 @@ import { SiteFooter } from "@/components/marketing/site-footer";
 import { CompAccordion } from "./_components/comp-accordion";
 import { UpgradeLink } from "./_components/upgrade-link";
 import { getCurrentUser } from "@/server/auth";
+import { CONTACT_MAILTO } from "@/lib/product-urls";
 
 export const metadata: Metadata = {
   title: "Pricing — Roadmap",
@@ -26,8 +27,7 @@ type Tier = {
   /**
    * href used when the visitor is already signed in.
    * When set and visitor is signed-in, this overrides `href`.
-   * Pro and Operator tiers set this to /api/checkout/create?plan=X
-   * so the checkout flow starts without going through /sign-up first.
+   * Keep this unset until billing routes exist in the repo.
    */
   signedInHref?: string;
   accent?: "default" | "chosen" | "students";
@@ -58,31 +58,14 @@ const TIERS: Tier[] = [
     blurb: "Unlimited projects. The tools that make a roadmap a product.",
     features: [
       "Unlimited projects per workspace",
-      "Custom workspace slug",
-      "Weekly digest emails",
-      "Custom OG cards on share links",
-      "Priority parser",
-      "Calendar sync — add to Apple, Google, or Outlook",
+      "Custom workspace URL",
+      "Refusals page across every project",
+      "Weekly digest emails, planned",
+      "Share images, planned",
     ],
     cta: "Start Pro",
     href: "/sign-up?plan=pro",
-    signedInHref: "/api/checkout/create?plan=pro",
     accent: "chosen",
-  },
-  {
-    name: "Operator",
-    price: "$29",
-    cadence: "/ month",
-    blurb: "Multiple workspaces under one bill. For operators running more than one product.",
-    features: [
-      "Everything in Pro",
-      "Multiple workspaces, one billing account",
-      "Per-workspace Pro features, flat rate",
-      "One invoice instead of many",
-    ],
-    cta: "Start Operator",
-    href: "/sign-up?plan=operator",
-    signedInHref: "/api/checkout/create?plan=operator",
   },
   {
     name: "Students",
@@ -95,7 +78,7 @@ const TIERS: Tier[] = [
       "No time limit while enrolled",
     ],
     cta: "Apply with .edu",
-    href: "mailto:ethanmcn2013@gmail.com?subject=Student%20access%20%E2%80%94%20Roadmap",
+    href: `${CONTACT_MAILTO}?subject=Student%20access%20%E2%80%94%20Signal%20Roadmap`,
     accent: "students",
   },
 ];
@@ -106,19 +89,17 @@ type CompRow = {
   label: string;
   free: string;
   pro: string;
-  studio: string;
+  students: string;
 };
 
 const COMP_ROWS: CompRow[] = [
-  { label: "Workspaces",         free: "1",           pro: "1",         studio: "Unlimited" },
-  { label: "Projects",           free: "1",           pro: "Unlimited", studio: "Unlimited" },
-  { label: "Public roadmap",     free: "Yes",         pro: "Yes",       studio: "Yes" },
-  { label: "Refusals page",      free: "Yes",         pro: "Yes",       studio: "Yes" },
-  { label: "Custom slug",        free: "—",           pro: "Yes",       studio: "Yes" },
-  { label: "Weekly digest",      free: "—",           pro: "Yes",       studio: "Yes" },
-  { label: "Custom OG cards",    free: "—",           pro: "Yes",       studio: "Yes" },
-  { label: "Calendar sync",       free: "—",           pro: "Yes",       studio: "Yes" },
-  { label: "Multiple workspaces",free: "—",           pro: "—",         studio: "Yes" },
+  { label: "Workspaces",         free: "1",           pro: "1",         students: "1" },
+  { label: "Projects",           free: "1",           pro: "Unlimited", students: "Unlimited" },
+  { label: "Public roadmap",     free: "Yes",         pro: "Yes",       students: "Yes" },
+  { label: "Refusals page",      free: "Yes",         pro: "Yes",       students: "Yes" },
+  { label: "Custom URL",         free: "—",           pro: "Yes",       students: "Yes" },
+  { label: "Weekly digest",      free: "—",           pro: "Planned",   students: "Planned" },
+  { label: "Share images",       free: "—",           pro: "Planned",   students: "Planned" },
 ];
 
 // ── FAQ data ──────────────────────────────────────────────────────────────────
@@ -142,15 +123,15 @@ const FAQ: { q: string; a: string }[] = [
   },
   {
     q: "What counts as a student?",
-    a: "An active .edu email address, or any proof of enrollment (student ID photo, enrollment letter). We verify manually and turn it around in one business day. Email us at ethanmcn2013@gmail.com.",
+    a: "An active .edu email address, or any proof of enrollment. We verify manually and turn it around in one business day. Email us at hello@signalstudio.ie.",
   },
   {
     q: "What happens to my data if I downgrade?",
-    a: "Your projects and roadmap data stay intact. Downgrading from Pro to Free means one project becomes active; the others are archived, not deleted. Upgrade again and they're back.",
+    a: "Nothing is deleted. During private preview, plan limits are guidance while the billing path is being finished.",
   },
   {
-    q: "How do payments work?",
-    a: "Stripe, monthly, cancel anytime. No annual lock-in on any tier. Downgrade takes effect at the end of your billing period — we don't prorate or clawback mid-month.",
+    q: "Is billing live yet?",
+    a: "Not yet. Signal Roadmap is in private preview. The paid plan is the intended shape, but billing should not be treated as live until the repo contains the checkout route and the preview proves it.",
   },
 ];
 
@@ -180,7 +161,7 @@ function Check({ color = "var(--status-shipped)" }: { color?: string }) {
 function TierCard({ tier: t, isSignedIn }: { tier: Tier; isSignedIn: boolean }) {
   const isChosen = t.accent === "chosen";
   const isStudents = t.accent === "students";
-  // Resolve the CTA href: signed-in users with a signedInHref go to checkout directly
+  // Resolve the CTA href: billing links stay unset until the route exists.
   const ctaHref = isSignedIn && t.signedInHref ? t.signedInHref : t.href;
 
   return (
@@ -296,7 +277,7 @@ function CompTable() {
           >
             Feature
           </th>
-          {["Free", "Pro", "Operator"].map((col) => (
+          {["Free", "Pro", "Students"].map((col) => (
             <th
               key={col}
               className="pb-3 text-center text-[11px] font-semibold uppercase tracking-[0.14em]"
@@ -311,7 +292,7 @@ function CompTable() {
         </tr>
       </thead>
       <tbody>
-        {COMP_ROWS.map((row, i) => (
+        {COMP_ROWS.map((row) => (
           <tr
             key={row.label}
             style={{
@@ -324,7 +305,7 @@ function CompTable() {
             >
               {row.label}
             </td>
-            {(["free", "pro", "studio"] as const).map((col) => {
+            {(["free", "pro", "students"] as const).map((col) => {
               const val = row[col];
               const isEmpty = val === "—";
               return (

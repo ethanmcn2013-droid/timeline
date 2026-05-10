@@ -3,8 +3,10 @@ import { requireUser, getCurrentWorkspace } from "@/server/auth";
 import { getProjectsForWorkspace } from "@/server/db/queries";
 import { CreateWorkspaceForm } from "./_components/create-workspace-form";
 import { CreateProjectForm } from "./_components/create-project-form";
+import { ROADMAP_URL } from "@/lib/product-urls";
 
 export const metadata = { title: "Dashboard — Roadmap" };
+export const dynamic = "force-dynamic";
 
 export default async function AppPage() {
   const userId = await requireUser();
@@ -17,8 +19,7 @@ export default async function AppPage() {
 
   // ── Workspace exists — show dashboard ───────────────────────────────────
   const projects = await getProjectsForWorkspace(workspace.slug);
-  const publicBase =
-    process.env.NEXT_PUBLIC_SITE_URL ?? "https://roadmap-ebon-eight.vercel.app";
+  const publicBase = process.env.NEXT_PUBLIC_SITE_URL ?? ROADMAP_URL;
 
   return (
     <div className="mx-auto w-full max-w-4xl px-6 py-12">
@@ -37,7 +38,7 @@ export default async function AppPage() {
           >
             {workspace.name}
           </h1>
-          <PublicUrlChip url={`${publicBase}/${workspace.slug}`} slug={workspace.slug} />
+          <PublicUrlChip url={`${publicBase}/${workspace.slug}`} />
         </div>
         <span
           className="mt-1 rounded-full px-2.5 py-0.5 text-xs font-medium"
@@ -119,7 +120,7 @@ export default async function AppPage() {
 
 // ── Sub-components ──────────────────────────────────────────────────────────
 
-function PublicUrlChip({ url, slug }: { url: string; slug: string }) {
+function PublicUrlChip({ url }: { url: string }) {
   return (
     <p
       className="mt-1.5 font-mono text-xs"

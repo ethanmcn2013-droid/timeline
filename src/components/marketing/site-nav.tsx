@@ -1,18 +1,9 @@
 import Link from "next/link";
 import { Wordmark } from "@/components/brand/wordmark";
-
-const STUDIO_URL =
-  process.env.NEXT_PUBLIC_STUDIO_URL ?? "https://studio-sigma-pied-75.vercel.app";
-
-const TASKS_URL =
-  process.env.NEXT_PUBLIC_TASKS_URL ?? "https://tasks-nu-hazel.vercel.app";
-
-const ANALYTICS_URL =
-  process.env.NEXT_PUBLIC_ANALYTICS_URL ?? "https://analytics-phi-ten.vercel.app";
+import { ANALYTICS_URL, STUDIO_URL, TASKS_URL } from "@/lib/product-urls";
 
 const NAV = [
   { href: "/pricing",    label: "Pricing"    },
-  { href: "/templates",  label: "Templates"  },
   { href: "/about",      label: "About"      },
   { href: "/demo",       label: "Demo"       },
   { href: "/changelog",  label: "Changelog"  },
