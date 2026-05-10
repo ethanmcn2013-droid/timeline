@@ -2,175 +2,571 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { SiteNav } from "@/components/marketing/site-nav";
 import { SiteFooter } from "@/components/marketing/site-footer";
+import { CompAccordion } from "./_components/comp-accordion";
+import { UpgradeLink } from "./_components/upgrade-link";
+import { getCurrentUser } from "@/server/auth";
 
 export const metadata: Metadata = {
   title: "Pricing — Roadmap",
-  description: "Free during early access. Pricing arrives at launch.",
+  description:
+    "Pay for projects, not seats. Free until you outgrow it. Then $9. No team tier — that's the point.",
 };
 
-// ── FAQ data ─────────────────────────────────────────────────────────────────
+// ── Types ─────────────────────────────────────────────────────────────────────
 
-const FAQ = [
+type Tier = {
+  name: string;
+  price: string;
+  cadence: string;
+  blurb: string;
+  features: string[];
+  cta: string;
+  /** href used when the visitor is signed-out (or always, for Free/Students). */
+  href: string;
+  /**
+   * href used when the visitor is already signed in.
+   * When set and visitor is signed-in, this overrides `href`.
+   * Pro and Operator tiers set this to /api/checkout/create?plan=X
+   * so the checkout flow starts without going through /sign-up first.
+   */
+  signedInHref?: string;
+  accent?: "default" | "chosen" | "students";
+};
+
+// ── Data ──────────────────────────────────────────────────────────────────────
+
+const TIERS: Tier[] = [
   {
-    q: "When does pricing land?",
-    a: "When we launch publicly. Early adopters lock in the founder rate — whatever that ends up being, it won't apply to you.",
+    name: "Free",
+    price: "$0",
+    cadence: "forever, no card",
+    blurb: "One workspace, one project. Public by default. A real roadmap, not a placeholder.",
+    features: [
+      "1 workspace, 1 project",
+      "Public master roadmap URL",
+      "Refusals page — decisions are only legible if you can see the no's",
+      "Markdown editor",
+      "Public shareable link, no sign-in required",
+    ],
+    cta: "Start free",
+    href: "/sign-up",
   },
+  {
+    name: "Pro",
+    price: "$9",
+    cadence: "/ month",
+    blurb: "Unlimited projects. The tools that make a roadmap a product.",
+    features: [
+      "Unlimited projects per workspace",
+      "Custom workspace slug",
+      "Weekly digest emails",
+      "Custom OG cards on share links",
+      "Priority parser",
+      "Calendar sync — add to Apple, Google, or Outlook",
+    ],
+    cta: "Start Pro",
+    href: "/sign-up?plan=pro",
+    signedInHref: "/api/checkout/create?plan=pro",
+    accent: "chosen",
+  },
+  {
+    name: "Operator",
+    price: "$29",
+    cadence: "/ month",
+    blurb: "Multiple workspaces under one bill. For operators running more than one product.",
+    features: [
+      "Everything in Pro",
+      "Multiple workspaces, one billing account",
+      "Per-workspace Pro features, flat rate",
+      "One invoice instead of many",
+    ],
+    cta: "Start Operator",
+    href: "/sign-up?plan=operator",
+    signedInHref: "/api/checkout/create?plan=operator",
+  },
+  {
+    name: "Students",
+    price: "Free",
+    cadence: "with .edu or proof",
+    blurb: "Pro features, no cost. Ship your thesis, not your wallet.",
+    features: [
+      "Everything in Pro",
+      "Verified .edu address or proof of enrollment",
+      "No time limit while enrolled",
+    ],
+    cta: "Apply with .edu",
+    href: "mailto:ethanmcn2013@gmail.com?subject=Student%20access%20%E2%80%94%20Roadmap",
+    accent: "students",
+  },
+];
+
+// ── Comparison table ──────────────────────────────────────────────────────────
+
+type CompRow = {
+  label: string;
+  free: string;
+  pro: string;
+  studio: string;
+};
+
+const COMP_ROWS: CompRow[] = [
+  { label: "Workspaces",         free: "1",           pro: "1",         studio: "Unlimited" },
+  { label: "Projects",           free: "1",           pro: "Unlimited", studio: "Unlimited" },
+  { label: "Public roadmap",     free: "Yes",         pro: "Yes",       studio: "Yes" },
+  { label: "Refusals page",      free: "Yes",         pro: "Yes",       studio: "Yes" },
+  { label: "Custom slug",        free: "—",           pro: "Yes",       studio: "Yes" },
+  { label: "Weekly digest",      free: "—",           pro: "Yes",       studio: "Yes" },
+  { label: "Custom OG cards",    free: "—",           pro: "Yes",       studio: "Yes" },
+  { label: "Calendar sync",       free: "—",           pro: "Yes",       studio: "Yes" },
+  { label: "Multiple workspaces",free: "—",           pro: "—",         studio: "Yes" },
+];
+
+// ── FAQ data ──────────────────────────────────────────────────────────────────
+
+const FAQ: { q: string; a: string }[] = [
   {
     q: "Will public roadmaps ever cost money?",
-    a: "No. Public read-only access stays free, always. The URL you share with customers will never require them to sign in or pay.",
+    a: "No. Public read-only access stays free, always. The URL you share with customers will never require them to sign in or pay. That's a design constraint, not a policy.",
   },
   {
-    q: "Can I use this with a team?",
-    a: "Yes — workspace seats are unlimited during early access. Invite as many collaborators as you need.",
+    q: "Why public-by-default?",
+    a: "Because a roadmap that lives behind a login is a slide deck that escaped. The whole point is that customers, investors, and the people who asked for the thing can see it without an account. Private workspaces aren't on the roadmap.",
   },
-] as const;
+  {
+    q: "What if I don't ship anything for a month?",
+    a: "Nothing happens. Roadmap doesn't expire, nag, or degrade because you went quiet. Some months the answer is 'nothing shipped' — that's a legitimate roadmap update.",
+  },
+  {
+    q: "Can I migrate from Productboard or Notion?",
+    a: "Roadmap reads plain markdown with a lightweight tag for dates. If you can paste, you can migrate. There's no import wizard — that's not laziness, it's a 10-minute ceiling on setup cost.",
+  },
+  {
+    q: "What counts as a student?",
+    a: "An active .edu email address, or any proof of enrollment (student ID photo, enrollment letter). We verify manually and turn it around in one business day. Email us at ethanmcn2013@gmail.com.",
+  },
+  {
+    q: "What happens to my data if I downgrade?",
+    a: "Your projects and roadmap data stay intact. Downgrading from Pro to Free means one project becomes active; the others are archived, not deleted. Upgrade again and they're back.",
+  },
+  {
+    q: "How do payments work?",
+    a: "Stripe, monthly, cancel anytime. No annual lock-in on any tier. Downgrade takes effect at the end of your billing period — we don't prorate or clawback mid-month.",
+  },
+];
 
-export default function PricingPage() {
+// ── Check icon ────────────────────────────────────────────────────────────────
+
+function Check({ color = "var(--status-shipped)" }: { color?: string }) {
+  return (
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke={color}
+      strokeWidth="2.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="mt-0.5 shrink-0"
+      aria-hidden
+    >
+      <polyline points="20 6 9 17 4 12" />
+    </svg>
+  );
+}
+
+// ── Tier card ─────────────────────────────────────────────────────────────────
+
+function TierCard({ tier: t, isSignedIn }: { tier: Tier; isSignedIn: boolean }) {
+  const isChosen = t.accent === "chosen";
+  const isStudents = t.accent === "students";
+  // Resolve the CTA href: signed-in users with a signedInHref go to checkout directly
+  const ctaHref = isSignedIn && t.signedInHref ? t.signedInHref : t.href;
+
+  return (
+    <div
+      className="relative flex flex-col rounded-2xl p-6"
+      style={{
+        background: isChosen ? "var(--bg-elev)" : isStudents ? "var(--bg-elev)" : "var(--bg-elev)",
+        border: isChosen
+          ? "1.5px solid var(--brand)"
+          : "1px solid var(--border)",
+        boxShadow: isChosen ? "var(--shadow-indigo)" : "var(--shadow-1)",
+      }}
+    >
+      {isChosen && (
+        <div
+          className="absolute -top-3 left-6 inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-white"
+          style={{ background: "var(--brand)" }}
+        >
+          Recommended
+        </div>
+      )}
+      {isStudents && (
+        <div
+          className="absolute -top-3 left-6 inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider"
+          style={{
+            background: "var(--aud-student)",
+            color: "#1a1200",
+          }}
+        >
+          Students
+        </div>
+      )}
+
+      <div
+        className="text-[11px] font-semibold uppercase tracking-[0.18em]"
+        style={{ color: isChosen ? "var(--brand)" : "var(--ink-soft)" }}
+      >
+        {t.name}
+      </div>
+
+      <div className="mt-3 flex items-baseline gap-1.5">
+        <span
+          className="text-[32px] font-semibold leading-none"
+          style={{
+            color: "var(--ink)",
+            letterSpacing: "-0.04em",
+          }}
+        >
+          {t.price}
+        </span>
+        <span
+          className="text-[12px] leading-tight"
+          style={{ color: "var(--ink-quiet)" }}
+        >
+          {t.cadence}
+        </span>
+      </div>
+
+      <p
+        className="mt-2 text-[13px] leading-[1.5]"
+        style={{ color: "var(--ink-soft)" }}
+      >
+        {t.blurb}
+      </p>
+
+      <ul className="mt-5 flex-1 space-y-2 text-[13px]" style={{ color: "var(--ink-soft)" }}>
+        {t.features.map((f) => (
+          <li key={f} className="flex items-start gap-2.5">
+            <Check color={isStudents ? "var(--aud-student)" : isChosen ? "var(--brand)" : "var(--status-shipped)"} />
+            <span className="leading-[1.45]">{f}</span>
+          </li>
+        ))}
+      </ul>
+
+      <UpgradeLink
+        href={ctaHref}
+        isPaid={!!(t.signedInHref)}
+        className="mt-6 block w-full rounded-full py-2.5 text-center text-[13.5px] font-medium transition-all hover:-translate-y-px"
+        style={
+          isChosen
+            ? {
+                background: "var(--brand)",
+                color: "#fff",
+                boxShadow: "var(--shadow-indigo)",
+              }
+            : isStudents
+            ? {
+                background: "var(--aud-student)",
+                color: "#1a1200",
+              }
+            : {
+                background: "var(--bg-deep)",
+                color: "var(--ink)",
+              }
+        }
+      >
+        {t.cta}
+      </UpgradeLink>
+    </div>
+  );
+}
+
+// ── Comparison table (desktop) ─────────────────────────────────────────────────
+
+function CompTable() {
+  return (
+    <table className="w-full border-collapse text-[13px]">
+      <thead>
+        <tr>
+          <th
+            className="pb-3 text-left text-[11px] font-semibold uppercase tracking-[0.14em]"
+            style={{ color: "var(--ink-quiet)", width: "40%" }}
+          >
+            Feature
+          </th>
+          {["Free", "Pro", "Operator"].map((col) => (
+            <th
+              key={col}
+              className="pb-3 text-center text-[11px] font-semibold uppercase tracking-[0.14em]"
+              style={{
+                color: col === "Pro" ? "var(--brand)" : "var(--ink-quiet)",
+                width: "20%",
+              }}
+            >
+              {col}
+            </th>
+          ))}
+        </tr>
+      </thead>
+      <tbody>
+        {COMP_ROWS.map((row, i) => (
+          <tr
+            key={row.label}
+            style={{
+              borderTop: `1px solid var(--border)`,
+            }}
+          >
+            <td
+              className="py-3 pr-4 font-medium"
+              style={{ color: "var(--ink-soft)" }}
+            >
+              {row.label}
+            </td>
+            {(["free", "pro", "studio"] as const).map((col) => {
+              const val = row[col];
+              const isEmpty = val === "—";
+              return (
+                <td
+                  key={col}
+                  className="py-3 text-center"
+                  style={{
+                    color: isEmpty
+                      ? "var(--ink-quiet)"
+                      : col === "pro"
+                      ? "var(--brand)"
+                      : "var(--ink-soft)",
+                  }}
+                >
+                  {val === "Yes" ? (
+                    <span className="flex justify-center">
+                      <Check
+                        color={
+                          col === "pro"
+                            ? "var(--brand)"
+                            : "var(--status-shipped)"
+                        }
+                      />
+                    </span>
+                  ) : (
+                    <span className={isEmpty ? "opacity-30" : ""}>{val}</span>
+                  )}
+                </td>
+              );
+            })}
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  );
+}
+
+// ── Page ──────────────────────────────────────────────────────────────────────
+
+export default async function PricingPage() {
+  // Resolve auth state so signed-in CTAs can bypass /sign-up
+  const user = await getCurrentUser();
+  const isSignedIn = user !== null;
+
   return (
     <div className="flex min-h-screen flex-col">
       <SiteNav />
 
-      <main className="flex-1 px-6 pt-20 pb-32 md:pt-28">
-        <div className="mx-auto w-full max-w-md">
+      <main className="flex-1">
 
-          {/* Eyebrow */}
-          <p
-            className="mb-4 text-[11px] font-semibold uppercase tracking-[0.16em]"
-            style={{ color: "var(--brand)" }}
-          >
-            Pricing
-          </p>
-
-          <h1
-            className="mb-5 text-[clamp(1.75rem,1.4rem+1.5vw,2.5rem)] font-semibold leading-[1.1]"
-            style={{ letterSpacing: "-0.035em", color: "var(--ink)" }}
-          >
-            Free during early access.
-          </h1>
-
-          {/* Card */}
-          <div
-            className="mb-4 rounded-2xl border p-8"
-            style={{
-              background: "var(--bg-elev)",
-              borderColor: "var(--border)",
-              boxShadow: "var(--shadow-2)",
-            }}
-          >
-            <div className="mb-1 flex items-end gap-2">
-              <span
-                className="text-[42px] font-semibold leading-none tabular-nums"
-                style={{ color: "var(--ink)", letterSpacing: "-0.04em" }}
-              >
-                $0
-              </span>
-              <span
-                className="mb-1.5 text-[14px]"
-                style={{ color: "var(--ink-quiet)" }}
-              >
-                / month
-              </span>
-            </div>
+        {/* ── 1. Hero strip ─────────────────────────────────────────── */}
+        <section className="px-6 pt-20 pb-16 md:pt-28 md:pb-20">
+          <div className="mx-auto w-full max-w-[780px]">
             <p
-              className="mb-6 text-[13.5px] leading-[1.5]"
+              className="mb-5 text-[11px] font-semibold uppercase tracking-[0.14em]"
+              style={{ color: "var(--brand)" }}
+            >
+              Pricing
+            </p>
+            <h1
+              className="mb-4 text-[clamp(2rem,1.4rem+2.5vw,3.25rem)] font-semibold leading-[1.05]"
+              style={{ letterSpacing: "-0.038em", color: "var(--ink)" }}
+            >
+              Pay for projects, not seats.
+            </h1>
+            <p
+              className="max-w-[52ch] text-[16px] leading-[1.6]"
               style={{ color: "var(--ink-soft)" }}
             >
-              Full access while we&apos;re in early access. No credit card required.
-              Pricing arrives at launch — early adopters get a founder rate.
+              Free until you outgrow it. Then $9. No team tier — that&apos;s the point.
+            </p>
+          </div>
+        </section>
+
+        {/* ── 2. Tier grid ──────────────────────────────────────────── */}
+        <section className="px-6 pb-16">
+          <div className="mx-auto w-full max-w-[1100px]">
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              {TIERS.map((t) => (
+                <TierCard key={t.name} tier={t} isSignedIn={isSignedIn} />
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ── 3. Comparison ─────────────────────────────────────────── */}
+        <section className="px-6 pb-16">
+          <div className="mx-auto w-full max-w-[780px]">
+            <p
+              className="mb-5 text-[11px] font-semibold uppercase tracking-[0.14em]"
+              style={{ color: "var(--ink-quiet)" }}
+            >
+              Compare
             </p>
 
-            <ul className="mb-8 space-y-2.5">
-              {[
-                "Unlimited public roadmaps",
-                "Markdown source editor",
-                "Public shareable URL",
-                "Workspace with multiple projects",
-              ].map((item) => (
-                <li key={item} className="flex items-start gap-2.5 text-[13.5px]" style={{ color: "var(--ink-soft)" }}>
-                  <svg
-                    width="14"
-                    height="14"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="mt-px shrink-0"
-                    style={{ color: "var(--status-shipped)" }}
-                    aria-hidden
+            {/* Desktop */}
+            <div className="hidden md:block">
+              <CompTable />
+            </div>
+
+            {/* Mobile */}
+            <div className="md:hidden">
+              <CompAccordion rows={COMP_ROWS} />
+            </div>
+          </div>
+        </section>
+
+        {/* ── 4. Why no team tier ───────────────────────────────────── */}
+        <section className="px-6 pb-16">
+          <div className="mx-auto w-full max-w-[780px]">
+            <div
+              className="rounded-2xl border px-8 py-7"
+              style={{
+                background: "var(--bg-elev)",
+                borderColor: "var(--border)",
+                boxShadow: "var(--shadow-1)",
+              }}
+            >
+              <p
+                className="mb-3 text-[11px] font-semibold uppercase tracking-[0.14em]"
+                style={{ color: "var(--ink-quiet)" }}
+              >
+                A deliberate choice
+              </p>
+              <h2
+                className="mb-4 text-[20px] font-semibold leading-[1.2]"
+                style={{ letterSpacing: "-0.025em", color: "var(--ink)" }}
+              >
+                No team tier in v1.
+              </h2>
+              <p
+                className="text-[14.5px] leading-[1.65]"
+                style={{ color: "var(--ink-soft)", maxWidth: "58ch" }}
+              >
+                Roadmaps are written by one voice. Comments come from many. That&apos;s
+                not a missing feature — it&apos;s the architecture. A roadmap authored
+                by committee doesn&apos;t have a point of view; it has a meeting.
+                Multi-author editing is on the list, but only once we&apos;ve figured out
+                how to do it without turning every decision into a negotiation. Until
+                then, one author, many readers. That&apos;s a better product.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* ── 5. FAQ ────────────────────────────────────────────────── */}
+        <section className="px-6 pb-20">
+          <div className="mx-auto w-full max-w-[780px]">
+            <p
+              className="mb-2 text-[11px] font-semibold uppercase tracking-[0.14em]"
+              style={{ color: "var(--ink-quiet)" }}
+            >
+              Questions
+            </p>
+            <h2
+              className="mb-8 text-[24px] font-semibold leading-[1.1]"
+              style={{ letterSpacing: "-0.03em", color: "var(--ink)" }}
+            >
+              The fine print, in plain English.
+            </h2>
+            <dl className="space-y-5">
+              {FAQ.map((item) => (
+                <div
+                  key={item.q}
+                  className="rounded-xl border px-5 py-4"
+                  style={{
+                    background: "var(--bg-elev)",
+                    borderColor: "var(--border)",
+                    boxShadow: "var(--shadow-1)",
+                  }}
+                >
+                  <dt
+                    className="mb-1.5 text-[14px] font-semibold"
+                    style={{ color: "var(--ink)", letterSpacing: "-0.01em" }}
                   >
-                    <polyline points="20 6 9 17 4 12" />
-                  </svg>
-                  {item}
-                </li>
+                    {item.q}
+                  </dt>
+                  <dd
+                    className="text-[13.5px] leading-[1.6]"
+                    style={{ color: "var(--ink-soft)" }}
+                  >
+                    {item.a}
+                  </dd>
+                </div>
               ))}
-            </ul>
+            </dl>
+          </div>
+        </section>
 
-            <Link
-              href="/sign-up"
-              className="block w-full rounded-full bg-ink py-2.5 text-center text-[14px] font-medium text-white shadow-sm transition-transform hover:-translate-y-px hover:shadow-md"
+        {/* ── 6. Closing CTA ────────────────────────────────────────── */}
+        <section className="px-6 pb-24">
+          <div className="mx-auto w-full max-w-[780px]">
+            <div
+              className="rounded-2xl border px-8 py-10 text-center"
+              style={{
+                background: "var(--bg-elev)",
+                borderColor: "var(--border)",
+                boxShadow: "var(--shadow-2)",
+              }}
             >
-              Create yours, free →
-            </Link>
-          </div>
-
-          {/* Pricing lock note */}
-          <p
-            className="mb-2 text-[12px]"
-            style={{ color: "var(--ink-quiet)" }}
-          >
-            Pricing locks in at launch. Early access users keep this rate.
-          </p>
-
-          {/* Comparison line */}
-          <p
-            className="mb-10 text-[13px] italic leading-[1.5]"
-            style={{ color: "var(--ink-soft)" }}
-          >
-            Jira charges $8.15/user/month to show stakeholders a ticket board. This is free and readable.
-          </p>
-
-          {/* FAQ */}
-          <div
-            className="mb-6 text-[11px] font-semibold uppercase tracking-[0.16em]"
-            style={{ color: "var(--ink-quiet)" }}
-          >
-            Questions
-          </div>
-          <dl className="space-y-6">
-            {FAQ.map((item) => (
-              <div key={item.q} className="border-t pt-5" style={{ borderColor: "var(--border)" }}>
-                <dt
-                  className="mb-1.5 text-[14px] font-semibold"
-                  style={{ color: "var(--ink)", letterSpacing: "-0.01em" }}
+              <p
+                className="mb-2 text-[11px] font-semibold uppercase tracking-[0.14em]"
+                style={{ color: "var(--brand)" }}
+              >
+                Start here
+              </p>
+              <h2
+                className="mb-3 text-[22px] font-semibold leading-[1.15]"
+                style={{ letterSpacing: "-0.03em", color: "var(--ink)" }}
+              >
+                Ship the first one free.
+              </h2>
+              <p
+                className="mb-8 text-[14px] leading-[1.55]"
+                style={{ color: "var(--ink-soft)" }}
+              >
+                One project, public by default, no card required. Upgrade
+                when the project count does.
+              </p>
+              <div className="flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
+                <Link
+                  href="/sign-up"
+                  className="inline-flex items-center rounded-full px-6 py-2.5 text-[14px] font-medium text-white transition-all hover:-translate-y-px"
+                  style={{
+                    background: "var(--brand)",
+                    boxShadow: "var(--shadow-indigo)",
+                  }}
                 >
-                  {item.q}
-                </dt>
-                <dd
-                  className="text-[13.5px] leading-[1.55]"
-                  style={{ color: "var(--ink-soft)" }}
+                  Create yours, free &rarr;
+                </Link>
+                <Link
+                  href="/about"
+                  className="text-[13.5px] transition-colors hover:text-ink"
+                  style={{ color: "var(--ink-quiet)" }}
                 >
-                  {item.a}
-                </dd>
+                  Learn what it&apos;s for
+                </Link>
               </div>
-            ))}
-          </dl>
+            </div>
+          </div>
+        </section>
 
-          {/* Contact */}
-          <p
-            className="mt-10 text-[12px]"
-            style={{ color: "var(--ink-quiet)" }}
-          >
-            Other questions?{" "}
-            <a
-              href="mailto:ethanmcn2013@gmail.com"
-              className="underline underline-offset-2 transition-colors hover:text-ink"
-            >
-              Reach out.
-            </a>
-          </p>
-        </div>
       </main>
 
       <SiteFooter />
