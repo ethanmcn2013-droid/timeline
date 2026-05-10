@@ -1,13 +1,6 @@
 import Link from "next/link";
 import { Wordmark } from "@/components/brand/wordmark";
-
-const STUDIO_URL =
-  process.env.NEXT_PUBLIC_STUDIO_URL ?? "https://studio-sigma-pied-75.vercel.app";
-const TASKS_URL =
-  process.env.NEXT_PUBLIC_TASKS_URL ?? "https://tasks-nu-hazel.vercel.app";
-
-const ANALYTICS_URL =
-  process.env.NEXT_PUBLIC_ANALYTICS_URL ?? "https://analytics-phi-ten.vercel.app";
+import { ANALYTICS_URL, NOTES_URL, STUDIO_URL, TASKS_URL } from "@/lib/product-urls";
 
 export function SiteFooter() {
   return (
@@ -16,8 +9,7 @@ export function SiteFooter() {
         <div>
           <Wordmark size="lg" />
           <p className="mt-4 max-w-xs text-[13.5px] leading-relaxed text-ink-soft">
-            Your roadmap, in plain English. Not a Jira export. Not a slide deck.
-            Something your users can actually read.
+            Direction clarity for public plans, decisions, and changes people can read.
           </p>
         </div>
         <FooterCol
@@ -35,6 +27,7 @@ export function SiteFooter() {
             { href: STUDIO_URL,    label: "Signal Studio",    external: true },
             { href: TASKS_URL,     label: "Signal Tasks",     external: true },
             { href: ANALYTICS_URL, label: "Signal Analytics", external: true },
+            { href: NOTES_URL,     label: "Signal Notes",     external: true },
           ]}
         />
       </div>
@@ -52,7 +45,7 @@ export function SiteFooter() {
           </a>{" "}
           product.
         </span>
-        <span>Next.js 16 · React 19 · Motion</span>
+        <span>Built for direction clarity.</span>
       </div>
     </footer>
   );

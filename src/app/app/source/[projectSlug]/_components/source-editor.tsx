@@ -42,7 +42,7 @@ export function SourceEditor({
   const [content, setContent] = useState(initialContent);
 
   const [state, formAction, pending] = useActionState(
-    async (_prev: ActionState): Promise<ActionState> => {
+    async (): Promise<ActionState> => {
       const result = await saveProjectSourceAction(
         projectSlug,
         workspaceSlug,

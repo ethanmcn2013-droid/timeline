@@ -10,15 +10,15 @@ import { ItemAnatomy } from "@/components/marketing/anatomy";
 const FEATURES = [
   {
     title: "Plain-English roadmap",
-    body: "Paste markdown, get a public roadmap. No tickets, no sprints, no Jira re-export required.",
+    body: "Write the plan once and publish a readable page. No board screenshot required.",
   },
   {
-    title: "Public link, zero friction",
-    body: "One URL your customers can bookmark. No login, no paywall — just your roadmap, live.",
+    title: "Public link, no account",
+    body: "One URL your customers can bookmark. No login, no paywall. Just the roadmap.",
   },
   {
-    title: "Built to be read, not parsed",
-    body: "Status labels your whole team understands. Shipped, doing, blocked. Nothing else.",
+    title: "Built to be read",
+    body: "Status labels people understand. Shipped, doing, held up, refused. Nothing extra.",
   },
 ] as const;
 
@@ -27,8 +27,8 @@ const FEATURES = [
 const HOW_IT_WORKS = [
   {
     index: "01",
-    title: "Paste your markdown",
-    body: "Write your roadmap in plain text. We parse it into a structured, readable page.",
+    title: "Write the plan",
+    body: "Start with plain text. Signal Roadmap turns it into a structured, readable page.",
   },
   {
     index: "02",
@@ -38,7 +38,7 @@ const HOW_IT_WORKS = [
   {
     index: "03",
     title: "Share it with anyone",
-    body: "Send the URL to customers, stakeholders, or investors. No account required to view.",
+    body: "Send the URL to customers, clients, or investors. No account required to view.",
   },
 ] as const;
 
@@ -75,8 +75,8 @@ export default function HomePage() {
                 className="rise mb-10 max-w-md text-[18px] leading-[1.55]"
                 style={{ color: "var(--ink-soft)", animationDelay: "160ms" }}
               >
-                A public roadmap your customers can actually read — written in
-                plain English, parsed from markdown, live in seconds.
+                A public roadmap your customers can actually read, written in
+                plain English and live in seconds.
               </p>
 
               {/* CTAs */}

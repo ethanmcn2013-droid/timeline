@@ -2,22 +2,19 @@ import type { Metadata } from "next";
 import { SiteNav } from "@/components/marketing/site-nav";
 import { SiteFooter } from "@/components/marketing/site-footer";
 import Link from "next/link";
-
-const STUDIO_URL =
-  process.env.NEXT_PUBLIC_STUDIO_URL ?? "https://studio-sigma-pied-75.vercel.app";
-const TASKS_URL = "https://tasks-nu-hazel.vercel.app";
+import { STUDIO_URL, TASKS_URL } from "@/lib/product-urls";
 
 export const metadata: Metadata = {
-  title: "About — Roadmap",
+  title: "About — Signal Roadmap",
   description:
-    "Made by the same studio behind Tasks. Built for the people who actually use what you're shipping.",
+    "Direction clarity from Signal Studio. Built for people who need the plan without a glossary.",
 };
 
 const ANTI_FEATURES = [
   {
     index: "01",
     label: "Not a project management tool",
-    note: "No tickets, no sprints, no velocity. Roadmap is for communicating direction, not managing work.",
+    note: "Signal Roadmap is for communicating direction, not managing the work.",
   },
   {
     index: "02",
@@ -26,15 +23,15 @@ const ANTI_FEATURES = [
   },
   {
     index: "03",
-    label: "Not for your engineering team",
-    note: "Your engineers already know what's happening. This is for everyone else — customers, stakeholders, the people who just want to know when the thing they asked for is coming.",
+    label: "Not for the people doing the work",
+    note: "They already know what's happening. This is for everyone else: customers, clients, and people waiting on the plan.",
   },
 ] as const;
 
 const WHO_ITS_FOR = [
-  { index: "01", line: "Product teams sharing direction with customers." },
-  { index: "02", line: "Startup founders who need a public changelog." },
-  { index: "03", line: "Solo makers who want public accountability." },
+  { index: "01", line: "Service operators sharing what is happening with clients." },
+  { index: "02", line: "Solo professionals who need public accountability." },
+  { index: "03", line: "Small teams explaining the plan without a status meeting." },
 ] as const;
 
 export default function AboutPage() {
@@ -66,30 +63,31 @@ export default function AboutPage() {
             style={{ color: "var(--ink-soft)" }}
           >
             <p>
-              Roadmap is one of two products from{" "}
+              Signal Roadmap is one of four products from{" "}
               <a
-                href={`${STUDIO_URL}/about`}
+                href={STUDIO_URL}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="font-medium underline underline-offset-2 transition-colors hover:text-ink"
               >
-                studio.
-              </a>{" "}
-              The other is{" "}
+                Signal Studio
+              </a>
+              .{" "}
+              It sits beside{" "}
               <a
                 href={TASKS_URL}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="underline underline-offset-2 transition-colors hover:text-ink"
               >
-                Tasks
+                Signal Tasks
               </a>
-              , a project-management workspace for non-tech teams.
+              , the execution-clarity workspace.
             </p>
             <p>
-              Built for the 80% who don&apos;t ship from a sprint board — the customers, the
-              stakeholders, the people who just want to know what&apos;s coming without needing
-              a glossary.
+              Built for the 80% who do not want software vocabulary between
+              them and the plan: customers, clients, tutors, coordinators,
+              students, and operators.
             </p>
             <p>
               We believe your roadmap should be something you&apos;re proud to share publicly.
@@ -169,7 +167,7 @@ export default function AboutPage() {
             className="mt-12 mb-2 text-[13px] italic"
             style={{ color: "var(--ink-soft)" }}
           >
-            Made by one designer. Shipped, not promised.
+            Made by one designer. Built carefully, in the open.
           </p>
 
           {/* CTA */}

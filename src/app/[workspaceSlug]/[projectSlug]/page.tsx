@@ -10,7 +10,6 @@ import { WorkspaceHeader } from "@/components/roadmap/workspace-header";
 import { ItemRow } from "@/components/roadmap/item-row";
 import { ShortcutsOverlay } from "@/components/roadmap/shortcuts-overlay";
 import { SiteFooter } from "@/components/marketing/site-footer";
-import { StatusPill } from "@/components/roadmap/status-pill";
 import Link from "next/link";
 
 export async function generateMetadata({
