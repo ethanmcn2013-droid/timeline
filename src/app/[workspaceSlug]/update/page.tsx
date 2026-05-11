@@ -8,10 +8,7 @@ import {
   type SharedUpdateTone,
 } from "@/lib/roadmap/shared-update";
 import {
-  demoProjects,
-  demoTasks,
-  demoUpcomingTasks,
-  demoWorkspace,
+  getDemoSharedUpdateDataset,
 } from "@/lib/roadmap/demo-data";
 import {
   getProjectsForWorkspace,
@@ -45,9 +42,9 @@ export async function generateMetadata({
 
 async function getWorkspaceForMetadata(workspaceSlug: string) {
   try {
-    return (await getWorkspace(workspaceSlug)) ?? getDemoDataset(workspaceSlug)?.workspace ?? null;
+    return (await getWorkspace(workspaceSlug)) ?? getDemoSharedUpdateDataset(workspaceSlug)?.workspace ?? null;
   } catch {
-    return getDemoDataset(workspaceSlug)?.workspace ?? null;
+    return getDemoSharedUpdateDataset(workspaceSlug)?.workspace ?? null;
   }
 }
 
@@ -268,7 +265,7 @@ async function loadSharedUpdateDataset(
 } | null> {
   try {
     const workspace = await getWorkspace(workspaceSlug);
-    if (!workspace) return getDemoDataset(workspaceSlug);
+    if (!workspace) return getDemoSharedUpdateDataset(workspaceSlug);
 
     const [projects, tasks, upcoming] = await Promise.all([
       getProjectsForWorkspace(workspaceSlug),
@@ -278,20 +275,10 @@ async function loadSharedUpdateDataset(
 
     return { workspace, projects, tasks, upcoming };
   } catch (error) {
-    const fallback = getDemoDataset(workspaceSlug);
+    const fallback = getDemoSharedUpdateDataset(workspaceSlug);
     if (fallback) return fallback;
     throw error;
   }
-}
-
-function getDemoDataset(workspaceSlug: string) {
-  if (workspaceSlug !== demoWorkspace.slug) return null;
-  return {
-    workspace: demoWorkspace,
-    projects: demoProjects,
-    tasks: demoTasks,
-    upcoming: demoUpcomingTasks,
-  };
 }
 
 function UpdateCard({

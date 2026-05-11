@@ -115,3 +115,23 @@ Cycle 3 intentionally avoids a new table or publishing workflow. The first goal 
 Acceptance test:
 
 A viewer opens `/tasks/update?source=roadmap_share&segment=general&role=viewer&campaign=collaboration_proof&artefact=shared_update` and understands the state of the roadmap without needing to open the full plan.
+
+## Cycle 4: Wedding Planning Proof Path
+
+Roadmap now carries the first wedge-specific shared update proof path:
+
+`/wedding-planning/update?source=roadmap_share&segment=weddings&role=viewer&campaign=founding_venue&artefact=shared_update`
+
+This demo update is bundled as proof data so the preview link works before a live wedding workspace exists.
+
+It should help a venue, planner, couple, or supplier understand:
+
+- current planning state
+- what the venue or couple is doing now
+- which supplier follow-up is held up
+- what comes next
+- what was recently decided
+
+Acceptance test:
+
+A wedding venue coordinator can open the shared update and see a plausible planning artefact they could forward to a couple or supplier.

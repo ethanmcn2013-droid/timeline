@@ -17,6 +17,11 @@ The demo update route also falls back to bundled proof data when preview
 deployments do not have Turso rows available, so the shared link remains
 useful instead of failing with a server error.
 
+Cycle 4 has started with the first weddings/events proof path:
+`/wedding-planning/update`. It uses bundled wedding planning data so a venue,
+planner, couple, or supplier can see a plausible shared planning update before
+the live template and invite flow exist.
+
 ## 2026-05-10
 
 ### Readiness alignment.
