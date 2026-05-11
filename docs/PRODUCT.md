@@ -18,6 +18,7 @@ Status: **private preview**.
 The repo contains the core Roadmap product surface:
 
 - Public workspace and project pages.
+- Shared update page at `/[workspace]/update`.
 - Item detail pages.
 - Refusals page.
 - Auth-backed app shell.

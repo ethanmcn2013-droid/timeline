@@ -18,6 +18,7 @@ export const RESERVED_SLUGS = new Set([
   "about",
   "pricing",
   "demo",
+  "update",
   "admin",
   "settings",
   "help",

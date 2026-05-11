@@ -34,14 +34,18 @@ export function WorkspaceHeader({ workspace }: { workspace: Workspace }) {
         {/* Right: Roadmap wordmark + sign-in */}
         <div className="flex items-center gap-4">
           <Link
+            href={`/${workspace.slug}/update?source=roadmap_share&segment=general&role=viewer&campaign=collaboration_proof&artefact=shared_update`}
+            className="hidden text-[12px] text-ink-quiet transition-colors hover:text-ink sm:inline"
+          >
+            Update
+          </Link>
+          <Link
             href={`/${workspace.slug}/refusals`}
             className="hidden text-[12px] text-ink-quiet transition-colors hover:text-ink sm:inline"
           >
             Refusals
           </Link>
-          <Link href="/" aria-label="Roadmap home">
-            <Wordmark size="sm" />
-          </Link>
+          <Wordmark size="sm" href="/" />
         </div>
       </div>
     </header>

@@ -38,7 +38,7 @@ Roadmap is responsible for the "shareable output created" moment.
 | Decision | The reason a plan changed. |
 | Risk | A confidence or timing issue that needs attention. |
 | Update | A roadmap change that can feed changelog, activity, and briefing. |
-| Shareable output | Public roadmap, change note, stakeholder update, or planning page. |
+| Shareable output | Public roadmap, change note, shared update, or planning page. |
 
 ## Cycle 1 Product Work
 
@@ -47,7 +47,7 @@ Prioritise:
 - public/private share controls
 - "what changed and why" history
 - confidence language
-- stakeholder-facing update summary
+- shared update summary
 - source tracking for shared links
 - events for roadmap item created, milestone moved, confidence changed, public page shared, and change note published
 
@@ -91,3 +91,27 @@ Cycle 2 implementation targets:
 Acceptance test:
 
 A couple opens a shared wedding roadmap and understands the current phase, next milestone, recent change, and whether the plan is on track.
+
+## Cycle 3: First Shared Update
+
+Roadmap now owns the first built shareable artefact: `/[workspace]/update`.
+
+The shared update is a read-only, plain-language page derived from existing roadmap data. It shows:
+
+- current state
+- what is happening now
+- what is held up
+- what comes next
+- what changed
+- project progress
+- a tasteful "Created with Signal Studio" discovery link
+
+Source tracking is carried through query parameters:
+
+`source`, `segment`, `role`, `campaign`, and `artefact`.
+
+Cycle 3 intentionally avoids a new table or publishing workflow. The first goal is to prove the output format and make the sharing surface real. Owner-controlled visibility, revocation, and richer history can come after the artefact is useful.
+
+Acceptance test:
+
+A viewer opens `/tasks/update?source=roadmap_share&segment=general&role=viewer&campaign=collaboration_proof&artefact=shared_update` and understands the state of the roadmap without needing to open the full plan.

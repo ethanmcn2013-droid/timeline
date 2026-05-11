@@ -27,6 +27,7 @@ const isPublicRoute = createRouteMatcher([
   "/manifest.webmanifest",
   // Public workspace roadmap surface — readable by anyone
   "/:workspaceSlug",
+  "/:workspaceSlug/update",
   "/:workspaceSlug/refusals",
   "/:workspaceSlug/:projectSlug",
   "/:workspaceSlug/:projectSlug/:id",
