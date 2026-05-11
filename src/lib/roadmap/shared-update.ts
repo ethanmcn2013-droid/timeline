@@ -202,13 +202,18 @@ function buildProjectSnapshot(
 }
 
 function buildStudioUrl(tracking: SourceTracking) {
-  const url = new URL(STUDIO_URL);
+  const url = new URL(withProtocol(STUDIO_URL));
   url.searchParams.set("source", tracking.source);
   url.searchParams.set("segment", tracking.segment);
   url.searchParams.set("role", tracking.role);
   url.searchParams.set("campaign", tracking.campaign);
   url.searchParams.set("artefact", tracking.artefact);
   return url.toString();
+}
+
+function withProtocol(url: string) {
+  if (/^https?:\/\//.test(url)) return url;
+  return `https://${url}`;
 }
 
 function readParam(searchParams: SearchParams | undefined, key: string) {

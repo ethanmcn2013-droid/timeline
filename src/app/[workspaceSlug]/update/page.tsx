@@ -8,12 +8,18 @@ import {
   type SharedUpdateTone,
 } from "@/lib/roadmap/shared-update";
 import {
+  demoProjects,
+  demoTasks,
+  demoUpcomingTasks,
+  demoWorkspace,
+} from "@/lib/roadmap/demo-data";
+import {
   getProjectsForWorkspace,
   getTasksForWorkspace,
   getUpcomingTasks,
   getWorkspace,
 } from "@/server/db/queries";
-import type { Project, Task } from "@/server/db/schema";
+import type { Project, Task, Workspace } from "@/server/db/schema";
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 
@@ -23,7 +29,7 @@ export async function generateMetadata({
   params: Promise<{ workspaceSlug: string }>;
 }): Promise<Metadata> {
   const { workspaceSlug } = await params;
-  const workspace = await getWorkspace(workspaceSlug);
+  const workspace = await getWorkspaceForMetadata(workspaceSlug);
   if (!workspace) return { title: "Not Found" };
 
   return {
@@ -37,6 +43,14 @@ export async function generateMetadata({
   };
 }
 
+async function getWorkspaceForMetadata(workspaceSlug: string) {
+  try {
+    return (await getWorkspace(workspaceSlug)) ?? getDemoDataset(workspaceSlug)?.workspace ?? null;
+  } catch {
+    return getDemoDataset(workspaceSlug)?.workspace ?? null;
+  }
+}
+
 export default async function SharedUpdatePage({
   params,
   searchParams,
@@ -47,14 +61,10 @@ export default async function SharedUpdatePage({
   const { workspaceSlug } = await params;
   const trackingParams = await searchParams;
 
-  const workspace = await getWorkspace(workspaceSlug);
-  if (!workspace) notFound();
+  const dataset = await loadSharedUpdateDataset(workspaceSlug);
+  if (!dataset) notFound();
 
-  const [projects, tasks, upcoming] = await Promise.all([
-    getProjectsForWorkspace(workspaceSlug),
-    getTasksForWorkspace(workspaceSlug),
-    getUpcomingTasks(workspaceSlug, 14),
-  ]);
+  const { workspace, projects, tasks, upcoming } = dataset;
 
   const projectMap = new Map(projects.map((project) => [project.slug, project]));
   const update = buildSharedUpdate({
@@ -246,6 +256,42 @@ export default async function SharedUpdatePage({
       <SiteFooter />
     </div>
   );
+}
+
+async function loadSharedUpdateDataset(
+  workspaceSlug: string,
+): Promise<{
+  workspace: Workspace;
+  projects: Project[];
+  tasks: Task[];
+  upcoming: Task[];
+} | null> {
+  try {
+    const workspace = await getWorkspace(workspaceSlug);
+    if (!workspace) return getDemoDataset(workspaceSlug);
+
+    const [projects, tasks, upcoming] = await Promise.all([
+      getProjectsForWorkspace(workspaceSlug),
+      getTasksForWorkspace(workspaceSlug),
+      getUpcomingTasks(workspaceSlug, 14),
+    ]);
+
+    return { workspace, projects, tasks, upcoming };
+  } catch (error) {
+    const fallback = getDemoDataset(workspaceSlug);
+    if (fallback) return fallback;
+    throw error;
+  }
+}
+
+function getDemoDataset(workspaceSlug: string) {
+  if (workspaceSlug !== demoWorkspace.slug) return null;
+  return {
+    workspace: demoWorkspace,
+    projects: demoProjects,
+    tasks: demoTasks,
+    upcoming: demoUpcomingTasks,
+  };
 }
 
 function UpdateCard({
