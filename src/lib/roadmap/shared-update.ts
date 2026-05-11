@@ -203,12 +203,20 @@ function buildProjectSnapshot(
 
 function buildStudioUrl(tracking: SourceTracking) {
   const url = new URL(withProtocol(STUDIO_URL));
+  const segmentPath = getStudioPathForSegment(tracking.segment);
+  if (segmentPath) url.pathname = segmentPath;
+
   url.searchParams.set("source", tracking.source);
   url.searchParams.set("segment", tracking.segment);
   url.searchParams.set("role", tracking.role);
   url.searchParams.set("campaign", tracking.campaign);
   url.searchParams.set("artefact", tracking.artefact);
   return url.toString();
+}
+
+function getStudioPathForSegment(segment: string) {
+  if (segment === "weddings") return "/weddings";
+  return null;
 }
 
 function withProtocol(url: string) {

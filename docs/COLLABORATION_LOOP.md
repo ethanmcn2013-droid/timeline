@@ -135,3 +135,18 @@ It should help a venue, planner, couple, or supplier understand:
 Acceptance test:
 
 A wedding venue coordinator can open the shared update and see a plausible planning artefact they could forward to a couple or supplier.
+
+## Cycle 5: Wedding Conversion Path
+
+When a shared update carries `segment=weddings`, its Signal Studio CTA now points to `/weddings`.
+
+This keeps the viewer path specific:
+
+- open a wedding planning update
+- understand the state of the plan
+- click through to a weddings/events Studio page
+- ask about the Founding Venue Pilot or private planning workspace
+
+Acceptance test:
+
+A viewer of `/wedding-planning/update?source=roadmap_share&segment=weddings&role=viewer&campaign=founding_venue&artefact=shared_update` clicks "See Signal Studio" and lands on a page that explains Signal Studio in wedding planning language.

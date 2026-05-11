@@ -22,6 +22,10 @@ Cycle 4 has started with the first weddings/events proof path:
 planner, couple, or supplier can see a plausible shared planning update before
 the live template and invite flow exist.
 
+Wedding-segment shared updates now send the "See Signal Studio" CTA to the
+Studio `/weddings` route, giving forwarded planning updates a relevant
+viewer-to-creator path instead of dropping people on the generic homepage.
+
 ## 2026-05-10
 
 ### Readiness alignment.
