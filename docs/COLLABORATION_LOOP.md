@@ -68,3 +68,26 @@ For the wedding/events wedge, a couple or venue coordinator should open a shared
 - which decisions explain the change
 - whether the plan is on track
 
+## Cycle 2: Invite And First View
+
+Roadmap owns the "Where this is going" and "What changed" parts of the invited collaborator's first view.
+
+Role defaults for Roadmap:
+
+- Creator controls roadmap visibility and sharing.
+- Collaborator can see the shared roadmap and relevant changes.
+- Guest can open an owner-controlled planning roadmap.
+- Client / supplier can see phases and milestones relevant to them.
+- Viewer can read a public or owner-controlled roadmap and discover Signal Studio.
+
+Cycle 2 implementation targets:
+
+- owner-controlled roadmap sharing
+- change note for "what moved and why"
+- confidence language for shared views
+- source tracking on roadmap share links
+- tasteful "Created with Signal Studio" placement
+
+Acceptance test:
+
+A couple opens a shared wedding roadmap and understands the current phase, next milestone, recent change, and whether the plan is on track.
