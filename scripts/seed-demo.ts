@@ -51,6 +51,7 @@ const ITEMS = [
       "First-run experience for new workspaces. Paste a markdown roadmap, we parse it into structured items. Zero forms, zero dropdowns.",
     status: "in-flight" as schema.Status,
     kind: "cycle" as schema.Kind,
+    targetDate: "2026-05-14",
     sortOrder: 1,
   },
   {
@@ -60,6 +61,7 @@ const ITEMS = [
       "A live screenshot of the demo workspace embedded in the homepage hero — so the product sells itself without a separate demo page. Blocked on screenshot infra.",
     status: "blocked" as schema.Status,
     kind: "cycle" as schema.Kind,
+    targetDate: "2026-05-15",
     sortOrder: 2,
   },
   {
@@ -69,15 +71,17 @@ const ITEMS = [
       "Gated signup behind an invite code. Small cohort, high-signal feedback. No public self-serve until the onboarding is solid.",
     status: "in-flight" as schema.Status,
     kind: "cycle" as schema.Kind,
+    targetDate: "2026-05-18",
     sortOrder: 3,
   },
   {
     id: `${WORKSPACE_SLUG}-${PROJECT_SLUG}-004`,
     title: "Shared comment threads on roadmap items",
     description:
-      "Stakeholders can leave comments on individual roadmap items. Auth-gated for writes; public for reads. Keeps the conversation in context.",
+      "People who need the plan can leave comments on individual roadmap items. Auth-gated for writes; public for reads. Keeps the conversation in context.",
     status: "in-flight" as schema.Status,
     kind: "cycle" as schema.Kind,
+    targetDate: "2026-05-21",
     sortOrder: 4,
   },
   {
@@ -87,6 +91,8 @@ const ITEMS = [
       "Project slugs are now scoped per workspace — two teams can each have a project called \"blog\" without colliding. Schema migration shipped cleanly.",
     status: "shipped" as schema.Status,
     kind: "cycle" as schema.Kind,
+    targetDate: "2026-05-08",
+    completedAt: new Date("2026-05-08T09:00:00Z"),
     sortOrder: 5,
   },
   {
@@ -96,6 +102,8 @@ const ITEMS = [
       "The studio. parent brand whisper is now in the nav and footer — links Tasks and Roadmap under one roof without making it a big deal.",
     status: "shipped" as schema.Status,
     kind: "cycle" as schema.Kind,
+    targetDate: "2026-05-10",
+    completedAt: new Date("2026-05-10T09:00:00Z"),
     sortOrder: 6,
   },
   {
@@ -169,9 +177,11 @@ async function main() {
         description: item.description,
         status: item.status,
         kind: item.kind,
+        targetDate: "targetDate" in item ? item.targetDate : undefined,
         sortOrder: item.sortOrder,
         assignee: "claude-code",
         isLaunch: false,
+        completedAt: "completedAt" in item ? item.completedAt : undefined,
       })
       .onConflictDoUpdate({
         target: schema.tasks.id,
@@ -180,13 +190,15 @@ async function main() {
           description: item.description,
           status: item.status,
           kind: item.kind,
+          targetDate: "targetDate" in item ? item.targetDate : undefined,
           sortOrder: item.sortOrder,
+          completedAt: "completedAt" in item ? item.completedAt : undefined,
         },
       });
   }
   console.log(`  ${ITEMS.length} items upserted.`);
 
-  console.log(`Done. Visit /${WORKSPACE_SLUG} to see the demo roadmap.`);
+  console.log(`Done. Visit /${WORKSPACE_SLUG} or /${WORKSPACE_SLUG}/update to see the demo roadmap.`);
   process.exit(0);
 }
 

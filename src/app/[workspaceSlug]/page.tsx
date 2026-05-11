@@ -249,6 +249,22 @@ export default async function WorkspaceRoadmapPage({
                     </section>
                   ) : null}
 
+                  {/* Shared update */}
+                  <section>
+                    <h3 className="mb-2 text-[10.5px] font-semibold uppercase tracking-[0.16em] text-ink-quiet">
+                      Shared update
+                    </h3>
+                    <p className="mb-2 text-[12px] leading-[1.45] text-ink-quiet">
+                      A short version of the plan for people who just need the state of the work.
+                    </p>
+                    <Link
+                      href={`/${workspaceSlug}/update?source=roadmap_share&segment=general&role=viewer&campaign=collaboration_proof&artefact=shared_update`}
+                      className="text-[12px] text-ink-quiet underline underline-offset-2 transition-colors hover:text-ink"
+                    >
+                      Open shared update
+                    </Link>
+                  </section>
+
                   {/* Refusals link */}
                   {counts.refused > 0 ? (
                     <section>
