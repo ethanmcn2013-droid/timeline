@@ -1,7 +1,8 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { LayoutGroup, motion, useReducedMotion } from "motion/react";
+import { DOMAINS, type DomainId } from "@/lib/domains";
 import {
   type DemoState,
   type Row,
@@ -14,37 +15,41 @@ import { ViewerDot } from "./viewer-dot";
 import { UrlBar } from "./url-bar";
 import { RoadmapRow } from "./roadmap-row";
 
-const INITIAL_ROWS: Row[] = [
-  { id: "venue", title: "Venue contract signed", status: "shipped", date: "Jan 12" },
-  { id: "save-dates", title: "Save-the-date sent", status: "shipped", date: "Feb 04" },
-  { id: "catering", title: "Catering tasting Friday", status: "doing", date: "This week" },
-  { id: "honeymoon", title: "Honeymoon flights", status: "doing", date: "Mar 18" },
-  { id: "florist", title: "Florist deposit", status: "held", date: "Held since Mar 02" },
-  { id: "invitations", title: "Invitations", status: "next", date: "Apr" },
-  { id: "timeline", title: "Day-of timeline", status: "next", date: "May" },
-];
-
 const INITIAL_VIEWERS: Viewer[] = [
   { id: "a", laneIndex: 0, visible: false },
   { id: "b", laneIndex: 1, visible: false },
   { id: "c", laneIndex: 2, visible: false },
 ];
 
-const INITIAL_STATE: DemoState = {
-  rows: INITIAL_ROWS,
-  viewers: INITIAL_VIEWERS,
-  viewCount: 12,
-  scene: "boot",
-};
+function buildInitialState(domain: DomainId): DemoState {
+  return {
+    rows: DOMAINS[domain].rows.map((r) => ({ ...r })),
+    viewers: INITIAL_VIEWERS.map((v) => ({ ...v })),
+    viewCount: 12,
+    scene: "boot",
+    domain,
+  };
+}
 
 const wait = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
 
-export function RoadmapDemo() {
-  const reducedMotion = useReducedMotion();
-  const [state, setState] = useState<DemoState>(INITIAL_STATE);
-  const aliveRef = useRef(true);
+type Props = {
+  domain?: DomainId;
+};
 
-  /** Helper that mutates a single row and clears all other movedAt flags. */
+export function RoadmapDemo({ domain = "wedding" }: Props = {}) {
+  const reducedMotion = useReducedMotion();
+  const pack = DOMAINS[domain];
+  const [state, setState] = useState<DemoState>(() => buildInitialState(domain));
+  const aliveRef = useRef(true);
+  const loopKeyRef = useRef(0);
+
+  /** When domain changes, reset state to that pack's seed. */
+  useEffect(() => {
+    setState(buildInitialState(domain));
+    loopKeyRef.current += 1;
+  }, [domain]);
+
   const setRowStatus = useCallback(
     (id: string, status: Row["status"], movedAt: string) => {
       setState((s) => ({
@@ -71,96 +76,89 @@ export function RoadmapDemo() {
     setState((s) => ({ ...s, viewCount: s.viewCount + delta }));
   }, []);
 
-  const resetRows = useCallback(() => {
-    setState((s) => ({
-      ...s,
-      rows: INITIAL_ROWS,
-      viewers: INITIAL_VIEWERS,
-      viewCount: 12,
-    }));
-  }, []);
-
-  /** Run the scene timeline. Bails on unmount via aliveRef. */
+  /** Run the scene timeline. Restarts cleanly when domain changes. */
   useEffect(() => {
     if (reducedMotion) return;
     aliveRef.current = true;
+    const myLoopKey = loopKeyRef.current;
+    const transitions = DOMAINS[domain].transitions;
 
     async function runLoop() {
-      // Reset to known state at the start of each loop.
-      resetRows();
+      setState(buildInitialState(domain));
       await wait(600);
-      if (!aliveRef.current) return;
+      if (!aliveRef.current || myLoopKey !== loopKeyRef.current) return;
 
-      // Scene 1 — viewers arrive.
       setScene("viewers-arrive");
       setViewers((vs) => vs.map((v, i) => (i < 2 ? { ...v, visible: true } : v)));
       await wait(2000);
-      if (!aliveRef.current) return;
+      if (!aliveRef.current || myLoopKey !== loopKeyRef.current) return;
 
-      // Scene 2 — third viewer arrives, first move fires.
       setScene("first-move");
       setViewers((vs) => vs.map((v, i) => (i === 2 ? { ...v, visible: true } : v)));
       await wait(600);
-      if (!aliveRef.current) return;
+      if (!aliveRef.current || myLoopKey !== loopKeyRef.current) return;
 
-      setRowStatus("catering", "shipped", "12:30pm");
+      if (transitions[0]) {
+        setRowStatus(transitions[0].id, transitions[0].to, transitions[0].movedAt);
+      }
       await wait(1400);
-      if (!aliveRef.current) return;
+      if (!aliveRef.current || myLoopKey !== loopKeyRef.current) return;
 
-      // Scene 3 — counter ticks.
       setScene("tick-up-1");
       tickViewers(2);
       await wait(1200);
-      if (!aliveRef.current) return;
+      if (!aliveRef.current || myLoopKey !== loopKeyRef.current) return;
 
-      // Scene 4 — second move.
       setScene("second-move");
-      setRowStatus("invitations", "doing", "1:08pm");
+      if (transitions[1]) {
+        setRowStatus(transitions[1].id, transitions[1].to, transitions[1].movedAt);
+      }
       await wait(1600);
-      if (!aliveRef.current) return;
+      if (!aliveRef.current || myLoopKey !== loopKeyRef.current) return;
 
-      // Scene 5 — counter ticks again.
       setScene("tick-up-2");
       tickViewers(3);
       await wait(1200);
-      if (!aliveRef.current) return;
+      if (!aliveRef.current || myLoopKey !== loopKeyRef.current) return;
 
-      // Scene 6 — third move (the held-up item resolves).
       setScene("third-move");
-      setRowStatus("florist", "doing", "1:42pm");
+      if (transitions[2]) {
+        setRowStatus(transitions[2].id, transitions[2].to, transitions[2].movedAt);
+      }
       await wait(1800);
-      if (!aliveRef.current) return;
+      if (!aliveRef.current || myLoopKey !== loopKeyRef.current) return;
 
-      // Scene 7 — viewers leave.
       setScene("viewers-leave");
       setViewers((vs) => vs.map((v) => ({ ...v, visible: false })));
       await wait(1400);
-      if (!aliveRef.current) return;
+      if (!aliveRef.current || myLoopKey !== loopKeyRef.current) return;
 
-      // Scene 8 — quiet hold, then loop.
       setScene("reset");
       await wait(1200);
-      if (!aliveRef.current) return;
+      if (!aliveRef.current || myLoopKey !== loopKeyRef.current) return;
     }
 
     let cancelled = false;
     (async function loop() {
-      while (!cancelled && aliveRef.current) {
+      while (!cancelled && aliveRef.current && myLoopKey === loopKeyRef.current) {
         await runLoop();
       }
     })();
 
     return () => {
       cancelled = true;
-      aliveRef.current = false;
     };
-  }, [reducedMotion, resetRows, setScene, setRowStatus, setViewers, tickViewers]);
+  }, [reducedMotion, domain, setScene, setRowStatus, setViewers, tickViewers]);
 
   // Group rows by status for rendering.
-  const groups = STATUS_ORDER.map((status) => ({
-    status,
-    items: state.rows.filter((r) => r.status === status),
-  }));
+  const groups = useMemo(
+    () =>
+      STATUS_ORDER.map((status) => ({
+        status,
+        items: state.rows.filter((r) => r.status === status),
+      })),
+    [state.rows]
+  );
 
   return (
     <div
@@ -172,15 +170,11 @@ export function RoadmapDemo() {
         boxShadow: "var(--shadow-2)",
       }}
     >
-      <UrlBar
-        url="roadmap.signalstudio.ie/wedding-spring-26"
-        viewCount={state.viewCount}
-      />
+      <UrlBar url={pack.workspaceUrl} viewCount={state.viewCount} />
 
-      {/* Roadmap surface */}
-      <div className="relative px-4 pb-5 pt-4 sm:px-5 sm:pt-5">
+      <div className="relative px-5 pb-6 pt-5 sm:px-7 sm:pt-6">
         {/* Page header */}
-        <div className="mb-5 flex items-start justify-between gap-3">
+        <div className="mb-6 flex items-start justify-between gap-3">
           <div>
             <p
               className="text-[11px] font-semibold uppercase"
@@ -189,13 +183,13 @@ export function RoadmapDemo() {
                 letterSpacing: "0.14em",
               }}
             >
-              Spring wedding
+              {pack.workspaceEyebrow}
             </p>
             <h3
-              className="mt-1 text-[18px] font-semibold"
+              className="mt-1 text-[20px] font-semibold sm:text-[22px]"
               style={{ color: "var(--ink)", letterSpacing: "-0.02em" }}
             >
-              The plan, in plain English.
+              {pack.workspaceTitle}
             </h3>
           </div>
           <span
@@ -211,7 +205,7 @@ export function RoadmapDemo() {
 
         {/* Lanes */}
         <LayoutGroup>
-          <div className="relative flex flex-col gap-5">
+          <div className="relative flex flex-col gap-6">
             {groups.map((group) => (
               <div key={group.status}>
                 <div
@@ -265,7 +259,7 @@ export function RoadmapDemo() {
             <ViewerDot
               key={v.id}
               visible={v.visible}
-              top={70 + v.laneIndex * 56 + i * 14}
+              top={80 + v.laneIndex * 64 + i * 18}
               right={2}
               delay={i * 0.32}
             />
@@ -275,7 +269,7 @@ export function RoadmapDemo() {
 
       {/* Caption */}
       <div
-        className="border-t px-4 py-2.5 text-[11px]"
+        className="border-t px-5 py-3 text-[11px] sm:px-7"
         style={{
           borderColor: "var(--border-soft)",
           background: "var(--bg-deep)",

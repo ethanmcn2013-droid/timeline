@@ -1,16 +1,9 @@
-export type RowStatus = "shipped" | "doing" | "held" | "next";
+import type { DemoRowStatus, DomainId } from "@/lib/domains";
 
-export type RowId =
-  | "venue"
-  | "save-dates"
-  | "catering"
-  | "honeymoon"
-  | "florist"
-  | "invitations"
-  | "timeline";
+export type RowStatus = DemoRowStatus;
 
 export type Row = {
-  id: RowId;
+  id: string;
   title: string;
   status: RowStatus;
   date: string;
@@ -43,6 +36,8 @@ export type DemoState = {
   viewers: Viewer[];
   viewCount: number;
   scene: Scene;
+  /** Active domain pack — when this changes the demo resets. */
+  domain: DomainId;
 };
 
 export const STATUS_LABEL: Record<RowStatus, string> = {
