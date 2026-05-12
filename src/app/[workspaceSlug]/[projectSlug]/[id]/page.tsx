@@ -4,14 +4,11 @@ import {
   getWorkspace,
   getProject,
   getTask,
-  getCommentsForTask,
   getActivityForTask,
 } from "@/server/db/queries";
-import { getCurrentUser } from "@/server/auth";
 import { WorkspaceHeader } from "@/components/roadmap/workspace-header";
 import { StatusPill } from "@/components/roadmap/status-pill";
 import { KindPill } from "@/components/roadmap/kind-pill";
-import { Comments } from "@/components/roadmap/comments";
 import { ActivityPanel } from "@/components/roadmap/activity-panel";
 import { SiteFooter } from "@/components/marketing/site-footer";
 import Link from "next/link";
@@ -55,15 +52,9 @@ export default async function TaskDetailPage({
   if (!project) notFound();
   if (!task) notFound();
 
-  const [taskComments, taskActivity, currentUser] = await Promise.all([
-    getCommentsForTask(task.id),
-    getActivityForTask(task.id),
-    getCurrentUser(),
-  ]);
+  const taskActivity = await getActivityForTask(task.id);
 
   const isDone = task.status === "shipped";
-  const isOwner =
-    currentUser !== null && currentUser.userId === workspace.ownerUserId;
 
   return (
     <div className="flex min-h-screen flex-col" style={{ background: "var(--bg)" }}>
@@ -152,18 +143,6 @@ export default async function TaskDetailPage({
 
           {/* Activity */}
           <ActivityPanel events={taskActivity} />
-
-          {/* Owner-only annotation surface — public viewers see nothing.
-              Keeps the locked refusal on comment threading honored at the
-              public surface; preserves the owner's own working notes. */}
-          {isOwner ? (
-            <Comments
-              comments={taskComments}
-              taskId={task.id}
-              workspaceSlug={workspaceSlug}
-              isAuthenticated={true}
-            />
-          ) : null}
         </div>
       </main>
 

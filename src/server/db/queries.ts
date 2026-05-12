@@ -16,9 +16,8 @@ import {
   projectSources,
   tasks,
   activity,
-  comments,
 } from "./schema";
-import type { Workspace, Project, ProjectSource, Task, Status, Activity, Comment } from "./schema";
+import type { Workspace, Project, ProjectSource, Task, Status, Activity } from "./schema";
 import type { ParsedItem } from "@/server/parser/parse-markdown";
 
 // ---------------------------------------------------------------------------
@@ -433,36 +432,11 @@ export async function getProject(
   return row ?? null;
 }
 
-/**
- * Comments for a task. Implicitly workspace-scoped through the task FK.
- * Sorted oldest-first (chronological reading order).
- */
-export async function getCommentsForTask(taskId: string): Promise<Comment[]> {
-  return db
-    .select()
-    .from(comments)
-    .where(eq(comments.taskId, taskId))
-    .orderBy(asc(comments.createdAt));
-}
-
-/**
- * Insert a new comment. Auth is enforced upstream in addCommentAction —
- * this function trusts that the caller has already verified the user.
- */
-export async function addComment({
-  taskId,
-  workspaceSlug,
-  body,
-  author = "Ethan",
-}: {
-  taskId: string;
-  workspaceSlug: string;
-  body: string;
-  author?: string;
-}): Promise<void> {
-  const id = `${taskId}-c-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
-  await db.insert(comments).values({ id, taskId, workspaceSlug, body, author });
-}
+// getCommentsForTask + addComment removed 2026-05-12 — Suite Review T3
+// decision. Comment threading is a locked refusal; the helpers were the
+// last live consumers of the comments table. The schema column itself is
+// preserved against any pre-existing owner data, but no code path reads
+// or writes through it.
 
 /**
  * Activity events for a task, newest-first.

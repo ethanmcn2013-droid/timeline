@@ -10,7 +10,6 @@ import {
   upsertProjectSource,
   upsertParsedItems,
   getProjectsForWorkspace,
-  addComment,
   seedWorkspaceFromTemplate,
 } from "@/server/db/queries";
 import { isValidSlug, slugify } from "@/lib/reserved-slugs";
@@ -197,32 +196,10 @@ export async function saveProjectSourceAction(
 }
 
 // ---------------------------------------------------------------------------
-// Comment creation — auth-gated
-// ---------------------------------------------------------------------------
-
-export type AddCommentResult =
-  | { ok: true }
-  | { error: string };
-
-export async function addCommentAction(
-  taskId: string,
-  workspaceSlug: string,
-  body: string,
-): Promise<AddCommentResult> {
-  // Auth gate — throws/redirects if not signed in
-  await requireUser();
-
-  // Rate limit: 20 comments per IP per 10 minutes
-  const ip = getClientIp();
-  const allowed = await checkRateLimit("add-comment", ip, 20, 600);
-  if (!allowed) return { error: "Too many requests. Try again in a few minutes." };
-
-  const trimmed = body?.trim();
-  if (!trimmed) return { error: "Comment body cannot be empty." };
-  if (trimmed.length > 2000) return { error: "Comment is too long (max 2000 chars)." };
-
-  await addComment({ taskId, workspaceSlug, body: trimmed });
-
-  revalidatePath(`/`);
-  return { ok: true };
-}
+// Comments removed 2026-05-12 — Suite Review T3 decision. The locked
+// refusal on comment threading is now honored at the architecture layer,
+// not just at the render gate. Schema column `comments` is preserved
+// against any existing owner-side data; the query (getCommentsForTask)
+// and the queries-layer addComment helper were also removed. Anything
+// reaching for an owner-only annotation surface should ship a private
+// description field on the task, not a panel.
