@@ -1,5 +1,16 @@
 # Signal Roadmap · Changelog
 
+## 2026-05-12 (latest)
+
+### Suite chrome consolidated — one bar, breadcrumb prefix.
+
+Two stacked nav bars collapsed into one. The Roadmap wordmark now
+sits next to a small "signal studio. /" back-link on a single row;
+the prior cross-product strip is gone. Cross-product discovery now
+falls back to the footer (where the Suite column already lives).
+See the umbrella changelog for the dissent captured inside the
+decision.
+
 ## 2026-05-12 (later still)
 
 ### Sprint 2 cycle 10.3 — invited-by bar + reply on shared views
