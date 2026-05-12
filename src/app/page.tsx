@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { SiteNav } from "@/components/marketing/site-nav";
 import { SiteFooter } from "@/components/marketing/site-footer";
-import { CinematicDemo } from "@/components/showcase/cinematic-demo";
+import { RoadmapDemo } from "@/components/showcase/roadmap-demo";
 import { ItemAnatomy } from "@/components/marketing/anatomy";
 
 // ── Feature grid data ───────────────────────────────────────────────────────
@@ -115,7 +115,7 @@ export default function HomePage() {
 
             {/* Right — animated demo */}
             <div className="rise w-full" style={{ animationDelay: "320ms" }}>
-              <CinematicDemo />
+              <RoadmapDemo />
             </div>
           </div>
         </div>
