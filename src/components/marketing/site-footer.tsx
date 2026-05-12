@@ -1,15 +1,32 @@
 import Link from "next/link";
 import { Wordmark } from "@/components/brand/wordmark";
-import { ANALYTICS_URL, NOTES_URL, STUDIO_URL, TASKS_URL } from "@/lib/product-urls";
+import {
+  ANALYTICS_URL,
+  NOTES_URL,
+  STUDIO_URL,
+  TASKS_URL,
+} from "@/lib/product-urls";
 
 export function SiteFooter() {
   return (
     <footer className="mt-32 border-t border-line-soft/70 pb-10 pt-16">
-      <div className="mx-auto grid w-full max-w-[1240px] gap-10 px-6 md:grid-cols-[1.4fr_repeat(2,1fr)]">
+      <div className="mx-auto grid w-full max-w-[1240px] gap-10 px-6 md:grid-cols-[1.4fr_repeat(3,1fr)]">
         <div>
           <Wordmark size="lg" />
           <p className="mt-4 max-w-xs text-[13.5px] leading-relaxed text-ink-soft">
             Direction clarity for public plans, decisions, and changes people can read.
+          </p>
+          <p className="mt-4 text-[12px] text-ink-quiet">
+            A{" "}
+            <a
+              href={STUDIO_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-medium text-ink-soft transition-colors hover:text-ink"
+            >
+              Signal Studio
+            </a>{" "}
+            product.
           </p>
         </div>
         <FooterCol
@@ -18,7 +35,13 @@ export function SiteFooter() {
             { href: "https://signalstudio.ie/pricing", label: "Pricing", external: true },
             { href: "/demo",      label: "Demo"      },
             { href: "/about",     label: "About"     },
-            { href: "/changelog", label: "Changelog" },
+          ]}
+        />
+        <FooterCol
+          heading="Resources"
+          links={[
+            { href: "https://signalstudio.ie/changelog", label: "Changelog", external: true },
+            { href: "https://signalstudio.ie/contact", label: "Contact", external: true },
           ]}
         />
         <FooterCol
@@ -32,20 +55,8 @@ export function SiteFooter() {
         />
       </div>
       <div className="mx-auto mt-12 flex w-full max-w-[1240px] flex-col items-start justify-between gap-2 border-t border-line-soft/70 px-6 pt-6 text-[12px] text-ink-quiet md:flex-row md:items-center">
-        <span>
-          © {new Date().getFullYear()} Signal Roadmap.{" "}
-          A{" "}
-          <a
-            href={`${STUDIO_URL}/about`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="font-medium transition-colors hover:text-ink"
-          >
-            Signal Studio
-          </a>{" "}
-          product.
-        </span>
-        <span>Built for direction clarity.</span>
+        <span>© {new Date().getFullYear()} Signal Roadmap. A Signal Studio product.</span>
+        <span>Clarity, not configuration.</span>
       </div>
     </footer>
   );
