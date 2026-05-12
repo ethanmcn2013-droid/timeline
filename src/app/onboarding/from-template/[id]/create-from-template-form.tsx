@@ -52,9 +52,22 @@ export function CreateFromTemplateForm({
   const slugOk = isValidSlug(slug);
   const projectCount = template.roadmap.projects.length;
   const itemCount = template.roadmap.items.length;
+  const PREVIEW_LIMIT = 6;
+  const previewItems = template.roadmap.items.slice(0, PREVIEW_LIMIT);
+  const remainingCount = Math.max(0, itemCount - PREVIEW_LIMIT);
+  const projectsBySlug = new Map(
+    template.roadmap.projects.map((p) => [p.slug, p]),
+  );
+  const statusDot: Record<string, string> = {
+    shipped: "var(--status-done, #10b981)",
+    "in-flight": "var(--status-doing, #f59e0b)",
+    next: "var(--status-next, #6366f1)",
+    blocked: "var(--status-blocked, #ef4444)",
+    refused: "var(--ink-quiet, #71717a)",
+  };
 
   return (
-    <div className="mx-auto w-full max-w-md py-20 px-6">
+    <div className="mx-auto w-full max-w-lg py-20 px-6">
       <p
         className="mb-2 text-xs font-semibold uppercase tracking-widest"
         style={{ color: "var(--brand)", letterSpacing: "0.12em" }}
@@ -68,12 +81,65 @@ export function CreateFromTemplateForm({
         Start from the {template.name.toLowerCase()}.
       </h1>
       <p
-        className="mb-10 text-sm leading-relaxed"
+        className="mb-6 text-sm leading-relaxed"
         style={{ color: "var(--ink-soft)" }}
       >
         {projectCount === 1 ? "One project, " : `${projectCount} projects, `}
         {itemCount} starter items. Edit them once the workspace is live.
       </p>
+
+      {/* Preview — what the workspace ships with before you commit to a name. */}
+      <section
+        aria-label="Template preview"
+        className="mb-10 rounded-xl border p-4"
+        style={{
+          borderColor: "var(--border)",
+          background: "var(--bg-elev)",
+        }}
+      >
+        <p
+          className="mb-3 text-[10.5px] font-semibold uppercase tracking-[0.14em]"
+          style={{ color: "var(--ink-quiet)" }}
+        >
+          What you&apos;ll get
+        </p>
+        <ul className="flex flex-col gap-2">
+          {previewItems.map((item, i) => {
+            const project = projectsBySlug.get(item.projectSlug);
+            return (
+              <li
+                key={`${item.projectSlug}-${i}`}
+                className="flex items-start gap-2.5 text-[13px] leading-[1.45]"
+              >
+                <span
+                  aria-hidden
+                  className="mt-[7px] inline-block h-1.5 w-1.5 flex-shrink-0 rounded-full"
+                  style={{ background: statusDot[item.status] ?? statusDot.next }}
+                />
+                <span style={{ color: "var(--ink)" }}>
+                  {item.title}
+                  {project && projectCount > 1 ? (
+                    <span
+                      className="ml-2 text-[11px]"
+                      style={{ color: "var(--ink-quiet)" }}
+                    >
+                      {project.name}
+                    </span>
+                  ) : null}
+                </span>
+              </li>
+            );
+          })}
+        </ul>
+        {remainingCount > 0 ? (
+          <p
+            className="mt-3 text-[11.5px]"
+            style={{ color: "var(--ink-quiet)" }}
+          >
+            + {remainingCount} more once the workspace is live.
+          </p>
+        ) : null}
+      </section>
 
       <form action={formAction} className="flex flex-col gap-5">
         <input type="hidden" name="fromTemplate" value={template.id} />
@@ -111,7 +177,7 @@ export function CreateFromTemplateForm({
             className="text-xs font-medium"
             style={{ color: "var(--ink-soft)" }}
           >
-            Slug
+            URL
           </label>
           <div
             className="flex items-center rounded-lg border overflow-hidden"
