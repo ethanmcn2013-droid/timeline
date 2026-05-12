@@ -14,12 +14,17 @@ export function ItemRow({
   projectAccent,
   projectName,
   showProject = true,
+  milestoneLabel,
 }: {
   task: Task;
   workspaceSlug: string;
   projectAccent: string;
   projectName: string;
   showProject?: boolean;
+  /** When set, renders a soft "→ <milestoneLabel>" line under the
+   *  title. Owner: the page computes which milestone this item rolls
+   *  up to based on date; the row just renders the string. */
+  milestoneLabel?: string | null;
 }) {
   const isDone = task.status === "shipped";
   const isDoing = task.status === "in-flight";
@@ -138,6 +143,13 @@ export function ItemRow({
         {task.description && task.kind !== "cycle" ? (
           <p className="mt-1 truncate text-[11px] leading-[1.4] text-ink-quiet">
             {task.description}
+          </p>
+        ) : null}
+        {milestoneLabel ? (
+          <p className="mt-1 truncate text-[10.5px] leading-[1.4] text-ink-quiet">
+            <span aria-hidden>→ </span>
+            for{" "}
+            <span className="font-medium text-ink-soft">{milestoneLabel}</span>
           </p>
         ) : null}
       </div>

@@ -23,7 +23,15 @@
  */
 
 export type ParsedStatus = "next" | "in-flight" | "shipped" | "refused" | "blocked";
-export type ParsedKind = "cycle" | "action" | "refusal" | "blocker";
+export type ParsedKind = "cycle" | "action" | "refusal" | "blocker" | "milestone";
+
+/**
+ * A title wrapped fully in `**…**` promotes the item to a milestone.
+ * The asterisks are stripped from the stored title and the row is
+ * marked `kind = "milestone"` + `isLaunch = true`. This is the only
+ * way to promote an item to a milestone from markdown source.
+ */
+const BOLD_TITLE_RE = /^\*\*(.+?)\*\*\s*(.*)$/;
 
 export type ParsedItem = {
   id: string;
@@ -37,7 +45,10 @@ export type ParsedItem = {
   weekHeading: string | null;
   category: string | null;
   sortOrder: number;
-  isLaunch: boolean; // always false in v1
+  /** True when the bullet title was wrapped in **…**. Drives the
+   *  "milestone" kind, the launch badge, and the Milestones section
+   *  on the public viewer. */
+  isLaunch: boolean;
 };
 
 export type ParseResult = {
@@ -178,14 +189,27 @@ export function parseMarkdown({
     if (!rawText) continue;
 
     const status = statusFromBracket(bracketContent);
-    const kind = kindFromStatus(status);
 
     // Extract date before stripping it from text
     const targetDate = extractDate(rawText);
 
     // Strip date from text before parsing title/description
     const textWithoutDate = stripDate(rawText);
-    const { title, description } = parseTitleDescription(textWithoutDate);
+    const { title: rawTitle, description } = parseTitleDescription(textWithoutDate);
+
+    // Bold-wrapped title promotes to milestone. We test the raw title
+    // (before description splitting) and unwrap the asterisks.
+    let title = rawTitle;
+    let isLaunch = false;
+    let kind: ParsedKind = kindFromStatus(status);
+    const boldMatch = rawTitle.match(BOLD_TITLE_RE);
+    if (boldMatch) {
+      title = boldMatch[1].trim();
+      isLaunch = true;
+      // Milestone supersedes the status-derived kind unless the item
+      // is refused (a refused milestone is still a refusal in spirit).
+      if (status !== "refused") kind = "milestone";
+    }
 
     if (!title) continue;
 
@@ -203,7 +227,7 @@ export function parseMarkdown({
       weekHeading,
       category,
       sortOrder: ord,
-      isLaunch: false,
+      isLaunch,
     });
 
     ord++;

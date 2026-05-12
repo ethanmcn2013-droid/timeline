@@ -7,6 +7,7 @@ import {
 } from "@/server/db/queries";
 import type { Project, Task } from "@/server/db/schema";
 import { WorkspaceHeader } from "@/components/roadmap/workspace-header";
+import { MetaStrip } from "@/components/roadmap/meta-strip";
 import { SiteFooter } from "@/components/marketing/site-footer";
 import Link from "next/link";
 
@@ -67,8 +68,18 @@ export default async function RefusalsPage({
               <span className="text-ink">Refusals</span>
             </nav>
 
+            <MetaStrip
+              anchor={workspace.name}
+              items={[
+                "Refusals",
+                refused.length > 0
+                  ? `${refused.length} decision${refused.length === 1 ? "" : "s"}`
+                  : null,
+              ]}
+            />
+
             <h1 className="text-[clamp(1.75rem,1.5rem+2vw,3rem)] font-semibold tracking-[-0.03em] text-ink-soft">
-              What {workspace.name} said no to.
+              What we said no to.
             </h1>
             <p className="mt-3 max-w-lg text-[14px] leading-[1.6] text-ink-quiet">
               Decisions are only legible if you can see the no&rsquo;s.

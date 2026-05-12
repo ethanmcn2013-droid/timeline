@@ -22,9 +22,9 @@ import { sql } from "drizzle-orm";
 import * as schema from "../src/server/db/schema";
 
 const WORKSPACE_SLUG = "tasks";
-const WORKSPACE_NAME = "studio. shipping log";
+const WORKSPACE_NAME = "Tasks · Product Roadmap";
 const WORKSPACE_DESCRIPTION =
-  "What we're building next, written in plain English.";
+  "An example public roadmap, drawn from Tasks (the live task-workspace product). Plans, decisions, and changes written in plain English.";
 const PROJECT_SLUG = "product";
 const PROJECT_NAME = "Product Roadmap";
 
@@ -115,6 +115,28 @@ const ITEMS = [
     kind: "refusal" as schema.Kind,
     sortOrder: 7,
   },
+  {
+    id: `${WORKSPACE_SLUG}-${PROJECT_SLUG}-008`,
+    title: "Public launch",
+    description:
+      "The day Signal Roadmap goes from invite-only beta to anyone-can-sign-up. The moment the rest of this is building toward.",
+    status: "next" as schema.Status,
+    kind: "milestone" as schema.Kind,
+    targetDate: "2026-06-15",
+    isLaunch: true,
+    sortOrder: 8,
+  },
+  {
+    id: `${WORKSPACE_SLUG}-${PROJECT_SLUG}-009`,
+    title: "First paying workspace",
+    description:
+      "First Pro-tier upgrade from a customer who isn't us. The earliest signal that Roadmap clears the bar of \"someone pays for it.\"",
+    status: "next" as schema.Status,
+    kind: "milestone" as schema.Kind,
+    targetDate: "2026-07-01",
+    isLaunch: true,
+    sortOrder: 9,
+  },
 ] as const;
 
 // ---------------------------------------------------------------------------
@@ -180,7 +202,7 @@ async function main() {
         targetDate: "targetDate" in item ? item.targetDate : undefined,
         sortOrder: item.sortOrder,
         assignee: "claude-code",
-        isLaunch: false,
+        isLaunch: "isLaunch" in item ? item.isLaunch : false,
         completedAt: "completedAt" in item ? item.completedAt : undefined,
       })
       .onConflictDoUpdate({
@@ -192,6 +214,7 @@ async function main() {
           kind: item.kind,
           targetDate: "targetDate" in item ? item.targetDate : undefined,
           sortOrder: item.sortOrder,
+          isLaunch: "isLaunch" in item ? item.isLaunch : false,
           completedAt: "completedAt" in item ? item.completedAt : undefined,
         },
       });

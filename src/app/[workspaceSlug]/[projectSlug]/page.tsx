@@ -6,8 +6,10 @@ import {
   getTasksForProject,
 } from "@/server/db/queries";
 import type { Task } from "@/server/db/schema";
+import { BigStat } from "@/components/roadmap/big-stat";
 import { WorkspaceHeader } from "@/components/roadmap/workspace-header";
 import { ItemRow } from "@/components/roadmap/item-row";
+import { MetaStrip } from "@/components/roadmap/meta-strip";
 import { ShortcutsOverlay } from "@/components/roadmap/shortcuts-overlay";
 import { SiteFooter } from "@/components/marketing/site-footer";
 import Link from "next/link";
@@ -56,6 +58,23 @@ export default async function ProjectDrillDownPage({
   const blocked = allTasks.filter((t) => t.status === "blocked").length;
   const next = allTasks.filter((t) => t.status === "next").length;
 
+  // Meta-strip data — same shape as the workspace surface, scoped
+  // to this project's slice of items. Carries the brand heartbeat
+  // rhythm across surfaces (see docs/REVIEW_2026_05_12.md §5.2).
+  const datedTasks = allTasks
+    .filter((t) => t.targetDate && t.status !== "refused")
+    .map((t) => t.targetDate!);
+  const dateRange = datedTasks.length
+    ? {
+        from: datedTasks.reduce((a, b) => (a < b ? a : b)),
+        to: datedTasks.reduce((a, b) => (a > b ? a : b)),
+      }
+    : null;
+  const milestonesInProject = allTasks.filter(
+    (t) =>
+      (t.kind === "milestone" || t.isLaunch) && t.status !== "refused",
+  ).length;
+
   return (
     <div className="flex min-h-screen flex-col" style={{ background: "var(--bg)" }}>
       <WorkspaceHeader workspace={workspace} />
@@ -82,6 +101,19 @@ export default async function ProjectDrillDownPage({
               <span className="text-ink">{project.name}</span>
             </nav>
 
+            <MetaStrip
+              anchor={project.name}
+              items={[
+                dateRange ? `${dateRange.from} → ${dateRange.to}` : null,
+                dateRange
+                  ? `${weeksBetween(dateRange.from, dateRange.to)} weeks`
+                  : null,
+                milestonesInProject > 0
+                  ? `${milestonesInProject} milestone${milestonesInProject === 1 ? "" : "s"}`
+                  : null,
+              ]}
+            />
+
             <div className="flex items-start gap-4">
               <div
                 aria-hidden
@@ -90,7 +122,7 @@ export default async function ProjectDrillDownPage({
               />
               <div>
                 <h1 className="text-[clamp(1.75rem,1.5rem+2vw,3rem)] font-semibold tracking-[-0.03em] text-ink">
-                  {project.name}
+                  {/[.!?]$/.test(project.name) ? project.name : `${project.name}.`}
                 </h1>
                 {project.oneLiner ? (
                   <p className="mt-2 max-w-lg text-[15px] leading-[1.55] text-ink-soft">
@@ -100,40 +132,34 @@ export default async function ProjectDrillDownPage({
               </div>
             </div>
 
-            {/* Status strip */}
+            {/* Status row — BigStat tabular treatment, parity with the
+                workspace surface so the visual register is consistent
+                across all workspace-scoped heroes. */}
             {allTasks.length > 0 ? (
-              <div className="mt-6 flex flex-wrap items-center gap-4 text-[12px] text-ink-quiet">
-                <span>
-                  <strong className="text-ink">{allTasks.length}</strong> total
-                </span>
-                {shipped > 0 && (
-                  <span>
-                    <strong className="text-ink">{shipped}</strong> done
-                  </span>
-                )}
-                {inFlight > 0 && (
-                  <span>
-                    <strong className="text-ink">{inFlight}</strong> doing
-                  </span>
-                )}
-                {blocked > 0 && (
-                  <span style={{ color: "var(--status-blocked)" }}>
-                    <strong>{blocked}</strong> blocked
-                  </span>
-                )}
-                {next > 0 && (
-                  <span>
-                    <strong className="text-ink">{next}</strong> up next
-                  </span>
-                )}
-                {refusedCount > 0 && (
+              <div className="mt-8 flex flex-wrap items-end gap-x-8 gap-y-3">
+                <BigStat label="Total" value={allTasks.length} />
+                {shipped > 0 ? (
+                  <BigStat label="Done" value={shipped} tone="shipped" />
+                ) : null}
+                {inFlight > 0 ? (
+                  <BigStat label="Doing" value={inFlight} tone="flight" />
+                ) : null}
+                {next > 0 ? <BigStat label="Next" value={next} /> : null}
+                {blocked > 0 ? (
+                  <BigStat label="Blocked" value={blocked} tone="blocked" />
+                ) : null}
+                {refusedCount > 0 ? (
                   <Link
                     href={`/${workspaceSlug}/refusals`}
-                    className="transition-colors hover:text-ink"
+                    className="transition-colors"
                   >
-                    <strong className="text-ink">{refusedCount}</strong> refused
+                    <BigStat
+                      label="Won't do"
+                      value={refusedCount}
+                      tone="refused"
+                    />
                   </Link>
-                )}
+                ) : null}
               </div>
             ) : null}
           </div>
@@ -175,6 +201,12 @@ export default async function ProjectDrillDownPage({
       <SiteFooter />
     </div>
   );
+}
+
+function weeksBetween(fromIso: string, toIso: string): number {
+  const from = new Date(fromIso + "T00:00:00Z").getTime();
+  const to = new Date(toIso + "T00:00:00Z").getTime();
+  return Math.max(1, Math.round((to - from) / (1000 * 60 * 60 * 24 * 7)));
 }
 
 function groupByWeek(tasks: Task[]): { heading: string | null; tasks: Task[] }[] {

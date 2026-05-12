@@ -68,7 +68,7 @@ export function SourceEditor({
       <textarea
         value={content}
         onChange={(e) => setContent(e.target.value)}
-        placeholder={`# Mobile App v2 Roadmap\n\n## In Flight\n- [ ] Auth redesign\n\n## Next\n- [ ] Offline mode\n\n## Shipped\n- [x] Push notifications`}
+        placeholder={`# Mobile App v2 Roadmap\n\n## In Flight\n- [ ] Auth redesign\n\n## Next\n- [ ] Offline mode\n- **Beta launch** — 2026-06-15\n\n## Shipped\n- [x] Push notifications`}
         className="flex-1 rounded-xl border p-4 text-sm leading-relaxed outline-none transition-all resize-none min-h-[480px]"
         style={{
           background: "var(--bg-elev)",
@@ -122,6 +122,70 @@ export function SourceEditor({
           </button>
         </form>
       </div>
+
+      {/* Syntax legend — tiny, low-key, lives below the action row. */}
+      <details
+        className="group rounded-xl border px-4 py-2.5"
+        style={{ borderColor: "var(--border)", background: "var(--bg-elev)" }}
+      >
+        <summary
+          className="flex cursor-pointer list-none items-center justify-between text-xs font-medium"
+          style={{ color: "var(--ink-soft)" }}
+        >
+          <span>Bullet syntax</span>
+          <span
+            className="font-mono transition-transform group-open:rotate-90"
+            style={{ color: "var(--ink-quiet)" }}
+            aria-hidden
+          >
+            ›
+          </span>
+        </summary>
+        <dl
+          className="mt-3 grid gap-x-6 gap-y-1.5 text-[11.5px] sm:grid-cols-2"
+          style={{ color: "var(--ink-quiet)" }}
+        >
+          <SyntaxRow code="- [ ] Title">next</SyntaxRow>
+          <SyntaxRow code="- [/] Title">in-flight</SyntaxRow>
+          <SyntaxRow code="- [x] Title">shipped</SyntaxRow>
+          <SyntaxRow code="- [!] Title">blocked</SyntaxRow>
+          <SyntaxRow code="- [-] Title">refused</SyntaxRow>
+          <SyntaxRow code="- **Title** — 2026-06-15">
+            milestone (wrap title in **bold**)
+          </SyntaxRow>
+        </dl>
+        <p
+          className="mt-3 text-[11px] leading-[1.55]"
+          style={{ color: "var(--ink-quiet)" }}
+        >
+          Headings: <code className="font-mono">##</code> groups items into a
+          week or phase heading;{" "}
+          <code className="font-mono">###</code> sets a category.
+          Dates in <code className="font-mono">YYYY-MM-DD</code> form are
+          picked up anywhere in the line.
+        </p>
+      </details>
+    </div>
+  );
+}
+
+function SyntaxRow({
+  code,
+  children,
+}: {
+  code: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="flex items-center gap-3">
+      <code
+        className="font-mono text-[11px]"
+        style={{ color: "var(--ink-soft)" }}
+      >
+        {code}
+      </code>
+      <span aria-hidden>→</span>
+      <span>{children}</span>
     </div>
   );
 }
