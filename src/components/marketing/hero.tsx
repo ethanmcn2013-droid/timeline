@@ -44,7 +44,7 @@ export function Hero() {
           }}
         >
           A public roadmap your customers can actually read. Written in plain
-          English, live the moment you publish, and built to be subscribed to.
+          English, live the moment you publish, easy to share with one link.
         </p>
 
         <div

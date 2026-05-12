@@ -217,7 +217,7 @@ export default async function WorkspaceRoadmapPage({
           className="w-full border-b px-6 py-2 text-center text-[12px] text-ink-soft"
           style={{ background: "var(--bg-deep)", borderColor: "var(--line-soft)" }}
         >
-          You&apos;re viewing a public demo workspace — this is what your team&apos;s roadmap could look like.
+          You&apos;re viewing a public demo workspace — this is what your roadmap could look like.
         </div>
       )}
       <ShortcutsOverlay />
