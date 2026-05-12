@@ -27,6 +27,8 @@ function buildInitialState(domain: DomainId): DemoState {
     view: "list",
     domain,
     toast: null,
+    followers: 1247,
+    sharePressed: false,
   };
 }
 
@@ -40,18 +42,17 @@ export function RoadmapDemo({ domain = "wedding" }: Props = {}) {
   const reducedMotion = useReducedMotion();
   const pack = DOMAINS[domain];
   const [state, setState] = useState<DemoState>(() => buildInitialState(domain));
-  const [followers, setFollowers] = useState(1247);
-  const [sharePressed, setSharePressed] = useState(false);
   const aliveRef = useRef(true);
   const loopKeyRef = useRef(0);
   const surfaceRef = useRef<HTMLDivElement | null>(null);
   const rowRefsRef = useRef<Map<string, HTMLDivElement>>(new Map());
   const shareButtonRef = useRef<HTMLButtonElement | null>(null);
 
+  // Followers and sharePressed are folded into DemoState so buildInitialState
+  // at the top of runLoop resets them when domain changes — no effect-driven
+  // setState or render-phase ref access needed.
+
   useEffect(() => {
-    setState(buildInitialState(domain));
-    setFollowers(1247);
-    setSharePressed(false);
     loopKeyRef.current += 1;
   }, [domain]);
 
@@ -161,7 +162,7 @@ export function RoadmapDemo({ domain = "wedding" }: Props = {}) {
   }, []);
 
   const tickFollowers = useCallback((delta: number) => {
-    setFollowers((n) => n + delta);
+    setState((s) => ({ ...s, followers: s.followers + delta }));
   }, []);
 
   const setToast = useCallback((toast: DemoState["toast"]) => {
@@ -178,8 +179,8 @@ export function RoadmapDemo({ domain = "wedding" }: Props = {}) {
       aliveRef.current && myLoopKey === loopKeyRef.current;
 
     async function runLoop() {
+      // buildInitialState resets rows, cursors, viewCount, followers, sharePressed
       setState(buildInitialState(domain));
-      setSharePressed(false);
       await wait(700);
       if (!isCurrent()) return;
 
@@ -229,12 +230,12 @@ export function RoadmapDemo({ domain = "wedding" }: Props = {}) {
       setCursorToShareButton("gamma");
       await wait(700);
       if (!isCurrent()) return;
-      setSharePressed(true);
+      setState((s) => ({ ...s, sharePressed: true }));
       await wait(220);
       setToast("copied");
       await wait(1300);
       if (!isCurrent()) return;
-      setSharePressed(false);
+      setState((s) => ({ ...s, sharePressed: false }));
       setToast(null);
       await wait(300);
 
@@ -367,7 +368,7 @@ export function RoadmapDemo({ domain = "wedding" }: Props = {}) {
         ref={shareButtonRef}
         url={pack.workspaceUrl}
         viewCount={state.viewCount}
-        sharePressed={sharePressed}
+        sharePressed={state.sharePressed}
       />
 
       <div className="relative px-5 pb-6 pt-5 sm:px-7 sm:pt-6">
@@ -391,7 +392,7 @@ export function RoadmapDemo({ domain = "wedding" }: Props = {}) {
           </div>
           <div className="flex items-center gap-2">
             <ViewToggle view={state.view} onChange={setView} />
-            <FollowersPill count={followers} />
+            <FollowersPill count={state.followers} />
             <span
               className="rounded-full border px-2.5 py-1 text-[11px] font-medium"
               style={{

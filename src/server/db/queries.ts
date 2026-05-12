@@ -15,9 +15,8 @@ import {
   projects,
   projectSources,
   tasks,
-  activity,
 } from "./schema";
-import type { Workspace, Project, ProjectSource, Task, Status, Activity } from "./schema";
+import type { Workspace, Project, ProjectSource, Task, Status } from "./schema";
 import type { ParsedItem } from "@/server/parser/parse-markdown";
 
 // ---------------------------------------------------------------------------
@@ -117,7 +116,6 @@ export async function seedWorkspaceFromTemplate({
       accent: p.accent ?? "#4f46e5",
       workspaceSlug,
       sortOrder: sortOrder++,
-      isPublic: true,
     });
   }
 
@@ -178,7 +176,6 @@ export async function createProject({
     accent,
     workspaceSlug,
     sortOrder: 0,
-    isPublic: false,
   });
   const [row] = await db
     .select()
@@ -469,26 +466,9 @@ export async function getProject(
 // preserved against any pre-existing owner data, but no code path reads
 // or writes through it.
 
-/**
- * Activity events for a task, newest-first.
- * Implicitly workspace-scoped through the entityId relationship.
- */
-export async function getActivityForTask(
-  taskId: string,
-  limit = 20,
-): Promise<Activity[]> {
-  return db
-    .select()
-    .from(activity)
-    .where(
-      and(
-        eq(activity.entityKind, "task"),
-        eq(activity.entityId, taskId),
-      ),
-    )
-    .orderBy(asc(activity.createdAt))
-    .limit(limit);
-}
+// getActivityForTask removed 2026-05-12 — Phase 10.2.
+// activity table has zero writers (confirmed by grep); dead infrastructure
+// removed. See migration 0001_drop_activity_isPublic_shareToken.sql.
 
 /**
  * Tasks for a single project within a workspace, sorted by sortOrder.

@@ -226,6 +226,9 @@ export async function saveProjectSourceAction(
   });
 
   revalidatePath(`/app/source/${projectSlug}`);
+  // Also invalidate the public viewer so stakeholders see fresh data immediately.
+  revalidatePath(`/${workspaceSlug}`);
+  revalidatePath(`/${workspaceSlug}/${projectSlug}`);
   return { ok: true, count: parsed.items.length, lastParsedAt: lastParsedAt.toISOString() };
 }
 

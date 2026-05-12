@@ -18,7 +18,6 @@
 import "dotenv/config";
 import { drizzle } from "drizzle-orm/libsql";
 import { createClient } from "@libsql/client";
-import { sql } from "drizzle-orm";
 import * as schema from "../src/server/db/schema";
 
 const WORKSPACE_SLUG = "tasks";
@@ -107,15 +106,6 @@ const ITEMS = [
     sortOrder: 6,
   },
   {
-    id: `${WORKSPACE_SLUG}-${PROJECT_SLUG}-007`,
-    title: "AI-generated roadmap items",
-    description:
-      "Not this year. The product's value is structured clarity, not generated content. If we ship AI suggestions before the manual workflow is proven, we're solving the wrong problem.",
-    status: "refused" as schema.Status,
-    kind: "refusal" as schema.Kind,
-    sortOrder: 7,
-  },
-  {
     id: `${WORKSPACE_SLUG}-${PROJECT_SLUG}-008`,
     title: "Public launch",
     description:
@@ -157,14 +147,10 @@ async function main() {
       ownerUserId: SEED_USER_ID,
       plan: "free",
     })
-    .onConflictDoUpdate({
-      target: schema.workspaces.slug,
-      set: {
-        name: WORKSPACE_NAME,
-        description: WORKSPACE_DESCRIPTION,
-        updatedAt: sql`(unixepoch())`,
-      },
-    });
+    // onConflictDoNothing: never overwrite a live workspace's name/description
+    // if the seed is accidentally run against prod. Items below keep their own
+    // update semantics (re-seeding updates item content intentionally).
+    .onConflictDoNothing();
   console.log(`  workspace "${WORKSPACE_SLUG}" upserted.`);
 
   // 2. Upsert project
@@ -177,7 +163,6 @@ async function main() {
       oneLiner: "What we're building — and what we said no to.",
       accent: "#4f46e5",
       sortOrder: 0,
-      isPublic: true,
     })
     .onConflictDoUpdate({
       target: [schema.projects.workspaceSlug, schema.projects.slug],

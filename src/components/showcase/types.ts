@@ -59,6 +59,10 @@ export type DemoState = {
   domain: DomainId;
   /** Toast variant currently visible, or null. */
   toast: "copied" | "subscribed" | null;
+  /** RSS follower count — folded into DemoState so buildInitialState resets it. */
+  followers: number;
+  /** Whether the Share button is in its pressed animation state. */
+  sharePressed: boolean;
 };
 
 export const STATUS_LABEL: Record<RowStatus, string> = {

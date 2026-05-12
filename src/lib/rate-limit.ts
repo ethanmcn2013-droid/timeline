@@ -44,8 +44,10 @@ async function upstashRateLimit(
   limit: number,
   windowSecs: number,
 ): Promise<boolean> {
-  const url = process.env.UPSTASH_REDIS_REST_URL!;
-  const token = process.env.UPSTASH_REDIS_REST_TOKEN!;
+  const url = process.env.UPSTASH_REDIS_REST_URL;
+  const token = process.env.UPSTASH_REDIS_REST_TOKEN;
+  if (!url) throw new Error("[rate-limit] UPSTASH_REDIS_REST_URL is required when Upstash is configured");
+  if (!token) throw new Error("[rate-limit] UPSTASH_REDIS_REST_TOKEN is required when Upstash is configured");
 
   const headers = {
     Authorization: `Bearer ${token}`,
@@ -59,7 +61,13 @@ async function upstashRateLimit(
     headers,
   });
   if (!incrRes.ok) {
-    // Redis unavailable — fail open (allow the request)
+    if (process.env.NODE_ENV === "production") {
+      // Redis unavailable in prod — fail closed. Brute-force protection
+      // must hold even when Redis is down.
+      console.error("[rate-limit] Upstash INCR failed in prod — denying request:", incrRes.status);
+      return false;
+    }
+    // Dev: fail open so local development is unblocked.
     console.warn("[rate-limit] Upstash INCR failed:", incrRes.status);
     return true;
   }
@@ -85,7 +93,15 @@ async function upstashRateLimit(
  * a `windowSecs` sliding window.
  *
  * Returns true if the request is allowed, false if it should be rejected.
- * Always returns true in dev when no Redis env is set (fail-open).
+ *
+ * Production behaviour:
+ *   - Upstash configured: uses Redis sliding-window counter.
+ *   - Upstash NOT configured: fails closed (deny) — brute-force protection
+ *     must hold even when Redis env vars are missing.
+ *
+ * Development behaviour:
+ *   - Upstash configured: uses Redis (same as prod).
+ *   - Upstash NOT configured: falls back to in-memory store (fail-open).
  */
 export async function checkRateLimit(
   action: string,
@@ -95,13 +111,21 @@ export async function checkRateLimit(
 ): Promise<boolean> {
   const key = `rl:${action}:${ip}`;
 
-  if (
-    process.env.UPSTASH_REDIS_REST_URL &&
-    process.env.UPSTASH_REDIS_REST_TOKEN
-  ) {
+  const upstashConfigured =
+    Boolean(process.env.UPSTASH_REDIS_REST_URL) &&
+    Boolean(process.env.UPSTASH_REDIS_REST_TOKEN);
+
+  if (upstashConfigured) {
     return upstashRateLimit(key, limit, windowSecs);
   }
 
+  if (process.env.NODE_ENV === "production") {
+    // No Redis in prod — fail closed.
+    console.error("[rate-limit] Upstash not configured in production — denying request for safety.");
+    return false;
+  }
+
+  // Dev / test: in-memory fallback (fail-open).
   return memRateLimit(key, limit, windowSecs);
 }
 

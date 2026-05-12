@@ -23,8 +23,6 @@ export const demoProjects: Project[] = [
     oneLiner: "What we're building — and what we said no to.",
     accent: "#4f46e5",
     sortOrder: 0,
-    shareToken: null,
-    isPublic: true,
   },
 ];
 
@@ -253,8 +251,6 @@ export const weddingDemoProjects: Project[] = [
     oneLiner: "What is decided, what is moving, and what needs attention before the day.",
     accent: "#be185d",
     sortOrder: 0,
-    shareToken: null,
-    isPublic: true,
   },
 ];
 

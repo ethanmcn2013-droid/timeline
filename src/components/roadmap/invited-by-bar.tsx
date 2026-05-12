@@ -31,7 +31,15 @@ export function InvitedByBar({
   lastUpdatedLabel: string | null;
 }) {
   const ownerName = workspace.ownerName?.trim() || null;
-  const ownerEmail = workspace.ownerEmail?.trim() || null;
+  // Validate ownerEmail against a plausible RFC-shape before using it.
+  // Prevents layout abuse and mailto injection from untrusted DB content.
+  const rawEmail = workspace.ownerEmail?.trim() || null;
+  const emailValid = rawEmail ? /^[^\s@]{1,64}@[^\s@]{1,255}\.[^\s@]{1,63}$/.test(rawEmail) : false;
+  const ownerEmail = emailValid ? rawEmail : null;
+  // Truncate display email to 60 chars to prevent layout abuse on public pages.
+  const ownerEmailDisplay = ownerEmail && ownerEmail.length > 60
+    ? ownerEmail.slice(0, 57) + "..."
+    : ownerEmail;
   const description = workspace.description?.trim() || null;
 
   const mailtoHref = ownerEmail
@@ -85,7 +93,7 @@ export function InvitedByBar({
               Reply by email
             </a>
             <p className="text-[11px] text-ink-quiet">
-              <span className="font-mono">{ownerEmail}</span>
+              <span className="font-mono">{ownerEmailDisplay}</span>
             </p>
           </div>
         ) : null}

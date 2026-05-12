@@ -59,6 +59,11 @@ export async function getCurrentWorkspace(
  */
 export async function requireUser(): Promise<string> {
   if (!clerkConfigured()) {
+    if (process.env.NODE_ENV === "production") {
+      // Clerk env vars dropped in prod — fail closed. Never serve /app/*
+      // as authenticated without real credentials.
+      redirect("/sign-in");
+    }
     // Dev mode: return a stub userId so the UI still renders.
     return "dev-user";
   }

@@ -14,7 +14,7 @@
  * the source of truth for this schema.
  *
  * Cycle 50 — gained workspace multi-tenancy:
- *   - nullable workspaceSlug column on projects/tasks/subtasks/activity/comments
+ *   - nullable workspaceSlug column on projects/tasks/subtasks/comments
  *   - new workspaces table (slug PK, ownerUserId, plan)
  *   - new project_sources table (composite PK, raw markdown source storage)
  * Migration is additive — legacy rows keep workspaceSlug=null and remain
@@ -23,7 +23,7 @@
  *
  * Cycle 7 (Roadmap) — composite PK + hardening:
  *   - projects.slug promoted from sole PK → composite PK (workspaceSlug, slug)
- *   - workspaceSlug made NOT NULL on projects/tasks/subtasks/activity/comments
+ *   - workspaceSlug made NOT NULL on projects/tasks/subtasks/comments
  *   - workspaces gained nullable description column
  *   - Legacy null-workspace project rows: backfill to "legacy" workspace
  *     or delete (see production runbook). No legacy rows expected in prod.
@@ -66,17 +66,10 @@ export const projects = sqliteTable(
     oneLiner: text("one_liner").notNull(),
     accent: text("accent").notNull(),
     sortOrder: integer("sort_order").notNull().default(0),
-    /** Public-share token. When set, `/r/[slug]?t=<token>` and
-     *  `/api/[slug]/roadmap.ics?t=<token>` resolve. Token-only access
-     *  unless `isPublic=true` (below) — closes the previous open-door
-     *  default flagged in the security audit. */
-    shareToken: text("share_token"),
-    /** Explicit public-read flag. Defaults to true for the personal-
-     *  portfolio context (everything is public anyway). Set false to
-     *  require a token for share/iCal access. */
-    isPublic: integer("is_public", { mode: "boolean" })
-      .notNull()
-      .default(true),
+    // shareToken + isPublic removed 2026-05-12 — Phase 10.1.
+    // "No private workspaces in v1" is a locked product refusal.
+    // Public-by-design IS the product; these columns were dead promises
+    // with zero enforcement. Migration: 0001_drop_activity_isPublic_shareToken.sql
   },
   (t) => [
     primaryKey({ columns: [t.workspaceSlug, t.slug] }),
@@ -241,32 +234,10 @@ export const subtasks = sqliteTable(
   (t) => [index("idx_subtasks_task").on(t.taskId)],
 );
 
-/**
- * Activity log — every status flip, assignee change, note addition.
- * Renders as the "what's happened recently" stream on the master
- * dashboard, and as a per-task timeline in the detail panel.
- */
-export const activity = sqliteTable(
-  "activity",
-  {
-    id: text("id").primaryKey(),
-    /** Multi-tenancy: workspace this activity belongs to. */
-    workspaceSlug: text("workspace_slug").notNull(),
-    /** "task" or "subtask" — which entity changed. */
-    entityKind: text("entity_kind").notNull(),
-    entityId: text("entity_id").notNull(),
-    /** Free-form action verb: "status-change", "assignee-change",
-     *  "subtask-add", "subtask-toggle", "created", etc. */
-    action: text("action").notNull(),
-    /** JSON payload describing the change. Schema-light by design;
-     *  the activity feed renders generic "X did Y to Z" copy. */
-    payload: text("payload").notNull().default("{}"),
-    createdAt: integer("created_at", { mode: "timestamp" })
-      .notNull()
-      .default(sql`(unixepoch())`),
-  },
-  (t) => [index("idx_activity_entity").on(t.entityKind, t.entityId)],
-);
+// activity table removed 2026-05-12 — Phase 10.2.
+// Confirmed zero writers (grep -r "insert(activity" src/ returned nothing).
+// Dead infrastructure with no live consumers on either read or write path.
+// Migration: drizzle/0001_drop_activity_isPublic_shareToken.sql
 
 /**
  * Comments — flat thread per task. Anyone visiting the public site
@@ -375,7 +346,6 @@ export const projectSources = sqliteTable(
 export type Project = typeof projects.$inferSelect;
 export type Task = typeof tasks.$inferSelect;
 export type Subtask = typeof subtasks.$inferSelect;
-export type Activity = typeof activity.$inferSelect;
 export type Comment = typeof comments.$inferSelect;
 export type Workspace = typeof workspaces.$inferSelect;
 export type ProjectSource = typeof projectSources.$inferSelect;
