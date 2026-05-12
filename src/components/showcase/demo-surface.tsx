@@ -9,24 +9,32 @@ import {
 } from "./types";
 import { ListView } from "./list-view";
 import { TimelineView } from "./timeline-view";
+import type { CommentThread } from "./comment-thread";
 
 type Props = {
   view: ViewMode;
   rows: Row[];
   domain: DomainId;
+  onRegister?: (id: string, el: HTMLDivElement | null) => void;
+  highlights?: Set<string>;
+  threadRowId?: string | null;
+  threadComments?: React.ComponentProps<typeof CommentThread>["comments"];
 };
 
 /**
- * The view-switching surface. Modelled on Tasks's DemoSurface pattern:
- * a single mounted set of cards whose geometry is FLIP'd by motion's
- * layout/layoutId between view modes. The wrapping "chrome" (per-view
- * grid + axis) cross-fades on the trailing tail of the geometry tween.
- *
- * Roadmap surfaces two views (no Calendar — scoped out of Phase 2a):
- *  - List: rows grouped by status with section counts
- *  - Timeline: horizontal bars across a month axis with a Today line
+ * The view-switching surface. Cards (rows) have stable layoutIds so motion
+ * FLIPs them between List and Timeline geometry. Chrome cross-fades on the
+ * trailing tail of the geometry tween.
  */
-export function DemoSurface({ view, rows, domain }: Props) {
+export function DemoSurface({
+  view,
+  rows,
+  domain,
+  onRegister,
+  highlights,
+  threadRowId,
+  threadComments,
+}: Props) {
   return (
     <div className="relative w-full">
       <AnimatePresence mode="wait" initial={false}>
@@ -38,7 +46,13 @@ export function DemoSurface({ view, rows, domain }: Props) {
             exit={{ opacity: 0, y: -4 }}
             transition={{ duration: 0.34, ease: EASE_OUT_EXPO }}
           >
-            <ListView rows={rows} />
+            <ListView
+              rows={rows}
+              onRegister={onRegister}
+              highlights={highlights}
+              threadRowId={threadRowId}
+              threadComments={threadComments}
+            />
           </motion.div>
         ) : (
           <motion.div

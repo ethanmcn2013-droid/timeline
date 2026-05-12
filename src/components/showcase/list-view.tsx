@@ -7,19 +7,26 @@ import {
   STATUS_ORDER,
 } from "./types";
 import { RoadmapRow } from "./roadmap-row";
+import type { CommentThread } from "./comment-thread";
 
 type Props = {
   rows: Row[];
+  onRegister?: (id: string, el: HTMLDivElement | null) => void;
+  /** Row ids that should be highlighted (a cursor is reading them). */
+  highlights?: Set<string>;
+  /** Row id under which the comment thread renders, or null. */
+  threadRowId?: string | null;
+  /** Comments to render in the thread. */
+  threadComments?: React.ComponentProps<typeof CommentThread>["comments"];
 };
 
-/**
- * List view — rows grouped by status. Section headers count items per
- * status. The default view; the demo loop starts here.
- *
- * Cards (rows) keep their layoutId stable across the surrounding view
- * morph, so the same DOM nodes FLIP between List and Timeline geometry.
- */
-export function ListView({ rows }: Props) {
+export function ListView({
+  rows,
+  onRegister,
+  highlights,
+  threadRowId,
+  threadComments,
+}: Props) {
   const groups = STATUS_ORDER.map((status) => ({
     status,
     items: rows.filter((r) => r.status === status),
@@ -51,7 +58,16 @@ export function ListView({ rows }: Props) {
             </div>
             <div className="flex flex-col gap-1.5">
               {group.items.map((row) => (
-                <RoadmapRow key={row.id} row={row} />
+                <RoadmapRow
+                  key={row.id}
+                  row={row}
+                  onRegister={onRegister}
+                  highlight={highlights?.has(row.id)}
+                  threadVisible={threadRowId === row.id}
+                  threadComments={
+                    threadRowId === row.id ? threadComments : undefined
+                  }
+                />
               ))}
               {group.items.length === 0 && (
                 <div

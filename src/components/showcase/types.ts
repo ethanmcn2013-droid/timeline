@@ -14,35 +14,58 @@ export type Row = {
   movedAt?: string;
 };
 
-export type ViewerId = "a" | "b" | "c";
+export type CursorId = "alpha" | "beta" | "gamma";
 
-export type Viewer = {
-  id: ViewerId;
-  laneIndex: number;
+export type Cursor = {
+  id: CursorId;
+  /** Hex/CSS color used for the arrow + label chip. */
+  color: string;
+  /** Short location/recency chip shown when reading. */
+  label: string;
+  /** Pixel x relative to surface. */
+  x: number;
+  /** Pixel y relative to surface. */
+  y: number;
   visible: boolean;
+  /** True when paused on a row — drives the chip render. */
+  reading: boolean;
+  /** Row id being targeted; null when in transit / idle. */
+  targetRowId: string | null;
 };
 
 export type Scene =
   | "boot"
-  | "viewers-arrive"
+  | "cursors-arrive"
   | "first-move"
   | "tick-up-1"
   | "second-move"
   | "tick-up-2"
   | "third-move"
+  | "share-copy"
   | "view-morph-timeline"
   | "timeline-hold"
+  | "rss-arrival"
   | "view-morph-list"
-  | "viewers-leave"
+  | "cursor-lingers"
+  | "comment-thread"
+  | "thread-typing"
+  | "thread-close"
+  | "cursors-leave"
   | "reset";
 
 export type DemoState = {
   rows: Row[];
-  viewers: Viewer[];
+  cursors: Cursor[];
   viewCount: number;
   scene: Scene;
   view: ViewMode;
   domain: DomainId;
+  /** Row id under which the comment thread is rendered. null = closed. */
+  threadRowId: string | null;
+  /** Character count revealed of the typing reply, for the type-on animation. */
+  threadTypingReveal: number;
+  /** Toast variant currently visible, or null. */
+  toast: "copied" | "subscribed" | null;
 };
 
 export const STATUS_LABEL: Record<RowStatus, string> = {
@@ -61,6 +84,39 @@ export const STATUS_TOKEN: Record<RowStatus, string> = {
   next: "var(--status-next)",
 };
 
-// Morph timing — modelled on Tasks's useMorphTransition().
 export const MORPH_DURATION_S = 0.72;
 export const EASE_OUT_EXPO = [0.16, 1, 0.3, 1] as const;
+
+// Cursor identities — public-visitor framing, anonymous indigo tones.
+export const CURSOR_SEED: Cursor[] = [
+  {
+    id: "alpha",
+    color: "#4f46e5",
+    label: "Dublin · 14m ago",
+    x: -30,
+    y: 60,
+    visible: false,
+    reading: false,
+    targetRowId: null,
+  },
+  {
+    id: "beta",
+    color: "#7c5cff",
+    label: "London · just now",
+    x: -30,
+    y: 180,
+    visible: false,
+    reading: false,
+    targetRowId: null,
+  },
+  {
+    id: "gamma",
+    color: "#5b6cff",
+    label: "Cork · 2h ago",
+    x: -30,
+    y: 320,
+    visible: false,
+    reading: false,
+    targetRowId: null,
+  },
+];
