@@ -14,6 +14,7 @@ import {
 import { Cursor as CursorView } from "./cursor";
 import { UrlBar } from "./url-bar";
 import { ViewToggle } from "./view-toggle";
+import { FollowersPill } from "./followers-pill";
 import { DemoSurface } from "./demo-surface";
 import { DemoToast } from "./toast";
 
@@ -37,7 +38,6 @@ type Props = {
   domain?: DomainId;
 };
 
-// Comments shown when the thread opens — generic enough to fit any pack.
 const THREAD_COMMENTS_INITIAL = [
   {
     id: "comment-1",
@@ -53,13 +53,18 @@ export function RoadmapDemo({ domain = "wedding" }: Props = {}) {
   const reducedMotion = useReducedMotion();
   const pack = DOMAINS[domain];
   const [state, setState] = useState<DemoState>(() => buildInitialState(domain));
+  const [followers, setFollowers] = useState(1247);
+  const [sharePressed, setSharePressed] = useState(false);
   const aliveRef = useRef(true);
   const loopKeyRef = useRef(0);
   const surfaceRef = useRef<HTMLDivElement | null>(null);
   const rowRefsRef = useRef<Map<string, HTMLDivElement>>(new Map());
+  const shareButtonRef = useRef<HTMLButtonElement | null>(null);
 
   useEffect(() => {
     setState(buildInitialState(domain));
+    setFollowers(1247);
+    setSharePressed(false);
     loopKeyRef.current += 1;
   }, [domain]);
 
@@ -74,7 +79,6 @@ export function RoadmapDemo({ domain = "wedding" }: Props = {}) {
     []
   );
 
-  /** Read the live coordinates of a row relative to the surface. */
   const getRowCenter = useCallback((rowId: string): { x: number; y: number } | null => {
     const surface = surfaceRef.current;
     const rowEl = rowRefsRef.current.get(rowId);
@@ -84,6 +88,18 @@ export function RoadmapDemo({ domain = "wedding" }: Props = {}) {
     return {
       x: rowRect.left - surfaceRect.left + rowRect.width * 0.4,
       y: rowRect.top - surfaceRect.top + rowRect.height * 0.5,
+    };
+  }, []);
+
+  const getShareCenter = useCallback((): { x: number; y: number } | null => {
+    const surface = surfaceRef.current;
+    const btn = shareButtonRef.current;
+    if (!surface || !btn) return null;
+    const surfaceRect = surface.getBoundingClientRect();
+    const btnRect = btn.getBoundingClientRect();
+    return {
+      x: btnRect.left - surfaceRect.left + btnRect.width * 0.5,
+      y: btnRect.top - surfaceRect.top + btnRect.height * 0.5,
     };
   }, []);
 
@@ -128,7 +144,6 @@ export function RoadmapDemo({ domain = "wedding" }: Props = {}) {
         updateCursor(id, { targetRowId: rowId, reading });
         return;
       }
-      // Jitter slightly so multiple cursors don't perfectly overlap.
       const jitterY = id === "alpha" ? -6 : id === "beta" ? 6 : 0;
       updateCursor(id, {
         targetRowId: rowId,
@@ -140,26 +155,40 @@ export function RoadmapDemo({ domain = "wedding" }: Props = {}) {
     [getRowCenter, updateCursor]
   );
 
+  const setCursorToShareButton = useCallback(
+    (id: Cursor["id"]) => {
+      const center = getShareCenter();
+      if (!center) return;
+      updateCursor(id, {
+        targetRowId: null,
+        x: center.x,
+        y: center.y,
+        reading: false,
+      });
+    },
+    [getShareCenter, updateCursor]
+  );
+
   const tickViewers = useCallback((delta: number) => {
     setState((s) => ({ ...s, viewCount: s.viewCount + delta }));
   }, []);
 
-  const setThread = useCallback(
-    (rowId: string | null, reveal = 0) => {
-      setState((s) => ({
-        ...s,
-        threadRowId: rowId,
-        threadTypingReveal: reveal,
-      }));
-    },
-    []
-  );
+  const tickFollowers = useCallback((delta: number) => {
+    setFollowers((n) => n + delta);
+  }, []);
+
+  const setThread = useCallback((rowId: string | null, reveal = 0) => {
+    setState((s) => ({
+      ...s,
+      threadRowId: rowId,
+      threadTypingReveal: reveal,
+    }));
+  }, []);
 
   const setToast = useCallback((toast: DemoState["toast"]) => {
     setState((s) => ({ ...s, toast }));
   }, []);
 
-  /** Scene timeline. */
   useEffect(() => {
     if (reducedMotion) return;
     aliveRef.current = true;
@@ -169,7 +198,6 @@ export function RoadmapDemo({ domain = "wedding" }: Props = {}) {
     const isCurrent = () =>
       aliveRef.current && myLoopKey === loopKeyRef.current;
 
-    // Type out the reply, frame-by-frame.
     async function typeReply() {
       for (let i = 1; i <= THREAD_REPLY.length; i++) {
         if (!isCurrent()) return;
@@ -180,12 +208,11 @@ export function RoadmapDemo({ domain = "wedding" }: Props = {}) {
 
     async function runLoop() {
       setState(buildInitialState(domain));
+      setSharePressed(false);
       await wait(700);
       if (!isCurrent()) return;
 
-      // Cursors arrive — three of them, drifting in from different edges
       setScene("cursors-arrive");
-      // Seed positions inside surface, off-canvas to the left
       updateCursor("alpha", { visible: true });
       await wait(220);
       setCursorTarget("alpha", transitions[0]?.id ?? null, false);
@@ -199,7 +226,6 @@ export function RoadmapDemo({ domain = "wedding" }: Props = {}) {
       await wait(1100);
       if (!isCurrent()) return;
 
-      // Reading beat — each cursor lingers on its row
       updateCursor("alpha", { reading: true });
       updateCursor("beta", { reading: true });
       updateCursor("gamma", { reading: true });
@@ -209,14 +235,12 @@ export function RoadmapDemo({ domain = "wedding" }: Props = {}) {
       updateCursor("beta", { reading: false });
       updateCursor("gamma", { reading: false });
 
-      // First status change — alpha is reading the very item that moves
       setScene("first-move");
       if (transitions[0]) {
         setRowStatus(transitions[0].id, transitions[0].to, transitions[0].movedAt);
       }
       await wait(900);
       if (!isCurrent()) return;
-      // Alpha follows the moved row to its new lane
       if (transitions[0]) setCursorTarget("alpha", transitions[0].id, true);
       await wait(800);
       if (!isCurrent()) return;
@@ -227,11 +251,19 @@ export function RoadmapDemo({ domain = "wedding" }: Props = {}) {
       await wait(900);
       if (!isCurrent()) return;
 
-      // Share copy moment — toast appears briefly
+      // Share-copy beat: gamma cursor visits the Share button → press
+      // animation → toast appears. Now the share gesture is intelligent —
+      // a reader presses share, then copies.
       setScene("share-copy");
-      setToast("copied");
-      await wait(1500);
+      setCursorToShareButton("gamma");
+      await wait(700);
       if (!isCurrent()) return;
+      setSharePressed(true);
+      await wait(220);
+      setToast("copied");
+      await wait(1300);
+      if (!isCurrent()) return;
+      setSharePressed(false);
       setToast(null);
       await wait(300);
 
@@ -258,7 +290,6 @@ export function RoadmapDemo({ domain = "wedding" }: Props = {}) {
       if (!isCurrent()) return;
       updateCursor("gamma", { reading: false });
 
-      // Comment thread — beta lingers on a row, thread opens, reply types
       setScene("cursor-lingers");
       const threadRow = transitions[1]?.id ?? "florist";
       setCursorTarget("beta", threadRow, true);
@@ -281,7 +312,6 @@ export function RoadmapDemo({ domain = "wedding" }: Props = {}) {
       await wait(600);
       if (!isCurrent()) return;
 
-      // Morph to Timeline — hide cursors (bars are the protagonist there)
       setScene("view-morph-timeline");
       setView("timeline");
       updateCursor("alpha", { visible: false });
@@ -292,6 +322,7 @@ export function RoadmapDemo({ domain = "wedding" }: Props = {}) {
 
       setScene("rss-arrival");
       setToast("subscribed");
+      tickFollowers(1);
       await wait(1600);
       if (!isCurrent()) return;
       setToast(null);
@@ -301,7 +332,6 @@ export function RoadmapDemo({ domain = "wedding" }: Props = {}) {
       await wait(1400);
       if (!isCurrent()) return;
 
-      // Morph back to List — cursors return
       setScene("view-morph-list");
       setView("list");
       await wait(800);
@@ -344,12 +374,13 @@ export function RoadmapDemo({ domain = "wedding" }: Props = {}) {
     setRowStatus,
     updateCursor,
     setCursorTarget,
+    setCursorToShareButton,
     tickViewers,
+    tickFollowers,
     setThread,
     setToast,
   ]);
 
-  // Compute highlights set from cursor state — rows that have a reading cursor on them.
   const highlights = useMemo(() => {
     const set = new Set<string>();
     for (const c of state.cursors) {
@@ -358,7 +389,6 @@ export function RoadmapDemo({ domain = "wedding" }: Props = {}) {
     return set;
   }, [state.cursors]);
 
-  // Build thread comments — include the typing reply if we're past the thread-typing scene.
   const threadComments = useMemo(() => {
     if (!state.threadRowId) return undefined;
     const base = [...THREAD_COMMENTS_INITIAL];
@@ -386,7 +416,12 @@ export function RoadmapDemo({ domain = "wedding" }: Props = {}) {
         boxShadow: "var(--shadow-2)",
       }}
     >
-      <UrlBar url={pack.workspaceUrl} viewCount={state.viewCount} />
+      <UrlBar
+        ref={shareButtonRef}
+        url={pack.workspaceUrl}
+        viewCount={state.viewCount}
+        sharePressed={sharePressed}
+      />
 
       <div className="relative px-5 pb-6 pt-5 sm:px-7 sm:pt-6">
         <div className="mb-6 flex items-start justify-between gap-3">
@@ -409,6 +444,7 @@ export function RoadmapDemo({ domain = "wedding" }: Props = {}) {
           </div>
           <div className="flex items-center gap-2">
             <ViewToggle view={state.view} onChange={setView} />
+            <FollowersPill count={followers} />
             <span
               className="rounded-full border px-2.5 py-1 text-[11px] font-medium"
               style={{
@@ -431,7 +467,6 @@ export function RoadmapDemo({ domain = "wedding" }: Props = {}) {
           threadComments={threadComments as never}
         />
 
-        {/* Cursors layer — only in List view; Timeline owns its own protagonists */}
         {state.view === "list" ? (
           <div className="pointer-events-none absolute inset-0">
             {state.cursors.map((c) => (
