@@ -2,6 +2,31 @@
 
 ## 2026-05-12
 
+### Workspaces can now start from a canonical template (T-2.1b).
+
+The Roadmap product can now seed a new workspace's projects and items
+from a Signal Studio canonical workspace template. The plumbing landed
+earlier today (T-2.1a) — this cycle wires the actual workspace creation
+path.
+
+`createWorkspaceAction` accepts a `fromTemplate` form field. When set,
+it resolves the template via `getSyncedTemplateRoadmap`, creates the
+workspace with the matching `templateId`, then calls a new
+`seedWorkspaceFromTemplate` helper that inserts the template's
+projects and items in one pass. The user is redirected to the workspace's
+public page on success rather than `/app`.
+
+A new public route at `/onboarding/from-template/[id]` renders the
+template-aware variant of the create form: the workspace name is
+pre-filled from the template, an item-count line explains what will
+land, and a hidden `fromTemplate` input wires the seed.
+
+`onboarding` is now reserved — workspace slugs can't take it.
+
+The next templates cycle (T-2.1c, in Tasks) wires the cross-product
+CTA so remixing a template in Tasks surfaces the option to create a
+Roadmap for the same workspace.
+
 ### Templates plumbing — workspaces remember their template, canonical wedding slice arrives (T-2.1a).
 
 The Roadmap product is now wired to consume canonical workspace

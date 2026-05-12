@@ -46,22 +46,89 @@ export async function getWorkspacesForUser(
     .orderBy(asc(workspaces.createdAt));
 }
 
-/** Create a new workspace. Slug must be unique (PK). Throws on conflict. */
+/** Create a new workspace. Slug must be unique (PK). Throws on conflict.
+ *  When `templateId` is set, the workspace records which canonical
+ *  template seeded it (see studio/docs/TEMPLATES_STRATEGY.md). The
+ *  actual project + item seeding happens via `seedWorkspaceFromTemplate`. */
 export async function createWorkspace({
   slug,
   name,
   ownerUserId,
   plan = "free",
+  templateId = null,
 }: {
   slug: string;
   name: string;
   ownerUserId: string;
   plan?: "free" | "pro" | "studio";
+  templateId?: string | null;
 }): Promise<Workspace> {
-  await db.insert(workspaces).values({ slug, name, ownerUserId, plan });
+  await db.insert(workspaces).values({ slug, name, ownerUserId, plan, templateId });
   const row = await getWorkspace(slug);
   if (!row) throw new Error(`createWorkspace: insert succeeded but row not found for slug="${slug}"`);
   return row;
+}
+
+/**
+ * Seed a workspace with the projects + items from a canonical workspace
+ * template (T-2.1b). Called from `createWorkspaceAction` after the
+ * workspace row has been inserted. Synced template data comes from
+ * `src/lib/templates.generated.ts` (refreshed via `pnpm sync:templates`).
+ *
+ * Idempotent enough for re-runs: project + item ids include the workspace
+ * slug so re-seeding the same workspace would just INSERT-or-fail on PK.
+ * In practice this is only called once per workspace (right after create).
+ */
+export async function seedWorkspaceFromTemplate({
+  workspaceSlug,
+  template,
+}: {
+  workspaceSlug: string;
+  template: {
+    roadmap: {
+      projects: Array<{ slug: string; name: string; oneLiner: string; accent?: string }>;
+      items: Array<{
+        projectSlug: string;
+        title: string;
+        description: string;
+        status: "shipped" | "in-flight" | "next" | "blocked" | "refused";
+        targetDate?: string;
+      }>;
+    };
+  };
+}): Promise<{ projectCount: number; itemCount: number }> {
+  let sortOrder = 0;
+  for (const p of template.roadmap.projects) {
+    await db.insert(projects).values({
+      slug: p.slug,
+      name: p.name,
+      oneLiner: p.oneLiner,
+      accent: p.accent ?? "#4f46e5",
+      workspaceSlug,
+      sortOrder: sortOrder++,
+      isPublic: true,
+    });
+  }
+
+  let itemSort = 0;
+  for (const it of template.roadmap.items) {
+    const id = `${workspaceSlug}-${it.projectSlug}-${String(itemSort + 1).padStart(3, "0")}`;
+    await db.insert(tasks).values({
+      id,
+      projectSlug: it.projectSlug,
+      workspaceSlug,
+      title: it.title,
+      description: it.description,
+      status: it.status,
+      sortOrder: itemSort++,
+      targetDate: it.targetDate,
+    });
+  }
+
+  return {
+    projectCount: template.roadmap.projects.length,
+    itemCount: template.roadmap.items.length,
+  };
 }
 
 // ---------------------------------------------------------------------------

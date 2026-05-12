@@ -7,6 +7,7 @@ export const RESERVED_SLUGS = new Set([
   "sign-up",
   "app",
   "api",
+  "onboarding",
   "r",
   "opengraph-image",
   "sitemap",

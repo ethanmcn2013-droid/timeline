@@ -11,10 +11,12 @@ import {
   upsertParsedItems,
   getProjectsForWorkspace,
   addComment,
+  seedWorkspaceFromTemplate,
 } from "@/server/db/queries";
 import { isValidSlug, slugify } from "@/lib/reserved-slugs";
 import { parseMarkdown } from "@/server/parser/parse-markdown";
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
+import { getSyncedTemplateRoadmap } from "@/lib/templates.generated";
 
 // ---------------------------------------------------------------------------
 // Workspace creation
@@ -36,6 +38,8 @@ export async function createWorkspaceAction(
 
   const name = (formData.get("name") as string | null)?.trim() ?? "";
   const slug = (formData.get("slug") as string | null)?.trim() ?? "";
+  const fromTemplate =
+    (formData.get("fromTemplate") as string | null)?.trim() || null;
 
   if (!name) return { error: "Workspace name is required." };
   if (!slug) return { error: "Slug is required." };
@@ -46,16 +50,32 @@ export async function createWorkspaceAction(
     };
   }
 
+  // Resolve template up front so we don't create a workspace then fail
+  // on the seed step.
+  const template = fromTemplate ? getSyncedTemplateRoadmap(fromTemplate) : null;
+  if (fromTemplate && !template) {
+    return { error: `Unknown template id: ${fromTemplate}` };
+  }
+
   // Uniqueness check
   const existing = await getWorkspace(slug);
   if (existing) {
     return { error: "That slug is already taken. Try another." };
   }
 
-  await createWorkspace({ slug, name, ownerUserId: userId });
+  await createWorkspace({
+    slug,
+    name,
+    ownerUserId: userId,
+    templateId: template?.id ?? null,
+  });
+
+  if (template) {
+    await seedWorkspaceFromTemplate({ workspaceSlug: slug, template });
+  }
 
   revalidatePath("/app");
-  redirect("/app");
+  redirect(template ? `/${slug}` : "/app");
 }
 
 // ---------------------------------------------------------------------------
