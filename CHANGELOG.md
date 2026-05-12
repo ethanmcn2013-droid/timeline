@@ -1,5 +1,35 @@
 # Signal Roadmap · Changelog
 
+## 2026-05-12
+
+### Templates plumbing — workspaces remember their template, canonical wedding slice arrives (T-2.1a).
+
+The Roadmap product is now wired to consume canonical workspace
+templates owned by the Signal Studio repo. Three things landed:
+
+The `workspaces` table gained a nullable `template_id` text column.
+When a workspace is created from a canonical template (T-2.1b, next),
+this column carries the template id (e.g. `wedding-planning-workspace`)
+so subsequent visits and shared updates know which template framed the
+plan.
+
+A `pnpm sync:templates` script reads the sibling studio repo and
+writes `src/lib/templates.generated.ts` with the roadmap slice from
+each canonical template (projects, items, status, target dates).
+The generated file is committed — Vercel doesn't need the studio repo
+to build.
+
+The canonical wedding planning workspace's roadmap slice is reshaped
+to match Roadmap's actual data model — projects with items, not the
+earlier sections+milestones placeholder. The wedding planning items
+read as a clear shared update for venue, couple, and suppliers.
+
+T-2.1b (the workspace create flow accepting `fromTemplate` and
+actually seeding projects + items from the synced slice) is the next
+templates cycle. The hand-built `weddingDemoWorkspace` continues to
+render `/wedding-planning/update` in the meantime — no user-visible
+regression.
+
 ## 2026-05-11
 
 ### Cycle 3 shared update artefact.

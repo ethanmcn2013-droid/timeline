@@ -10,6 +10,7 @@ export const demoWorkspace: Workspace = {
   plan: "free",
   createdAt,
   updatedAt: createdAt,
+  templateId: null,
 };
 
 export const demoProjects: Project[] = [
@@ -237,6 +238,7 @@ export const weddingDemoWorkspace: Workspace = {
   plan: "free",
   createdAt,
   updatedAt: createdAt,
+  templateId: "wedding-planning-workspace",
 };
 
 export const weddingDemoProjects: Project[] = [

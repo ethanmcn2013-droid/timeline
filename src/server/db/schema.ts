@@ -316,6 +316,12 @@ export const workspaces = sqliteTable(
       .$type<"free" | "pro" | "studio">()
       .notNull()
       .default("free"),
+    /** Canonical workspace template id this workspace was created from
+     *  (e.g. "wedding-planning-workspace"). Null = workspace created
+     *  from scratch. Roadmap reads this on first visit to lazily seed
+     *  projects and items from the canonical template slice. Strategy:
+     *  studio/docs/TEMPLATES_STRATEGY.md (T-2.1). */
+    templateId: text("template_id"),
     createdAt: integer("created_at", { mode: "timestamp" })
       .notNull()
       .default(sql`(unixepoch())`),

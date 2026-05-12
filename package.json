@@ -10,7 +10,8 @@
     "typecheck": "tsc --noEmit",
     "db:push": "drizzle-kit push --force",
     "db:generate": "drizzle-kit generate",
-    "seed:demo": "tsx scripts/seed-demo.ts"
+    "seed:demo": "tsx scripts/seed-demo.ts",
+    "sync:templates": "tsx scripts/sync-templates.ts"
   },
   "dependencies": {
     "@clerk/nextjs": "^7.3.1",
