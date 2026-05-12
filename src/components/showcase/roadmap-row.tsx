@@ -1,7 +1,6 @@
 "use client";
 
 import { motion, AnimatePresence } from "motion/react";
-import { CommentThread } from "./comment-thread";
 import { type Row, STATUS_TOKEN } from "./types";
 
 type Props = {
@@ -10,10 +9,6 @@ type Props = {
   onRegister?: (id: string, el: HTMLDivElement | null) => void;
   /** Set when a cursor is reading this row — adds a soft outline. */
   highlight?: boolean;
-  /** Visible when this row should render its comment thread underneath. */
-  threadVisible?: boolean;
-  /** Comments (for the thread). */
-  threadComments?: React.ComponentProps<typeof CommentThread>["comments"];
 };
 
 /**
@@ -27,8 +22,6 @@ export function RoadmapRow({
   row,
   onRegister,
   highlight,
-  threadVisible,
-  threadComments,
 }: Props) {
   return (
     <div className="flex flex-col">
@@ -112,13 +105,6 @@ export function RoadmapRow({
           </AnimatePresence>
         </div>
       </motion.div>
-
-      {threadComments ? (
-        <CommentThread
-          visible={!!threadVisible}
-          comments={threadComments}
-        />
-      ) : null}
     </div>
   );
 }

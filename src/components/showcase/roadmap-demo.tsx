@@ -26,8 +26,6 @@ function buildInitialState(domain: DomainId): DemoState {
     scene: "boot",
     view: "list",
     domain,
-    threadRowId: null,
-    threadTypingReveal: 0,
     toast: null,
   };
 }
@@ -37,17 +35,6 @@ const wait = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
 type Props = {
   domain?: DomainId;
 };
-
-const THREAD_COMMENTS_INITIAL = [
-  {
-    id: "comment-1",
-    author: "Sarah",
-    authorColor: "#7c5cff",
-    body: "Will this be confirmed by Friday?",
-  },
-];
-
-const THREAD_REPLY = "Yes — confirming with the supplier this morning.";
 
 export function RoadmapDemo({ domain = "wedding" }: Props = {}) {
   const reducedMotion = useReducedMotion();
@@ -177,14 +164,6 @@ export function RoadmapDemo({ domain = "wedding" }: Props = {}) {
     setFollowers((n) => n + delta);
   }, []);
 
-  const setThread = useCallback((rowId: string | null, reveal = 0) => {
-    setState((s) => ({
-      ...s,
-      threadRowId: rowId,
-      threadTypingReveal: reveal,
-    }));
-  }, []);
-
   const setToast = useCallback((toast: DemoState["toast"]) => {
     setState((s) => ({ ...s, toast }));
   }, []);
@@ -197,14 +176,6 @@ export function RoadmapDemo({ domain = "wedding" }: Props = {}) {
 
     const isCurrent = () =>
       aliveRef.current && myLoopKey === loopKeyRef.current;
-
-    async function typeReply() {
-      for (let i = 1; i <= THREAD_REPLY.length; i++) {
-        if (!isCurrent()) return;
-        setState((s) => ({ ...s, threadTypingReveal: i }));
-        await wait(28 + Math.random() * 24);
-      }
-    }
 
     async function runLoop() {
       setState(buildInitialState(domain));
@@ -291,25 +262,18 @@ export function RoadmapDemo({ domain = "wedding" }: Props = {}) {
       updateCursor("gamma", { reading: false });
 
       setScene("cursor-lingers");
-      const threadRow = transitions[1]?.id ?? "florist";
-      setCursorTarget("beta", threadRow, true);
-      await wait(1100);
+      // Cursor reads the just-moved row — a public-watching beat.
+      // The previous version branched into a comment-thread + typing
+      // sequence here; removed when the Comments feature was killed
+      // architecturally (Suite Review T3). The lingering cursor is
+      // honest about what the product actually shows: a public reader
+      // watching a state change, no write surface attached.
+      const lingerRow = transitions[1]?.id ?? "florist";
+      setCursorTarget("beta", lingerRow, true);
+      await wait(1800);
       if (!isCurrent()) return;
-
-      setScene("comment-thread");
-      setThread(threadRow, 0);
-      await wait(800);
-      if (!isCurrent()) return;
-
-      setScene("thread-typing");
-      await typeReply();
-      if (!isCurrent()) return;
-      await wait(1200);
-
-      setScene("thread-close");
-      setThread(null);
       updateCursor("beta", { reading: false });
-      await wait(600);
+      await wait(400);
       if (!isCurrent()) return;
 
       setScene("view-morph-timeline");
@@ -377,7 +341,6 @@ export function RoadmapDemo({ domain = "wedding" }: Props = {}) {
     setCursorToShareButton,
     tickViewers,
     tickFollowers,
-    setThread,
     setToast,
   ]);
 
@@ -388,22 +351,6 @@ export function RoadmapDemo({ domain = "wedding" }: Props = {}) {
     }
     return set;
   }, [state.cursors]);
-
-  const threadComments = useMemo(() => {
-    if (!state.threadRowId) return undefined;
-    const base = [...THREAD_COMMENTS_INITIAL];
-    if (state.threadTypingReveal > 0 || state.scene === "thread-typing") {
-      base.push({
-        id: "comment-reply",
-        author: "You",
-        authorColor: "#4f46e5",
-        body: THREAD_REPLY,
-        typing: true,
-        reveal: state.threadTypingReveal,
-      } as never);
-    }
-    return base;
-  }, [state.threadRowId, state.threadTypingReveal, state.scene]);
 
   return (
     <div
@@ -463,8 +410,6 @@ export function RoadmapDemo({ domain = "wedding" }: Props = {}) {
           domain={state.domain}
           onRegister={onRegisterRow}
           highlights={highlights}
-          threadRowId={state.threadRowId}
-          threadComments={threadComments as never}
         />
 
         {state.view === "list" ? (

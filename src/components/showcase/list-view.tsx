@@ -7,25 +7,18 @@ import {
   STATUS_ORDER,
 } from "./types";
 import { RoadmapRow } from "./roadmap-row";
-import type { CommentThread } from "./comment-thread";
 
 type Props = {
   rows: Row[];
   onRegister?: (id: string, el: HTMLDivElement | null) => void;
   /** Row ids that should be highlighted (a cursor is reading them). */
   highlights?: Set<string>;
-  /** Row id under which the comment thread renders, or null. */
-  threadRowId?: string | null;
-  /** Comments to render in the thread. */
-  threadComments?: React.ComponentProps<typeof CommentThread>["comments"];
 };
 
 export function ListView({
   rows,
   onRegister,
   highlights,
-  threadRowId,
-  threadComments,
 }: Props) {
   const groups = STATUS_ORDER.map((status) => ({
     status,
@@ -63,10 +56,6 @@ export function ListView({
                   row={row}
                   onRegister={onRegister}
                   highlight={highlights?.has(row.id)}
-                  threadVisible={threadRowId === row.id}
-                  threadComments={
-                    threadRowId === row.id ? threadComments : undefined
-                  }
                 />
               ))}
               {group.items.length === 0 && (

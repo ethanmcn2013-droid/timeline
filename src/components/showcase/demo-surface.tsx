@@ -9,7 +9,6 @@ import {
 } from "./types";
 import { ListView } from "./list-view";
 import { TimelineView } from "./timeline-view";
-import type { CommentThread } from "./comment-thread";
 
 type Props = {
   view: ViewMode;
@@ -17,8 +16,6 @@ type Props = {
   domain: DomainId;
   onRegister?: (id: string, el: HTMLDivElement | null) => void;
   highlights?: Set<string>;
-  threadRowId?: string | null;
-  threadComments?: React.ComponentProps<typeof CommentThread>["comments"];
 };
 
 /**
@@ -32,8 +29,6 @@ export function DemoSurface({
   domain,
   onRegister,
   highlights,
-  threadRowId,
-  threadComments,
 }: Props) {
   return (
     <div className="relative w-full">
@@ -50,8 +45,6 @@ export function DemoSurface({
               rows={rows}
               onRegister={onRegister}
               highlights={highlights}
-              threadRowId={threadRowId}
-              threadComments={threadComments}
             />
           </motion.div>
         ) : (

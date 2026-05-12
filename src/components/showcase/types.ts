@@ -47,9 +47,6 @@ export type Scene =
   | "rss-arrival"
   | "view-morph-list"
   | "cursor-lingers"
-  | "comment-thread"
-  | "thread-typing"
-  | "thread-close"
   | "cursors-leave"
   | "reset";
 
@@ -60,10 +57,6 @@ export type DemoState = {
   scene: Scene;
   view: ViewMode;
   domain: DomainId;
-  /** Row id under which the comment thread is rendered. null = closed. */
-  threadRowId: string | null;
-  /** Character count revealed of the typing reply, for the type-on animation. */
-  threadTypingReveal: number;
   /** Toast variant currently visible, or null. */
   toast: "copied" | "subscribed" | null;
 };
