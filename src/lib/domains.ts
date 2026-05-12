@@ -14,6 +14,10 @@ export type DemoRow = {
   title: string;
   status: DemoRowStatus;
   date: string;
+  /** Month index (0=Jan ... 11=Dec) the item began. Used by Timeline view. */
+  startMonth: number;
+  /** Month index the item ends or is projected to end. */
+  endMonth: number;
 };
 
 export type DomainPack = {
@@ -27,6 +31,11 @@ export type DomainPack = {
   workspaceTitle: string;
   /** Eyebrow shown above the workspace title. */
   workspaceEyebrow: string;
+  /** Timeline window — first and last month shown on the timeline axis. */
+  timelineStart: number;
+  timelineEnd: number;
+  /** Month index that "today" sits on, used to draw the Today line. */
+  todayMonth: number;
   /** Seed rows for the demo. The orchestrator picks two to transition. */
   rows: DemoRow[];
   /** Which row ids move during the loop (first → second status). */
@@ -40,6 +49,11 @@ export const DOMAIN_ORDER: DomainId[] = [
   "startup",
 ];
 
+export const MONTH_LABELS = [
+  "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+];
+
 export const DOMAINS: Record<DomainId, DomainPack> = {
   wedding: {
     id: "wedding",
@@ -49,14 +63,17 @@ export const DOMAINS: Record<DomainId, DomainPack> = {
     workspaceUrl: "roadmap.signalstudio.ie/wedding-spring-26",
     workspaceTitle: "The plan, in plain English.",
     workspaceEyebrow: "Spring wedding",
+    timelineStart: 0, // Jan
+    timelineEnd: 5, // Jun
+    todayMonth: 2, // March
     rows: [
-      { id: "venue", title: "Venue contract signed", status: "shipped", date: "Jan 12" },
-      { id: "save-dates", title: "Save-the-date sent", status: "shipped", date: "Feb 04" },
-      { id: "catering", title: "Catering tasting Friday", status: "doing", date: "This week" },
-      { id: "honeymoon", title: "Honeymoon flights", status: "doing", date: "Mar 18" },
-      { id: "florist", title: "Florist deposit", status: "held", date: "Held since Mar 02" },
-      { id: "invitations", title: "Invitations", status: "next", date: "Apr" },
-      { id: "timeline", title: "Day-of timeline", status: "next", date: "May" },
+      { id: "venue", title: "Venue contract signed", status: "shipped", date: "Jan 12", startMonth: 0, endMonth: 0 },
+      { id: "save-dates", title: "Save-the-date sent", status: "shipped", date: "Feb 04", startMonth: 0, endMonth: 1 },
+      { id: "catering", title: "Catering tasting Friday", status: "doing", date: "This week", startMonth: 1, endMonth: 2 },
+      { id: "honeymoon", title: "Honeymoon flights", status: "doing", date: "Mar 18", startMonth: 2, endMonth: 2 },
+      { id: "florist", title: "Florist deposit", status: "held", date: "Held since Mar 02", startMonth: 1, endMonth: 2 },
+      { id: "invitations", title: "Invitations", status: "next", date: "Apr", startMonth: 3, endMonth: 3 },
+      { id: "timeline", title: "Day-of timeline", status: "next", date: "May", startMonth: 4, endMonth: 5 },
     ],
     transitions: [
       { id: "catering", to: "shipped", movedAt: "12:30pm" },
@@ -71,14 +88,17 @@ export const DOMAINS: Record<DomainId, DomainPack> = {
     workspaceUrl: "roadmap.signalstudio.ie/oak-house-build",
     workspaceTitle: "Where the build is.",
     workspaceEyebrow: "Oak House extension",
+    timelineStart: 0,
+    timelineEnd: 5,
+    todayMonth: 2,
     rows: [
-      { id: "demo", title: "Demolition complete", status: "shipped", date: "Jan 22" },
-      { id: "foundation", title: "Foundation poured", status: "shipped", date: "Feb 09" },
-      { id: "frame", title: "Frame raising this week", status: "doing", date: "This week" },
-      { id: "electrical", title: "Electrical first-fix", status: "doing", date: "Mar 21" },
-      { id: "windows", title: "Windows on backorder", status: "held", date: "Held since Mar 03" },
-      { id: "plumbing", title: "Plumbing rough-in", status: "next", date: "Apr" },
-      { id: "plaster", title: "Plaster + paint", status: "next", date: "May" },
+      { id: "demo", title: "Demolition complete", status: "shipped", date: "Jan 22", startMonth: 0, endMonth: 0 },
+      { id: "foundation", title: "Foundation poured", status: "shipped", date: "Feb 09", startMonth: 0, endMonth: 1 },
+      { id: "frame", title: "Frame raising this week", status: "doing", date: "This week", startMonth: 1, endMonth: 2 },
+      { id: "electrical", title: "Electrical first-fix", status: "doing", date: "Mar 21", startMonth: 2, endMonth: 2 },
+      { id: "windows", title: "Windows on backorder", status: "held", date: "Held since Mar 03", startMonth: 1, endMonth: 2 },
+      { id: "plumbing", title: "Plumbing rough-in", status: "next", date: "Apr", startMonth: 3, endMonth: 3 },
+      { id: "plaster", title: "Plaster + paint", status: "next", date: "May", startMonth: 4, endMonth: 5 },
     ],
     transitions: [
       { id: "frame", to: "shipped", movedAt: "Thu 4:15pm" },
@@ -94,14 +114,17 @@ export const DOMAINS: Record<DomainId, DomainPack> = {
     workspaceUrl: "roadmap.signalstudio.ie/april-release",
     workspaceTitle: "What's shipping this quarter.",
     workspaceEyebrow: "April release",
+    timelineStart: 2, // Mar
+    timelineEnd: 7, // Aug
+    todayMonth: 3, // Apr
     rows: [
-      { id: "perf", title: "Performance pass", status: "shipped", date: "Mar 04" },
-      { id: "billing", title: "Billing rewrite", status: "shipped", date: "Mar 18" },
-      { id: "search", title: "Search across views", status: "doing", date: "This sprint" },
-      { id: "share", title: "Public share links", status: "doing", date: "Apr 02" },
-      { id: "exports", title: "PDF export", status: "held", date: "Held since Mar 11" },
-      { id: "api", title: "Public API v1", status: "next", date: "May" },
-      { id: "mobile", title: "Mobile read-only", status: "next", date: "Jun" },
+      { id: "perf", title: "Performance pass", status: "shipped", date: "Mar 04", startMonth: 2, endMonth: 2 },
+      { id: "billing", title: "Billing rewrite", status: "shipped", date: "Mar 18", startMonth: 2, endMonth: 2 },
+      { id: "search", title: "Search across views", status: "doing", date: "This sprint", startMonth: 2, endMonth: 3 },
+      { id: "share", title: "Public share links", status: "doing", date: "Apr 02", startMonth: 3, endMonth: 3 },
+      { id: "exports", title: "PDF export", status: "held", date: "Held since Mar 11", startMonth: 2, endMonth: 4 },
+      { id: "api", title: "Public API v1", status: "next", date: "May", startMonth: 4, endMonth: 5 },
+      { id: "mobile", title: "Mobile read-only", status: "next", date: "Jun", startMonth: 5, endMonth: 7 },
     ],
     transitions: [
       { id: "search", to: "shipped", movedAt: "Wed 3:22pm" },
@@ -116,14 +139,17 @@ export const DOMAINS: Record<DomainId, DomainPack> = {
     workspaceUrl: "roadmap.signalstudio.ie/q2-plan",
     workspaceTitle: "Where we're going.",
     workspaceEyebrow: "Q2 plan",
+    timelineStart: 0,
+    timelineEnd: 5,
+    todayMonth: 2,
     rows: [
-      { id: "seed", title: "Seed round closed", status: "shipped", date: "Jan 28" },
-      { id: "hire1", title: "First engineer hired", status: "shipped", date: "Feb 14" },
-      { id: "alpha", title: "Alpha with 10 customers", status: "doing", date: "Now" },
-      { id: "pricing", title: "Pricing decision", status: "doing", date: "Apr 02" },
-      { id: "compliance", title: "SOC 2 readiness", status: "held", date: "Held since Mar 08" },
-      { id: "beta", title: "Public beta", status: "next", date: "May" },
-      { id: "series-a", title: "Series A conversations", status: "next", date: "Jun" },
+      { id: "seed", title: "Seed round closed", status: "shipped", date: "Jan 28", startMonth: 0, endMonth: 0 },
+      { id: "hire1", title: "First engineer hired", status: "shipped", date: "Feb 14", startMonth: 0, endMonth: 1 },
+      { id: "alpha", title: "Alpha with 10 customers", status: "doing", date: "Now", startMonth: 1, endMonth: 2 },
+      { id: "pricing", title: "Pricing decision", status: "doing", date: "Apr 02", startMonth: 2, endMonth: 3 },
+      { id: "compliance", title: "SOC 2 readiness", status: "held", date: "Held since Mar 08", startMonth: 1, endMonth: 4 },
+      { id: "beta", title: "Public beta", status: "next", date: "May", startMonth: 4, endMonth: 4 },
+      { id: "series-a", title: "Series A conversations", status: "next", date: "Jun", startMonth: 5, endMonth: 5 },
     ],
     transitions: [
       { id: "alpha", to: "shipped", movedAt: "Tue 5:30pm" },

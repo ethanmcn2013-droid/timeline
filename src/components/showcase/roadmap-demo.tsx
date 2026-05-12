@@ -1,19 +1,19 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { LayoutGroup, motion, useReducedMotion } from "motion/react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useReducedMotion } from "motion/react";
 import { DOMAINS, type DomainId } from "@/lib/domains";
 import {
   type DemoState,
   type Row,
   type Scene,
-  STATUS_LABEL,
-  STATUS_ORDER,
   type Viewer,
+  type ViewMode,
 } from "./types";
 import { ViewerDot } from "./viewer-dot";
 import { UrlBar } from "./url-bar";
-import { RoadmapRow } from "./roadmap-row";
+import { ViewToggle } from "./view-toggle";
+import { DemoSurface } from "./demo-surface";
 
 const INITIAL_VIEWERS: Viewer[] = [
   { id: "a", laneIndex: 0, visible: false },
@@ -27,6 +27,7 @@ function buildInitialState(domain: DomainId): DemoState {
     viewers: INITIAL_VIEWERS.map((v) => ({ ...v })),
     viewCount: 12,
     scene: "boot",
+    view: "list",
     domain,
   };
 }
@@ -44,7 +45,6 @@ export function RoadmapDemo({ domain = "wedding" }: Props = {}) {
   const aliveRef = useRef(true);
   const loopKeyRef = useRef(0);
 
-  /** When domain changes, reset state to that pack's seed. */
   useEffect(() => {
     setState(buildInitialState(domain));
     loopKeyRef.current += 1;
@@ -68,6 +68,10 @@ export function RoadmapDemo({ domain = "wedding" }: Props = {}) {
     setState((s) => ({ ...s, scene }));
   }, []);
 
+  const setView = useCallback((view: ViewMode) => {
+    setState((s) => ({ ...s, view }));
+  }, []);
+
   const setViewers = useCallback((mutator: (v: Viewer[]) => Viewer[]) => {
     setState((s) => ({ ...s, viewers: mutator(s.viewers) }));
   }, []);
@@ -76,71 +80,88 @@ export function RoadmapDemo({ domain = "wedding" }: Props = {}) {
     setState((s) => ({ ...s, viewCount: s.viewCount + delta }));
   }, []);
 
-  /** Run the scene timeline. Restarts cleanly when domain changes. */
+  /** Scene timeline. Restarts when domain changes. */
   useEffect(() => {
     if (reducedMotion) return;
     aliveRef.current = true;
     const myLoopKey = loopKeyRef.current;
     const transitions = DOMAINS[domain].transitions;
 
+    const isCurrent = () =>
+      aliveRef.current && myLoopKey === loopKeyRef.current;
+
     async function runLoop() {
       setState(buildInitialState(domain));
       await wait(600);
-      if (!aliveRef.current || myLoopKey !== loopKeyRef.current) return;
+      if (!isCurrent()) return;
 
+      // Viewers arrive (List view)
       setScene("viewers-arrive");
       setViewers((vs) => vs.map((v, i) => (i < 2 ? { ...v, visible: true } : v)));
-      await wait(2000);
-      if (!aliveRef.current || myLoopKey !== loopKeyRef.current) return;
+      await wait(1800);
+      if (!isCurrent()) return;
 
       setScene("first-move");
       setViewers((vs) => vs.map((v, i) => (i === 2 ? { ...v, visible: true } : v)));
-      await wait(600);
-      if (!aliveRef.current || myLoopKey !== loopKeyRef.current) return;
-
+      await wait(500);
       if (transitions[0]) {
         setRowStatus(transitions[0].id, transitions[0].to, transitions[0].movedAt);
       }
-      await wait(1400);
-      if (!aliveRef.current || myLoopKey !== loopKeyRef.current) return;
+      await wait(1300);
+      if (!isCurrent()) return;
 
       setScene("tick-up-1");
       tickViewers(2);
-      await wait(1200);
-      if (!aliveRef.current || myLoopKey !== loopKeyRef.current) return;
+      await wait(1100);
+      if (!isCurrent()) return;
 
       setScene("second-move");
       if (transitions[1]) {
         setRowStatus(transitions[1].id, transitions[1].to, transitions[1].movedAt);
       }
-      await wait(1600);
-      if (!aliveRef.current || myLoopKey !== loopKeyRef.current) return;
+      await wait(1500);
+      if (!isCurrent()) return;
 
       setScene("tick-up-2");
       tickViewers(3);
-      await wait(1200);
-      if (!aliveRef.current || myLoopKey !== loopKeyRef.current) return;
+      await wait(1000);
+      if (!isCurrent()) return;
 
       setScene("third-move");
       if (transitions[2]) {
         setRowStatus(transitions[2].id, transitions[2].to, transitions[2].movedAt);
       }
+      await wait(1600);
+      if (!isCurrent()) return;
+
+      // Morph to Timeline view — the intelligent-motion teaching moment
+      setScene("view-morph-timeline");
+      setView("timeline");
+      await wait(2400);
+      if (!isCurrent()) return;
+
+      setScene("timeline-hold");
+      await wait(2400);
+      if (!isCurrent()) return;
+
+      // Morph back to List
+      setScene("view-morph-list");
+      setView("list");
       await wait(1800);
-      if (!aliveRef.current || myLoopKey !== loopKeyRef.current) return;
+      if (!isCurrent()) return;
 
       setScene("viewers-leave");
       setViewers((vs) => vs.map((v) => ({ ...v, visible: false })));
-      await wait(1400);
-      if (!aliveRef.current || myLoopKey !== loopKeyRef.current) return;
+      await wait(1200);
+      if (!isCurrent()) return;
 
       setScene("reset");
-      await wait(1200);
-      if (!aliveRef.current || myLoopKey !== loopKeyRef.current) return;
+      await wait(1000);
     }
 
     let cancelled = false;
     (async function loop() {
-      while (!cancelled && aliveRef.current && myLoopKey === loopKeyRef.current) {
+      while (!cancelled && isCurrent()) {
         await runLoop();
       }
     })();
@@ -148,17 +169,7 @@ export function RoadmapDemo({ domain = "wedding" }: Props = {}) {
     return () => {
       cancelled = true;
     };
-  }, [reducedMotion, domain, setScene, setRowStatus, setViewers, tickViewers]);
-
-  // Group rows by status for rendering.
-  const groups = useMemo(
-    () =>
-      STATUS_ORDER.map((status) => ({
-        status,
-        items: state.rows.filter((r) => r.status === status),
-      })),
-    [state.rows]
-  );
+  }, [reducedMotion, domain, setScene, setView, setRowStatus, setViewers, tickViewers]);
 
   return (
     <div
@@ -192,79 +203,40 @@ export function RoadmapDemo({ domain = "wedding" }: Props = {}) {
               {pack.workspaceTitle}
             </h3>
           </div>
-          <span
-            className="rounded-full border px-2.5 py-1 text-[11px] font-medium"
-            style={{
-              borderColor: "var(--border-soft)",
-              color: "var(--ink-soft)",
-            }}
-          >
-            Public
-          </span>
+          <div className="flex items-center gap-2">
+            <ViewToggle view={state.view} onChange={setView} />
+            <span
+              className="rounded-full border px-2.5 py-1 text-[11px] font-medium"
+              style={{
+                borderColor: "var(--border-soft)",
+                color: "var(--ink-soft)",
+              }}
+            >
+              Public
+            </span>
+          </div>
         </div>
 
-        {/* Lanes */}
-        <LayoutGroup>
-          <div className="relative flex flex-col gap-6">
-            {groups.map((group) => (
-              <div key={group.status}>
-                <div
-                  className="mb-2 flex items-center gap-2 text-[11px] font-semibold uppercase"
-                  style={{
-                    color: "var(--ink-quiet)",
-                    letterSpacing: "0.12em",
-                  }}
-                >
-                  <span>{STATUS_LABEL[group.status]}</span>
-                  <span
-                    aria-hidden
-                    className="font-mono"
-                    style={{
-                      color: "var(--ink-faint, var(--ink-quiet))",
-                      opacity: 0.55,
-                    }}
-                  >
-                    {group.items.length}
-                  </span>
-                </div>
-                <div className="flex flex-col gap-1.5">
-                  {group.items.map((row) => (
-                    <RoadmapRow key={row.id} row={row} />
-                  ))}
-                  {group.items.length === 0 && (
-                    <div
-                      className="rounded-[var(--r-2)] px-3 py-2 text-[12px] font-mono"
-                      style={{
-                        color: "var(--ink-faint, var(--ink-quiet))",
-                        background: "var(--bg-deep)",
-                        opacity: 0.5,
-                        letterSpacing: "0.01em",
-                      }}
-                    >
-                      —
-                    </div>
-                  )}
-                </div>
-              </div>
+        <DemoSurface view={state.view} rows={state.rows} domain={state.domain} />
+
+        {/* Viewer dots in the right margin (List view only — Timeline has
+            its own protagonist motion via the bars + Today line) */}
+        {state.view === "list" ? (
+          <div
+            className="pointer-events-none absolute inset-y-0 right-0 w-3"
+            aria-hidden
+          >
+            {state.viewers.map((v, i) => (
+              <ViewerDot
+                key={v.id}
+                visible={v.visible}
+                top={80 + v.laneIndex * 64 + i * 18}
+                right={2}
+                delay={i * 0.32}
+              />
             ))}
           </div>
-        </LayoutGroup>
-
-        {/* Viewer dots in the right margin */}
-        <div
-          className="pointer-events-none absolute inset-y-0 right-0 w-3"
-          aria-hidden
-        >
-          {state.viewers.map((v, i) => (
-            <ViewerDot
-              key={v.id}
-              visible={v.visible}
-              top={80 + v.laneIndex * 64 + i * 18}
-              right={2}
-              delay={i * 0.32}
-            />
-          ))}
-        </div>
+        ) : null}
       </div>
 
       {/* Caption */}
@@ -277,7 +249,7 @@ export function RoadmapDemo({ domain = "wedding" }: Props = {}) {
           letterSpacing: "0.01em",
         }}
       >
-        One URL. Everyone reading the same page.
+        One URL. Two views. Same data — read it the way the audience needs it.
       </div>
     </div>
   );
