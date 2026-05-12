@@ -2,6 +2,40 @@
 
 ## 2026-05-12
 
+### Cycle 11.3 shipped — cinematic demo rebuilt at the Tasks bar.
+
+The old homepage demo had a side-by-side layout (text on the left,
+small kanban on the right) and a single scene that didn't read as
+the audience surface Roadmap actually is. That's been replaced.
+
+Hero is now Tasks-pattern: eyebrow + H1 + body + CTAs + status pip
+("Demo is live · choose an audience to reseed") + an AudienceToggle
++ the cinematic demo full-width below. Four audience packs share the
+suite axis: Wedding (default per the locked GTM wedge), Building
+project, Product launch, Startup plan. Each ships its own URL, view
+counts, rows, transition script, and timeline window.
+
+The demo itself runs an 18-scene loop. Three anonymous reader cursors
+(Dublin · 14m ago / London · just now / Cork · 2h ago) drift in,
+hover items, and *follow* them when their status changes — when
+"Catering tasting Friday" slides Doing → Shipped, the reader who
+was on that item rides along. Mid-loop, a Share button in the URL
+bar gets pressed by a cursor before the "Link copied" toast fires;
+the share gesture now has a cause inside the frame.
+
+A reader lingers on a row and an inline comment thread opens
+underneath ("Will this be confirmed by Friday?") — the owner reply
+types out character-by-character with a blinking caret. Then the
+whole surface morphs to Timeline view: rows reshape into horizontal
+bars across a 6-month axis with a Today line drawn through the
+active month. Holds, then a "+1 subscriber via RSS" toast lands in
+the corner and the Followers count ticks up. Morphs back to List.
+Cursors leave. Reset.
+
+Stack: motion/react + the existing brand tokens, DOM-measured cursor
+targeting against row refs, layoutId-stable cards across view morphs,
+reduced-motion guard collapses to the final-state static composition.
+
 ### Workspaces can now start from a canonical template (T-2.1b).
 
 The Roadmap product can now seed a new workspace's projects and items
