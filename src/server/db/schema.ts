@@ -320,6 +320,14 @@ export const workspaces = sqliteTable(
      *  backfill. When null, the public render just shows the last-updated
      *  line without an attribution. Sprint 2 cycle 10.2, 2026-05-12. */
     ownerName: text("owner_name"),
+    /** Owner's email, surfaced on the shared update page as the reply-
+     *  to address. Captured from Clerk at workspace-creation time
+     *  alongside ownerName. The reply gesture is a mailto link — no
+     *  Resend, no comment-thread infrastructure (locked refusal in
+     *  PRODUCT.md). Nullable for pre-Sprint-2 workspaces; when null
+     *  the invited-by bar omits the reply gesture entirely rather than
+     *  faking it. Sprint 2 cycle 10.3, 2026-05-12. */
+    ownerEmail: text("owner_email"),
     plan: text("plan")
       .$type<"free" | "pro" | "studio">()
       .notNull()

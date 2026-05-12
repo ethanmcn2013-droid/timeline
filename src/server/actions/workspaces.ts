@@ -19,24 +19,31 @@ import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 import { getSyncedTemplateRoadmap } from "@/lib/templates.generated";
 
 /**
- * Pull the user's display name from Clerk for attribution on the
- * public guest view (Sprint 2 cycle 10.2). Best-effort: any failure
- * returns null so workspace creation never blocks on Clerk.
+ * Pull the user's display name + primary email from Clerk for
+ * attribution + reply gesture on the public guest view (Sprint 2
+ * cycles 10.2 + 10.3). Best-effort: any failure returns nulls so
+ * workspace creation never blocks on Clerk.
+ *
+ * Cached together because both come from the same Clerk.users.getUser
+ * call. Owner email powers the mailto reply on /[workspaceSlug]/update.
  */
-async function resolveOwnerDisplayName(
+async function resolveOwnerIdentity(
   userId: string,
-): Promise<string | null> {
+): Promise<{ name: string | null; email: string | null }> {
   try {
     const client = await clerkClient();
     const user = await client.users.getUser(userId);
-    const full = [user.firstName, user.lastName].filter(Boolean).join(" ").trim();
-    if (full) return full;
-    if (user.username) return user.username;
-    const email = user.emailAddresses?.[0]?.emailAddress;
-    if (email) return email.split("@")[0];
-    return null;
+    const email = user.emailAddresses?.[0]?.emailAddress ?? null;
+    const full = [user.firstName, user.lastName]
+      .filter(Boolean)
+      .join(" ")
+      .trim();
+    if (full) return { name: full, email };
+    if (user.username) return { name: user.username, email };
+    if (email) return { name: email.split("@")[0], email };
+    return { name: null, email };
   } catch {
-    return null;
+    return { name: null, email: null };
   }
 }
 
@@ -85,13 +92,14 @@ export async function createWorkspaceAction(
     return { error: "That slug is already taken. Try another." };
   }
 
-  const ownerName = await resolveOwnerDisplayName(userId);
+  const owner = await resolveOwnerIdentity(userId);
 
   await createWorkspace({
     slug,
     name,
     ownerUserId: userId,
-    ownerName,
+    ownerName: owner.name,
+    ownerEmail: owner.email,
     templateId: template?.id ?? null,
   });
 

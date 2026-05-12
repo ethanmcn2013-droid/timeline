@@ -1,5 +1,47 @@
 # Signal Roadmap · Changelog
 
+## 2026-05-12 (later still)
+
+### Sprint 2 cycle 10.3 — invited-by bar + reply on shared views
+
+The /[workspaceSlug]/update page gained a top-of-page bar that names
+the inviter, when the page was last updated, what the workspace is
+for, and how to reply. New component InvitedByBar — server-rendered,
+gracefully degrades on missing fields.
+
+Reply gesture is a mailto link, not a Resend feedback form. Dissent
+named: the Sprint 2 plan mentioned "a small Resend webhook", but
+the locked refusal "no comment-thread infrastructure" cuts harder.
+Mailto means: conversations belong in email, no new infrastructure,
+and Roadmap stays a clarity artefact. The email address is also
+shown as plain text alongside the button so users without a mail
+client can copy directly. No fake "your message was received"
+theatre.
+
+Schema: workspaces gained ownerEmail (nullable text). Captured from
+Clerk at workspace creation alongside ownerName. Pre-Sprint-2
+workspaces: ownerEmail null → reply gesture is dropped entirely.
+No fake addresses, no broken mailto links.
+
+Conditional rendering:
+- ownerName null: "Shared with you" eyebrow instead of "{Name}
+  shared this with you"
+- ownerEmail null: reply gesture omitted (whole right column drops)
+- description null: brand-coherent fallback sentence
+- lastUpdated null (empty workspace): timestamp line omitted
+
+Demo data updated: studio shipping log → hello@signalstudio.ie,
+wedding-planning → aoife@harbourhouse.example.
+
+What's NOT in this cycle: reply tracking, history, threading. Locked
+refusals all hold. The owner gets the reply in their inbox; that IS
+the channel.
+
+Operator actions before deploy:
+- ALTER TABLE workspaces ADD COLUMN owner_email TEXT (Roadmap Turso)
+- Optionally backfill: UPDATE workspaces SET owner_email = '<email>'
+  WHERE slug = '<slug>'
+
 ## 2026-05-12 (later)
 
 ### Sprint 2 cycle 10.2 — public guest view shows owner + last-updated

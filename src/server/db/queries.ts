@@ -54,6 +54,7 @@ export async function createWorkspace({
   name,
   ownerUserId,
   ownerName = null,
+  ownerEmail = null,
   plan = "free",
   templateId = null,
 }: {
@@ -61,6 +62,7 @@ export async function createWorkspace({
   name: string;
   ownerUserId: string;
   ownerName?: string | null;
+  ownerEmail?: string | null;
   plan?: "free" | "pro" | "studio";
   templateId?: string | null;
 }): Promise<Workspace> {
@@ -69,6 +71,7 @@ export async function createWorkspace({
     name,
     ownerUserId,
     ownerName,
+    ownerEmail,
     plan,
     templateId,
   });
