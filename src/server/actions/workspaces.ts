@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { clerkClient } from "@clerk/nextjs/server";
 import { requireUser } from "@/server/auth";
 import {
   createWorkspace,
@@ -16,6 +17,28 @@ import { isValidSlug, slugify } from "@/lib/reserved-slugs";
 import { parseMarkdown } from "@/server/parser/parse-markdown";
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 import { getSyncedTemplateRoadmap } from "@/lib/templates.generated";
+
+/**
+ * Pull the user's display name from Clerk for attribution on the
+ * public guest view (Sprint 2 cycle 10.2). Best-effort: any failure
+ * returns null so workspace creation never blocks on Clerk.
+ */
+async function resolveOwnerDisplayName(
+  userId: string,
+): Promise<string | null> {
+  try {
+    const client = await clerkClient();
+    const user = await client.users.getUser(userId);
+    const full = [user.firstName, user.lastName].filter(Boolean).join(" ").trim();
+    if (full) return full;
+    if (user.username) return user.username;
+    const email = user.emailAddresses?.[0]?.emailAddress;
+    if (email) return email.split("@")[0];
+    return null;
+  } catch {
+    return null;
+  }
+}
 
 // ---------------------------------------------------------------------------
 // Workspace creation
@@ -62,10 +85,13 @@ export async function createWorkspaceAction(
     return { error: "That slug is already taken. Try another." };
   }
 
+  const ownerName = await resolveOwnerDisplayName(userId);
+
   await createWorkspace({
     slug,
     name,
     ownerUserId: userId,
+    ownerName,
     templateId: template?.id ?? null,
   });
 

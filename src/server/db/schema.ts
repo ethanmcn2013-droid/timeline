@@ -312,6 +312,14 @@ export const workspaces = sqliteTable(
      *  "Where ${name} is going." when null. */
     description: text("description"),
     ownerUserId: text("owner_user_id").notNull(), // Clerk userId
+    /** Display name of the workspace owner, surfaced on public guest views
+     *  as "Shared by ${ownerName}". Captured from Clerk at workspace-
+     *  creation time so the public render stays a single DB query — never
+     *  a Clerk API call. Nullable: pre-Sprint-2 workspaces don't have it
+     *  until the owner sets one (via a future settings cycle) or runs a
+     *  backfill. When null, the public render just shows the last-updated
+     *  line without an attribution. Sprint 2 cycle 10.2, 2026-05-12. */
+    ownerName: text("owner_name"),
     plan: text("plan")
       .$type<"free" | "pro" | "studio">()
       .notNull()

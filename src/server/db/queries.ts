@@ -8,7 +8,7 @@
  * projects/tasks/counts. Foundational queries only — build on this in Cycle 4+.
  */
 
-import { eq, and, asc, lte, gte, ne } from "drizzle-orm";
+import { eq, and, asc, desc, lte, gte, ne } from "drizzle-orm";
 import { db } from "./index";
 import {
   workspaces,
@@ -53,16 +53,25 @@ export async function createWorkspace({
   slug,
   name,
   ownerUserId,
+  ownerName = null,
   plan = "free",
   templateId = null,
 }: {
   slug: string;
   name: string;
   ownerUserId: string;
+  ownerName?: string | null;
   plan?: "free" | "pro" | "studio";
   templateId?: string | null;
 }): Promise<Workspace> {
-  await db.insert(workspaces).values({ slug, name, ownerUserId, plan, templateId });
+  await db.insert(workspaces).values({
+    slug,
+    name,
+    ownerUserId,
+    ownerName,
+    plan,
+    templateId,
+  });
   const row = await getWorkspace(slug);
   if (!row) throw new Error(`createWorkspace: insert succeeded but row not found for slug="${slug}"`);
   return row;
@@ -240,6 +249,25 @@ export async function getTasksForWorkspace(
     .from(tasks)
     .where(eq(tasks.workspaceSlug, workspaceSlug))
     .orderBy(asc(tasks.projectSlug), asc(tasks.sortOrder));
+}
+
+/**
+ * Latest task.updatedAt across a workspace. Returns null when the
+ * workspace has no items (no activity to surface). Cheap single-row
+ * MAX query — used by the public guest view to render
+ * "Last updated X" without sending the full task list (Sprint 2
+ * cycle 10.2, 2026-05-12).
+ */
+export async function getLastUpdatedForWorkspace(
+  workspaceSlug: string,
+): Promise<Date | null> {
+  const rows = await db
+    .select({ updatedAt: tasks.updatedAt })
+    .from(tasks)
+    .where(eq(tasks.workspaceSlug, workspaceSlug))
+    .orderBy(desc(tasks.updatedAt))
+    .limit(1);
+  return rows[0]?.updatedAt ?? null;
 }
 
 // ---------------------------------------------------------------------------

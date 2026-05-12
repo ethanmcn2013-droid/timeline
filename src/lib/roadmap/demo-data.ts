@@ -7,6 +7,7 @@ export const demoWorkspace: Workspace = {
   name: "studio. shipping log",
   description: "What we're building next, written in plain English.",
   ownerUserId: "seed-demo-user",
+  ownerName: "Ethan McNamara",
   plan: "free",
   createdAt,
   updatedAt: createdAt,
@@ -235,6 +236,7 @@ export const weddingDemoWorkspace: Workspace = {
   description:
     "A planning update for a venue, couple, and suppliers who need the next steps in plain English.",
   ownerUserId: "seed-wedding-demo-user",
+  ownerName: "Aoife Murphy",
   plan: "free",
   createdAt,
   updatedAt: createdAt,

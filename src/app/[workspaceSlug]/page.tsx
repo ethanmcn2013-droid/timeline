@@ -6,6 +6,7 @@ import {
   getTasksForWorkspace,
   getCountsForWorkspace,
   getUpcomingTasks,
+  getLastUpdatedForWorkspace,
 } from "@/server/db/queries";
 import type { Task, Project } from "@/server/db/schema";
 import { WorkspaceHeader } from "@/components/roadmap/workspace-header";
@@ -45,11 +46,12 @@ export default async function WorkspaceRoadmapPage({
   const workspace = await getWorkspace(workspaceSlug);
   if (!workspace) notFound();
 
-  const [projects, allTasks, counts, upcoming] = await Promise.all([
+  const [projects, allTasks, counts, upcoming, lastUpdated] = await Promise.all([
     getProjectsForWorkspace(workspaceSlug),
     getTasksForWorkspace(workspaceSlug),
     getCountsForWorkspace(workspaceSlug),
     getUpcomingTasks(workspaceSlug, 14),
+    getLastUpdatedForWorkspace(workspaceSlug),
   ]);
 
   const projectMap = new Map<string, Project>(projects.map((p) => [p.slug, p]));
@@ -247,6 +249,29 @@ export default async function WorkspaceRoadmapPage({
                   {workspace.description?.trim() ||
                     `What ${workspace.name} is building next, written in plain English.`}
                 </p>
+                {(workspace.ownerName || lastUpdated) && (
+                  <p className="mt-3 text-[12.5px] text-ink-quiet">
+                    {workspace.ownerName ? (
+                      <>
+                        Shared by{" "}
+                        <span className="font-medium text-ink-soft">
+                          {workspace.ownerName}
+                        </span>
+                      </>
+                    ) : null}
+                    {workspace.ownerName && lastUpdated ? (
+                      <span className="mx-1.5 text-ink-faint">&middot;</span>
+                    ) : null}
+                    {lastUpdated ? (
+                      <>
+                        Last updated{" "}
+                        <span className="text-ink-soft">
+                          {formatRelative(lastUpdated)}
+                        </span>
+                      </>
+                    ) : null}
+                  </p>
+                )}
               </div>
 
               {hasItems && totalForProgress > 0 ? (
@@ -611,6 +636,26 @@ function weeksBetween(fromIso: string, toIso: string): number {
   const to = new Date(toIso + "T00:00:00Z").getTime();
   const weeks = Math.max(1, Math.round((to - from) / (1000 * 60 * 60 * 24 * 7)));
   return weeks;
+}
+
+function formatRelative(d: Date): string {
+  const diff = Date.now() - d.getTime();
+  const minutes = Math.floor(diff / (60 * 1000));
+  if (minutes < 1) return "just now";
+  if (minutes < 60) return `${minutes} minute${minutes === 1 ? "" : "s"} ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours} hour${hours === 1 ? "" : "s"} ago`;
+  const days = Math.floor(hours / 24);
+  if (days < 7) return `${days} day${days === 1 ? "" : "s"} ago`;
+  if (days < 30) {
+    const weeks = Math.floor(days / 7);
+    return `${weeks} week${weeks === 1 ? "" : "s"} ago`;
+  }
+  return d.toLocaleDateString(undefined, {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
 }
 
 function daysUntilSimple(iso: string): number {

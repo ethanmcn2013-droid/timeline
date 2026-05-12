@@ -1,5 +1,42 @@
 # Signal Roadmap · Changelog
 
+## 2026-05-12 (later)
+
+### Sprint 2 cycle 10.2 — public guest view shows owner + last-updated
+
+The /[workspaceSlug] public hero now carries a slim attribution line
+below the description: "Shared by [Owner name] · Last updated
+[X hours ago]". Brand-mission read: collaboration means the invited
+person feels nothing — but they should also feel grounded. The
+forwarded link now reads as "this is my friend Ethan's plan, last
+updated this morning" instead of as a generic public page.
+
+Schema: workspaces gained an ownerName column (nullable text).
+Captured from Clerk at workspace creation via clerkClient.users.getUser
+(first+last → username → email-local in that order). Public render
+stays a single DB query — never a Clerk API call.
+
+Query: getLastUpdatedForWorkspace returns MAX(tasks.updated_at) for
+the workspace, null if empty. Public hero formats relative ("3 hours
+ago", "2 days ago"); brand-coherent with Notes's relativeTime.
+
+Conditional rendering: if ownerName is null, just shows the last-
+updated line. If no items yet, no line at all (the empty state copy
+takes over). No fake attribution.
+
+Demo data updated: studio shipping log shows "Ethan McNamara",
+wedding-planning shows "Aoife Murphy".
+
+What's NOT in this cycle: a settings UI for the owner to edit
+ownerName after creation. Existing workspaces (pre-2026-05-12) have
+null ownerName until an operator backfill — code falls back
+gracefully. Operator action documented in the HQ block.
+
+Operator actions before deploy:
+- ALTER TABLE workspaces ADD COLUMN owner_name TEXT (Roadmap Turso)
+- Optionally backfill existing rows: UPDATE workspaces SET
+  owner_name = '<name>' WHERE slug = '<slug>'
+
 ## 2026-05-12
 
 ### Suite review T3.b — cinematic demo aligned to post-Comments reality.
