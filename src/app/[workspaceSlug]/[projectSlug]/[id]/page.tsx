@@ -62,6 +62,8 @@ export default async function TaskDetailPage({
   ]);
 
   const isDone = task.status === "shipped";
+  const isOwner =
+    currentUser !== null && currentUser.userId === workspace.ownerUserId;
 
   return (
     <div className="flex min-h-screen flex-col" style={{ background: "var(--bg)" }}>
@@ -151,13 +153,17 @@ export default async function TaskDetailPage({
           {/* Activity */}
           <ActivityPanel events={taskActivity} />
 
-          {/* Comments — reads public, writes auth-gated */}
-          <Comments
-            comments={taskComments}
-            taskId={task.id}
-            workspaceSlug={workspaceSlug}
-            isAuthenticated={currentUser !== null}
-          />
+          {/* Owner-only annotation surface — public viewers see nothing.
+              Keeps the locked refusal on comment threading honored at the
+              public surface; preserves the owner's own working notes. */}
+          {isOwner ? (
+            <Comments
+              comments={taskComments}
+              taskId={task.id}
+              workspaceSlug={workspaceSlug}
+              isAuthenticated={true}
+            />
+          ) : null}
         </div>
       </main>
 
