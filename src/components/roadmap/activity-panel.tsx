@@ -6,6 +6,7 @@ const ACTION_LABEL: Record<string, string> = {
   "subtask-toggle": "subtask updated",
   "description-edit": "note updated",
   created: "added",
+  "cycle-logged": "cycle shipped",
 };
 
 const STATUS_LABEL: Record<string, string> = {

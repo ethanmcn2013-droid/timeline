@@ -69,7 +69,7 @@ export const projects = sqliteTable(
     // shareToken + isPublic removed 2026-05-12 — Phase 10.1.
     // "No private workspaces in v1" is a locked product refusal.
     // Public-by-design IS the product; these columns were dead promises
-    // with zero enforcement. Migration: 0001_drop_activity_isPublic_shareToken.sql
+    // with zero enforcement. Migration: 0001_drop_isPublic_shareToken.sql
   },
   (t) => [
     primaryKey({ columns: [t.workspaceSlug, t.slug] }),
@@ -234,10 +234,37 @@ export const subtasks = sqliteTable(
   (t) => [index("idx_subtasks_task").on(t.taskId)],
 );
 
-// activity table removed 2026-05-12 — Phase 10.2.
-// Confirmed zero writers (grep -r "insert(activity" src/ returned nothing).
-// Dead infrastructure with no live consumers on either read or write path.
-// Migration: drizzle/0001_drop_activity_isPublic_shareToken.sql
+/**
+ * Activity log — every status flip, assignee change, note addition,
+ * AND every cycle ship (written by ~/Projects/personal/tasks/scripts/log-cycle.ts
+ * which is the cross-repo writer that the 2026-05-12 in-repo grep missed).
+ *
+ * Multi-tenant: every row has workspaceSlug. Queries MUST filter by
+ * workspaceSlug to avoid cross-tenant reads (Phase 1.2 fix, 2026-05-12).
+ */
+export const activity = sqliteTable(
+  "activity",
+  {
+    id: text("id").primaryKey(),
+    /** Multi-tenancy: workspace this activity belongs to. */
+    workspaceSlug: text("workspace_slug").notNull(),
+    /** "task" or "subtask" — which entity changed. */
+    entityKind: text("entity_kind").notNull(),
+    entityId: text("entity_id").notNull(),
+    /** Free-form action verb: "status-change", "assignee-change",
+     *  "subtask-add", "subtask-toggle", "created", "cycle-logged", etc. */
+    action: text("action").notNull(),
+    /** JSON payload describing the change. Schema-light by design;
+     *  the activity feed renders generic "X did Y to Z" copy. */
+    payload: text("payload").notNull().default("{}"),
+    createdAt: integer("created_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (t) => [index("idx_activity_entity").on(t.entityKind, t.entityId)],
+);
+
+export type Activity = typeof activity.$inferSelect;
 
 /**
  * Comments — flat thread per task. Anyone visiting the public site

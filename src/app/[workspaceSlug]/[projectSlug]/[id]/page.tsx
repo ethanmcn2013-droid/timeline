@@ -4,10 +4,12 @@ import {
   getWorkspace,
   getProject,
   getTask,
+  getActivityForTask,
 } from "@/server/db/queries";
 import { WorkspaceHeader } from "@/components/roadmap/workspace-header";
 import { StatusPill } from "@/components/roadmap/status-pill";
 import { KindPill } from "@/components/roadmap/kind-pill";
+import { ActivityPanel } from "@/components/roadmap/activity-panel";
 import { SiteFooter } from "@/components/marketing/site-footer";
 import Link from "next/link";
 
@@ -49,6 +51,8 @@ export default async function TaskDetailPage({
   if (!workspace) notFound();
   if (!project) notFound();
   if (!task) notFound();
+
+  const taskActivity = await getActivityForTask(workspaceSlug, task.id);
 
   const isDone = task.status === "shipped";
 
@@ -137,7 +141,8 @@ export default async function TaskDetailPage({
             </section>
           ) : null}
 
-
+          {/* Activity */}
+          <ActivityPanel events={taskActivity} />
         </div>
       </main>
 

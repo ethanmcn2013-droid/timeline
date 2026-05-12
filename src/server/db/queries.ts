@@ -15,8 +15,9 @@ import {
   projects,
   projectSources,
   tasks,
+  activity,
 } from "./schema";
-import type { Workspace, Project, ProjectSource, Task, Status } from "./schema";
+import type { Workspace, Project, ProjectSource, Task, Status, Activity } from "./schema";
 import type { ParsedItem } from "@/server/parser/parse-markdown";
 
 // ---------------------------------------------------------------------------
@@ -466,9 +467,32 @@ export async function getProject(
 // preserved against any pre-existing owner data, but no code path reads
 // or writes through it.
 
-// getActivityForTask removed 2026-05-12 — Phase 10.2.
-// activity table has zero writers (confirmed by grep); dead infrastructure
-// removed. See migration 0001_drop_activity_isPublic_shareToken.sql.
+/**
+ * Activity feed for a single task, workspace-scoped.
+ *
+ * Phase 1.2 fix (2026-05-12): workspaceSlug is REQUIRED. Task IDs are
+ * deterministic strings; without workspace scoping, an attacker who
+ * guesses or enumerates can read other tenants' activity history.
+ * The file's INVARIANT (see top) is that every query filters by workspaceSlug.
+ */
+export async function getActivityForTask(
+  workspaceSlug: string,
+  taskId: string,
+  limit = 20,
+): Promise<Activity[]> {
+  return db
+    .select()
+    .from(activity)
+    .where(
+      and(
+        eq(activity.workspaceSlug, workspaceSlug),
+        eq(activity.entityKind, "task"),
+        eq(activity.entityId, taskId),
+      ),
+    )
+    .orderBy(asc(activity.createdAt))
+    .limit(limit);
+}
 
 /**
  * Tasks for a single project within a workspace, sorted by sortOrder.
