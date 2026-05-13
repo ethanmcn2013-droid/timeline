@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { Workspace } from "@/server/db/schema";
 import { Wordmark } from "@/components/brand/wordmark";
+import { SuiteLauncher } from "@/components/suite-launcher";
 
 /**
  * Slim public header for the workspace roadmap surface.
@@ -45,6 +46,9 @@ export function WorkspaceHeader({ workspace }: { workspace: Workspace }) {
           >
             Refusals
           </Link>
+          <div className="hidden sm:inline-flex">
+            <SuiteLauncher current="roadmap" />
+          </div>
           <Wordmark size="sm" href="/" />
         </div>
       </div>
