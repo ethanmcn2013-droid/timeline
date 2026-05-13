@@ -93,24 +93,42 @@
   --roadmap-red-border: #fecaca;
   --roadmap-red-deep:   #7f1d1d;
 
-  /* ── Semantic surfaces (v0.2 names + DS additions) ────────── */
-  --bg:          #fafaf7; /* warm-stone, never pure white */
-  --bg-elev:     #ffffff;
-  --bg-elevated: var(--bg-elev); /* alias for v0.2 callsites */
-  --bg-deep:     #f4f4f0;
+  /* ── Semantic surfaces · design-system v1 (2026-05-13) ────── */
+  /* Paper is white now. The warm-stone era ended when the suite
+     design system locked. */
+  --paper:       #ffffff;
+  --paper-elev:  #ffffff;
+  --paper-soft:  #fafafa;
+  --paper-deep:  #f4f4f5;
+
+  --bg:          var(--paper);
+  --bg-elev:     var(--paper-elev);
+  --bg-elevated: var(--paper-elev); /* alias for v0.2 callsites */
+  --bg-deep:     var(--paper-deep);
+
+  /* Hairlines — stronger than the cream era; white needs definition. */
+  --hairline:    rgba(17, 17, 17, 0.10);
+  --hairline-2:  rgba(17, 17, 17, 0.06);
+
+  /* Indigo aliases per the design-system spec. */
+  --indigo:      var(--indigo-600);
+  --indigo-soft: rgba(79, 70, 229, 0.12);
   --bg-sunken:   var(--bg-deep); /* alias */
 
-  --border:      #e4e4e7;
-  --border-soft: #ececec;
+  --border:      var(--hairline);
+  --border-soft: var(--hairline-2);
   --line:        var(--border);      /* alias */
   --line-soft:   var(--border-soft); /* alias */
 
-  --text:        var(--ink-900);
-  --text-muted:  var(--ink-500);
-  --text-faint:  var(--ink-400);
-  --ink:         var(--ink-900); /* v0.2 alias */
-  --ink-soft:    var(--ink-700); /* v0.2 alias — was #4a4d57; ramp -700 is #3f3f46, close enough */
-  --ink-quiet:   var(--ink-500); /* v0.2 alias */
+  /* Ink — off-black per the design-system spec exactly. */
+  --ink:         #111111;
+  --ink-soft:    #3f3f46;
+  --ink-faint:   #71717a;
+  --ink-ghost:   #d4d4d8;
+  --ink-quiet:   var(--ink-faint);
+  --text:        var(--ink);
+  --text-muted:  var(--ink-faint);
+  --text-faint:  var(--ink-ghost);
 
   /* ── Brand semantics (v0.2 names, refreshed values) ───────── */
   --brand:       var(--indigo-600);
@@ -399,16 +417,20 @@ body {
 }
 
 /* ────────────────────────────────────────────────────────────
-   Roadmap wordmark dot — single slide on mount.
-   Pattern echoes Tasks' dot but plays once, not continuously.
-   Roadmap's gesture is "moving toward a destination," not
-   "live signal." Same typographic family — lowercase word +
-   indigo dot — keeps it inside the suite vocabulary.
+   Roadmap wordmark dot — M·03 advance.
+   Per suite design-system v1 (2026-05-13): roadmap is a verb,
+   the gesture is advance — the dot drifts right 4px, fades, and
+   resets every 2.6s. Direction without urgency. The one-shot
+   slide-on-mount retired; advance is continuous because direction
+   isn't a one-time thing.
    ──────────────────────────────────────────────────────────── */
-@keyframes roadmap-dot-slide {
-  0%   { transform: translateY(-0.36em) translateX(-0.5em); opacity: 0; }
-  55%  { transform: translateY(-0.36em) translateX(0.05em); opacity: 1; }
-  100% { transform: translateY(-0.36em) translateX(0);      opacity: 1; }
+@keyframes roadmap-dot-advance {
+  0%   { transform: translateY(-0.36em) translateX(0); opacity: 1; }
+  60%  { transform: translateY(-0.36em) translateX(4px); opacity: 1; }
+  62%  { transform: translateY(-0.36em) translateX(4px); opacity: 0; }
+  70%  { transform: translateY(-0.36em) translateX(0); opacity: 0; }
+  78%  { transform: translateY(-0.36em) translateX(0); opacity: 1; }
+  100% { transform: translateY(-0.36em) translateX(0); opacity: 1; }
 }
 .roadmap-dot {
   display: inline-block;
@@ -418,8 +440,7 @@ body {
   border-radius: 50%;
   margin-left: 0.14em;
   transform: translateY(-0.36em);
-  box-shadow: 0 0 12px var(--brand-glow);
-  animation: roadmap-dot-slide 0.85s var(--spring-glide) both;
+  animation: roadmap-dot-advance 2.6s var(--spring-glide) infinite;
 }
 
 /* ────────────────────────────────────────────────────────────

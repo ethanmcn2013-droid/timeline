@@ -1,5 +1,166 @@
 # Signal Roadmap · Changelog
 
+## 2026-05-13 · Suite design-system v1 · Paper turns white, the dot learns to advance
+
+The umbrella's new design system landed. Roadmap is the third product
+across the line after Studio and Tasks.
+
+**Paper white, ink at #111.** `--bg` reset from warm-stone `#fafaf7`
+to pure `#ffffff`. Ink moved from the ramp's `#18181b` to the spec's
+`#111111`. The semantic-token layer (`--paper`, `--paper-soft`,
+`--paper-deep`, `--ink`, `--ink-soft`, `--ink-faint`, `--ink-ghost`,
+`--hairline`, `--hairline-2`, `--indigo`, `--indigo-soft`) lands in
+`globals.css` alongside the existing ramp + alias system, so legacy
+callsites keep working while the rest of the rollout proceeds.
+
+**`.roadmap-dot` learns to advance.** The dot's motion swapped from
+the one-shot slide-on-mount (which played once then sat still) to
+**M·03 advance — drift right 4px, fade, reset, repeat every 2.6s.**
+Direction without urgency. The dot moves toward a destination, then
+quietly returns and goes again. Continuous because direction isn't a
+one-time thing. The indigo glow box-shadow retired — the design
+system is restrained.
+
+**What didn't change.** The Wordmark component API (`<Link>`,
+sm/md/lg/xl, href) is unchanged. The dot's eye-correct proportions
+(0.30em / -0.36em) stay. The roadmap status palette
+(shipped/in-flight/next/blocked/refused), the pill grid, the public
+viewer chrome, the workspace editor — all intact. Page-level
+retouches land as pages get walked through.
+
+**Carries forward.** Phase 4 is Analytics — same token set, wordmark
+motion to tick (2.4s scope-style vertical pulse).
+
+## 2026-05-13 · Suite review · rate-limit unbroken, comment-thread refusal honest in the demo
+
+### `getClientIp` was throwing every call.
+
+The `try` in `src/lib/rate-limit.ts` called `require("next/headers")`
+synchronously and `headers()` synchronously. Next 16's `headers()`
+is async — the call threw on every invocation, the catch returned
+`"unknown"`, and every IP shared one bucket. Workspace-create
+(5/hr) and source-save (30/10min) were silently unprotected.
+Now async, awaited properly, propagated to the two call sites in
+`workspaces.ts`.
+
+### The demo stopped pretending threading was coming.
+
+`scripts/seed-demo.ts` and `src/lib/roadmap/demo-data.ts` both had
+a task at sort-order 4 titled "Shared comment threads on roadmap
+items" with `status: "in-flight"`. Threading is a locked refusal
+in `AGENTS.md`. Replaced with the actual refusal — same title, but
+`status: "refused"`, `kind: "refusal"`, with the honest
+description: *"Not shipping. Conversations belong in the work,
+not bolted onto a status page. Replying lands in your email —
+that's the channel."*
+
+Same pass: the keyboard-shortcuts overlay (`ShortcutsOverlay`)
+advertised `t` "Filter to today's items" and `w` "Filter to this
+week" — neither handler exists anywhere in the codebase. Removed
+the Roadmap group from the overlay. Only `?` and `Esc` listed now,
+because those are the only two that actually work.
+
+### Migration debt named.
+
+`drizzle/0002_workspace_owner_template.sql` is now committed. The
+three columns (`owner_name`, `owner_email`, `template_id`) were
+added to the schema in Sprint 2 cycles 10.2 / 10.3 / Templates
+T-2.1 but never got a migration — prod was kept in sync via
+`pnpm db:push --force`. Prod was verified at parity today via
+`PRAGMA table_info(workspaces)`; the file documents the state
+and unblocks a fresh-environment bootstrap.
+
+### Belt-and-braces on the data layer.
+
+- `seedWorkspaceFromTemplate` and `upsertParsedItems` now run
+  inside `db.transaction()`. A mid-loop failure leaves the DB
+  intact for a clean retry instead of half-applying.
+- `getActivityForTask` was returning the *oldest* 20 events,
+  ordered ascending. Fine on a fresh task; useless once a task
+  accumulates history. Now ordered desc, then reversed for the
+  panel's chronological render.
+- `ActivityPanel` wraps `JSON.parse(e.payload || "{}")` in
+  try/catch. A single malformed legacy row crashed the entire
+  public task-detail render before.
+- `saveProjectSourceAction` caps `rawMarkdown` at 200KB.
+  `createWorkspaceAction` caps `name` at 80 characters. Both
+  silent before.
+
+### Memory drift corrected.
+
+The Plan 4.2 memory entry claimed Sentry PII scrubbing was wired
+"across Tasks + Roadmap". Roadmap has no Sentry — no
+`@sentry/nextjs` in deps, no `sentry.*.config.ts`. Memory amended
+to name the gap honestly rather than carry the false claim.
+
+## 2026-05-12 (latest +3)
+
+### Avatar dropdown gained the siblings — second jump path landed.
+
+The Clerk UserButton in the in-app top bar now lists "Open Tasks",
+"Open Notes", "Open Analytics" above the Manage account / Sign out
+rows. Each opens in a new tab. Roadmap doesn't list itself — you're
+already here.
+
+This is a second route to the same place the suite launcher already
+goes (and it shipped in the same turn across all four products).
+Two jump paths because the discovery profile differs: the launcher
+is what a user finds when they look at the breadcrumb; the avatar
+dropdown is what they find when they reach for "settings."
+
+Implementation: thin client wrapper `src/components/user-button-
+with-suite.tsx` around Clerk's `<UserButton.MenuItems>` +
+`<UserButton.Link>` API.
+
+## 2026-05-12 (latest +2)
+
+### The breadcrumb learned to open — suite launcher landed.
+
+The `signal studio.` text in the in-app top bar is no longer a
+plain hard link to the umbrella. Click it now and a popover opens:
+"Signal Studio · Four products, one studio." Four rows — tasks,
+roadmap, notes, analytics — each with a one-word tagline.
+Roadmap shows as the current product (de-emphasised, "HERE" tag).
+The other three open in a new tab, so a Roadmap user who needs
+Tasks can jump without losing the workspace they're standing in.
+Footer row routes to signalstudio.ie.
+
+Dissent named: this is visible suite chrome inside an authenticated
+product — exactly the kind of move that risks turning four
+sovereign products into one suite. Counter — the trigger is the
+same 12px ink-quiet text that was already there yesterday; the new
+behaviour is hidden until clicked. No caret, no tab grid, no
+visual weight added. The popover bloom is the smallest
+intervention that turns "type the URL" into "click here."
+
+Implementation: new client component
+`src/components/suite-launcher.tsx`, all-inline-styles to match
+the existing top-bar styling pattern (Roadmap doesn't carry a
+Tailwind chrome layer in `app/layout.tsx`). Click-outside +
+Escape handlers wired manually to keep the dependency surface
+flat.
+
+## 2026-05-12 (latest +1)
+
+### Suite breadcrumb landed in the authenticated app shell.
+
+The marketing nav got the `signal studio. /` prefix yesterday. The
+in-app top bar — the one logged-in users actually live behind — did
+not, until now. Same prefix, same indigo dot, same 12px ink-quiet
+weight, hidden below sm: so the workspace surface keeps its breathing
+room on phones.
+
+Wordmark size in the in-app bar bumped from `sm` to `md` to match
+the marketing nav and read proportionally next to the 12px
+breadcrumb prefix.
+
+Dissent named: the alternative was to leave the in-app shell pure
+("the workspace is its own world, no umbrella chrome"). Rejected
+because users coming from signalstudio.ie can't currently get back
+to the umbrella from inside Roadmap without typing the URL. The
+breadcrumb is the smallest possible bidirectional thread; a launcher
+popover is the next cycle.
+
 ## 2026-05-12 (latest)
 
 ### Suite chrome consolidated — one bar, breadcrumb prefix.
