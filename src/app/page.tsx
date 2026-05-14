@@ -111,7 +111,7 @@ export default function HomePage() {
 
             <Link
               href="/demo"
-              className="group block max-w-2xl overflow-hidden rounded-2xl border transition-shadow hover:shadow-[var(--shadow-2)]"
+              className="group block max-w-2xl overflow-hidden rounded-[10px] border transition-shadow hover:shadow-[var(--shadow-2)]"
               style={{
                 background: "var(--bg-elev)",
                 borderColor: "var(--border)",

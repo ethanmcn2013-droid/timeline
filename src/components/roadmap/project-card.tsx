@@ -32,23 +32,14 @@ export function ProjectCard({
   return (
     <Link
       href={`/${workspaceSlug}/${project.slug}`}
-      className="group relative flex flex-col overflow-hidden rounded-2xl border border-line bg-bg-elevated p-6 transition-all hover:border-ink-quiet/40 hover:shadow-[0_24px_56px_-32px_rgba(20,21,26,0.18)]"
+      className="group relative flex flex-col overflow-hidden rounded-[10px] border border-line bg-bg-elevated p-6 transition-all hover:border-ink-quiet/40 hover:shadow-[var(--shadow-2)]"
     >
-      {/* Top accent bar */}
+      {/* Top accent bar — single identity gesture, no glow */}
       <span
         aria-hidden
         className="pointer-events-none absolute inset-x-0 top-0 h-[3px]"
         style={{
           background: `linear-gradient(90deg, transparent, ${accent}, transparent)`,
-        }}
-      />
-
-      {/* Accent glow */}
-      <span
-        aria-hidden
-        className="pointer-events-none absolute -top-12 right-[-20%] h-[200px] w-[260px] rounded-full opacity-25 blur-3xl"
-        style={{
-          background: `radial-gradient(closest-side, ${accent}, transparent 70%)`,
         }}
       />
 
