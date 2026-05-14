@@ -21,12 +21,14 @@ import { getSyncedTemplateRoadmap } from "@/lib/templates.generated";
 import { resolveEntitlement } from "@/lib/entitlements-shared/reads";
 import { tierAtLeast } from "@/lib/entitlements-shared/tiers";
 
-/** Roadmap's tier policy (E-4, 2026-05-14):
- *  - Free users: max 1 workspace.
- *  - Workspace / Wedding / Event / Studio: unlimited.
- *  Tier is read from the shared signal-entitlements DB. Failures
- *  resolve to "free" so a transient DB blip can't unlock paid
- *  capacity for free users. */
+/** Roadmap's tier policy (E-4, 2026-05-14; revised post-validation):
+ *  - Free / Event / Wedding: max 1 workspace.
+ *  - Workspace / Studio: unlimited.
+ *  Matches signalstudio.ie/pricing — Event sells "One workspace,
+ *  event-shaped" and Wedding is for one wedding. Only Workspace+
+ *  bypasses the cap. Tier is read from the shared signal-entitlements
+ *  DB. Failures resolve to "free" so a transient DB blip can't unlock
+ *  paid capacity. */
 const FREE_WORKSPACE_CAP = 1;
 
 /**
@@ -106,17 +108,20 @@ export async function createWorkspaceAction(
     return { error: "That slug is already taken. Try another." };
   }
 
-  // Free-tier cap on workspace count. Read the canonical tier from
-  // signal-entitlements; if the user holds workspace/wedding/event/
-  // studio, the cap doesn't apply.
+  // Workspace-count cap. Read the canonical tier from
+  // signal-entitlements; only Workspace+ bypasses. Event and Wedding
+  // are one-workspace-by-design (matches /pricing).
   const { tier } = await resolveEntitlement(userId);
-  if (!tierAtLeast(tier, "event")) {
+  if (!tierAtLeast(tier, "workspace")) {
     const owned = await getWorkspacesForUser(userId);
     if (owned.length >= FREE_WORKSPACE_CAP) {
-      return {
-        error:
-          "Free includes one workspace. Upgrade at signalstudio.ie/pricing to add more.",
-      };
+      const message =
+        tier === "event"
+          ? "Event is one workspace, event-shaped. Upgrade to Workspace at signalstudio.ie/pricing for more."
+          : tier === "wedding"
+            ? "Wedding is one workspace. Upgrade to Workspace at signalstudio.ie/pricing for more."
+            : "Free includes one workspace. Upgrade at signalstudio.ie/pricing to add more.";
+      return { error: message };
     }
   }
 
