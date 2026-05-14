@@ -38,11 +38,11 @@ In practice, open or update a Studio PR that changes:
 - `src/lib/hq/data.ts`
 - `src/lib/hq/signals.ts` if derived signal logic changes
 - relevant files under `signal-growth/`
-- `CHANGELOG.md` for meaningful operator-visible changes
+- `CHANGELOG.md` for meaningful operator-visible changes — write entries in the dispatch shape (Studio BRAND.md §6.5): `## YYYY-MM-DD · R·NN · verb · headline`, then a bold impact-lead sentence, then prose. Verbs are `ships / tightens / cuts / holds / reads`.
 
 Also bump `seedHqData.updatedAt` so `/hq` can detect newer repo-backed data.
 
-After a cycle ships in Roadmap (Vercel deploy succeeded, phase.md bumped), log the cycle from the Tasks repo:
+After a cycle ships in Roadmap (Vercel deploy succeeded, dispatch entry written in CHANGELOG.md per Studio BRAND.md §6.5, phase.md bumped), log the cycle from the Tasks repo:
 
 ```bash
 cd ~/Projects/personal/tasks && npx tsx scripts/log-cycle.ts \
