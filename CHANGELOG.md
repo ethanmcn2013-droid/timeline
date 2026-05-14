@@ -3,6 +3,66 @@
 Convention: BRAND.md §6.5. Entries before 2026-05-14 keep their
 original shape; the new shape starts at the next cycle.
 
+## 2026-05-15 · R·3 · ships · the post-launch audit lands across copy, share, security, and the cards
+
+**Five-axis review of Signal Roadmap (doc / copy / app / UI / UX / code)
+ran in parallel; the actionable findings ship here as four commits.**
+This is the cycle that closes the audit's P0/P1 queue without dragging
+the structural workspace-routing refactor into the same push — that one
+holds for a dedicated cycle so it doesn't surf in on the back of a copy
+bundle.
+
+**Copy bundle.** Eight one-line swaps in `domains.ts`, `demo-data.ts`,
+`app/page.tsx`, and `about/page.tsx`. "This sprint", "two teams",
+"Composite-PK multi-tenancy", "a team telling customers", "investors
+and the team", and "small teams" all surfaced live despite Plan 3.5 +
+Plan 5 catch-net passes. The "studio. shipping log" workspace name in
+demo-data.ts — a designer in-joke previously retired only in the seed
+script — gets corrected at source so any fallback path renders the
+right name.
+
+**Share moment.** This was the gap that most undermined the product
+promise. The public URL rendered as static monospace text with no
+copy affordance — the value moment of the product had zero
+interaction. Pulled PublicUrlChip into its own client component with
+a Copy-link button that confirms "Copied" on tap. The workspace
+creation form retires the word "slug" — label is now "Your public
+link", headline is "What's the plan?", helper copy describes the
+link directly. Marketing nav flips: primary CTA is "Start for free" →
+/sign-up, "See it live" demotes to ghost. Hero CTA "Open the roadmap"
+becomes "Publish your plan", routed to /sign-up instead of the gated
+/app. Mobile menu added to SiteNav — it was missing, leaving every
+mobile visitor with one CTA and no path to Pricing, About, Changelog,
+or sign-in.
+
+**Code P1s.** `saveProjectSourceAction` verified workspace ownership
+but not that the supplied `projectSlug` actually belonged to that
+workspace — an authenticated user could pair workspaceSlug=A with
+projectSlug=B and the upsert would manufacture task rows under a
+mismatched composite key. Added a `getProjectsForWorkspace` check
+mirroring `createProjectAction`'s uniqueness guard. Separately:
+`upsertParsedItems` and `upsertProjectSource` ran as two independent
+calls — a mid-flight failure left items in the tasks table while
+`lastParsedAt` stayed null (editor renders "never parsed" while the
+public viewer renders the new items). New `saveSourceAndItems` wraps
+both writes in one `db.transaction`.
+
+**UI de-slop.** ProjectCard sat at `rounded-2xl` with an
+absolute-positioned `blur-3xl` radial glow blob behind every card —
+the Vercel-template signature DESIGN.md §10 calls out as a refusal.
+Removed the glow span outright; the top accent bar was already doing
+the identity work alone. Radius pulled to `rounded-[10px]` (the `--r-3`
+card token), hover shadow goes through `--shadow-2`. Same radius
+correction on the proof-section homepage screenshot — it's a thumbnail,
+not a hero panel.
+
+**Held for next cycle.** Workspace routing fix — `getCurrentWorkspace`
+anchors to `workspaces[0]`, so the `workspace` paid tier can create N
+workspaces under the entitlement cap but the editor and `/app`
+dashboard silently scope to the first one. Bundling a URL-segment
+refactor with this copy + UI bundle would have mixed blast radius.
+Holding for R·4.
+
 ## 2026-05-14 · R·2 · ships · atlas drift-trigger wires into roadmap commits
 
 **Roadmap commits now flag the umbrella's atlas when a referenced
