@@ -134,7 +134,7 @@ export function CreateWorkspaceForm() {
 
         {/* Error */}
         {state.error && (
-          <p
+          <div
             className="rounded-lg border px-3.5 py-2.5 text-sm"
             style={{
               color: "var(--roadmap-red-fg)",
@@ -142,8 +142,19 @@ export function CreateWorkspaceForm() {
               borderColor: "var(--roadmap-red-border)",
             }}
           >
-            {state.error}
-          </p>
+            <p>{state.error}</p>
+            {state.error.includes("signalstudio.ie/pricing") ? (
+              <a
+                href="https://signalstudio.ie/pricing"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-2 inline-block text-sm font-medium underline"
+                style={{ color: "var(--roadmap-red-fg)" }}
+              >
+                See pricing →
+              </a>
+            ) : null}
+          </div>
         )}
 
         <button
