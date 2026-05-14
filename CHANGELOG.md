@@ -3,6 +3,43 @@
 Convention: BRAND.md §6.5. Entries before 2026-05-14 keep their
 original shape; the new shape starts at the next cycle.
 
+## 2026-05-14 · R·1 · tightens · the roadmap reads on a phone
+
+**Signal Roadmap gets the same mobile parity the umbrella and Tasks
+just shipped. Horizontal scroll guard, mobile-correct H1 leading,
+Clerk sign-up tap targets at the 44px floor, viewport-fit for notch
+hardware, and the footer legal strip lifted from 17×11 to 32×12. No
+copy, no product change — mechanical hygiene against the same
+disciplines that S·26 and T·47 followed.**
+
+The home page hero "Show your work, not your Jira." rendered at 47px
+font / 45px line-height on a phone before this — the descenders of
+"your" clipped into the cap-height of "Jira". A `@media (max-width:
+640px)` block in globals loosens `.h-display`, `.h-title`,
+`.h-section`, and `h1` leading from 0.96–1.10 to 1.04–1.18. The
+desktop display-tight register is preserved above 640px.
+
+`html, body { overflow-x: clip }` is added as a belt-and-braces
+guard. No content overflows the viewport today, but anything that
+ever did would scroll the whole body horizontally — same latent risk
+that bit the umbrella before S·26.
+
+Clerk got the mobile correctness treatment too. `formFieldInput`
+gains `!min-h-[48px] !text-[16px]` — the 16px is the iOS Safari rule
+that prevents auto-zoom on input focus. `formButtonPrimary` and
+`socialButtonsBlockButton` get `!min-h-[48px]` so every button on
+sign-up / sign-in passes WCAG 2.5.5. The `!` overrides Clerk's
+internal styles in the Tailwind cascade.
+
+Viewport export gains `viewportFit: "cover"` so iPhone notches
+expose `env(safe-area-inset-*)`. Footer legal links jump from 17px
+tall × 11px font to 32px tall × 12px font with `inline-flex` hit
+areas and `safe-area-inset-bottom` padding. Same treatment the
+umbrella and Tasks footers carry.
+
+Typecheck clean.
+
+
 ## 2026-05-14 · Free-tier workspace cap
 
 Roadmap now reads tier from the shared `signal-entitlements` DB
