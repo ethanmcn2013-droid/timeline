@@ -224,7 +224,7 @@ export function RoadmapDemo({ domain = "wedding" }: Props = {}) {
       if (!isCurrent()) return;
 
       // Share-copy beat: gamma cursor visits the Share button → press
-      // animation → toast appears. Now the share gesture is intelligent —
+      // animation → toast appears. Now the share gesture lands —
       // a reader presses share, then copies.
       setScene("share-copy");
       setCursorToShareButton("gamma");
