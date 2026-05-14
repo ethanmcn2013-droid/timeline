@@ -52,11 +52,11 @@ export function Hero() {
           style={{ animationDelay: "240ms" }}
         >
           <Link
-            href="/app"
+            href="/sign-up"
             className="group inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-[14px] font-medium text-white shadow-[0_8px_24px_-8px_rgba(20,21,26,0.4)] transition-transform hover:-translate-y-px"
             style={{ background: "var(--ink)" }}
           >
-            Open the roadmap
+            Publish your plan
             <svg
               width="14"
               height="14"

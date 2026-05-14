@@ -50,13 +50,13 @@ export function CreateWorkspaceForm() {
         className="mb-2 text-3xl font-semibold"
         style={{ letterSpacing: "-0.03em", color: "var(--ink)" }}
       >
-        What are you tracking?
+        What&apos;s the plan?
       </h1>
       <p
         className="mb-10 text-sm leading-relaxed"
         style={{ color: "var(--ink-soft)" }}
       >
-        Pick a slug — it&apos;s the URL where your roadmap lives publicly.
+        Pick a public link — this is where your roadmap will live.
       </p>
 
       <form action={formAction} className="flex flex-col gap-5">
@@ -99,7 +99,7 @@ export function CreateWorkspaceForm() {
             className="text-xs font-medium"
             style={{ color: "var(--ink-soft)" }}
           >
-            Slug
+            Your public link
           </label>
           <div className="flex items-center rounded-lg border overflow-hidden" style={{ borderColor: "var(--border)", background: "var(--bg-elev)" }}>
             <span

@@ -3,6 +3,7 @@ import { requireUser, getCurrentWorkspace } from "@/server/auth";
 import { getProjectsForWorkspace } from "@/server/db/queries";
 import { CreateWorkspaceForm } from "./_components/create-workspace-form";
 import { CreateProjectForm } from "./_components/create-project-form";
+import { PublicUrlChip } from "./_components/public-url-chip";
 import { ROADMAP_URL } from "@/lib/product-urls";
 
 export const metadata = { title: "Dashboard — Roadmap" };
@@ -119,17 +120,6 @@ export default async function AppPage() {
 }
 
 // ── Sub-components ──────────────────────────────────────────────────────────
-
-function PublicUrlChip({ url }: { url: string }) {
-  return (
-    <p
-      className="mt-1.5 font-mono text-xs"
-      style={{ color: "var(--ink-quiet)" }}
-    >
-      {url.replace(/^https?:\/\//, "")}
-    </p>
-  );
-}
 
 function EmptyProjects({ workspaceSlug }: { workspaceSlug: string }) {
   return (
