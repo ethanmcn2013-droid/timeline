@@ -4,7 +4,7 @@ const createdAt = new Date("2026-05-11T07:00:00Z");
 
 export const demoWorkspace: Workspace = {
   slug: "tasks",
-  name: "studio. shipping log",
+  name: "Tasks · Product Roadmap",
   description: "What we're building next, written in plain English.",
   ownerUserId: "seed-demo-user",
   ownerName: "Ethan McNamara",
@@ -143,9 +143,9 @@ export const demoTasks: Task[] = [
     id: "tasks-product-005",
     projectSlug: "product",
     workspaceSlug: "tasks",
-    title: "Composite-PK multi-tenancy",
+    title: "Per-workspace project slugs",
     description:
-      'Project slugs are now scoped per workspace — two teams can each have a project called "blog" without colliding. Schema migration shipped cleanly.',
+      'Project slugs are now scoped per workspace — two separate plans can each have a "blog" project without colliding. Schema migration shipped cleanly.',
     status: "shipped",
     phase: null,
     tier: null,

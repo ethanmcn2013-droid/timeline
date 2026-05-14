@@ -148,7 +148,7 @@ function EmptyProjects({ workspaceSlug }: { workspaceSlug: string }) {
         No projects yet.
       </p>
       <p className="mb-6 text-sm" style={{ color: "var(--ink-quiet)" }}>
-        A project is one roadmap — one product, one team, one slice of work.
+        A project is one roadmap — one plan, one slice of work.
       </p>
       <CreateProjectForm workspaceSlug={workspaceSlug} />
     </div>

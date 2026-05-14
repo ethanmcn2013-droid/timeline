@@ -110,7 +110,7 @@ export const DOMAINS: Record<DomainId, DomainPack> = {
     id: "launch",
     label: "Product launch",
     description:
-      "a team telling customers what shipped, what's next, what's held up",
+      "a founder or maker telling customers what shipped, what's next, what's held up",
     workspaceUrl: "roadmap.signalstudio.ie/april-release",
     workspaceTitle: "What's shipping this quarter.",
     workspaceEyebrow: "April release",
@@ -120,7 +120,7 @@ export const DOMAINS: Record<DomainId, DomainPack> = {
     rows: [
       { id: "perf", title: "Performance pass", status: "shipped", date: "Mar 04", startMonth: 2, endMonth: 2 },
       { id: "billing", title: "Billing rewrite", status: "shipped", date: "Mar 18", startMonth: 2, endMonth: 2 },
-      { id: "search", title: "Search across views", status: "doing", date: "This sprint", startMonth: 2, endMonth: 3 },
+      { id: "search", title: "Search across views", status: "doing", date: "This week", startMonth: 2, endMonth: 3 },
       { id: "share", title: "Public share links", status: "doing", date: "Apr 02", startMonth: 3, endMonth: 3 },
       { id: "exports", title: "PDF export", status: "held", date: "Held since Mar 11", startMonth: 2, endMonth: 4 },
       { id: "api", title: "Public API v1", status: "next", date: "May", startMonth: 4, endMonth: 5 },
@@ -135,7 +135,7 @@ export const DOMAINS: Record<DomainId, DomainPack> = {
   startup: {
     id: "startup",
     label: "Startup plan",
-    description: "a founder telling investors and the team what's actually being built",
+    description: "a founder telling investors and collaborators what's actually being built",
     workspaceUrl: "roadmap.signalstudio.ie/q2-plan",
     workspaceTitle: "Where we're going.",
     workspaceEyebrow: "Q2 plan",

@@ -31,7 +31,7 @@ const ANTI_FEATURES = [
 const WHO_ITS_FOR = [
   { index: "01", line: "Service operators sharing what is happening with clients." },
   { index: "02", line: "Solo professionals who need public accountability." },
-  { index: "03", line: "Small teams explaining the plan without a status meeting." },
+  { index: "03", line: "People coordinating a plan with clients, suppliers, or anyone waiting on the work." },
 ] as const;
 
 export default function AboutPage() {
