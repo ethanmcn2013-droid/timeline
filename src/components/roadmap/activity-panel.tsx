@@ -45,10 +45,13 @@ export function ActivityPanel({ events }: { events: Activity[] }) {
       </div>
       <ol className="space-y-2.5 border-l border-line-soft pl-5">
         {events.map((e) => {
-          const payload = JSON.parse(e.payload || "{}") as Record<
-            string,
-            unknown
-          >;
+          let payload: Record<string, unknown> = {};
+          try {
+            payload = JSON.parse(e.payload || "{}") as Record<string, unknown>;
+          } catch {
+            // Malformed JSON (legacy row, cross-repo writer drift): treat
+            // as empty payload rather than crashing the public render.
+          }
           const ts = new Date(e.createdAt);
           const verb = ACTION_LABEL[e.action] ?? e.action.replace(/-/g, " ");
           const fromTo =

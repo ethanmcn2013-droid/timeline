@@ -132,16 +132,15 @@ export async function checkRateLimit(
 /**
  * Extract the best-guess client IP from Next.js request headers.
  * Falls back to "unknown" — rate-limited as a single shared bucket.
+ *
+ * `headers()` is async in Next 16 — the sync require() pattern this
+ * function had previously was throwing on every call and silently
+ * collapsing every caller into the "unknown" bucket.
  */
-export function getClientIp(): string {
-  // Server Actions run in Node — headers() is available from next/headers.
-  // Import lazily to avoid breaking edge/client imports.
+export async function getClientIp(): Promise<string> {
   try {
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const { headers } = require("next/headers") as {
-      headers: () => { get: (k: string) => string | null };
-    };
-    const h = headers();
+    const { headers } = await import("next/headers");
+    const h = await headers();
     return (
       h.get("x-forwarded-for")?.split(",")[0]?.trim() ??
       h.get("x-real-ip") ??

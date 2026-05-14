@@ -12,13 +12,6 @@ const SHORTCUTS: { group: string; items: Shortcut[] }[] = [
       { keys: ["Esc"], label: "Close any overlay" },
     ],
   },
-  {
-    group: "Roadmap",
-    items: [
-      { keys: ["t"], label: "Filter to today's items" },
-      { keys: ["w"], label: "Filter to this week" },
-    ],
-  },
 ];
 
 /**

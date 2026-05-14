@@ -75,12 +75,12 @@ const ITEMS = [
   },
   {
     id: `${WORKSPACE_SLUG}-${PROJECT_SLUG}-004`,
-    title: "Shared comment threads on roadmap items",
+    title: "Comment threads on roadmap items",
     description:
-      "People who need the plan can leave comments on individual roadmap items. Auth-gated for writes; public for reads. Keeps the conversation in context.",
-    status: "in-flight" as schema.Status,
-    kind: "cycle" as schema.Kind,
-    targetDate: "2026-05-21",
+      "Not shipping. Conversations belong in the work, not bolted onto a status page. Replying lands in your email — that's the channel.",
+    status: "refused" as schema.Status,
+    kind: "refusal" as schema.Kind,
+    targetDate: null,
     sortOrder: 4,
   },
   {

@@ -108,32 +108,36 @@ export async function seedWorkspaceFromTemplate({
     };
   };
 }): Promise<{ projectCount: number; itemCount: number }> {
-  let sortOrder = 0;
-  for (const p of template.roadmap.projects) {
-    await db.insert(projects).values({
-      slug: p.slug,
-      name: p.name,
-      oneLiner: p.oneLiner,
-      accent: p.accent ?? "#4f46e5",
-      workspaceSlug,
-      sortOrder: sortOrder++,
-    });
-  }
+  // Wrap in a transaction so a partial failure leaves the workspace
+  // un-seeded for a clean retry rather than half-populated.
+  await db.transaction(async (tx) => {
+    let sortOrder = 0;
+    for (const p of template.roadmap.projects) {
+      await tx.insert(projects).values({
+        slug: p.slug,
+        name: p.name,
+        oneLiner: p.oneLiner,
+        accent: p.accent ?? "#4f46e5",
+        workspaceSlug,
+        sortOrder: sortOrder++,
+      });
+    }
 
-  let itemSort = 0;
-  for (const it of template.roadmap.items) {
-    const id = `${workspaceSlug}-${it.projectSlug}-${String(itemSort + 1).padStart(3, "0")}`;
-    await db.insert(tasks).values({
-      id,
-      projectSlug: it.projectSlug,
-      workspaceSlug,
-      title: it.title,
-      description: it.description,
-      status: it.status,
-      sortOrder: itemSort++,
-      targetDate: it.targetDate,
-    });
-  }
+    let itemSort = 0;
+    for (const it of template.roadmap.items) {
+      const id = `${workspaceSlug}-${it.projectSlug}-${String(itemSort + 1).padStart(3, "0")}`;
+      await tx.insert(tasks).values({
+        id,
+        projectSlug: it.projectSlug,
+        workspaceSlug,
+        title: it.title,
+        description: it.description,
+        status: it.status,
+        sortOrder: itemSort++,
+        targetDate: it.targetDate,
+      });
+    }
+  });
 
   return {
     projectCount: template.roadmap.projects.length,
@@ -332,27 +336,16 @@ export async function getCountsForWorkspace(
 export async function upsertParsedItems(items: ParsedItem[]): Promise<void> {
   if (items.length === 0) return;
 
-  for (const item of items) {
-    await db
-      .insert(tasks)
-      .values({
-        id: item.id,
-        projectSlug: item.projectSlug,
-        workspaceSlug: item.workspaceSlug,
-        title: item.title,
-        description: item.description,
-        status: item.status,
-        kind: item.kind,
-        targetDate: item.targetDate ?? undefined,
-        weekHeading: item.weekHeading ?? undefined,
-        category: item.category ?? undefined,
-        sortOrder: item.sortOrder,
-        isLaunch: item.isLaunch,
-        assignee: "claude-code",
-      })
-      .onConflictDoUpdate({
-        target: tasks.id,
-        set: {
+  // Wrap in a transaction so a mid-loop failure leaves the prior state
+  // intact rather than half-applying a markdown re-paste.
+  await db.transaction(async (tx) => {
+    for (const item of items) {
+      await tx
+        .insert(tasks)
+        .values({
+          id: item.id,
+          projectSlug: item.projectSlug,
+          workspaceSlug: item.workspaceSlug,
           title: item.title,
           description: item.description,
           status: item.status,
@@ -362,9 +355,24 @@ export async function upsertParsedItems(items: ParsedItem[]): Promise<void> {
           category: item.category ?? undefined,
           sortOrder: item.sortOrder,
           isLaunch: item.isLaunch,
-        },
-      });
-  }
+          assignee: "claude-code",
+        })
+        .onConflictDoUpdate({
+          target: tasks.id,
+          set: {
+            title: item.title,
+            description: item.description,
+            status: item.status,
+            kind: item.kind,
+            targetDate: item.targetDate ?? undefined,
+            weekHeading: item.weekHeading ?? undefined,
+            category: item.category ?? undefined,
+            sortOrder: item.sortOrder,
+            isLaunch: item.isLaunch,
+          },
+        });
+    }
+  });
 }
 
 // ---------------------------------------------------------------------------
@@ -480,7 +488,10 @@ export async function getActivityForTask(
   taskId: string,
   limit = 20,
 ): Promise<Activity[]> {
-  return db
+  // Most-recent-first so the activity panel shows the latest 20
+  // events, not the oldest 20 (which would never grow past day-one
+  // history once a task accumulates events).
+  const rows = await db
     .select()
     .from(activity)
     .where(
@@ -490,8 +501,10 @@ export async function getActivityForTask(
         eq(activity.entityId, taskId),
       ),
     )
-    .orderBy(asc(activity.createdAt))
+    .orderBy(desc(activity.createdAt))
     .limit(limit);
+  // Renderer expects chronological order; reverse after the limit.
+  return rows.reverse();
 }
 
 /**

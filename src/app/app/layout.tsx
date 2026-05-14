@@ -1,5 +1,6 @@
-import { UserButton } from "@clerk/nextjs";
 import { Wordmark } from "@/components/brand/wordmark";
+import { SuiteLauncher } from "@/components/suite-launcher";
+import { UserButtonWithSuite } from "@/components/user-button-with-suite";
 
 /**
  * Authenticated app chrome. Replaces the marketing SiteNav entirely.
@@ -23,8 +24,12 @@ export default function AppLayout({
         }}
       >
         <div className="mx-auto flex h-12 w-full max-w-4xl items-center justify-between px-6">
-          <Wordmark size="sm" />
-          <UserButton />
+          <div className="flex items-center gap-3">
+            <SuiteLauncher current="roadmap" />
+            <span aria-hidden className="hidden sm:inline" style={{ color: "var(--ink-faint)", fontSize: 12 }}>/</span>
+            <Wordmark size="md" />
+          </div>
+          <UserButtonWithSuite current="roadmap" />
         </div>
       </header>
 
