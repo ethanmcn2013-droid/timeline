@@ -3,6 +3,22 @@
 Convention: BRAND.md §6.5. Entries before 2026-05-14 keep their
 original shape; the new shape starts at the next cycle.
 
+## 2026-05-14 · R·2 · ships · atlas drift-trigger wires into roadmap commits
+
+**Roadmap commits now flag the umbrella's atlas when a referenced
+file changes.** A pre-commit hook in `.githooks/` runs a node
+script against the staged file list, resolves any atlas references
+that point at this repo, and writes drift into the studio repo's
+canonical sidecar. The hook never blocks — drift is a signal, not
+a gate. Activation is one `git config core.hooksPath .githooks`.
+
+Smoke-tested by staging a file under `src/lib/entitlements-shared/`:
+`pricing-and-entitlements` picks up the new drifted path via union
+merge. The shared script gates `git add` on
+`REPO_ROOT === STUDIO_ROOT`, so commits in this repo leave studio's
+sidecar uncommitted for the studio operator to pick up. Full spec
+lives at `~/Projects/personal/studio/docs/ATLAS_DRIFT_TRIGGER.md`.
+
 ## 2026-05-14 · R·1 · tightens · the roadmap reads on a phone
 
 **Signal Roadmap gets the same mobile parity the umbrella and Tasks
