@@ -8,6 +8,7 @@ import {
   createWorkspace,
   createProject,
   getWorkspace,
+  getWorkspacesForUser,
   upsertProjectSource,
   upsertParsedItems,
   getProjectsForWorkspace,
@@ -17,6 +18,16 @@ import { isValidSlug, slugify } from "@/lib/reserved-slugs";
 import { parseMarkdown } from "@/server/parser/parse-markdown";
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 import { getSyncedTemplateRoadmap } from "@/lib/templates.generated";
+import { resolveEntitlement } from "@/lib/entitlements-shared/reads";
+import { tierAtLeast } from "@/lib/entitlements-shared/tiers";
+
+/** Roadmap's tier policy (E-4, 2026-05-14):
+ *  - Free users: max 1 workspace.
+ *  - Workspace / Wedding / Event / Studio: unlimited.
+ *  Tier is read from the shared signal-entitlements DB. Failures
+ *  resolve to "free" so a transient DB blip can't unlock paid
+ *  capacity for free users. */
+const FREE_WORKSPACE_CAP = 1;
 
 /**
  * Pull the user's display name + primary email from Clerk for
@@ -61,7 +72,7 @@ export async function createWorkspaceAction(
   const userId = await requireUser();
 
   // Rate limit: 5 workspace creations per IP per hour
-  const ip = getClientIp();
+  const ip = await getClientIp();
   const allowed = await checkRateLimit("create-workspace", ip, 5, 3600);
   if (!allowed) return { error: "Too many requests. Try again later." };
 
@@ -71,6 +82,9 @@ export async function createWorkspaceAction(
     (formData.get("fromTemplate") as string | null)?.trim() || null;
 
   if (!name) return { error: "Workspace name is required." };
+  if (name.length > 80) {
+    return { error: "Workspace name must be 80 characters or fewer." };
+  }
   if (!slug) return { error: "Slug is required." };
   if (!isValidSlug(slug)) {
     return {
@@ -90,6 +104,20 @@ export async function createWorkspaceAction(
   const existing = await getWorkspace(slug);
   if (existing) {
     return { error: "That slug is already taken. Try another." };
+  }
+
+  // Free-tier cap on workspace count. Read the canonical tier from
+  // signal-entitlements; if the user holds workspace/wedding/event/
+  // studio, the cap doesn't apply.
+  const { tier } = await resolveEntitlement(userId);
+  if (!tierAtLeast(tier, "event")) {
+    const owned = await getWorkspacesForUser(userId);
+    if (owned.length >= FREE_WORKSPACE_CAP) {
+      return {
+        error:
+          "Free includes one workspace. Upgrade at signalstudio.ie/pricing to add more.",
+      };
+    }
   }
 
   const owner = await resolveOwnerIdentity(userId);
@@ -171,7 +199,7 @@ export async function saveProjectSourceAction(
   const userId = await requireUser();
 
   // Rate limit: 30 source saves per IP per 10 minutes (generous for iterating)
-  const ip = getClientIp();
+  const ip = await getClientIp();
   const allowed = await checkRateLimit("save-source", ip, 30, 600);
   if (!allowed) return { error: "Too many requests. Try again in a few minutes." };
 
@@ -183,6 +211,15 @@ export async function saveProjectSourceAction(
 
   if (!rawMarkdown?.trim()) {
     return { error: "Nothing to save — paste some markdown first." };
+  }
+  // Cap the markdown size — anything beyond this is almost certainly
+  // pasted-by-mistake data rather than a real roadmap. Without a cap
+  // the parser loop walks the whole blob and the upsert does one
+  // round-trip per item, which compounds badly.
+  if (rawMarkdown.length > 200_000) {
+    return {
+      error: "Roadmap markdown is too long (max 200 KB). Trim it down and try again.",
+    };
   }
 
   // Parse markdown → roadmap items
