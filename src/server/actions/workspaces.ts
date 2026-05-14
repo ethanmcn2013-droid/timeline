@@ -10,7 +10,7 @@ import {
   getWorkspace,
   getWorkspacesForUser,
   upsertProjectSource,
-  upsertParsedItems,
+  saveSourceAndItems,
   getProjectsForWorkspace,
   seedWorkspaceFromTemplate,
 } from "@/server/db/queries";
@@ -214,6 +214,15 @@ export async function saveProjectSourceAction(
     return { error: "Workspace not found." };
   }
 
+  // Verify the project actually belongs to this workspace. Without this guard
+  // a caller could supply a projectSlug from a different workspace and
+  // upsert task rows under a {workspaceSlug, projectSlug} composite key
+  // that crosses tenants. (Reviewer P1, 2026-05-15.)
+  const ownedProjects = await getProjectsForWorkspace(workspaceSlug);
+  if (!ownedProjects.some((p) => p.slug === projectSlug)) {
+    return { error: "Project not found." };
+  }
+
   if (!rawMarkdown?.trim()) {
     return { error: "Nothing to save — paste some markdown first." };
   }
@@ -254,17 +263,16 @@ export async function saveProjectSourceAction(
     return { error: `Parse error: ${parsed.parseError}` };
   }
 
-  // Upsert items (parser status wins — markdown is source of truth)
-  await upsertParsedItems(parsed.items);
-
-  // Persist source with parse metadata
+  // Atomic write: parsed items + source metadata in one transaction. Prior
+  // shape left a window where items were written but lastParsedAt never set.
   const lastParsedAt = new Date();
-  await upsertProjectSource({
+  await saveSourceAndItems({
     projectSlug,
     workspaceSlug,
     rawMarkdown,
     parseError: null,
     lastParsedAt,
+    items: parsed.items,
   });
 
   revalidatePath(`/app/source/${projectSlug}`);

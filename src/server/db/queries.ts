@@ -375,6 +375,74 @@ export async function upsertParsedItems(items: ParsedItem[]): Promise<void> {
   });
 }
 
+/**
+ * Atomic write of parsed items + project source row. Prevents the failure
+ * mode where items land in the tasks table but the source row's
+ * lastParsedAt is never updated (editor renders "never parsed" while the
+ * public viewer renders fresh items).
+ */
+export async function saveSourceAndItems(input: {
+  projectSlug: string;
+  workspaceSlug: string;
+  rawMarkdown: string;
+  parseError?: string | null;
+  lastParsedAt?: Date | null;
+  items: ParsedItem[];
+}): Promise<void> {
+  await db.transaction(async (tx) => {
+    for (const item of input.items) {
+      await tx
+        .insert(tasks)
+        .values({
+          id: item.id,
+          projectSlug: item.projectSlug,
+          workspaceSlug: item.workspaceSlug,
+          title: item.title,
+          description: item.description,
+          status: item.status,
+          kind: item.kind,
+          targetDate: item.targetDate ?? undefined,
+          weekHeading: item.weekHeading ?? undefined,
+          category: item.category ?? undefined,
+          sortOrder: item.sortOrder,
+          isLaunch: item.isLaunch,
+          assignee: "claude-code",
+        })
+        .onConflictDoUpdate({
+          target: tasks.id,
+          set: {
+            title: item.title,
+            description: item.description,
+            status: item.status,
+            kind: item.kind,
+            targetDate: item.targetDate ?? undefined,
+            weekHeading: item.weekHeading ?? undefined,
+            category: item.category ?? undefined,
+            sortOrder: item.sortOrder,
+            isLaunch: item.isLaunch,
+          },
+        });
+    }
+    await tx
+      .insert(projectSources)
+      .values({
+        projectSlug: input.projectSlug,
+        workspaceSlug: input.workspaceSlug,
+        rawMarkdown: input.rawMarkdown,
+        lastParsedAt: input.lastParsedAt ?? null,
+        parseError: input.parseError ?? null,
+      })
+      .onConflictDoUpdate({
+        target: [projectSources.projectSlug, projectSources.workspaceSlug],
+        set: {
+          rawMarkdown: input.rawMarkdown,
+          lastParsedAt: input.lastParsedAt ?? null,
+          parseError: input.parseError ?? null,
+        },
+      });
+  });
+}
+
 // ---------------------------------------------------------------------------
 // Public surface queries — workspace-scoped, Cycle 6
 // ---------------------------------------------------------------------------
