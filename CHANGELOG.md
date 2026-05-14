@@ -1,5 +1,20 @@
 # Signal Roadmap · Changelog
 
+## 2026-05-14 · Free-tier workspace cap
+
+Roadmap now reads tier from the shared `signal-entitlements` DB
+(suite-wide source of truth, populated by Tasks's Stripe webhook +
+the new Studio operator endpoints). Free-tier users are capped at
+1 workspace; Event / Wedding / Workspace / Studio tiers are
+unlimited. The workspace-create form surfaces the cap with a real
+upgrade CTA pointing at `signalstudio.ie/pricing`. Tier read fails
+closed: a transient DB blip resolves to `free`, never silently
+unlocking paid capacity.
+
+The cross-product nav already shipped in the design-system pass —
+this is the first cycle that actually does something the rest of
+the suite can see.
+
 ## 2026-05-13 · Suite design-system v1 · Paper turns white, the dot learns to advance
 
 The umbrella's new design system landed. Roadmap is the third product
