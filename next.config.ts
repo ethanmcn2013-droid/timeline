@@ -43,6 +43,11 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  experimental: {
+    // Tree-shake barrel imports — motion + Clerk are the heaviest
+    // client deps and only a subset of each is used per route.
+    optimizePackageImports: ["motion", "@clerk/nextjs"],
+  },
   async headers() {
     return [
       {

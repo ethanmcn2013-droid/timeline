@@ -14,6 +14,8 @@ import { ShortcutsOverlay } from "@/components/roadmap/shortcuts-overlay";
 import { SiteFooter } from "@/components/marketing/site-footer";
 import Link from "next/link";
 
+export const revalidate = 300;
+
 export async function generateMetadata({
   params,
 }: {

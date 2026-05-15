@@ -65,21 +65,32 @@ export async function resolveEntitlementOrThrow(
   if (rows.length === 0) return FREE_DEFAULT;
 
   let best = rows[0];
-  let bestRank = TIER_RANK[best.tier as EntitlementTier] ?? -1;
+  let bestRank = TIER_RANK[coerceTier(best.tier)] ?? -1;
   for (let i = 1; i < rows.length; i++) {
-    const rank = TIER_RANK[rows[i].tier as EntitlementTier] ?? -1;
+    const rank = TIER_RANK[coerceTier(rows[i].tier)] ?? -1;
     if (rank > bestRank) {
       best = rows[i];
       bestRank = rank;
     }
   }
   return {
-    tier: best.tier as EntitlementTier,
+    tier: coerceTier(best.tier),
     source: best.source,
     sourceRef: best.sourceRef,
     expiresAt: best.expiresAt,
     stripeCustomerId: best.stripeCustomerId,
   };
+}
+
+/**
+ * Drizzle types `tier` as plain text — there is no DB-level enum. A bad
+ * row (e.g. a legacy "pro" value from an old Tasks-era schema) would
+ * otherwise flow through `as EntitlementTier` and resolve to undefined
+ * in TIER_RANK / TIER_LABEL. Coerce any unknown value to "free" — the
+ * safe default that never over-grants access (reviewer P1, 2026-05-15).
+ */
+function coerceTier(value: string): EntitlementTier {
+  return value in TIER_RANK ? (value as EntitlementTier) : "free";
 }
 
 /**

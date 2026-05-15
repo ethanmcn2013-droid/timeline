@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { requireUser, getCurrentWorkspace } from "@/server/auth";
 import { getProjectsForWorkspace } from "@/server/db/queries";
+import { resolveEntitlement } from "@/lib/entitlements-shared/reads";
+import { TIER_LABEL } from "@/lib/entitlements-shared/tiers";
 import { CreateWorkspaceForm } from "./_components/create-workspace-form";
 import { CreateProjectForm } from "./_components/create-project-form";
 import { PublicUrlChip } from "./_components/public-url-chip";
@@ -21,6 +23,12 @@ export default async function AppPage() {
   // ── Workspace exists — show dashboard ───────────────────────────────────
   const projects = await getProjectsForWorkspace(workspace.slug);
   const publicBase = process.env.NEXT_PUBLIC_SITE_URL ?? ROADMAP_URL;
+
+  // The workspace.plan column is a stale shadow written once at creation
+  // and never updated on upgrade. Read the live canonical tier from the
+  // shared entitlements DB so a user who upgrades after workspace
+  // creation doesn't see "Free" forever (reviewer P1, 2026-05-15).
+  const { tier } = await resolveEntitlement(userId);
 
   return (
     <div className="mx-auto w-full max-w-4xl px-6 py-12">
@@ -48,7 +56,7 @@ export default async function AppPage() {
             color: "var(--brand-deep)",
           }}
         >
-          {workspace.plan}
+          {TIER_LABEL[tier]}
         </span>
       </div>
 

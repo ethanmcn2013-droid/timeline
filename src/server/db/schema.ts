@@ -142,9 +142,12 @@ export const tasks = sqliteTable(
   {
     id: text("id").primaryKey(),
     /** Project slug portion of the composite FK to projects(workspaceSlug, slug).
-     *  Drizzle's .references() helper is single-column only; the cascade
-     *  constraint is enforced at the query layer (all deletes go through
-     *  deleteProject which cascades manually) and by the DB index. */
+     *  Drizzle's .references() helper is single-column only, so there is no
+     *  DB-level cascade here. Project/workspace deletion is not a shipped
+     *  code path in v1 (no deleteProject / deleteWorkspace exists); if one
+     *  is added it MUST delete the dependent tasks rows itself, since the
+     *  DB will not. The composite index on (workspaceSlug, projectSlug)
+     *  keeps the scoped reads fast. */
     projectSlug: text("project_slug").notNull(),
     /** Workspace slug. Together with projectSlug forms the logical FK to
      *  projects(workspaceSlug, slug). Denormalized for fast workspace-scoped

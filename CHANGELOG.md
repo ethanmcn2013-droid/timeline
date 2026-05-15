@@ -3,6 +3,56 @@
 Convention: BRAND.md §6.5. Entries before 2026-05-14 keep their
 original shape; the new shape starts at the next cycle.
 
+## 2026-05-15 · R·4 · tightens · the code-review slate closes the security, perf, and dead-code queue
+
+**A three-axis code review (architecture / security / data-perf) ran in
+parallel against the whole repo; the safe-to-ship findings land here in
+one cycle, holding the composite-FK migration and dead-table drops for a
+dedicated DB cycle so a schema push doesn't surf in on a hardening pass.**
+
+**Security P0s.** `createProjectAction` was the only state-mutating
+server action with no rate limit — it now caps at 20/IP/hour, matching
+the workspace + source-save guards. `refusals` joined `RESERVED_SLUGS`:
+a workspace could previously register that slug and shadow its own
+`/[slug]/refusals` sub-page. The entitlements resolver no longer trusts
+the raw `tier` text column — an unknown value (a legacy "pro" row from
+the old Tasks-era schema) coerces to `free` rather than flowing through
+`as EntitlementTier` and resolving to `undefined` in TIER_LABEL.
+
+**Perf.** The public roadmap was accidentally dynamic-everything.
+`getWorkspace` / `getProject` / `getTask` are now wrapped in React
+`cache()` so `generateMetadata` and the page body share one query per
+request instead of round-tripping Turso twice — three duplicate reads
+killed on the task-detail page alone. The workspace page dropped its
+separate `getCountsForWorkspace` full-table read and derives the status
+counts from the task list it already fetches. `saveSourceAndItems`
+collapsed its per-item insert loop into one batched
+`INSERT … ON CONFLICT DO UPDATE` — pasting a 50-item roadmap is now one
+Turso round trip, not fifty. The three public routes gained
+`revalidate = 300`; the source-save action already calls
+`revalidatePath` so stakeholders still see edits immediately.
+
+**Bundle.** `ClerkProvider` moved off the root layout — it now scopes
+to `/app/*` and the sign-in / sign-up routes via a shared appearance
+module. The Clerk runtime no longer ships to the public roadmap viewer
+or marketing pages, which never call Clerk; `/`, `/about`, `/pricing`,
+`/changelog`, and `/demo` now prerender as static. `optimizePackageImports`
+added for `motion` + `@clerk/nextjs`.
+
+**Dead code.** `upsertParsedItems` (no callers), `getCountsForWorkspace`
+(now derived in-page), and the three cross-tenant count aggregates (no
+callers, full-table fetches to count in JS) were removed. The
+`tasks.projectSlug` schema comment claimed deletes cascade through a
+`deleteProject` that doesn't exist — corrected to state plainly that no
+project/workspace delete path ships in v1 and the DB will not cascade.
+
+The dashboard plan chip rendered `workspace.plan` — a column written
+once at creation and never updated on upgrade, so a paid user saw
+"Free" forever. It now reads the live canonical tier from the shared
+entitlements DB. Held for a dedicated cycle: composite FKs across
+`tasks` / `subtasks` / `activity`, dropping the dormant `comments` +
+`subtasks` tables, and the `0002` migration's fresh-env re-run hazard.
+
 ## 2026-05-15 · R·3 · ships · the post-launch audit lands across copy, share, security, and the cards
 
 **Five-axis review of Signal Roadmap (doc / copy / app / UI / UX / code)

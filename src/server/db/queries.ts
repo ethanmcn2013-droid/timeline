@@ -8,7 +8,8 @@
  * projects/tasks/counts. Foundational queries only — build on this in Cycle 4+.
  */
 
-import { eq, and, asc, desc, lte, gte, ne } from "drizzle-orm";
+import { cache } from "react";
+import { eq, and, asc, desc, lte, gte, ne, sql } from "drizzle-orm";
 import { db } from "./index";
 import {
   workspaces,
@@ -17,22 +18,26 @@ import {
   tasks,
   activity,
 } from "./schema";
-import type { Workspace, Project, ProjectSource, Task, Status, Activity } from "./schema";
+import type { Workspace, Project, ProjectSource, Task, Activity } from "./schema";
 import type { ParsedItem } from "@/server/parser/parse-markdown";
 
 // ---------------------------------------------------------------------------
 // Workspace queries
 // ---------------------------------------------------------------------------
 
-/** Resolve one workspace by slug. Returns null if not found. */
-export async function getWorkspace(slug: string): Promise<Workspace | null> {
+/** Resolve one workspace by slug. Returns null if not found.
+ *  Wrapped in React cache() so generateMetadata + the page body
+ *  share one query per request instead of round-tripping Turso twice. */
+export const getWorkspace = cache(async (
+  slug: string,
+): Promise<Workspace | null> => {
   const [row] = await db
     .select()
     .from(workspaces)
     .where(eq(workspaces.slug, slug))
     .limit(1);
   return row ?? null;
-}
+});
 
 /** All workspaces owned by a Clerk user, sorted by creation date. */
 export async function getWorkspacesForUser(
@@ -276,104 +281,13 @@ export async function getLastUpdatedForWorkspace(
 }
 
 // ---------------------------------------------------------------------------
-// Aggregate counts — always workspace-scoped
+// Parsed-item writes — parser-driven
+//
+// Workspace status counts are derived in the page render from the task
+// list it already fetches (see app/[workspaceSlug]/page.tsx) rather than
+// a second full-table read. The standalone getCountsForWorkspace +
+// unused upsertParsedItems were removed 2026-05-15.
 // ---------------------------------------------------------------------------
-
-/**
- * Cross-project status counts for a workspace. Same shape as Tasks-canonical
- * getCounts() but scoped to a single tenant.
- *
- * Used by the workspace dashboard header strip.
- */
-export async function getCountsForWorkspace(
-  workspaceSlug: string,
-): Promise<{
-  total: number;
-  shipped: number;
-  inFlight: number;
-  blocked: number;
-  next: number;
-  refused: number;
-}> {
-  const rows = await db
-    .select({ status: tasks.status })
-    .from(tasks)
-    .where(eq(tasks.workspaceSlug, workspaceSlug));
-
-  const counts = {
-    total: rows.length,
-    shipped: 0,
-    inFlight: 0,
-    blocked: 0,
-    next: 0,
-    refused: 0,
-  };
-
-  for (const r of rows) {
-    const s = r.status as Status;
-    if (s === "shipped") counts.shipped++;
-    else if (s === "in-flight") counts.inFlight++;
-    else if (s === "blocked") counts.blocked++;
-    else if (s === "next") counts.next++;
-    else if (s === "refused") counts.refused++;
-  }
-
-  return counts;
-}
-
-// ---------------------------------------------------------------------------
-// Parsed-item upsert — parser-driven writes
-// ---------------------------------------------------------------------------
-
-/**
- * Upsert a batch of ParsedItems into the tasks table.
- *
- * Parser-derived status WINS on every re-paste (markdown-as-source-of-truth).
- * Items removed from the markdown are left in the DB — no deletion semantics in v1.
- *
- * INVARIANT: every row must have workspaceSlug set (enforced by the parser contract).
- */
-export async function upsertParsedItems(items: ParsedItem[]): Promise<void> {
-  if (items.length === 0) return;
-
-  // Wrap in a transaction so a mid-loop failure leaves the prior state
-  // intact rather than half-applying a markdown re-paste.
-  await db.transaction(async (tx) => {
-    for (const item of items) {
-      await tx
-        .insert(tasks)
-        .values({
-          id: item.id,
-          projectSlug: item.projectSlug,
-          workspaceSlug: item.workspaceSlug,
-          title: item.title,
-          description: item.description,
-          status: item.status,
-          kind: item.kind,
-          targetDate: item.targetDate ?? undefined,
-          weekHeading: item.weekHeading ?? undefined,
-          category: item.category ?? undefined,
-          sortOrder: item.sortOrder,
-          isLaunch: item.isLaunch,
-          assignee: "claude-code",
-        })
-        .onConflictDoUpdate({
-          target: tasks.id,
-          set: {
-            title: item.title,
-            description: item.description,
-            status: item.status,
-            kind: item.kind,
-            targetDate: item.targetDate ?? undefined,
-            weekHeading: item.weekHeading ?? undefined,
-            category: item.category ?? undefined,
-            sortOrder: item.sortOrder,
-            isLaunch: item.isLaunch,
-          },
-        });
-    }
-  });
-}
 
 /**
  * Atomic write of parsed items + project source row. Prevents the failure
@@ -390,27 +304,18 @@ export async function saveSourceAndItems(input: {
   items: ParsedItem[];
 }): Promise<void> {
   await db.transaction(async (tx) => {
-    for (const item of input.items) {
+    // Single batched INSERT … ON CONFLICT DO UPDATE instead of one
+    // round trip per item. Conflicting rows take the incoming values
+    // via excluded.* — keeps markdown-as-source-of-truth semantics
+    // while collapsing N Turso WAN round trips into one statement.
+    if (input.items.length > 0) {
       await tx
         .insert(tasks)
-        .values({
-          id: item.id,
-          projectSlug: item.projectSlug,
-          workspaceSlug: item.workspaceSlug,
-          title: item.title,
-          description: item.description,
-          status: item.status,
-          kind: item.kind,
-          targetDate: item.targetDate ?? undefined,
-          weekHeading: item.weekHeading ?? undefined,
-          category: item.category ?? undefined,
-          sortOrder: item.sortOrder,
-          isLaunch: item.isLaunch,
-          assignee: "claude-code",
-        })
-        .onConflictDoUpdate({
-          target: tasks.id,
-          set: {
+        .values(
+          input.items.map((item) => ({
+            id: item.id,
+            projectSlug: item.projectSlug,
+            workspaceSlug: item.workspaceSlug,
             title: item.title,
             description: item.description,
             status: item.status,
@@ -420,6 +325,21 @@ export async function saveSourceAndItems(input: {
             category: item.category ?? undefined,
             sortOrder: item.sortOrder,
             isLaunch: item.isLaunch,
+            assignee: "claude-code" as const,
+          })),
+        )
+        .onConflictDoUpdate({
+          target: tasks.id,
+          set: {
+            title: sql`excluded.title`,
+            description: sql`excluded.description`,
+            status: sql`excluded.status`,
+            kind: sql`excluded.kind`,
+            targetDate: sql`excluded.target_date`,
+            weekHeading: sql`excluded.week_heading`,
+            category: sql`excluded.category`,
+            sortOrder: sql`excluded.sort_order`,
+            isLaunch: sql`excluded.is_launch`,
           },
         });
     }
@@ -497,11 +417,11 @@ export async function getUpcomingTasks(
  * Single task lookup, workspace+project scoped.
  * Returns null if the task doesn't exist under that workspace+project.
  */
-export async function getTask(
+export const getTask = cache(async (
   workspaceSlug: string,
   projectSlug: string,
   taskId: string,
-): Promise<Task | null> {
+): Promise<Task | null> => {
   const [row] = await db
     .select()
     .from(tasks)
@@ -514,16 +434,16 @@ export async function getTask(
     )
     .limit(1);
   return row ?? null;
-}
+});
 
 /**
  * Single project lookup, workspace scoped.
  * Returns null if the project doesn't belong to that workspace.
  */
-export async function getProject(
+export const getProject = cache(async (
   workspaceSlug: string,
   projectSlug: string,
-): Promise<Project | null> {
+): Promise<Project | null> => {
   const [row] = await db
     .select()
     .from(projects)
@@ -535,7 +455,7 @@ export async function getProject(
     )
     .limit(1);
   return row ?? null;
-}
+});
 
 // getCommentsForTask + addComment removed 2026-05-12 — Suite Review T3
 // decision. Comment threading is a locked refusal; the helpers were the
@@ -595,33 +515,8 @@ export async function getTasksForProject(
     .orderBy(asc(tasks.sortOrder));
 }
 
-// ---------------------------------------------------------------------------
-// Cross-tenant aggregates (for public homepage vital sign only)
-// These are the ONLY functions that are intentionally cross-tenant.
-// They count, never expose content.
-// ---------------------------------------------------------------------------
-
-/** Total workspace count across all tenants. Public vital sign. */
-export async function getTotalWorkspaceCount(): Promise<number> {
-  const rows = await db.select({ slug: workspaces.slug }).from(workspaces);
-  return rows.length;
-}
-
-/** Total workspace-scoped roadmap count across all tenants. Public vital sign. */
-export async function getTotalWorkspaceProjectCount(): Promise<number> {
-  // workspaceSlug is now NOT NULL on all rows; just count everything.
-  const rows = await db
-    .select({ workspaceSlug: projects.workspaceSlug, slug: projects.slug })
-    .from(projects);
-  return rows.length;
-}
-
-/** Total workspace-scoped shipped-task count. Public vital sign. */
-export async function getTotalShippedCount(): Promise<number> {
-  // workspaceSlug is NOT NULL on all rows after the Cycle-7 migration.
-  const rows = await db
-    .select({ id: tasks.id })
-    .from(tasks)
-    .where(eq(tasks.status, "shipped"));
-  return rows.length;
-}
+// Cross-tenant count aggregates (getTotalWorkspaceCount /
+// getTotalWorkspaceProjectCount / getTotalShippedCount) were removed
+// 2026-05-15 — no callers anywhere in the suite, and they did
+// full-table fetches to count rows in JS. Reintroduce with a SQL
+// count(*) if a public vital-sign surface ever needs them.

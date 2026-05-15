@@ -5,7 +5,6 @@ import {
   getWorkspace,
   getProjectsForWorkspace,
   getTasksForWorkspace,
-  getCountsForWorkspace,
   getUpcomingTasks,
   getLastUpdatedForWorkspace,
 } from "@/server/db/queries";
@@ -22,6 +21,11 @@ import { ProgressRing } from "@/components/roadmap/progress-ring";
 import { ShortcutsOverlay } from "@/components/roadmap/shortcuts-overlay";
 import { SiteFooter } from "@/components/marketing/site-footer";
 import Link from "next/link";
+
+// Public roadmap is read-only. ISR with a 5-min window; the source-save
+// action calls revalidatePath on edit so stakeholders see fresh data
+// immediately rather than waiting out the window.
+export const revalidate = 300;
 
 export async function generateMetadata({
   params,
@@ -47,13 +51,30 @@ export default async function WorkspaceRoadmapPage({
   const workspace = await getWorkspace(workspaceSlug);
   if (!workspace) notFound();
 
-  const [projects, allTasks, counts, upcoming, lastUpdated] = await Promise.all([
+  const [projects, allTasks, upcoming, lastUpdated] = await Promise.all([
     getProjectsForWorkspace(workspaceSlug),
     getTasksForWorkspace(workspaceSlug),
-    getCountsForWorkspace(workspaceSlug),
     getUpcomingTasks(workspaceSlug, 14),
     getLastUpdatedForWorkspace(workspaceSlug),
   ]);
+
+  // Workspace-level status counts derived from the task list we already
+  // fetched, rather than a second full-table read (was getCountsForWorkspace).
+  const counts = {
+    total: allTasks.length,
+    shipped: 0,
+    inFlight: 0,
+    blocked: 0,
+    next: 0,
+    refused: 0,
+  };
+  for (const t of allTasks) {
+    if (t.status === "shipped") counts.shipped++;
+    else if (t.status === "in-flight") counts.inFlight++;
+    else if (t.status === "blocked") counts.blocked++;
+    else if (t.status === "next") counts.next++;
+    else if (t.status === "refused") counts.refused++;
+  }
 
   const projectMap = new Map<string, Project>(projects.map((p) => [p.slug, p]));
 

@@ -158,6 +158,13 @@ export async function createProjectAction(
 ): Promise<CreateProjectResult> {
   const userId = await requireUser();
 
+  // Rate limit: 20 project creations per IP per hour. createWorkspaceAction
+  // and saveProjectSourceAction are both limited; this was the only
+  // state-mutating action without a cap (reviewer P1, 2026-05-15).
+  const ip = await getClientIp();
+  const allowed = await checkRateLimit("create-project", ip, 20, 3600);
+  if (!allowed) return { error: "Too many requests. Try again later." };
+
   // Verify user owns this workspace
   const workspace = await getWorkspace(workspaceSlug);
   if (!workspace || workspace.ownerUserId !== userId) {

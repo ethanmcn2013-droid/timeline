@@ -1,6 +1,8 @@
+import { ClerkProvider } from "@clerk/nextjs";
 import { Wordmark } from "@/components/brand/wordmark";
 import { SuiteLauncher } from "@/components/suite-launcher";
 import { UserButtonWithSuite } from "@/components/user-button-with-suite";
+import { clerkAppearance } from "@/lib/clerk-appearance";
 
 /**
  * Authenticated app chrome. Replaces the marketing SiteNav entirely.
@@ -13,7 +15,8 @@ export default function AppLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex min-h-screen flex-col" style={{ background: "var(--bg)" }}>
+    <ClerkProvider appearance={clerkAppearance}>
+      <div className="flex min-h-screen flex-col" style={{ background: "var(--bg)" }}>
       {/* App top bar */}
       <header
         className="sticky top-0 z-50 border-b"
@@ -35,6 +38,7 @@ export default function AppLayout({
 
       {/* Page content */}
       <main className="flex flex-1 flex-col">{children}</main>
-    </div>
+      </div>
+    </ClerkProvider>
   );
 }
