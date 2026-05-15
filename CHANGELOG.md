@@ -3,6 +3,43 @@
 Convention: BRAND.md §6.5. Entries before 2026-05-14 keep their
 original shape; the new shape starts at the next cycle.
 
+## 2026-05-15 · R·U2 · ships · Roadmap and Milestones become maps, not lists
+
+**For the 80% who don't work in tech, a list is a spreadsheet and a map
+is a plan. Two of the four views were still lists pretending to be
+visualisations. This cycle makes them things you see, not things you
+read — and fixes the two P0s the last deploy left live.**
+
+**Roadmap → flow map.** The project-grouped list is now four
+plain-English lanes a wedding planner or a builder reads at a glance:
+To do, Doing, Held up, Done. Project-tinted cards, milestone chips,
+calm register (Apple/Linear/Arc, never Jira). Overview keeps the
+briefing list — it's the read-everything view; Roadmap is the
+where-does-it-stand view.
+
+**Milestones → progress map.** The card stack is now a path: stations
+in date order on a spine, each with a draw-on ring, a plain T-minus
+("31 days to go"), and the work feeding it as a calm pip row. A station
+at 100% earns a quiet settled state. The payoff is real progress made
+visible — the delight is earned, never decorative.
+
+**Motion that never hides content.** Entrances are mount-triggered, not
+scroll-gated — a public roadmap must be readable on first paint, with
+no JS, by a crawler. `prefers-reduced-motion` renders the final state
+flat. The stats band is now Overview-only; on the board it counted
+milestones the lanes exclude and contradicted itself.
+
+**The two P0s closed.** The hero demo toggle said "Timeline" — a
+locked-banned word for this product; it now says "Schedule", matching
+the shipped view. The landing's proof image showed the retired
+"studio. shipping log" brand; it's regenerated from the unified viewer.
+
+Deferred to R·U3 (named, not silent): the real viewer as the landing
+hero (P4); the landing's duplicate three-column rows and dead vertical
+rhythm; an Overview deep brand pass; demo data with spread target dates
+so Schedule and the milestone rings stop looking identical; and the
+now-dead RoadmapView/MilestonesView functions left in page.tsx.
+
 ## 2026-05-15 · R·U · unifies · the fictional product dies; one viewer, four honest views
 
 **Signal Roadmap was two products wearing one nav — a ~1,400-line
