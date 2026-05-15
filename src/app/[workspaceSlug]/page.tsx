@@ -21,6 +21,7 @@ import { MetaStrip } from "@/components/roadmap/meta-strip";
 import { ProgressRing } from "@/components/roadmap/progress-ring";
 import { ShortcutsOverlay } from "@/components/roadmap/shortcuts-overlay";
 import { WorkspaceViewSwitcher } from "@/components/roadmap/workspace-view-switcher";
+import { ScheduleView } from "@/components/roadmap/schedule-view";
 import { SiteFooter } from "@/components/marketing/site-footer";
 import type { WorkspaceView } from "@/components/showcase/types";
 import Link from "next/link";
@@ -62,7 +63,9 @@ export default async function WorkspaceRoadmapPage({
   // Validate against known values so a typo doesn't crash the render.
   const rawView = typeof sp.view === "string" ? sp.view : undefined;
   const activeView: WorkspaceView =
-    rawView === "roadmap" || rawView === "milestones"
+    rawView === "roadmap" ||
+    rawView === "milestones" ||
+    rawView === "schedule"
       ? rawView
       : "overview";
 
@@ -325,8 +328,12 @@ export default async function WorkspaceRoadmapPage({
               ) : null}
             </div>
 
-            {/* Stats row — semantic counts — overview + roadmap views */}
-            {hasItems && activeView !== "milestones" ? (
+            {/* Stats row — semantic counts — overview + roadmap views only.
+                Milestones + Schedule are dense surfaces of their own; the
+                big-stat band would compete with them. */}
+            {hasItems &&
+            activeView !== "milestones" &&
+            activeView !== "schedule" ? (
               <div className="mt-8 flex flex-wrap items-end gap-x-8 gap-y-3">
                 <BigStat label="Total" value={counts.total} />
                 <BigStat label="Done" value={counts.shipped} tone="shipped" />
@@ -359,6 +366,13 @@ export default async function WorkspaceRoadmapPage({
             projectMap={projectMap}
             allTasks={visibleTasks}
             workspaceSlug={workspaceSlug}
+          />
+        ) : activeView === "schedule" ? (
+          <ScheduleView
+            tasks={visibleTasks}
+            milestones={milestones}
+            projects={projects}
+            projectMap={projectMap}
           />
         ) : activeView === "roadmap" ? (
           <RoadmapView

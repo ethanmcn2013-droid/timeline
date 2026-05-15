@@ -4,13 +4,13 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { LayoutGroup, motion } from "motion/react";
 import type { WorkspaceView } from "@/components/showcase/types";
 
-// Named items for the three phase-1 views.
-// A fourth "schedule" value is NOT in this phase — add it here and to
-// WorkspaceView union when ready (see showcase/types.ts).
+// The four public views. "Schedule" is the gated fast-follow (P5) — items on
+// a real month axis by targetDate. Order here is the tab order.
 const VIEWS: { id: WorkspaceView; label: string }[] = [
   { id: "overview", label: "Overview" },
   { id: "roadmap", label: "Roadmap" },
   { id: "milestones", label: "Milestones" },
+  { id: "schedule", label: "Schedule" },
 ];
 
 type Props = {

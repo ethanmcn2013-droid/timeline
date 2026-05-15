@@ -4,9 +4,15 @@ export type RowStatus = DemoRowStatus;
 export type ViewMode = "list" | "timeline";
 
 // ── Public workspace view switcher ──────────────────────────────────────────
-// Three views shipped in phase 1. "schedule" is the named slot for phase 2 —
-// add it to the union and the WorkspaceViewMode array when ready.
-export type WorkspaceView = "overview" | "roadmap" | "milestones";
+// Four public views. Overview/Roadmap/Milestones shipped in phase 1;
+// "schedule" is the gated fast-follow (P5) — items plotted on a real month
+// axis by targetDate. Keep this union in sync with the VIEWS array in
+// workspace-view-switcher.tsx and the rawView guard in [workspaceSlug]/page.tsx.
+export type WorkspaceView =
+  | "overview"
+  | "roadmap"
+  | "milestones"
+  | "schedule";
 
 export type Row = {
   id: string;
