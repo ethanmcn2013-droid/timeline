@@ -113,7 +113,7 @@ export const CURSOR_SEED: Cursor[] = [
   },
   {
     id: "beta",
-    color: "#7c5cff",
+    color: "#6366f1",
     label: "London · just now",
     x: -30,
     y: 180,

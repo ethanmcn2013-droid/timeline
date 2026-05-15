@@ -3,7 +3,26 @@
 Convention: BRAND.md §6.5. Entries before 2026-05-14 keep their
 original shape; the new shape starts at the next cycle.
 
-## 2026-05-15 · R·U3 · ships · the demo is the 80% — a real wedding, and the front door tells the truth
+## 2026-05-15 · R·5 · cuts · the banned purple out of the live demo cursors
+
+**The §5-forbidden `#7c5cff` was the colour of a cursor in the
+public roadmap demo — the "beta · London · just now" visitor — on a
+file whose own comment says "anonymous indigo tones." A prior pass
+declared the suite's purple "purged," but that sweep only ever
+looked at the Tasks repo, case-sensitively. Roadmap was never
+checked. One banned cursor, live on the marketing demo every
+visitor watches.**
+
+`beta` is now `#6366f1` (indigo-500, a real ramp token) — distinct
+from `alpha` (#4f46e5) and `gamma` (#5b6cff) so the three demo
+cursors stay legible, now genuinely "anonymous indigo tones" as the
+file always claimed. Found by re-running the overclaimed §5 sweep
+the right way: case-insensitive, all five repos, the command pasted
+into the record. That sweep now returns zero `#7c5cff` /
+`rgba(124,92,255)` across the entire suite — verified, not asserted.
+typecheck + build clean. The standing lesson, repeated because it
+keeps paying out: a scoped or case-sensitive grep is not a sweep,
+and "purged" without the command is a guess.
 
 **The product was selling a wedding planner a software roadmap. The
 public demo read "Composite-PK multi-tenancy" and "paste your markdown"
