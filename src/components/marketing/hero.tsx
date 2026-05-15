@@ -8,10 +8,10 @@ import { RoadmapDemo } from "@/components/showcase/roadmap-demo";
 import { type DomainId } from "@/lib/domains";
 
 /**
- * Roadmap homepage hero — modelled on Tasks's hero pattern.
- * Eyebrow + H1 + body + CTAs + status pip + audience toggle, with the
- * cinematic demo as a full-width artifact below. The demo is keyed by
- * domain so swapping audiences cleanly resets state.
+ * Roadmap homepage hero.
+ * H1: "The plan your client can actually read." (operator-ratified phase 1).
+ * "Show your work, not your Jira." relocated here as supporting body copy —
+ * it belongs in the register of "what this isn't", not as the primary claim.
  */
 export function Hero() {
   const [domain, setDomain] = useState<DomainId>("wedding");
@@ -32,7 +32,7 @@ export function Hero() {
             animationDelay: "80ms",
           }}
         >
-          Show your work, not your Jira.
+          The plan your client can actually read.
         </h1>
 
         <p
@@ -43,8 +43,8 @@ export function Hero() {
             animationDelay: "160ms",
           }}
         >
-          A public roadmap your customers can actually read. Written in plain
-          English, live the moment you publish, easy to share with one link.
+          A public roadmap written in plain English, live the moment you publish,
+          easy to share with one link. Show your work, not your Jira.
         </p>
 
         <div
@@ -97,7 +97,7 @@ export function Hero() {
           Demo is live · choose an audience to reseed
         </p>
 
-        {/* Audience toggle — proves the format fits whatever you're publishing.
+        {/* Audience toggle — proves the format fits whatever you&apos;re publishing.
             id="demo" anchors deep-links from the suite landing page. */}
         <div
           id="demo"

@@ -42,11 +42,13 @@ export type DomainPack = {
   transitions: { id: string; to: DemoRowStatus; movedAt: string }[];
 };
 
+// Phase 1 unification: lead with the weddings/events wedge per BRAND.md §10.
+// "Startup plan" and "Product launch" presets removed — they read as
+// generic-SaaS and undercut the 80%-non-tech positioning. Construction
+// (trades/contractor) is kept as the supporting example.
 export const DOMAIN_ORDER: DomainId[] = [
   "wedding",
   "construction",
-  "launch",
-  "startup",
 ];
 
 export const MONTH_LABELS = [

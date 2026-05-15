@@ -3,6 +3,11 @@ import type { DemoRowStatus, DomainId } from "@/lib/domains";
 export type RowStatus = DemoRowStatus;
 export type ViewMode = "list" | "timeline";
 
+// ── Public workspace view switcher ──────────────────────────────────────────
+// Three views shipped in phase 1. "schedule" is the named slot for phase 2 —
+// add it to the union and the WorkspaceViewMode array when ready.
+export type WorkspaceView = "overview" | "roadmap" | "milestones";
+
 export type Row = {
   id: string;
   title: string;
@@ -65,8 +70,12 @@ export type DemoState = {
   sharePressed: boolean;
 };
 
+// Canonical plain-English labels — must match the real product's Status type.
+// DB schema: next | in-flight | shipped | blocked | refused
+// Demo vocab: next | doing (=in-flight) | shipped | held (=blocked)
+// Map: doing→"Doing", held→"Held up", retired aliases removed.
 export const STATUS_LABEL: Record<RowStatus, string> = {
-  shipped: "Shipped",
+  shipped: "Done",
   doing: "Doing",
   held: "Held up",
   next: "Next",

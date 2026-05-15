@@ -1,33 +1,37 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useReducedMotion } from "motion/react";
 import { DOMAINS, type DomainId } from "@/lib/domains";
 import {
-  CURSOR_SEED,
-  type Cursor,
   type DemoState,
   type Row,
   type Scene,
   type ViewMode,
 } from "./types";
-import { Cursor as CursorView } from "./cursor";
 import { UrlBar } from "./url-bar";
 import { ViewToggle } from "./view-toggle";
-import { FollowersPill } from "./followers-pill";
 import { DemoSurface } from "./demo-surface";
 import { DemoToast } from "./toast";
 
+// Fake engagement theatre (ghost cursors, viewCount ticker, followers pill)
+// removed in phase 1 unification. The demo loop only does what the product
+// actually does: status transitions on real items, view switching between
+// List and Timeline. No presence theatre, no fake social proof.
+
 function buildInitialState(domain: DomainId): DemoState {
+  const seed = DOMAINS[domain];
   return {
-    rows: DOMAINS[domain].rows.map((r) => ({ ...r })),
-    cursors: CURSOR_SEED.map((c) => ({ ...c })),
-    viewCount: 12,
+    rows: seed.rows.map((r) => ({ ...r })),
+    // Cursor fields retained in DemoState type for backwards-compat,
+    // but no cursors are rendered. All cursor arrays are empty.
+    cursors: [],
+    viewCount: 0,
     scene: "boot",
     view: "list",
     domain,
     toast: null,
-    followers: 1247,
+    followers: 0,
     sharePressed: false,
   };
 }
@@ -44,52 +48,10 @@ export function RoadmapDemo({ domain = "wedding" }: Props = {}) {
   const [state, setState] = useState<DemoState>(() => buildInitialState(domain));
   const aliveRef = useRef(true);
   const loopKeyRef = useRef(0);
-  const surfaceRef = useRef<HTMLDivElement | null>(null);
-  const rowRefsRef = useRef<Map<string, HTMLDivElement>>(new Map());
-  const shareButtonRef = useRef<HTMLButtonElement | null>(null);
-
-  // Followers and sharePressed are folded into DemoState so buildInitialState
-  // at the top of runLoop resets them when domain changes — no effect-driven
-  // setState or render-phase ref access needed.
 
   useEffect(() => {
     loopKeyRef.current += 1;
   }, [domain]);
-
-  const onRegisterRow = useCallback(
-    (id: string, el: HTMLDivElement | null) => {
-      if (el) {
-        rowRefsRef.current.set(id, el);
-      } else {
-        rowRefsRef.current.delete(id);
-      }
-    },
-    []
-  );
-
-  const getRowCenter = useCallback((rowId: string): { x: number; y: number } | null => {
-    const surface = surfaceRef.current;
-    const rowEl = rowRefsRef.current.get(rowId);
-    if (!surface || !rowEl) return null;
-    const surfaceRect = surface.getBoundingClientRect();
-    const rowRect = rowEl.getBoundingClientRect();
-    return {
-      x: rowRect.left - surfaceRect.left + rowRect.width * 0.4,
-      y: rowRect.top - surfaceRect.top + rowRect.height * 0.5,
-    };
-  }, []);
-
-  const getShareCenter = useCallback((): { x: number; y: number } | null => {
-    const surface = surfaceRef.current;
-    const btn = shareButtonRef.current;
-    if (!surface || !btn) return null;
-    const surfaceRect = surface.getBoundingClientRect();
-    const btnRect = btn.getBoundingClientRect();
-    return {
-      x: btnRect.left - surfaceRect.left + btnRect.width * 0.5,
-      y: btnRect.top - surfaceRect.top + btnRect.height * 0.5,
-    };
-  }, []);
 
   const setRowStatus = useCallback(
     (id: string, status: Row["status"], movedAt: string) => {
@@ -111,60 +73,6 @@ export function RoadmapDemo({ domain = "wedding" }: Props = {}) {
     setState((s) => ({ ...s, view }));
   }, []);
 
-  const updateCursor = useCallback(
-    (id: Cursor["id"], patch: Partial<Cursor>) => {
-      setState((s) => ({
-        ...s,
-        cursors: s.cursors.map((c) => (c.id === id ? { ...c, ...patch } : c)),
-      }));
-    },
-    []
-  );
-
-  const setCursorTarget = useCallback(
-    (id: Cursor["id"], rowId: string | null, reading = false) => {
-      if (!rowId) {
-        updateCursor(id, { targetRowId: null, reading: false });
-        return;
-      }
-      const center = getRowCenter(rowId);
-      if (!center) {
-        updateCursor(id, { targetRowId: rowId, reading });
-        return;
-      }
-      const jitterY = id === "alpha" ? -6 : id === "beta" ? 6 : 0;
-      updateCursor(id, {
-        targetRowId: rowId,
-        x: center.x,
-        y: center.y + jitterY,
-        reading,
-      });
-    },
-    [getRowCenter, updateCursor]
-  );
-
-  const setCursorToShareButton = useCallback(
-    (id: Cursor["id"]) => {
-      const center = getShareCenter();
-      if (!center) return;
-      updateCursor(id, {
-        targetRowId: null,
-        x: center.x,
-        y: center.y,
-        reading: false,
-      });
-    },
-    [getShareCenter, updateCursor]
-  );
-
-  const tickViewers = useCallback((delta: number) => {
-    setState((s) => ({ ...s, viewCount: s.viewCount + delta }));
-  }, []);
-
-  const tickFollowers = useCallback((delta: number) => {
-    setState((s) => ({ ...s, followers: s.followers + delta }));
-  }, []);
-
   const setToast = useCallback((toast: DemoState["toast"]) => {
     setState((s) => ({ ...s, toast }));
   }, []);
@@ -179,146 +87,58 @@ export function RoadmapDemo({ domain = "wedding" }: Props = {}) {
       aliveRef.current && myLoopKey === loopKeyRef.current;
 
     async function runLoop() {
-      // buildInitialState resets rows, cursors, viewCount, followers, sharePressed
       setState(buildInitialState(domain));
-      await wait(700);
+      await wait(900);
       if (!isCurrent()) return;
 
-      setScene("cursors-arrive");
-      updateCursor("alpha", { visible: true });
-      await wait(220);
-      setCursorTarget("alpha", transitions[0]?.id ?? null, false);
-      await wait(380);
-      updateCursor("beta", { visible: true });
-      await wait(180);
-      setCursorTarget("beta", transitions[1]?.id ?? null, false);
-      await wait(420);
-      updateCursor("gamma", { visible: true });
-      setCursorTarget("gamma", "venue", false);
-      await wait(1100);
-      if (!isCurrent()) return;
-
-      updateCursor("alpha", { reading: true });
-      updateCursor("beta", { reading: true });
-      updateCursor("gamma", { reading: true });
-      await wait(1400);
-      if (!isCurrent()) return;
-      updateCursor("alpha", { reading: false });
-      updateCursor("beta", { reading: false });
-      updateCursor("gamma", { reading: false });
-
+      // First status transition — show real product behaviour.
       setScene("first-move");
       if (transitions[0]) {
         setRowStatus(transitions[0].id, transitions[0].to, transitions[0].movedAt);
       }
-      await wait(900);
-      if (!isCurrent()) return;
-      if (transitions[0]) setCursorTarget("alpha", transitions[0].id, true);
-      await wait(800);
-      if (!isCurrent()) return;
-      updateCursor("alpha", { reading: false });
-
-      setScene("tick-up-1");
-      tickViewers(2);
-      await wait(900);
+      await wait(1400);
       if (!isCurrent()) return;
 
-      // Share-copy beat: gamma cursor visits the Share button → press
-      // animation → toast appears. Now the share gesture lands —
-      // a reader presses share, then copies.
+      // Second transition.
+      setScene("second-move");
+      if (transitions[1]) {
+        setRowStatus(transitions[1].id, transitions[1].to, transitions[1].movedAt);
+      }
+      await wait(1400);
+      if (!isCurrent()) return;
+
+      // Third transition.
+      setScene("third-move");
+      if (transitions[2]) {
+        setRowStatus(transitions[2].id, transitions[2].to, transitions[2].movedAt);
+      }
+      await wait(1600);
+      if (!isCurrent()) return;
+
+      // Share beat — still honest: shows the share gesture exists.
       setScene("share-copy");
-      setCursorToShareButton("gamma");
-      await wait(700);
-      if (!isCurrent()) return;
       setState((s) => ({ ...s, sharePressed: true }));
-      await wait(220);
+      await wait(240);
       setToast("copied");
-      await wait(1300);
+      await wait(1200);
       if (!isCurrent()) return;
       setState((s) => ({ ...s, sharePressed: false }));
       setToast(null);
       await wait(300);
 
-      setScene("second-move");
-      if (transitions[1]) {
-        setRowStatus(transitions[1].id, transitions[1].to, transitions[1].movedAt);
-        setCursorTarget("beta", transitions[1].id, true);
-      }
-      await wait(1500);
-      if (!isCurrent()) return;
-      updateCursor("beta", { reading: false });
-
-      setScene("tick-up-2");
-      tickViewers(3);
-      await wait(900);
-      if (!isCurrent()) return;
-
-      setScene("third-move");
-      if (transitions[2]) {
-        setRowStatus(transitions[2].id, transitions[2].to, transitions[2].movedAt);
-        setCursorTarget("gamma", transitions[2].id, true);
-      }
-      await wait(1400);
-      if (!isCurrent()) return;
-      updateCursor("gamma", { reading: false });
-
-      setScene("cursor-lingers");
-      // Cursor reads the just-moved row — a public-watching beat.
-      // The previous version branched into a comment-thread + typing
-      // sequence here; removed when the Comments feature was killed
-      // architecturally (Suite Review T3). The lingering cursor is
-      // honest about what the product actually shows: a public reader
-      // watching a state change, no write surface attached.
-      const lingerRow = transitions[1]?.id ?? "florist";
-      setCursorTarget("beta", lingerRow, true);
-      await wait(1800);
-      if (!isCurrent()) return;
-      updateCursor("beta", { reading: false });
-      await wait(400);
-      if (!isCurrent()) return;
-
+      // View morph — demonstrates the two views.
       setScene("view-morph-timeline");
       setView("timeline");
-      updateCursor("alpha", { visible: false });
-      updateCursor("beta", { visible: false });
-      updateCursor("gamma", { visible: false });
-      await wait(2200);
-      if (!isCurrent()) return;
-
-      setScene("rss-arrival");
-      setToast("subscribed");
-      tickFollowers(1);
-      await wait(1600);
-      if (!isCurrent()) return;
-      setToast(null);
-      await wait(400);
-
-      setScene("timeline-hold");
-      await wait(1400);
+      await wait(2400);
       if (!isCurrent()) return;
 
       setScene("view-morph-list");
       setView("list");
-      await wait(800);
-      if (!isCurrent()) return;
-      updateCursor("alpha", { visible: true });
-      updateCursor("beta", { visible: true });
-      updateCursor("gamma", { visible: true });
-      setCursorTarget("alpha", transitions[0]?.id ?? null, false);
-      setCursorTarget("beta", "venue", false);
-      setCursorTarget("gamma", transitions[2]?.id ?? null, false);
-      await wait(1400);
-      if (!isCurrent()) return;
-
-      setScene("cursors-leave");
-      updateCursor("alpha", { visible: false });
-      updateCursor("beta", { visible: false });
-      updateCursor("gamma", { visible: false });
-      await wait(900);
+      await wait(1200);
       if (!isCurrent()) return;
 
       setScene("reset");
-      await wait(700);
+      await wait(800);
     }
 
     let cancelled = false;
@@ -337,25 +157,11 @@ export function RoadmapDemo({ domain = "wedding" }: Props = {}) {
     setScene,
     setView,
     setRowStatus,
-    updateCursor,
-    setCursorTarget,
-    setCursorToShareButton,
-    tickViewers,
-    tickFollowers,
     setToast,
   ]);
 
-  const highlights = useMemo(() => {
-    const set = new Set<string>();
-    for (const c of state.cursors) {
-      if (c.reading && c.targetRowId) set.add(c.targetRowId);
-    }
-    return set;
-  }, [state.cursors]);
-
   return (
     <div
-      ref={surfaceRef}
       className="relative w-full overflow-hidden"
       style={{
         borderRadius: "var(--r-4)",
@@ -365,9 +171,7 @@ export function RoadmapDemo({ domain = "wedding" }: Props = {}) {
       }}
     >
       <UrlBar
-        ref={shareButtonRef}
         url={pack.workspaceUrl}
-        viewCount={state.viewCount}
         sharePressed={state.sharePressed}
       />
 
@@ -392,7 +196,6 @@ export function RoadmapDemo({ domain = "wedding" }: Props = {}) {
           </div>
           <div className="flex items-center gap-2">
             <ViewToggle view={state.view} onChange={setView} />
-            <FollowersPill count={state.followers} />
             <span
               className="rounded-full border px-2.5 py-1 text-[11px] font-medium"
               style={{
@@ -409,25 +212,8 @@ export function RoadmapDemo({ domain = "wedding" }: Props = {}) {
           view={state.view}
           rows={state.rows}
           domain={state.domain}
-          onRegister={onRegisterRow}
-          highlights={highlights}
+          highlights={new Set()}
         />
-
-        {state.view === "list" ? (
-          <div className="pointer-events-none absolute inset-0">
-            {state.cursors.map((c) => (
-              <CursorView
-                key={c.id}
-                x={c.x}
-                y={c.y}
-                visible={c.visible}
-                color={c.color}
-                label={c.label}
-                reading={c.reading}
-              />
-            ))}
-          </div>
-        ) : null}
 
         <DemoToast variant={state.toast} />
       </div>
