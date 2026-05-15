@@ -3,6 +3,47 @@
 Convention: BRAND.md §6.5. Entries before 2026-05-14 keep their
 original shape; the new shape starts at the next cycle.
 
+## 2026-05-15 · R·U3 · ships · the demo is the 80% — a real wedding, and the front door tells the truth
+
+**The product was selling a wedding planner a software roadmap. The
+public demo read "Composite-PK multi-tenancy" and "paste your markdown"
+to an audience of people planning weddings and running building jobs —
+the exact vocabulary-alienation failure the brand exists to refuse
+(§2.2). This cycle makes the demo their own use case, and makes the
+landing lead with the real thing instead of a fabricated mock.**
+
+**The demo is now a real wedding plan.** `/the-wedding` — Maya & Tom,
+a spring wedding, planner-voiced, dated across eight months, three
+milestones with distinct progress. "Save-the-dates out" is 100% done,
+so the milestone map's settled state is real, not theoretical: a green
+station, a filled ring, "Everything for this is done." Every view now
+sings on real data — the Schedule spreads across nine months, the
+board fills four honest lanes, the path to the day reads at a glance.
+A wedding planner lands here and sees their own work, in their own
+words. Seeded idempotently (`scripts/seed-wedding.ts`).
+
+**The front door tells the truth.** `/demo` was a 1.5-second client
+redirect to the software roadmap; it's now an instant server redirect
+to the wedding — no flash, no JS needed, crawlable. The hero shows the
+real product framed as a live page, not the audience-toggle mock. The
+landing lost its duplicate feature/how-it-works triads, its
+hairline-divider spam, and its dead vertical rhythm: one narrative —
+real product, what an item is, how it works, one confident close.
+
+**Readable on a phone.** Schedule chips wrap to two lines on wider
+columns, so a real task name ("Florist arrival time still not
+confirmed") reads instead of truncating. Verified world-class on
+mobile across Overview, Roadmap, and Milestones; Schedule scrolls
+horizontally like a calendar, which is the honest pattern for a
+timeline on a small screen.
+
+Held, named not silent: the mobile Schedule gutter is wide on small
+screens (a polish refactor of the grid math, not a blocker); the
+orphaned `showcase/` tree and the dead `RoadmapView`/`MilestonesView`
+functions are tree-shaken already (zero user impact) and wait for a
+dedicated tidy cycle; the pre-existing Overview blocker card can read
+"blocked for 0 days" on a future-dated item.
+
 ## 2026-05-15 · R·U2 · ships · Roadmap and Milestones become maps, not lists
 
 **For the 80% who don't work in tech, a list is a spreadsheet and a map
