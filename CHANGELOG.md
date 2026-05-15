@@ -3,6 +3,37 @@
 Convention: BRAND.md §6.5. Entries before 2026-05-14 keep their
 original shape; the new shape starts at the next cycle.
 
+## 2026-05-15 · R·U · unifies · the fictional product dies; one viewer, four honest views
+
+**Signal Roadmap was two products wearing one nav — a ~1,400-line
+marketing landing that faked a live product (invented followers, phantom
+viewers, "Cork · 2h ago" presence theatre) bolted onto the real
+server-rendered viewer it shared zero components with. This cycle
+collapses them into one surface and ships the view model the product
+always implied.**
+
+**The strip (R·U1).** The fake engagement theatre and the four-audience
+preset spread are gone. The landing now leads with the real viewer's
+bones and the weddings/events wedge. One status vocabulary, one set of
+components, one product. A rounded-pill view switcher promotes the three
+working lenses — Overview, Roadmap, Milestones — to first-class
+destinations off `?view=`, server-derived, ISR preserved.
+
+**The gated fast-follow (R·U2).** Schedule lands as the fourth view.
+It is deliberately *not* a port of the cinematic showcase timeline: that
+component fabricates start/end spans from a demo pack, and a real task
+carries only a single target date. Inventing durations would have
+re-opened the demo-vs-reality gap this whole cycle exists to close.
+Instead, items sit as markers at their real target month, grouped by
+project, with a milestone diamond lane, a Today line, and an explicit
+"No date yet" tray for unscheduled work — honest about what the data
+does and does not know. Status colour reuses the live viewer's own
+scale so the schedule reads as the same product, not a bolt-on.
+
+**The unblock.** The known-live production blocker is closed: Upstash
+is provisioned, so every rate-limited write path is live again instead
+of failing 100% closed. Deployed to production this cycle.
+
 ## 2026-05-15 · R·4 · tightens · the code-review slate closes the security, perf, and dead-code queue
 
 **A three-axis code review (architecture / security / data-perf) ran in
