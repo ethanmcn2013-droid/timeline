@@ -22,6 +22,8 @@ import { ProgressRing } from "@/components/roadmap/progress-ring";
 import { ShortcutsOverlay } from "@/components/roadmap/shortcuts-overlay";
 import { WorkspaceViewSwitcher } from "@/components/roadmap/workspace-view-switcher";
 import { ScheduleView } from "@/components/roadmap/schedule-view";
+import { RoadmapFlow } from "@/components/roadmap/roadmap-flow";
+import { MilestoneMap } from "@/components/roadmap/milestone-map";
 import { SiteFooter } from "@/components/marketing/site-footer";
 import type { WorkspaceView } from "@/components/showcase/types";
 import Link from "next/link";
@@ -236,6 +238,35 @@ export default async function WorkspaceRoadmapPage({
     return { inScope, shipped };
   });
 
+  // ── Serialisable inputs for the client visualisations ────────────────────
+  // Roadmap flow map: precompute milestoneFor() per task (the fn can't cross
+  // the RSC boundary). Milestone map: precompute scope + feeding-item statuses
+  // per milestone using the same predicate MilestonesView used.
+  const milestoneLabels: Record<string, string | null> = {};
+  for (const t of visibleTasks) milestoneLabels[t.id] = milestoneFor(t);
+
+  const milestoneNodes = milestones.map((m, i) => {
+    const feeding = allTasks
+      .filter((t) => {
+        if (t.status === "refused") return false;
+        if (t.kind === "milestone" || t.isLaunch) return false;
+        if (!m.targetDate) return true;
+        if (!t.targetDate) return false;
+        return t.targetDate <= m.targetDate;
+      })
+      .map((t) => t.status);
+    return {
+      id: m.id,
+      title: m.title,
+      projectSlug: m.projectSlug,
+      targetDate: m.targetDate,
+      status: m.status,
+      inScope: milestoneScopes[i].inScope,
+      shipped: milestoneScopes[i].shipped,
+      feeding,
+    };
+  });
+
   return (
     <div className="flex min-h-screen flex-col" style={{ background: "var(--bg)" }}>
       <WorkspaceHeader workspace={workspace} />
@@ -328,12 +359,11 @@ export default async function WorkspaceRoadmapPage({
               ) : null}
             </div>
 
-            {/* Stats row — semantic counts — overview + roadmap views only.
-                Milestones + Schedule are dense surfaces of their own; the
-                big-stat band would compete with them. */}
-            {hasItems &&
-            activeView !== "milestones" &&
-            activeView !== "schedule" ? (
+            {/* Stats row — semantic counts — Overview only. The three map
+                views (Roadmap board / Milestones / Schedule) each carry their
+                own counts in-surface; the band there is redundant and, on the
+                board, contradictory (it counts milestones the lanes exclude). */}
+            {hasItems && activeView === "overview" ? (
               <div className="mt-8 flex flex-wrap items-end gap-x-8 gap-y-3">
                 <BigStat label="Total" value={counts.total} />
                 <BigStat label="Done" value={counts.shipped} tone="shipped" />
@@ -360,13 +390,17 @@ export default async function WorkspaceRoadmapPage({
             </div>
           </section>
         ) : activeView === "milestones" ? (
-          <MilestonesView
-            milestones={milestones}
-            milestoneScopes={milestoneScopes}
-            projectMap={projectMap}
-            allTasks={visibleTasks}
-            workspaceSlug={workspaceSlug}
-          />
+          milestones.length === 0 ? (
+            <section className="px-6 py-24 text-center">
+              <div className="mx-auto max-w-md">
+                <p className="text-[15px] text-ink-soft">
+                  No milestones yet. The owner is still drafting.
+                </p>
+              </div>
+            </section>
+          ) : (
+            <MilestoneMap milestones={milestoneNodes} projects={projects} />
+          )
         ) : activeView === "schedule" ? (
           <ScheduleView
             tasks={visibleTasks}
@@ -375,13 +409,10 @@ export default async function WorkspaceRoadmapPage({
             projectMap={projectMap}
           />
         ) : activeView === "roadmap" ? (
-          <RoadmapView
+          <RoadmapFlow
+            tasks={visibleTasks}
             projects={projects}
-            projectsWithCounts={projectsWithCounts}
-            tasksByProject={tasksByProject}
-            projectMap={projectMap}
-            milestoneFor={milestoneFor}
-            workspaceSlug={workspaceSlug}
+            milestoneLabels={milestoneLabels}
           />
         ) : (
           /* overview — the original full layout */

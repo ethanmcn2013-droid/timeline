@@ -29,8 +29,11 @@ const ITEMS: { id: ViewMode; label: string; icon: React.ReactNode }[] = [
     ),
   },
   {
+    // Locked vocab: this view is "Schedule" — never "Timeline"/"Gantt"
+    // (unification decision). Internal id stays `timeline` to avoid churning
+    // the showcase ViewMode union; only the user-visible word matters.
     id: "timeline",
-    label: "Timeline",
+    label: "Schedule",
     icon: (
       <svg
         width="11"
