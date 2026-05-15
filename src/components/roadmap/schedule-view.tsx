@@ -67,7 +67,7 @@ function ItemChip({
   const accent = projectMap.get(task.projectSlug)?.accent ?? "var(--brand)";
   return (
     <div
-      className="flex items-center gap-1.5 rounded-md border px-2 py-1"
+      className="flex items-start gap-1.5 rounded-md border px-2 py-1.5"
       style={{
         background: meta.bg,
         borderColor: meta.border,
@@ -76,12 +76,18 @@ function ItemChip({
     >
       <span
         aria-hidden
-        className="inline-block h-1.5 w-1.5 flex-shrink-0 rounded-full"
+        className="mt-[3px] inline-block h-1.5 w-1.5 flex-shrink-0 rounded-full"
         style={{ background: task.isLaunch ? accent : meta.fg }}
       />
       <span
-        className="truncate text-[11.5px] leading-tight"
-        style={{ color: "var(--ink)" }}
+        className="text-[11.5px] leading-snug"
+        style={{
+          color: "var(--ink)",
+          display: "-webkit-box",
+          WebkitLineClamp: 2,
+          WebkitBoxOrient: "vertical",
+          overflow: "hidden",
+        }}
       >
         {task.title}
       </span>
@@ -177,7 +183,7 @@ export function ScheduleView({
   }
   const rowProjects = projects.filter((p) => datedByProject.has(p.slug));
 
-  const gridCols = `${GUTTER}px repeat(${span}, minmax(116px, 1fr))`;
+  const gridCols = `${GUTTER}px repeat(${span}, minmax(148px, 1fr))`;
   const fromLabel = monthLabel(windowStart, true);
   const toLabel = monthLabel(windowEnd, true);
 
@@ -206,7 +212,7 @@ export function ScheduleView({
       </div>
 
       <div className="overflow-x-auto">
-        <div style={{ minWidth: GUTTER + span * 116 }}>
+        <div style={{ minWidth: GUTTER + span * 148 }}>
           {/* Month axis header */}
           <div
             className="grid items-end pb-1.5"

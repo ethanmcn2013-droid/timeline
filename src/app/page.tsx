@@ -1,48 +1,32 @@
-import Image from "next/image";
 import Link from "next/link";
 import { SiteNav } from "@/components/marketing/site-nav";
 import { SiteFooter } from "@/components/marketing/site-footer";
 import { Hero } from "@/components/marketing/hero";
 import { ItemAnatomy } from "@/components/marketing/anatomy";
 
-// ── Feature grid data ───────────────────────────────────────────────────────
+// One narrative, nothing redundant. The hero shows the real product; the rest
+// answers the three things a first-time visitor actually asks — what is an
+// item, how do I make one, and can I see it. No duplicate feature triads, no
+// hairline dividers between every block. "Everything important. Nothing
+// distracting." (BRAND.md §2).
 
-const FEATURES = [
-  {
-    title: "Plain-English roadmap",
-    body: "Write the plan once and publish a readable page. No board screenshot required.",
-  },
-  {
-    title: "Public link, no account",
-    body: "One URL your customers can bookmark. No login, no paywall. Just the roadmap.",
-  },
-  {
-    title: "Built to be read",
-    body: "Status labels people understand. Shipped, doing, held up, refused. Nothing extra.",
-  },
-] as const;
-
-// ── How it works ─────────────────────────────────────────────────────────────
-
-const HOW_IT_WORKS = [
+const STEPS = [
   {
     index: "01",
-    title: "Write the plan",
-    body: "Start with plain text. Signal Roadmap turns it into a structured, readable page.",
+    title: "Write it in plain English",
+    body: "Type the plan the way you'd explain it out loud. No statuses to configure, no board to build first.",
   },
   {
     index: "02",
-    title: "Get a public URL in seconds",
-    body: "Your roadmap lives at a shareable link the moment you publish. No embed code, no iframe.",
+    title: "Publish to one link",
+    body: "It becomes a page the moment you publish. No embed code, no export, no screenshot of a board.",
   },
   {
     index: "03",
-    title: "Share it with anyone",
-    body: "Send the URL to customers, clients, or investors. No account required to view.",
+    title: "Anyone can read it",
+    body: "Send the link to a client, a couple, a crew. They open it and understand it. No account, no app.",
   },
 ] as const;
-
-// ── Page ────────────────────────────────────────────────────────────────────
 
 export default function HomePage() {
   return (
@@ -51,135 +35,88 @@ export default function HomePage() {
       <main className="flex-1">
         <Hero />
 
-        {/* ── Divider ──────────────────────────────────────────────── */}
-        <div className="mx-auto w-full max-w-[1240px] px-6 pt-24" aria-hidden>
-          <div style={{ height: "1px", background: "var(--border)" }} />
-        </div>
-
-        {/* ── Feature grid ─────────────────────────────────────────── */}
-        <section id="features" className="px-6 py-20">
-          <div className="mx-auto w-full max-w-[1240px]">
-            <div className="grid gap-8 sm:grid-cols-3">
-              {FEATURES.map((f) => (
-                <div key={f.title} className="flex flex-col gap-2">
-                  <h3
-                    className="text-[15px] font-semibold"
-                    style={{ color: "var(--ink)", letterSpacing: "-0.01em" }}
-                  >
-                    {f.title}
-                  </h3>
-                  <p
-                    className="text-[13.5px] leading-[1.55]"
-                    style={{ color: "var(--ink-soft)" }}
-                  >
-                    {f.body}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* ── Divider ──────────────────────────────────────────────── */}
-        <div className="mx-auto w-full max-w-[1240px] px-6" aria-hidden>
-          <div style={{ height: "1px", background: "var(--border)" }} />
-        </div>
-
-        {/* ── Anatomy ──────────────────────────────────────────────── */}
+        {/* What an item is — the product's smallest unit, explained */}
         <ItemAnatomy />
 
-        {/* ── Divider ──────────────────────────────────────────────── */}
-        <div className="mx-auto w-full max-w-[1240px] px-6" aria-hidden>
-          <div style={{ height: "1px", background: "var(--border)" }} />
-        </div>
-
-        {/* ── Proof section ────────────────────────────────────────── */}
-        <section className="px-6 py-20">
+        {/* How it works — one triad, the only one */}
+        <section id="how-it-works" className="px-6 pt-24 pb-8 md:pt-32">
           <div className="mx-auto w-full max-w-[1240px]">
             <p
-              className="mb-4 text-[11px] font-semibold uppercase tracking-[0.16em]"
-              style={{ color: "var(--brand)" }}
-            >
-              Live demo
-            </p>
-            <h2
-              className="mb-10 max-w-xl text-[clamp(1.5rem,1.2rem+1.5vw,2.25rem)] font-semibold leading-[1.1]"
-              style={{ letterSpacing: "-0.03em", color: "var(--ink)" }}
-            >
-              This is what your customers would see.
-            </h2>
-
-            <Link
-              href="/demo"
-              className="group block max-w-2xl overflow-hidden rounded-[10px] border transition-shadow hover:shadow-[var(--shadow-2)]"
-              style={{
-                background: "var(--bg-elev)",
-                borderColor: "var(--border)",
-                boxShadow: "var(--shadow-1)",
-              }}
-            >
-              <Image
-                src="/proof-workspace.png"
-                alt="Public roadmap workspace — live demo"
-                width={1440}
-                height={665}
-                priority
-                className="h-auto w-full"
-              />
-            </Link>
-
-            <div className="mt-4 flex max-w-2xl items-center justify-between">
-              <p className="text-[12px]" style={{ color: "var(--ink-quiet)" }}>
-                No login. No paywall. Just a URL.
-              </p>
-              <Link
-                href="/demo"
-                className="text-[13px] font-medium transition-colors hover:text-ink"
-                style={{ color: "var(--brand)" }}
-              >
-                See it live →
-              </Link>
-            </div>
-          </div>
-        </section>
-
-        {/* ── Divider ──────────────────────────────────────────────── */}
-        <div className="mx-auto w-full max-w-[1240px] px-6" aria-hidden>
-          <div style={{ height: "1px", background: "var(--border)" }} />
-        </div>
-
-        {/* ── How it works ─────────────────────────────────────────── */}
-        <section id="how-it-works" className="px-6 py-20">
-          <div className="mx-auto w-full max-w-[1240px]">
-            <p
-              className="mb-10 text-[11px] font-semibold uppercase tracking-[0.16em]"
+              className="mb-12 font-mono text-[11px] font-semibold uppercase tracking-[0.16em]"
               style={{ color: "var(--ink-quiet)" }}
             >
               How it works
             </p>
-            <div className="grid gap-10 sm:grid-cols-3">
-              {HOW_IT_WORKS.map((step) => (
+            <div className="grid gap-x-10 gap-y-12 sm:grid-cols-3">
+              {STEPS.map((step) => (
                 <div key={step.index} className="flex flex-col gap-3">
                   <span
-                    className="text-[11px] font-semibold tracking-[0.14em]"
+                    className="font-mono text-[12px] font-semibold tracking-[0.14em]"
                     style={{ color: "var(--brand)" }}
                   >
                     {step.index}
                   </span>
                   <h3
-                    className="text-[15px] font-semibold"
-                    style={{ color: "var(--ink)", letterSpacing: "-0.01em" }}
+                    className="text-[16px] font-semibold"
+                    style={{ color: "var(--ink)", letterSpacing: "-0.015em" }}
                   >
                     {step.title}
                   </h3>
                   <p
-                    className="text-[13.5px] leading-[1.55]"
+                    className="text-[14px] leading-[1.6]"
                     style={{ color: "var(--ink-soft)" }}
                   >
                     {step.body}
                   </p>
                 </div>
               ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Confident close — one ask, no noise */}
+        <section className="px-6 pt-28 pb-32 md:pt-36 md:pb-40">
+          <div className="mx-auto w-full max-w-[1240px]">
+            <h2
+              className="max-w-[18ch] font-display"
+              style={{
+                fontSize: "var(--fs-section)",
+                fontWeight: 600,
+                lineHeight: 1.08,
+                letterSpacing: "-0.03em",
+                color: "var(--ink)",
+              }}
+            >
+              Your plan, somewhere people will actually look.
+            </h2>
+            <div className="mt-8 flex flex-wrap items-center gap-3">
+              <Link
+                href="/sign-up"
+                className="group inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-[14px] font-medium text-white transition-transform hover:-translate-y-px"
+                style={{ background: "var(--ink)" }}
+              >
+                Publish your plan
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.4"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="transition-transform group-hover:translate-x-0.5"
+                >
+                  <path d="M5 12h14M13 5l7 7-7 7" />
+                </svg>
+              </Link>
+              <Link
+                href="/demo"
+                className="text-[14px] font-medium transition-colors hover:text-ink"
+                style={{ color: "var(--brand)" }}
+              >
+                See the live demo &rarr;
+              </Link>
             </div>
           </div>
         </section>
