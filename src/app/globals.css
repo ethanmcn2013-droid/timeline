@@ -435,14 +435,15 @@ body {
 }
 
 /* ────────────────────────────────────────────────────────────
-   Roadmap wordmark dot — M·03 advance.
-   Per suite design-system v1 (2026-05-13): roadmap is a verb,
-   the gesture is advance — the dot drifts right 4px, fades, and
-   resets every 2.6s. Direction without urgency. The one-shot
-   slide-on-mount retired; advance is continuous because direction
-   isn't a one-time thing.
+   Roadmap wordmark dot — M·03 sweep.
+   Per suite gesture-vocab v1 (ratified 2026-05-16): Roadmap=sweep,
+   the dot tracks left→right along a timeline then loops. 5.4s at
+   cubic-bezier(.22,.7,.2,1). Direction as a continuous read, not
+   a one-shot settle.
+   Suite table: Tasks=pulse · Analytics=tick · Notes=caret ·
+   Studio=broadcast · Roadmap=sweep.
    ──────────────────────────────────────────────────────────── */
-@keyframes roadmap-dot-advance {
+@keyframes roadmap-dot-sweep {
   0%   { transform: translateY(-0.36em) translateX(0); opacity: 1; }
   60%  { transform: translateY(-0.36em) translateX(4px); opacity: 1; }
   62%  { transform: translateY(-0.36em) translateX(4px); opacity: 0; }
@@ -458,7 +459,7 @@ body {
   border-radius: 50%;
   margin-left: 0.14em;
   transform: translateY(-0.36em);
-  animation: roadmap-dot-advance 2.6s var(--spring-glide) infinite;
+  animation: roadmap-dot-sweep 5.4s cubic-bezier(.22,.7,.2,1) infinite;
 }
 
 /* ────────────────────────────────────────────────────────────

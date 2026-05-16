@@ -2,15 +2,20 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 
 /**
- * Signal Roadmap wordmark: "roadmap" + slide-in dot.
+ * Signal Roadmap wordmark: "roadmap" + animated dot.
  *
- * Same typographic family as Tasks (`tasks•`) and Analytics
- * (`analytics•`) — lowercase word + indigo dot. The dot's
- * single slide-on-mount is Roadmap's distinct gesture: it
- * moves toward a destination, then settles. Tasks pulses
- * (live), Analytics is static (ambient), Studio fades a
- * period (settling). Each product carries its own motion
- * energy inside one shared mark grammar.
+ * Same typographic family across the suite — lowercase word +
+ * indigo dot. Each product carries a distinct gesture inside
+ * one shared mark grammar:
+ *
+ *   Roadmap  → sweep    5.4s  cubic-bezier(.22,.7,.2,1)
+ *              dot tracks left→right along a timeline, loops
+ *   Tasks    → pulse    2.6s  spring-glide
+ *   Analytics → tick    (ambient)
+ *   Notes    → caret    (ambient)
+ *   Studio   → broadcast (ambient)
+ *
+ * Class: `.roadmap-dot`  Keyframes: `roadmap-dot-sweep`
  */
 export function Wordmark({
   className,
