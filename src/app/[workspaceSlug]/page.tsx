@@ -300,7 +300,7 @@ export default async function WorkspaceRoadmapPage({
             {/* Title + dial row */}
             <div className="flex items-start justify-between gap-8">
               <div className="min-w-0 flex-1">
-                <h1 className="text-[clamp(2.25rem,2rem+2.4vw,3.75rem)] font-semibold leading-[1.02] tracking-[-0.035em] text-ink">
+                <h1 className="text-[clamp(1.85rem,1.25rem+2.8vw,3.75rem)] font-semibold leading-[1.02] tracking-[-0.035em] text-ink text-balance">
                   {heroTitle}
                 </h1>
                 <p className="mt-3 max-w-2xl text-[16px] leading-[1.55] text-ink-soft">

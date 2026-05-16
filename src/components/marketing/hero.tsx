@@ -29,7 +29,7 @@ export function Hero() {
         <h1
           className="rise mt-5 max-w-[16ch] text-balance font-display"
           style={{
-            fontSize: "clamp(2.6rem, 1.8rem + 4.6vw, 5.5rem)",
+            fontSize: "clamp(2rem, 1rem + 5.6vw, 5.5rem)",
             fontWeight: 600,
             lineHeight: 0.96,
             letterSpacing: "-0.045em",
