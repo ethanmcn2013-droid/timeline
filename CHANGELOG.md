@@ -3,7 +3,24 @@
 Convention: BRAND.md §6.5. Entries before 2026-05-14 keep their
 original shape; the new shape starts at the next cycle.
 
-## 2026-05-16 · R·8 · tightens · the footer links are finally thumb-sized
+## 2026-05-16 · R·9 · tightens · the unified H1 fits the phone, not just the page
+
+**The unification's own headline — and every public plan's title — was
+sized for the desktop and sheared off the right edge of a phone.** A
+pixel-verify of the shipped unification (the fictional product gone, the
+real viewer as the landing, the Schedule view live) at a true 390-pixel
+viewport found the one gap a desktop eye misses: the display H1's lower
+bound was too large, so the hero ran past its own clip and a long
+workspace name like "Maya & Tom — Spring Wedding." ran off its axis.
+
+Both H1 floors were brought down — the landing hero and the public
+viewer title now wrap and fit a phone, with the workspace title given
+balanced wrapping. Desktop is untouched: both still reach their full
+size by the time the viewport is wide enough to hold them. Verified by
+reading the rendered layout at 390 and 1440, not by trusting a
+screenshot — the headline now fits the phone, not just the page.
+
+
 
 **Every column link in the site footer was an 18-pixel target stacked
 eight pixels from the next — fine with a cursor, a coin-toss with a
