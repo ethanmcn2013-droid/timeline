@@ -61,8 +61,8 @@ export default async function ProjectDrillDownPage({
   const next = allTasks.filter((t) => t.status === "next").length;
 
   // Meta-strip data — same shape as the workspace surface, scoped
-  // to this project's slice of items. Carries the brand heartbeat
-  // rhythm across surfaces (see docs/REVIEW_2026_05_12.md §5.2).
+  // to this project's slice of items. Carries the brand's steady
+  // pulse-rhythm across surfaces (see docs/REVIEW_2026_05_12.md §5.2).
   const datedTasks = allTasks
     .filter((t) => t.targetDate && t.status !== "refused")
     .map((t) => t.targetDate!);

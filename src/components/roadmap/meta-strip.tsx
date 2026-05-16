@@ -3,7 +3,7 @@ import { Fragment } from "react";
 /**
  * MetaStrip — the small uppercase rhythm strip that anchors every
  * Roadmap hero. Same shape across workspace, project, and refusals
- * surfaces; different content. Reads as the brand's heartbeat: a
+ * surfaces; different content. Reads as the brand's steady pulse: a
  * line of facts (identity · timeline · counts), separated by middle
  * dots, set in the smallest legible uppercase tracking.
  *
