@@ -94,13 +94,13 @@ function FooterCol({
                 href={l.href}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="transition-colors hover:text-ink"
+                className="inline-flex min-h-[32px] items-center transition-colors hover:text-ink"
                 title={l.note}
               >
                 {l.label}
               </a>
             ) : (
-              <Link href={l.href} className="transition-colors hover:text-ink">
+              <Link href={l.href} className="inline-flex min-h-[32px] items-center transition-colors hover:text-ink">
                 {l.label}
               </Link>
             )}

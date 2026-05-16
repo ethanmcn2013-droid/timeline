@@ -3,6 +3,23 @@
 Convention: BRAND.md §6.5. Entries before 2026-05-14 keep their
 original shape; the new shape starts at the next cycle.
 
+## 2026-05-16 · R·8 · tightens · the footer links are finally thumb-sized
+
+**Every column link in the site footer was an 18-pixel target stacked
+eight pixels from the next — fine with a cursor, a coin-toss with a
+thumb.** The legal row beneath them had already been given a real
+touch height in the mobile pass; the navigation column above it never
+was. On a phone the two rows looked alike and behaved differently.
+
+The column links now carry the same minimum touch height as the legal
+row, deliberately without the horizontal padding that would have
+broken the column's vertical rhythm. No visible change under a desktop
+pointer; on a phone the whole footer is reliably tappable. Found in a
+four-product parity sweep against the mobile discipline the umbrella
+set in S·26 — Tasks already held the line, Notes has no marketing
+footer, Analytics carried the identical gap and is fixed in the same
+pass.
+
 ## 2026-05-15 · R·5 · cuts · the banned purple out of the live demo cursors
 
 **The §5-forbidden `#7c5cff` was the colour of a cursor in the
