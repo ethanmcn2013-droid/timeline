@@ -11,6 +11,10 @@ import { MetaStrip } from "@/components/roadmap/meta-strip";
 import { SiteFooter } from "@/components/marketing/site-footer";
 import Link from "next/link";
 
+// Public refusals page — read-only. ISR matches the workspace and project
+// pages (5-min window); revalidatePath on source-save covers fresh data.
+export const revalidate = 300;
+
 export async function generateMetadata({
   params,
 }: {

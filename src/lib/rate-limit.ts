@@ -36,7 +36,7 @@ function memRateLimit(key: string, limit: number, windowSecs: number): boolean {
 
 // ---------------------------------------------------------------------------
 // Upstash HTTP rate-limit (production)
-// Avoids SDK install — raw INCR + EXPIRE via Upstash REST API.
+// Avoids SDK install — atomic INCR + EXPIRE NX via Upstash REST pipeline.
 // ---------------------------------------------------------------------------
 
 async function upstashRateLimit(
@@ -54,32 +54,39 @@ async function upstashRateLimit(
     "Content-Type": "application/json",
   };
 
-  // Pipeline: INCR key, EXPIRE key windowSecs (only sets if not exists)
-  // We do INCR first, then EXPIRE — if INCR returns 1 the key was new.
-  const incrRes = await fetch(`${url}/incr/${encodeURIComponent(key)}`, {
+  // Atomic pipeline: INCR then EXPIRE key <windowSecs> NX in one HTTP call.
+  //
+  // EXPIRE ... NX (Redis 7+ / Upstash) sets the TTL only when the key has
+  // NO existing expiry. This is the idempotent shape:
+  //   - Normal path (count > 1, TTL already set): EXPIRE NX is a no-op.
+  //   - Race / eviction path (TTL silently lost): EXPIRE NX re-arms the window.
+  //   - New key (count === 1): EXPIRE NX sets the initial TTL.
+  //
+  // A single pipeline round-trip closes the race window that existed between
+  // the prior two-request INCR → conditional EXPIRE sequence.
+  const pipelineRes = await fetch(`${url}/pipeline`, {
     method: "POST",
     headers,
+    body: JSON.stringify([
+      ["INCR", key],
+      ["EXPIRE", key, String(windowSecs), "NX"],
+    ]),
   });
-  if (!incrRes.ok) {
+
+  if (!pipelineRes.ok) {
     if (process.env.NODE_ENV === "production") {
       // Redis unavailable in prod — fail closed. Brute-force protection
       // must hold even when Redis is down.
-      console.error("[rate-limit] Upstash INCR failed in prod — denying request:", incrRes.status);
+      console.error("[rate-limit] Upstash pipeline failed in prod — denying request:", pipelineRes.status);
       return false;
     }
     // Dev: fail open so local development is unblocked.
-    console.warn("[rate-limit] Upstash INCR failed:", incrRes.status);
+    console.warn("[rate-limit] Upstash pipeline failed:", pipelineRes.status);
     return true;
   }
-  const { result: count } = (await incrRes.json()) as { result: number };
 
-  if (count === 1) {
-    // New key — set expiry
-    await fetch(`${url}/expire/${encodeURIComponent(key)}/${windowSecs}`, {
-      method: "POST",
-      headers,
-    });
-  }
+  const pipeline = (await pipelineRes.json()) as [{ result: number }, { result: number }];
+  const count = pipeline[0].result;
 
   return count <= limit;
 }

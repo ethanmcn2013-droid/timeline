@@ -116,31 +116,35 @@ export async function seedWorkspaceFromTemplate({
   // Wrap in a transaction so a partial failure leaves the workspace
   // un-seeded for a clean retry rather than half-populated.
   await db.transaction(async (tx) => {
-    let sortOrder = 0;
-    for (const p of template.roadmap.projects) {
-      await tx.insert(projects).values({
-        slug: p.slug,
-        name: p.name,
-        oneLiner: p.oneLiner,
-        accent: p.accent ?? "#4f46e5",
-        workspaceSlug,
-        sortOrder: sortOrder++,
-      });
+    // Single batched INSERT per table — avoids one Turso WAN round trip
+    // per row. Template sizes are bounded (5 anchor templates, O(10–50)
+    // items each), so a single VALUES(...),(...)  statement is safe.
+    if (template.roadmap.projects.length > 0) {
+      await tx.insert(projects).values(
+        template.roadmap.projects.map((p, i) => ({
+          slug: p.slug,
+          name: p.name,
+          oneLiner: p.oneLiner,
+          accent: p.accent ?? "#4f46e5",
+          workspaceSlug,
+          sortOrder: i,
+        })),
+      );
     }
 
-    let itemSort = 0;
-    for (const it of template.roadmap.items) {
-      const id = `${workspaceSlug}-${it.projectSlug}-${String(itemSort + 1).padStart(3, "0")}`;
-      await tx.insert(tasks).values({
-        id,
-        projectSlug: it.projectSlug,
-        workspaceSlug,
-        title: it.title,
-        description: it.description,
-        status: it.status,
-        sortOrder: itemSort++,
-        targetDate: it.targetDate,
-      });
+    if (template.roadmap.items.length > 0) {
+      await tx.insert(tasks).values(
+        template.roadmap.items.map((it, i) => ({
+          id: `${workspaceSlug}-${it.projectSlug}-${String(i + 1).padStart(3, "0")}`,
+          projectSlug: it.projectSlug,
+          workspaceSlug,
+          title: it.title,
+          description: it.description,
+          status: it.status,
+          sortOrder: i,
+          targetDate: it.targetDate,
+        })),
+      );
     }
   });
 

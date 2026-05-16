@@ -21,6 +21,12 @@ import {
 } from "@/server/db/queries";
 import type { Project, Task, Workspace } from "@/server/db/schema";
 
+// Public shared-update page — read-only. ISR with a 5-min window matches
+// the workspace and project pages; revalidatePath on source-save covers
+// fresh data immediately. The tracking searchParams do not branch the
+// data fetch so ISR is preserved.
+export const revalidate = 300;
+
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 
 export async function generateMetadata({
