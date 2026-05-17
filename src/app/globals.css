@@ -469,6 +469,11 @@ body {
   display: inline-block;
   width: 0.30em;
   height: 0.30em;
+  /* R3 fix: px ceiling so the dot cannot balloon to ~250px before the
+     font stack resolves. max-width/max-height clamp without breaking the
+     em-relative sizing at normal wordmark sizes (18–24px → 5.4–7.2px). */
+  max-width: 8px;
+  max-height: 8px;
   background-color: var(--brand);
   border-radius: 50%;
   margin-left: 0.14em;
@@ -614,6 +619,11 @@ select,
 }
 .rise {
   animation: rise var(--motion-slow) var(--spring-glide) both;
+}
+
+/* R6: spinner for pending button states */
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }
 
 @keyframes shine {
