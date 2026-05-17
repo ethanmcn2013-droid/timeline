@@ -13,6 +13,9 @@ import {
   saveSourceAndItems,
   getProjectsForWorkspace,
   seedWorkspaceFromTemplate,
+  publishWorkspace,
+  unpublishWorkspace,
+  isWorkspacePublished,
 } from "@/server/db/queries";
 import { isValidSlug, slugify } from "@/lib/reserved-slugs";
 import { parseMarkdown } from "@/server/parser/parse-markdown";
@@ -197,7 +200,12 @@ export async function createProjectAction(
     return { error: "A project with that slug already exists in this workspace." };
   }
 
-  await createProject({ slug, name, workspaceSlug });
+  // If the workspace is currently published, new projects inherit that state
+  // so the public view doesn't go dark when the owner adds a project to an
+  // already-live workspace. (seamless-ecosystem-2026-05-18)
+  const workspaceIsPublished = await isWorkspacePublished(workspaceSlug);
+  const publishedAt = workspaceIsPublished ? new Date() : null;
+  await createProject({ slug, name, workspaceSlug, publishedAt });
 
   revalidatePath("/app");
   return { ok: true, slug };
@@ -295,6 +303,50 @@ export async function saveProjectSourceAction(
   revalidatePath(`/${workspaceSlug}`);
   revalidatePath(`/${workspaceSlug}/${projectSlug}`);
   return { ok: true, count: parsed.items.length, lastParsedAt: lastParsedAt.toISOString() };
+}
+
+// ---------------------------------------------------------------------------
+// Publish / Unpublish workspace
+// ---------------------------------------------------------------------------
+
+export type PublishResult = { ok: true } | { error: string };
+
+/**
+ * Publish all projects in the owner's workspace.
+ * Sets published_at on every project row. /{workspaceSlug}/... public URLs
+ * become live and no-auth forwardable after this action.
+ */
+export async function publishWorkspaceAction(
+  workspaceSlug: string,
+): Promise<PublishResult> {
+  const userId = await requireUser();
+  const workspace = await getWorkspace(workspaceSlug);
+  if (!workspace || workspace.ownerUserId !== userId) {
+    return { error: "Workspace not found." };
+  }
+  await publishWorkspace(workspaceSlug);
+  revalidatePath("/app");
+  revalidatePath(`/${workspaceSlug}`);
+  return { ok: true };
+}
+
+/**
+ * Unpublish all projects in the owner's workspace.
+ * Sets published_at to null. Non-owner visitors to /{workspaceSlug}/...
+ * will see a "Not published yet" state instead of the roadmap.
+ */
+export async function unpublishWorkspaceAction(
+  workspaceSlug: string,
+): Promise<PublishResult> {
+  const userId = await requireUser();
+  const workspace = await getWorkspace(workspaceSlug);
+  if (!workspace || workspace.ownerUserId !== userId) {
+    return { error: "Workspace not found." };
+  }
+  await unpublishWorkspace(workspaceSlug);
+  revalidatePath("/app");
+  revalidatePath(`/${workspaceSlug}`);
+  return { ok: true };
 }
 
 // ---------------------------------------------------------------------------

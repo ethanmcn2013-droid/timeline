@@ -1,5 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { ClerkProvider } from "@clerk/nextjs";
+import { clerkAppearance } from "@/lib/clerk-appearance";
 import { ROADMAP_URL } from "@/lib/product-urls";
 import "./globals.css";
 
@@ -42,7 +44,20 @@ export default function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        {/*
+          ClerkProvider at the root so every surface (marketing, public roadmap,
+          and /app) can read auth state via useUser/useAuth hooks.
+          The /app layout and WorkspaceHeader had their own ClerkProvider;
+          with it here those nested providers can be removed — nested providers
+          are fine (Clerk dedupes), but moving it root is cleaner.
+          Layer 3/4 (seamless-ecosystem-2026-05-18): SuiteLauncher and
+          WorkspaceAuthControls need useUser in the public route tree.
+        */}
+        <ClerkProvider appearance={clerkAppearance}>
+          {children}
+        </ClerkProvider>
+      </body>
     </html>
   );
 }

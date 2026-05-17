@@ -2,6 +2,7 @@ import { ClerkProvider } from "@clerk/nextjs";
 import { Wordmark } from "@/components/brand/wordmark";
 import { SuiteLauncher } from "@/components/suite-launcher";
 import { UserButtonWithSuite } from "@/components/user-button-with-suite";
+import { ClearDemoMode } from "./_components/clear-demo-mode";
 import { clerkAppearance } from "@/lib/clerk-appearance";
 
 /**
@@ -36,6 +37,8 @@ export default function AppLayout({
         </div>
       </header>
 
+      {/* Clear demo-mode cookie on app entry — escape hatch self-resets */}
+      <ClearDemoMode />
       {/* Page content */}
       <main className="flex flex-1 flex-col">{children}</main>
       </div>

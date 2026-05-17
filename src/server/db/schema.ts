@@ -67,9 +67,14 @@ export const projects = sqliteTable(
     accent: text("accent").notNull(),
     sortOrder: integer("sort_order").notNull().default(0),
     // shareToken + isPublic removed 2026-05-12 — Phase 10.1.
-    // "No private workspaces in v1" is a locked product refusal.
-    // Public-by-design IS the product; these columns were dead promises
-    // with zero enforcement. Migration: 0001_drop_isPublic_shareToken.sql
+    // "No private workspaces in v1" is a locked product refusal at the time.
+    // Migration: 0001_drop_isPublic_shareToken.sql
+    //
+    // published_at reinstated 2026-05-18 — operator-confirmed reversal
+    // (SEAMLESS_ECOSYSTEM_PLAN.md). NULL = draft; set = published.
+    // Existing rows backfilled to published in migration 0004.
+    // Migration: 0004_add_published_at.sql
+    publishedAt: integer("published_at", { mode: "timestamp" }),
   },
   (t) => [
     primaryKey({ columns: [t.workspaceSlug, t.slug] }),

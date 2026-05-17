@@ -1,11 +1,12 @@
 import Link from "next/link";
 import { requireUser, getCurrentWorkspace } from "@/server/auth";
-import { getProjectsForWorkspace } from "@/server/db/queries";
+import { getProjectsForWorkspace, isWorkspacePublished } from "@/server/db/queries";
 import { resolveEntitlement } from "@/lib/entitlements-shared/reads";
 import { TIER_LABEL } from "@/lib/entitlements-shared/tiers";
 import { CreateWorkspaceForm } from "./_components/create-workspace-form";
 import { CreateProjectForm } from "./_components/create-project-form";
 import { PublicUrlChip } from "./_components/public-url-chip";
+import { PublishControl } from "./_components/publish-control";
 import { ROADMAP_URL } from "@/lib/product-urls";
 
 export const metadata = { title: "Dashboard — Roadmap" };
@@ -21,14 +22,12 @@ export default async function AppPage() {
   }
 
   // ── Workspace exists — show dashboard ───────────────────────────────────
-  const projects = await getProjectsForWorkspace(workspace.slug);
+  const [projects, workspacePublished, { tier }] = await Promise.all([
+    getProjectsForWorkspace(workspace.slug),
+    isWorkspacePublished(workspace.slug),
+    resolveEntitlement(userId),
+  ]);
   const publicBase = process.env.NEXT_PUBLIC_SITE_URL ?? ROADMAP_URL;
-
-  // The workspace.plan column is a stale shadow written once at creation
-  // and never updated on upgrade. Read the live canonical tier from the
-  // shared entitlements DB so a user who upgrades after workspace
-  // creation doesn't see "Free" forever (reviewer P1, 2026-05-15).
-  const { tier } = await resolveEntitlement(userId);
 
   return (
     <div className="mx-auto w-full max-w-4xl px-6 py-12">
@@ -48,6 +47,13 @@ export default async function AppPage() {
             {workspace.name}
           </h1>
           <PublicUrlChip url={`${publicBase}/${workspace.slug}`} />
+          {/* Publish control — Layer 1 (seamless-ecosystem-2026-05-18) */}
+          <div className="mt-3">
+            <PublishControl
+              workspaceSlug={workspace.slug}
+              initialPublished={workspacePublished}
+            />
+          </div>
         </div>
         <span
           className="mt-1 rounded-full px-2.5 py-0.5 text-xs font-medium"

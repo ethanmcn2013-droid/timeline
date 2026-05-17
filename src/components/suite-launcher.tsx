@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useUser } from "@clerk/nextjs";
 import {
   ANALYTICS_URL,
   NOTES_URL,
@@ -11,7 +12,8 @@ import {
 
 type ProductSlug = "tasks" | "roadmap" | "notes" | "analytics";
 
-const PRODUCTS: {
+/** Marketing URLs (shown when unauthed). */
+const PRODUCTS_MARKETING: {
   slug: ProductSlug;
   word: string;
   tagline: string;
@@ -23,9 +25,30 @@ const PRODUCTS: {
   { slug: "analytics", word: "analytics", tagline: "Attention clarity", url: ANALYTICS_URL },
 ];
 
+/** App deep-link URLs (shown when authed — go straight to the product app). */
+const PRODUCTS_APP: {
+  slug: ProductSlug;
+  word: string;
+  tagline: string;
+  url: string;
+}[] = [
+  { slug: "tasks", word: "tasks", tagline: "Open tasks", url: `${TASKS_URL}/app` },
+  { slug: "roadmap", word: "roadmap", tagline: "Open roadmap", url: `${ROADMAP_URL}/app` },
+  { slug: "notes", word: "notes", tagline: "Open notes", url: `${NOTES_URL}/app` },
+  { slug: "analytics", word: "analytics", tagline: "Open analytics", url: `${ANALYTICS_URL}/app` },
+];
+
 const INDIGO = "#4f46e5";
 
 const PRODUCT_ORIGINS = [TASKS_URL, ROADMAP_URL, NOTES_URL, ANALYTICS_URL];
+
+// App entries per product — prefetch destination for auth state
+const APP_ENTRIES = [
+  `${TASKS_URL}/app`,
+  `${ROADMAP_URL}/app`,
+  `${NOTES_URL}/app`,
+  `${ANALYTICS_URL}/app`,
+];
 
 /**
  * Phase 3 (instant-jump): warm a sibling product on hover/focus so the
@@ -78,14 +101,19 @@ function suiteJump(url: string) {
 
 /**
  * Suite launcher. Replaces the static `signal studio.` breadcrumb anchor
- * with a click-to-open popover listing all four products. Same trigger
- * type/colour as the prior anchor; discovery is via cursor + click, not
- * an extra caret. Current product is shown but de-emphasised with a
- * "here" tag; other products open in a new tab.
+ * with a click-to-open popover listing all four products.
+ *
+ * Layer 3 (seamless-ecosystem-2026-05-18): when authed, each product link
+ * deep-links directly to that product's /app entry instead of its marketing
+ * homepage. Taglines reflect app context ("Open tasks" vs "Execution clarity").
  */
 export function SuiteLauncher({ current }: { current: ProductSlug }) {
   const [open, setOpen] = useState(false);
   const wrapRef = useRef<HTMLDivElement>(null);
+  const { isSignedIn } = useUser();
+
+  // Use app deep-links when authed; marketing URLs when not.
+  const PRODUCTS = isSignedIn ? PRODUCTS_APP : PRODUCTS_MARKETING;
 
   useEffect(() => {
     if (!open) return;
@@ -121,7 +149,13 @@ export function SuiteLauncher({ current }: { current: ProductSlug }) {
       l.setAttribute("data-suite-preconnect", origin);
       document.head.appendChild(l);
     }
-  }, [open]);
+    // Prefetch app entries when authed for instant jumps.
+    if (isSignedIn) {
+      for (const appUrl of APP_ENTRIES) {
+        prefetchProduct(appUrl);
+      }
+    }
+  }, [open, isSignedIn]);
 
   return (
     <div ref={wrapRef} style={{ position: "relative" }}>

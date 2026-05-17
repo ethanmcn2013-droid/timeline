@@ -2,11 +2,21 @@ import Link from "next/link";
 import type { Workspace } from "@/server/db/schema";
 import { Wordmark } from "@/components/brand/wordmark";
 import { SuiteLauncher } from "@/components/suite-launcher";
+import { WorkspaceAuthControls } from "./workspace-auth-controls";
 
 /**
  * Slim public header for the workspace roadmap surface.
  * Shows workspace identity + Roadmap product wordmark.
  * Replaces the marketing SiteNav on workspace-scoped pages.
+ *
+ * Layer 4 (seamless-ecosystem-2026-05-18): Added WorkspaceAuthControls
+ * island — when authed, the owner sees an "Edit" shortcut and the Clerk
+ * UserButton with the "View public site" escape hatch. Guests see nothing
+ * in that position (minimal public UX unchanged).
+ *
+ * ClerkProvider wraps so the child client island can read auth state.
+ * The public /{workspaceSlug} route doesn't have ClerkProvider in its
+ * layout (root layout is auth-agnostic), so it's scoped here.
  *
  * refusedCount: gate the "What didn't make it" nav link — only show
  * it when there are actually refused items. Forwarded stakeholders
@@ -43,7 +53,7 @@ export function WorkspaceHeader({
           </span>
         </div>
 
-        {/* Right: Roadmap wordmark + sign-in */}
+        {/* Right: nav links + suite launcher + product wordmark + auth controls */}
         <div className="flex items-center gap-4">
           <Link
             href={`/${workspace.slug}/update?source=roadmap_share&segment=general&role=viewer&campaign=collaboration_proof&artefact=shared_update`}
@@ -65,6 +75,8 @@ export function WorkspaceHeader({
             <SuiteLauncher current="roadmap" />
           </div>
           <Wordmark size="sm" href="/" />
+          {/* Auth-aware owner controls — client island, renders nothing for guests */}
+          <WorkspaceAuthControls ownerUserId={workspace.ownerUserId} />
         </div>
       </div>
     </header>

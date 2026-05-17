@@ -4,7 +4,9 @@ import {
   getWorkspace,
   getProject,
   getTasksForProject,
+  isWorkspacePublished,
 } from "@/server/db/queries";
+import { getCurrentUser } from "@/server/auth";
 import type { Task } from "@/server/db/schema";
 import { BigStat } from "@/components/roadmap/big-stat";
 import { WorkspaceHeader } from "@/components/roadmap/workspace-header";
@@ -40,13 +42,38 @@ export default async function ProjectDrillDownPage({
 }) {
   const { workspaceSlug, projectSlug } = await params;
 
-  const [workspace, project] = await Promise.all([
+  const [workspace, project, published, currentUser] = await Promise.all([
     getWorkspace(workspaceSlug),
     getProject(workspaceSlug, projectSlug),
+    isWorkspacePublished(workspaceSlug),
+    getCurrentUser(),
   ]);
 
   if (!workspace) notFound();
   if (!project) notFound();
+
+  // Draft gate — same rule as the workspace index page.
+  const isOwner = currentUser?.userId === workspace.ownerUserId;
+  if (!published && !isOwner) {
+    // Return a minimal not-yet-published signal.
+    // Don't use notFound() — that gives a generic 404.
+    // Don't redirect to sign-in — that makes it look like an auth wall.
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center px-6 py-24 text-center" style={{ background: "var(--bg)" }}>
+        <div className="mx-auto max-w-sm">
+          <p className="mb-4 text-[11px] font-semibold uppercase tracking-[0.16em]" style={{ color: "var(--ink-quiet)" }}>
+            Not published yet
+          </p>
+          <h1 className="mb-4 text-[clamp(1.75rem,1.4rem+1.5vw,2.5rem)] font-semibold leading-[1.1]" style={{ letterSpacing: "-0.035em", color: "var(--ink)" }}>
+            {workspace.name}.
+          </h1>
+          <p className="mb-10 text-[15px] leading-[1.55]" style={{ color: "var(--ink-soft)" }}>
+            This plan isn&apos;t public yet. The owner will share it when it&apos;s ready.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   const allTasks = await getTasksForProject(workspaceSlug, projectSlug);
   const visibleTasks = allTasks.filter((t) => t.status !== "refused");

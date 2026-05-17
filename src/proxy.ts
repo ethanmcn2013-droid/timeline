@@ -4,39 +4,52 @@ import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
  * Next.js 16 renamed middleware → proxy. File lives at src/proxy.ts
  * and the exported function must be named `proxy` (or default export).
  *
- * Public surface: marketing pages + sign-in/sign-up + webhooks.
- * Everything under /app requires a real Clerk session.
+ * Layer 2 — Seamless Ecosystem (2026-05-18)
+ * ==========================================
+ * Route categories per LAYER0_ROUTE_ALLOWLIST.md §roadmap:
  *
- * Graceful dev bypass: when Clerk env keys are unset the handler
- * returns early so the app runs before keys are provisioned. The
- * /app surfaces call requireUser() themselves and render accordingly.
+ *   M (Marketing)  — authed user → 307 to /app. Explicit allowlist only.
+ *   C (Content)    — NEVER redirected; reachable by everyone logged-in or not.
+ *                    This is the no-auth promise that makes shared roadmap
+ *                    links work. Getting this wrong detonates Roadmap's pitch.
+ *   A (App)        — authed destination; never redirected.
+ *   X (Excluded)   — infra; never touched.
+ *
+ * The M-allowlist is EXACT. Anything not on it passes through untouched.
+ * We NEVER use a "any route not in M is public" heuristic — that heuristic
+ * eats /{workspaceSlug}/* routes (category C) and breaks the no-auth promise.
+ *
+ * Escape hatch: the owner can set a short-lived localStorage flag
+ * "roadmap_preview_as_logged_out" to suppress the M→app redirect for that
+ * tab. This lets the owner demo the marketing site while logged in.
+ * The check is done client-side (the middleware can't read localStorage);
+ * the escape hatch header "__roadmap_demo_mode" is set by the client
+ * before any M-route navigation. We check for it here in the middleware.
  */
 
 import { NextResponse } from "next/server";
 
-const isPublicRoute = createRouteMatcher([
+// Exact M-route list. Only these routes redirect authed users to /app.
+// /{workspaceSlug}/... is intentionally NOT here (it's category C).
+const isMarketingRoute = createRouteMatcher([
   "/",
-  "/about",
   "/pricing",
+  "/about",
   "/demo",
-  "/sign-in(.*)",
-  "/sign-up(.*)",
-  "/api/webhooks/(.*)",
-  "/sitemap.xml",
-  "/robots.txt",
-  "/opengraph-image",
-  "/opengraph-image/(.*)",
-  "/manifest.webmanifest",
-  // Public workspace roadmap surface — readable by anyone
-  "/:workspaceSlug",
-  "/:workspaceSlug/update",
-  "/:workspaceSlug/refusals",
-  "/:workspaceSlug/:projectSlug",
-  "/:workspaceSlug/:projectSlug/:id",
+  "/changelog",
 ]);
 
-// R5 fix: authenticated users navigating to /sign-in or /sign-up are
-// redirected directly to /app — they must never see the auth gate.
+// A (App) routes — already the authed destination, never redirected.
+// Listed for documentation; the middleware default pass-through handles these.
+
+// X (Excluded infra) — never redirect:
+//   /api/*, /og/*, /sign-in/*, /sign-up/*, /sitemap.xml, /robots.txt,
+//   /manifest.webmanifest, badge.svg, calendar.ics, /print/*
+// These are handled by the default pass-through below.
+
+// All /{workspaceSlug}/* routes (C category) fall through untouched because
+// they are not in isMarketingRoute. This is the architectural guarantee.
+
 const isAuthRoute = createRouteMatcher(["/sign-in(.*)", "/sign-up(.*)"]);
 
 const clerkConfigured = Boolean(
@@ -49,15 +62,26 @@ export default clerkMiddleware(async (auth, req) => {
 
   const { userId } = await auth();
 
-  // R5: bounce authenticated users away from sign-in/sign-up back to app
+  // R5: bounce authenticated users away from sign-in/sign-up back to app.
   if (isAuthRoute(req) && userId) {
     return NextResponse.redirect(new URL("/app", req.url));
   }
 
-  if (!isPublicRoute(req)) {
-    await auth.protect({
-      unauthenticatedUrl: new URL("/sign-in", req.url).toString(),
-    });
+  // Layer 2: authed users on M routes → 307 to /app.
+  // Escape hatch: if the request carries the demo-mode cookie, pass through
+  // so the owner can view the marketing site while logged in.
+  if (userId && isMarketingRoute(req)) {
+    const demoMode = req.cookies.get("roadmap_demo_mode")?.value === "1";
+    if (!demoMode) {
+      return NextResponse.redirect(new URL("/app", req.url));
+    }
+  }
+
+  // /app/* and everything else not in the M list — protect /app/* only.
+  // All /{workspaceSlug}/* are C-category and pass through with no auth check.
+  const isApp = req.nextUrl.pathname.startsWith("/app");
+  if (isApp && !userId) {
+    return NextResponse.redirect(new URL("/sign-in", req.url));
   }
 });
 

@@ -8,7 +8,9 @@ import {
   getTasksForWorkspace,
   getUpcomingTasks,
   getLastUpdatedForWorkspace,
+  isWorkspacePublished,
 } from "@/server/db/queries";
+import { getCurrentUser } from "@/server/auth";
 import type { Task, Project } from "@/server/db/schema";
 import { WorkspaceHeader } from "@/components/roadmap/workspace-header";
 import { ProjectCard } from "@/components/roadmap/project-card";
@@ -34,6 +36,7 @@ import { ScheduleView } from "@/components/roadmap/schedule-view";
 import { RoadmapFlow } from "@/components/roadmap/roadmap-flow";
 import { MilestoneMap } from "@/components/roadmap/milestone-map";
 import { SiteFooter } from "@/components/marketing/site-footer";
+import { Wordmark } from "@/components/brand/wordmark";
 import Link from "next/link";
 
 // Public roadmap is read-only, ISR with a 5-min window. The page reads
@@ -77,6 +80,26 @@ export default async function WorkspaceRoadmapPage({
 
   const workspace = await getWorkspace(workspaceSlug);
   if (!workspace) notFound();
+
+  // Draft/publish gate (Layer 1 — seamless-ecosystem-2026-05-18).
+  // Order: check publish state and owner identity in parallel so the
+  // public read path (published) adds zero latency over the prior version.
+  //
+  // Rule:
+  //   - Published → everyone sees the roadmap (unchanged from before).
+  //   - Draft + owner (current authed user) → owner preview allowed.
+  //   - Draft + non-owner (or logged out) → "Not published yet" state.
+  //
+  // This is NOT a login wall. Logged-out visitors to a draft workspace get
+  // the friendly "not published yet" page — not a redirect to sign-in.
+  const [published, currentUser] = await Promise.all([
+    isWorkspacePublished(workspaceSlug),
+    getCurrentUser(),
+  ]);
+  const isOwner = currentUser?.userId === workspace.ownerUserId;
+  if (!published && !isOwner) {
+    return <DraftNotPublished workspaceName={workspace.name} />;
+  }
 
   // Single data fetch — all three views share this payload.
   // No per-view branching in the data layer; ISR is not broken.
@@ -1024,3 +1047,47 @@ function NextMilestoneStrip({ milestones }: { milestones: Task[] }) {
     </div>
   );
 }
+
+// ── Draft / not-published state ───────────────────────────────────────────────
+// Shown to non-owners visiting a draft workspace. Not a 404, not a login wall.
+// Brand voice: plain English, no "error" framing, no invitation to sign in
+// (that would make it feel like an auth gate). LAYER0_ROUTE_ALLOWLIST.md §Roadmap.
+
+function DraftNotPublished({ workspaceName }: { workspaceName: string }) {
+  return (
+    <div className="flex min-h-screen flex-col" style={{ background: "var(--bg)" }}>
+      <header className="border-b px-6 py-4" style={{ borderColor: "var(--line-soft)" }}>
+        <div className="mx-auto w-full max-w-[1240px]">
+          <Wordmark size="md" />
+        </div>
+      </header>
+
+      <main className="flex flex-1 flex-col items-center justify-center px-6 py-24 text-center">
+        <div className="mx-auto max-w-sm">
+          <p
+            className="mb-4 text-[11px] font-semibold uppercase tracking-[0.16em]"
+            style={{ color: "var(--ink-quiet)" }}
+          >
+            Not published yet
+          </p>
+          <h1
+            className="mb-4 text-[clamp(1.75rem,1.4rem+1.5vw,2.5rem)] font-semibold leading-[1.1]"
+            style={{ letterSpacing: "-0.035em", color: "var(--ink)" }}
+          >
+            {workspaceName}.
+          </h1>
+          <p
+            className="mb-10 text-[15px] leading-[1.55]"
+            style={{ color: "var(--ink-soft)" }}
+          >
+            This plan isn&apos;t public yet. The owner will share it when it&apos;s ready.
+          </p>
+        </div>
+      </main>
+
+      <SiteFooter />
+    </div>
+  );
+}
+
+// Also need Wordmark for the DraftNotPublished component

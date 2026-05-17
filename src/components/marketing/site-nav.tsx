@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Wordmark } from "@/components/brand/wordmark";
 import { SuiteLauncher } from "@/components/suite-launcher";
+import { AuthNavControls } from "./auth-nav-controls";
 
 const UMBRELLA_PRICING = "https://signalstudio.ie/pricing";
 
@@ -11,6 +12,15 @@ const NAV: { href: string; label: string; external?: boolean }[] = [
   { href: "/changelog",     label: "Changelog"  },
 ];
 
+/**
+ * Marketing SiteNav — Layer 3 auth-aware update (seamless-ecosystem-2026-05-18).
+ *
+ * "Sign in / Start for free" are replaced by the account menu when authed.
+ * The escape hatch ("View public site") lives inside AuthNavControls.
+ *
+ * Kept as a server component — AuthNavControls handles the Clerk read
+ * via a thin client island, preserving SSR for the rest of the nav.
+ */
 export function SiteNav() {
   return (
     <header className="sticky top-0 z-50 border-b border-line-soft/60 bg-bg/72 backdrop-blur-md backdrop-saturate-150">
@@ -47,90 +57,8 @@ export function SiteNav() {
             )
           )}
         </nav>
-        <div className="flex items-center gap-2">
-          <Link
-            href="/demo"
-            className="hidden rounded-full px-3.5 py-1.5 text-[13px] font-medium text-ink-soft hover:text-ink md:inline-flex"
-            style={{ transition: "color var(--motion-fast) var(--ease-standard)" }}
-          >
-            See it live
-          </Link>
-          <Link
-            href="/sign-in"
-            className="hidden rounded-full px-3.5 py-1.5 text-[13px] font-medium text-ink-soft hover:text-ink md:inline-flex"
-            style={{ transition: "color var(--motion-fast) var(--ease-standard)" }}
-          >
-            Sign in
-          </Link>
-          <Link
-            href="/sign-up"
-            className="inline-flex items-center gap-1.5 rounded-full bg-ink px-3.5 py-1.5 text-[13px] font-medium text-white shadow-sm hover:-translate-y-px hover:shadow-md"
-            style={{ transition: "transform var(--motion-fast) var(--ease-standard), box-shadow var(--motion-fast) var(--ease-standard)" }}
-          >
-            Start for free
-            <svg
-              width="12"
-              height="12"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2.4"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              aria-hidden
-            >
-              <path d="M5 12h14M13 5l7 7-7 7" />
-            </svg>
-          </Link>
-          <details className="relative md:hidden">
-            <summary
-              className="flex h-9 w-9 cursor-pointer list-none items-center justify-center rounded-full border text-ink-soft transition-colors hover:text-ink"
-              style={{ borderColor: "var(--border)" }}
-              aria-label="Open menu"
-            >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden>
-                <path d="M4 7h16M4 12h16M4 17h16" />
-              </svg>
-            </summary>
-            <div
-              className="absolute right-0 top-11 w-56 rounded-xl border p-3 shadow-lg"
-              style={{ background: "var(--bg)", borderColor: "var(--border)" }}
-            >
-              <ul className="flex flex-col gap-1 text-[13px]">
-                {NAV.map((item) => (
-                  <li key={item.href}>
-                    {item.external ? (
-                      <a
-                        href={item.href}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="block rounded-lg px-3 py-2 text-ink-soft hover:bg-ink/5 hover:text-ink"
-                      >
-                        {item.label}
-                      </a>
-                    ) : (
-                      <Link
-                        href={item.href}
-                        className="block rounded-lg px-3 py-2 text-ink-soft hover:bg-ink/5 hover:text-ink"
-                      >
-                        {item.label}
-                      </Link>
-                    )}
-                  </li>
-                ))}
-                <li className="my-1 h-px" style={{ background: "var(--border)" }} aria-hidden />
-                <li>
-                  <Link
-                    href="/sign-in"
-                    className="block rounded-lg px-3 py-2 text-ink-soft hover:bg-ink/5 hover:text-ink"
-                  >
-                    Sign in
-                  </Link>
-                </li>
-              </ul>
-            </div>
-          </details>
-        </div>
+        {/* Auth-aware controls: account menu when authed, sign-in/start-for-free when not */}
+        <AuthNavControls nav={NAV} />
       </div>
     </header>
   );

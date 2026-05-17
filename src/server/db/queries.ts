@@ -169,19 +169,68 @@ export async function getProjectsForWorkspace(
     .orderBy(asc(projects.sortOrder));
 }
 
-/** Create a new project in a workspace. Slug must be unique within the workspace. */
+/**
+ * Returns true if ALL projects in the workspace are published (published_at
+ * is non-null). A workspace with zero projects is considered unpublished.
+ *
+ * For the public viewer the relevant check is per-project — see
+ * isWorkspacePublished below which is the coarser workspace-level gate
+ * used by /{workspaceSlug} before showing the roadmap or returning 404-style.
+ *
+ * We treat a workspace as "published" when it has at least one project and
+ * every project in it is published. This matches the UX: Publish publishes
+ * all projects in the workspace at once.
+ */
+export async function isWorkspacePublished(
+  workspaceSlug: string,
+): Promise<boolean> {
+  const rows = await db
+    .select({ publishedAt: projects.publishedAt })
+    .from(projects)
+    .where(eq(projects.workspaceSlug, workspaceSlug));
+  if (rows.length === 0) return false;
+  return rows.every((r) => r.publishedAt !== null);
+}
+
+/**
+ * Publish all projects in a workspace. Sets published_at to now() on every
+ * project row. Owner-only — callers must verify ownership before calling.
+ */
+export async function publishWorkspace(workspaceSlug: string): Promise<void> {
+  await db
+    .update(projects)
+    .set({ publishedAt: new Date() })
+    .where(eq(projects.workspaceSlug, workspaceSlug));
+}
+
+/**
+ * Unpublish all projects in a workspace. Sets published_at to null.
+ * Owner-only — callers must verify ownership before calling.
+ */
+export async function unpublishWorkspace(workspaceSlug: string): Promise<void> {
+  await db
+    .update(projects)
+    .set({ publishedAt: null })
+    .where(eq(projects.workspaceSlug, workspaceSlug));
+}
+
+/** Create a new project in a workspace. Slug must be unique within the workspace.
+ *  publishedAt: if the workspace is currently published, pass new Date() so the
+ *  new project inherits the published state and the public view stays live. */
 export async function createProject({
   slug,
   name,
   workspaceSlug,
   oneLiner = "",
   accent = "#4f46e5",
+  publishedAt = null,
 }: {
   slug: string;
   name: string;
   workspaceSlug: string;
   oneLiner?: string;
   accent?: string;
+  publishedAt?: Date | null;
 }): Promise<Project> {
   await db.insert(projects).values({
     slug,
@@ -190,6 +239,7 @@ export async function createProject({
     accent,
     workspaceSlug,
     sortOrder: 0,
+    publishedAt,
   });
   const [row] = await db
     .select()
