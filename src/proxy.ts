@@ -12,6 +12,8 @@ import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
  * /app surfaces call requireUser() themselves and render accordingly.
  */
 
+import { NextResponse } from "next/server";
+
 const isPublicRoute = createRouteMatcher([
   "/",
   "/about",
@@ -33,6 +35,10 @@ const isPublicRoute = createRouteMatcher([
   "/:workspaceSlug/:projectSlug/:id",
 ]);
 
+// R5 fix: authenticated users navigating to /sign-in or /sign-up are
+// redirected directly to /app — they must never see the auth gate.
+const isAuthRoute = createRouteMatcher(["/sign-in(.*)", "/sign-up(.*)"]);
+
 const clerkConfigured = Boolean(
   process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY &&
     process.env.CLERK_SECRET_KEY,
@@ -40,6 +46,14 @@ const clerkConfigured = Boolean(
 
 export default clerkMiddleware(async (auth, req) => {
   if (!clerkConfigured) return;
+
+  const { userId } = await auth();
+
+  // R5: bounce authenticated users away from sign-in/sign-up back to app
+  if (isAuthRoute(req) && userId) {
+    return NextResponse.redirect(new URL("/app", req.url));
+  }
+
   if (!isPublicRoute(req)) {
     await auth.protect({
       unauthenticatedUrl: new URL("/sign-in", req.url).toString(),
