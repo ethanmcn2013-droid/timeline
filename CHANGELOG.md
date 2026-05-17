@@ -3,6 +3,29 @@
 Convention: BRAND.md §6.5. Entries before 2026-05-14 keep their
 original shape; the new shape starts at the next cycle.
 
+## 2026-05-17 · R·10 · ships · the wedding example is a calm plan, not a stakeholder roadmap
+
+**The one artifact the whole venue pitch points at was rendering a
+couple's wedding in software-roadmap chrome — "Doing 2 · Blocked 1 ·
+Won't do 1", a 31%-done dial, T-44 countdowns, a refusals rail, "Press ?
+for shortcuts" — and carried no venue name at all.** That surface is
+right for a product roadmap shown to stakeholders and wrong for a couple
+who was forwarded their plan. `/the-wedding` is now a bespoke read-only
+route: Now / Soon / Later, four plain states (Done · Underway · Waiting
+on you · Coming up), and the venue named once at the top in a quiet line
+— an eyebrow, never a logo. Only "Waiting on you" carries colour,
+because it is the only state that asks the couple to do anything.
+
+It is a document, not an app: no per-item drill-down, no stat band, no
+dial, no shortcuts. No database read, no rate limiter, no schema change
+— a static segment that takes route precedence over the generic viewer,
+so the generic viewer keeps its correct stakeholder vocabulary for real
+product roadmaps. `/demo` points here. Content is verbatim-faithful to
+the panel-approved venue example. Verified at 390 and 1440 by
+computed-style audit (the perpetual wordmark gesture times out
+screenshots): paper white, ink #111, the wedding accent spent only on
+the one state that earns it, no horizontal overflow at either width.
+
 ## 2026-05-16 · R·9 · tightens · the unified H1 fits the phone, not just the page
 
 **The unification's own headline — and every public plan's title — was
