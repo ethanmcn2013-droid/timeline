@@ -71,12 +71,14 @@ export function CreateWorkspaceForm() {
           >
             Workspace name
           </label>
+          {/* R7 fix: autocomplete="off" prevents browser saved-creds dropdown */}
           <input
             ref={nameRef}
             id="ws-name"
             name="name"
             type="text"
             required
+            autoComplete="off"
             placeholder="Acme Corp"
             onChange={handleNameChange}
             className="field rounded-lg border px-3.5 py-2.5 text-sm"
@@ -108,6 +110,7 @@ export function CreateWorkspaceForm() {
               name="slug"
               type="text"
               required
+              autoComplete="off"
               placeholder="acme-corp"
               value={slug}
               onChange={handleSlugChange}
@@ -163,14 +166,45 @@ export function CreateWorkspaceForm() {
           </div>
         )}
 
+        {/* R6 fix: only dim when slug is invalid, not when pending.
+            Pending = indigo fill + inline spinner so it reads "working",
+            not "disabled". WCAG AA contrast: white on #4f46e5 = 5.3:1. */}
         <button
           type="submit"
           disabled={pending || !slugOk}
-          className="lift mt-1 rounded-lg px-4 py-2.5 text-sm font-medium text-white disabled:opacity-40"
+          className="lift mt-1 rounded-lg px-4 py-2.5 text-sm font-medium text-white"
           style={{
             background: "var(--brand)",
+            opacity: !slugOk && !pending ? 0.4 : 1,
+            cursor: pending ? "default" : undefined,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: "0.5rem",
           }}
         >
+          {pending && (
+            <svg
+              aria-hidden
+              width="14"
+              height="14"
+              viewBox="0 0 14 14"
+              fill="none"
+              style={{ animation: "spin 0.7s linear infinite", flexShrink: 0 }}
+            >
+              <circle
+                cx="7" cy="7" r="5.5"
+                stroke="rgba(255,255,255,0.35)"
+                strokeWidth="1.75"
+              />
+              <path
+                d="M7 1.5A5.5 5.5 0 0 1 12.5 7"
+                stroke="white"
+                strokeWidth="1.75"
+                strokeLinecap="round"
+              />
+            </svg>
+          )}
           {pending ? "Creating…" : "Create workspace"}
         </button>
       </form>
