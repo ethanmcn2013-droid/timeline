@@ -32,7 +32,10 @@ export function ProjectCard({
   return (
     <Link
       href={`/${workspaceSlug}/${project.slug}`}
-      className="group relative flex flex-col overflow-hidden rounded-[10px] border border-line bg-bg-elevated p-6 transition-all hover:border-ink-quiet/40 hover:shadow-[var(--shadow-2)]"
+      className="group relative flex flex-col overflow-hidden rounded-[10px] border border-line bg-bg-elevated p-6 hover:border-ink-quiet/40 hover:shadow-[var(--shadow-2)]"
+      style={{
+        transition: "border-color var(--motion-base) var(--ease-standard), box-shadow var(--motion-base) var(--ease-standard)",
+      }}
     >
       {/* Top accent bar — single identity gesture, no glow */}
       <span
@@ -81,7 +84,10 @@ export function ProjectCard({
             </>
           ) : null}
         </div>
-        <span className="inline-flex items-center gap-1.5 text-[12px] font-medium text-ink transition-transform group-hover:translate-x-0.5">
+        <span
+          className="inline-flex items-center gap-1.5 text-[12px] font-medium text-ink group-hover:translate-x-0.5"
+          style={{ transition: "transform var(--motion-fast) var(--ease-standard)" }}
+        >
           Open
           <svg
             width="11"

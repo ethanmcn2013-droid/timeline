@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { Wordmark } from "@/components/brand/wordmark";
-import { SiteFooter } from "@/components/marketing/site-footer";
 
 /**
  * /the-wedding — the canonical public wedding-plan example.
@@ -63,12 +62,12 @@ const SECTIONS: Section[] = [
       {
         title: "Final numbers",
         state: "Waiting on you",
-        body: `${VENUE} needs your final guest count by 1 June to lock catering. You're at 118 of an expected ~130. One short list to close.`,
+        body: `${VENUE} needs your final guest count in the next two weeks to lock catering. You're at 118 of an expected ~130. One short list to close.`,
       },
       {
         title: "Menu tasting",
         state: "Underway",
-        body: `Booked for 24 May, 11am, at the house. Bring anyone helping you decide. ${VENUE} confirms the tasting menu the same day.`,
+        body: `Booked for a Saturday-morning tasting at the house. Bring anyone helping you decide. ${VENUE} confirms the tasting menu the same day.`,
       },
       {
         title: "Arrival and access times",
@@ -84,7 +83,7 @@ const SECTIONS: Section[] = [
       {
         title: "Music and sound",
         state: "Waiting on you",
-        body: `${VENUE}'s only ask is a final song list and the band's arrival time, two weeks out. Nothing needed yet — this is here so you know it's coming, not so you act today.`,
+        body: `${VENUE}'s only ask is a final song list and the band's arrival time, about three weeks before the day. Nothing needed yet — this is here so you know it's coming, not so you act today.`,
       },
       {
         title: "Florist walkthrough",
@@ -226,7 +225,7 @@ export default function TheWeddingExamplePage() {
               <span className="mx-2 text-ink-faint" aria-hidden>
                 ·
               </span>
-              since March
+              planning together
             </p>
           </div>
 
@@ -250,8 +249,8 @@ export default function TheWeddingExamplePage() {
             className="reveal mt-4 text-[12.5px] text-ink-quiet"
             style={{ animationDelay: nextDelay() }}
           >
-            Last updated by{" "}
-            <span className="text-ink-soft">{VENUE}</span> — 14 May
+            Kept up to date by{" "}
+            <span className="text-ink-soft">{VENUE}</span>
           </p>
 
           {/* Sections — Now / Soon / Later */}
@@ -309,28 +308,24 @@ export default function TheWeddingExamplePage() {
         </article>
       </main>
 
-      <SiteFooter />
-
-      {/* One-shot entrance only. No perpetual motion — the page should
-          feel as calm as it reads, and a still page is a forwardable
-          one. Fully disabled under reduced-motion. */}
-      <style>{`
-        .reveal {
-          opacity: 0;
-          transform: translateY(10px);
-          animation: wedding-reveal 0.7s var(--spring-glide, cubic-bezier(.16,1,.3,1)) forwards;
-        }
-        @keyframes wedding-reveal {
-          to { opacity: 1; transform: translateY(0); }
-        }
-        @media (prefers-reduced-motion: reduce) {
-          .reveal {
-            opacity: 1;
-            transform: none;
-            animation: none;
-          }
-        }
-      `}</style>
+      {/* Minimal footer — this is a document forwarded to a couple, not a
+          marketing page. The wordmark is one quiet line of attribution. */}
+      <footer className="border-t border-line-soft/50 px-6 py-6">
+        <div className="mx-auto flex w-full max-w-[760px] items-center justify-between">
+          <span className="text-[11.5px] text-ink-faint">
+            Kept with{" "}
+            <a
+              href="https://signalstudio.ie"
+              className="underline underline-offset-2 hover:text-ink-quiet"
+              style={{ transition: "color var(--motion-fast) var(--ease-standard)" }}
+            >
+              Signal Studio
+            </a>
+          </span>
+          <Wordmark size="sm" href="/" />
+        </div>
+      </footer>
     </div>
   );
 }
+

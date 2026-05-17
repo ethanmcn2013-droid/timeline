@@ -30,7 +30,8 @@ export function SiteNav() {
                 href={item.href}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="transition-colors hover:text-ink"
+                className="hover:text-ink"
+                style={{ transition: "color var(--motion-fast) var(--ease-standard)" }}
               >
                 {item.label}
               </a>
@@ -38,7 +39,8 @@ export function SiteNav() {
               <Link
                 key={item.href}
                 href={item.href}
-                className="transition-colors hover:text-ink"
+                className="hover:text-ink"
+                style={{ transition: "color var(--motion-fast) var(--ease-standard)" }}
               >
                 {item.label}
               </Link>
@@ -48,19 +50,22 @@ export function SiteNav() {
         <div className="flex items-center gap-2">
           <Link
             href="/demo"
-            className="hidden rounded-full px-3.5 py-1.5 text-[13px] font-medium text-ink-soft transition-colors hover:text-ink md:inline-flex"
+            className="hidden rounded-full px-3.5 py-1.5 text-[13px] font-medium text-ink-soft hover:text-ink md:inline-flex"
+            style={{ transition: "color var(--motion-fast) var(--ease-standard)" }}
           >
             See it live
           </Link>
           <Link
             href="/sign-in"
-            className="hidden rounded-full px-3.5 py-1.5 text-[13px] font-medium text-ink-soft transition-colors hover:text-ink md:inline-flex"
+            className="hidden rounded-full px-3.5 py-1.5 text-[13px] font-medium text-ink-soft hover:text-ink md:inline-flex"
+            style={{ transition: "color var(--motion-fast) var(--ease-standard)" }}
           >
             Sign in
           </Link>
           <Link
             href="/sign-up"
-            className="inline-flex items-center gap-1.5 rounded-full bg-ink px-3.5 py-1.5 text-[13px] font-medium text-white shadow-sm transition-transform hover:-translate-y-px hover:shadow-md"
+            className="inline-flex items-center gap-1.5 rounded-full bg-ink px-3.5 py-1.5 text-[13px] font-medium text-white shadow-sm hover:-translate-y-px hover:shadow-md"
+            style={{ transition: "transform var(--motion-fast) var(--ease-standard), box-shadow var(--motion-fast) var(--ease-standard)" }}
           >
             Start for free
             <svg

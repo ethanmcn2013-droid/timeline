@@ -166,11 +166,25 @@
   --cursor-author:   #4f46e5; /* brand indigo — the roadmap author */
   --cursor-customer: #e4356d; /* rose — the public viewer / commenter */
 
-  /* ── Motion · springs ─────────────────────────────────────── */
+  /* ── SIGNAL STUDIO MOTION CONTRACT v1 ───────────────────────
+   *   Single source of truth across all 5 repos.
+   *   UI cap: --motion-moderate (320ms). Reduced-motion block
+   *   at the bottom of this file collapses all durations to
+   *   0.01ms so the page is never frozen for screen-reader users.
+   *   ────────────────────────────────────────────────────────── */
+  --motion-instant:  80ms;
+  --motion-fast:    140ms;
+  --motion-base:    220ms;
+  --motion-moderate:320ms;
+  --motion-slow:    480ms;
+  --ease-standard:  cubic-bezier(0.2, 0, 0, 1);
+  --ease-out:       cubic-bezier(0, 0, 0.2, 1);
+  --ease-in:        cubic-bezier(0.4, 0, 1, 1);
+
+  /* ── Motion · springs (product gestures, preserved) ─────── */
   --spring-snap:  cubic-bezier(.2, .9, .2, 1.2);   /* overshoot — drops, lifts */
   --spring-soft:  cubic-bezier(.32, .72, 0, 1);    /* settle — cards, panels */
   --spring-glide: cubic-bezier(.16, 1, .3, 1);     /* ride — sweeps, fades */
-  --ease-out:     cubic-bezier(.22, .61, .36, 1);  /* default ease-out */
 
   /* v0.2 aliases (existing callsites) */
   --ease-out-expo: var(--spring-glide);
@@ -459,7 +473,38 @@ body {
   border-radius: 50%;
   margin-left: 0.14em;
   transform: translateY(-0.36em);
-  animation: roadmap-dot-sweep 5.4s cubic-bezier(.22,.7,.2,1) infinite;
+  /* 5.4s is deliberate — the sweep is a slow timeline read, not a UI beat.
+     Easing uses --ease-standard from the motion contract (transform-only path). */
+  animation: roadmap-dot-sweep 5.4s var(--ease-standard) infinite;
+}
+
+/* ────────────────────────────────────────────────────────────
+   View-switcher active pill — tasteful CSS-only transition.
+   The [data-active] anchor gets a background that fades in with
+   --motion-base + --ease-standard. No JS required, no framer-
+   motion dep. Reduced-motion: the collapsed contract tokens make
+   the transition imperceptibly instant.
+   ──────────────────────────────────────────────────────────── */
+.view-switcher-link {
+  transition:
+    background var(--motion-base) var(--ease-standard),
+    color       var(--motion-base) var(--ease-standard),
+    opacity     var(--motion-base) var(--ease-standard);
+}
+
+/* ────────────────────────────────────────────────────────────
+   Micro-craft utility tokens — 60fps transform/opacity only.
+   ──────────────────────────────────────────────────────────── */
+.transition-micro {
+  transition:
+    transform var(--motion-fast)     var(--ease-standard),
+    opacity   var(--motion-fast)     var(--ease-standard);
+}
+.transition-base {
+  transition:
+    transform var(--motion-base)     var(--ease-standard),
+    opacity   var(--motion-base)     var(--ease-standard),
+    box-shadow var(--motion-base)    var(--ease-standard);
 }
 
 /* ────────────────────────────────────────────────────────────
@@ -494,23 +539,62 @@ body {
   border: 2px solid transparent;
 }
 
+/* ── Focus ring — suite-wide single indigo ring ─────────────────
+   Applies to every interactive element including anchor nav,
+   breadcrumbs, buttons, and form controls.
+   WCAG 2.4.11: scroll-margin-top on focusable elements inside
+   scrollable containers clears the sticky workspace header (48px)
+   + the workspace view-switcher bar (~48px). */
 :focus:not(:focus-visible) {
   outline: none;
 }
 :focus-visible {
-  outline: 2px solid var(--brand);
-  outline-offset: 2px;
+  outline: 2px solid var(--indigo-600);
+  outline-offset: 3px;
   border-radius: 6px;
+  transition: outline-offset var(--motion-fast) var(--ease-out);
+}
+
+/* Sticky header clearance — WCAG 2.4.11.
+   The workspace header is 48px (h-12) + a possible view-switcher
+   row (~48px). A 112px margin ensures focused items scroll clear. */
+[id],
+a,
+button,
+input,
+textarea,
+select,
+[tabindex] {
+  scroll-margin-top: 112px;
 }
 
 .lift {
   transition:
-    transform 0.4s var(--spring-glide),
-    box-shadow 0.4s var(--spring-glide);
+    transform var(--motion-moderate) var(--spring-glide),
+    box-shadow var(--motion-moderate) var(--spring-glide);
 }
 .lift:hover {
   transform: translateY(-2px);
   box-shadow: var(--shadow-2);
+}
+
+/* ────────────────────────────────────────────────────────────
+   Form input / textarea — CSS-native focus transition.
+   Replaces inline onFocus/onBlur style mutations so the border
+   change is hardware-accelerated and reduced-motion safe.
+   ──────────────────────────────────────────────────────────── */
+.field {
+  border-color: var(--border);
+  transition: border-color var(--motion-fast) var(--ease-standard);
+}
+.field:focus {
+  border-color: var(--brand);
+  outline: none;
+}
+.field:focus-visible {
+  border-color: var(--brand);
+  outline: 2px solid var(--indigo-600);
+  outline-offset: 3px;
 }
 
 /* ────────────────────────────────────────────────────────────
@@ -529,7 +613,7 @@ body {
   100% { opacity: 1; transform: translateY(0); }
 }
 .rise {
-  animation: rise 0.85s var(--spring-glide) both;
+  animation: rise var(--motion-slow) var(--spring-glide) both;
 }
 
 @keyframes shine {
@@ -589,6 +673,7 @@ body {
   animation: skeleton-sweep 1.4s ease-in-out infinite;
 }
 
+/* ── Reduced-motion: skeleton ───────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
   .skeleton-shimmer {
     animation: none;
@@ -596,12 +681,58 @@ body {
   }
 }
 
+/* ── SIGNAL STUDIO MOTION CONTRACT v1 · reduced-motion block ──
+   Collapses all contract durations to 0.01ms. The .reveal class
+   is also locked to its visible end-state so a no-JS or
+   reduced-motion user never sees opacity:0. */
 @media (prefers-reduced-motion: reduce) {
+  :root {
+    --motion-instant:  0.01ms;
+    --motion-fast:     0.01ms;
+    --motion-base:     0.01ms;
+    --motion-moderate: 0.01ms;
+    --motion-slow:     0.01ms;
+  }
+  .reveal {
+    opacity: 1 !important;
+    transform: none !important;
+    translate: none !important;
+    animation: none !important;
+  }
   *,
   *::before,
   *::after {
-    animation-duration: 0.001ms !important;
+    animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
-    transition-duration: 0.001ms !important;
+    transition-duration: 0.01ms !important;
   }
+}
+
+/* ── .reveal — baseline-visible scroll entrance ─────────────────
+   animation-fill-mode: both keeps the element at its end-state
+   (opacity:1 / translate:0) before AND after the animation, so
+   the page is fully readable with JS disabled and before the
+   scroll threshold fires.
+
+   One-shot. Calm. 12px single-axis fade-up — the contract value.
+   The animation-timeline path uses @supports so it degrades
+   cleanly on browsers that don't support scroll-driven animations
+   (they fall through to the static fill-mode both = visible). */
+.reveal {
+  animation: reveal-fade var(--motion-slow) var(--ease-out) both;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    .reveal {
+      animation: reveal-fade var(--motion-slow) var(--ease-out) both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 35%;
+    }
+  }
+}
+
+@keyframes reveal-fade {
+  from { opacity: 0; translate: 0 12px; }
+  to   { opacity: 1; translate: 0 0; }
 }

@@ -146,6 +146,11 @@ async function main() {
       description: WORKSPACE_DESCRIPTION,
       ownerUserId: SEED_USER_ID,
       plan: "free",
+      // isDemo = true: the public viewer shows a "You're viewing a demo
+      // workspace" banner when this flag is set. Using an explicit column
+      // rather than checking slug === "tasks" so the detection doesn't
+      // break if the workspace is ever renamed or the slug changes.
+      isDemo: true,
     })
     // onConflictDoNothing: never overwrite a live workspace's name/description
     // if the seed is accidentally run against prod. Items below keep their own

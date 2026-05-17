@@ -69,20 +69,13 @@ export function SourceEditor({
         value={content}
         onChange={(e) => setContent(e.target.value)}
         placeholder={`# Mobile App v2 Roadmap\n\n## In Flight\n- [ ] Auth redesign\n\n## Next\n- [ ] Offline mode\n- **Beta launch** — 2026-06-15\n\n## Shipped\n- [x] Push notifications`}
-        className="flex-1 rounded-xl border p-4 text-sm leading-relaxed outline-none transition-all resize-none min-h-[480px]"
+        className="field flex-1 rounded-xl border p-4 text-sm leading-relaxed resize-none min-h-[480px]"
         style={{
           background: "var(--bg-elev)",
-          borderColor: "var(--border)",
           color: "var(--ink)",
           fontFamily: "var(--font-mono-stack)",
           lineHeight: "1.65",
         }}
-        onFocus={(e) =>
-          (e.currentTarget.style.borderColor = "var(--brand)")
-        }
-        onBlur={(e) =>
-          (e.currentTarget.style.borderColor = "var(--border)")
-        }
         spellCheck={false}
       />
 
@@ -115,8 +108,11 @@ export function SourceEditor({
           <button
             type="submit"
             disabled={pending}
-            className="rounded-lg px-4 py-2 text-sm font-medium text-white transition-all disabled:opacity-40"
-            style={{ background: "var(--brand)" }}
+            className="rounded-lg px-4 py-2 text-sm font-medium text-white disabled:opacity-40"
+            style={{
+              background: "var(--brand)",
+              transition: "opacity var(--motion-fast) var(--ease-standard), transform var(--motion-fast) var(--ease-standard)",
+            }}
           >
             {pending ? "Parsing…" : "Save"}
           </button>

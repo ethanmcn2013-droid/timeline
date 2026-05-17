@@ -339,6 +339,14 @@ export const workspaces = sqliteTable(
      *  projects and items from the canonical template slice. Strategy:
      *  studio/docs/TEMPLATES_STRATEGY.md (T-2.1). */
     templateId: text("template_id"),
+    /** When true this workspace is a seeded demonstration workspace and
+     *  the public viewer shows a "You're viewing a public demo workspace"
+     *  banner. Replaces the former reserved-slug check (`slug === "tasks"`)
+     *  which tied the demo detection to an arbitrary slug value and would
+     *  silently break if the demo workspace were ever renamed or migrated.
+     *  Set to true in the seed script; false by default for all real
+     *  customer workspaces. Migration: 0003_workspace_is_demo.sql. */
+    isDemo: integer("is_demo", { mode: "boolean" }).notNull().default(false),
     createdAt: integer("created_at", { mode: "timestamp" })
       .notNull()
       .default(sql`(unixepoch())`),

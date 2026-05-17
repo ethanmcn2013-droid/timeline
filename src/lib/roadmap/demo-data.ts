@@ -13,6 +13,7 @@ export const demoWorkspace: Workspace = {
   createdAt,
   updatedAt: createdAt,
   templateId: null,
+  isDemo: true,
 };
 
 export const demoProjects: Project[] = [
@@ -241,6 +242,7 @@ export const weddingDemoWorkspace: Workspace = {
   createdAt,
   updatedAt: createdAt,
   templateId: "wedding-planning-workspace",
+  isDemo: false,
 };
 
 export const weddingDemoProjects: Project[] = [

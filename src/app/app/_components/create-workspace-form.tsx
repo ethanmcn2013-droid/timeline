@@ -56,7 +56,9 @@ export function CreateWorkspaceForm() {
         className="mb-10 text-sm leading-relaxed"
         style={{ color: "var(--ink-soft)" }}
       >
-        Pick a public link — this is where your roadmap will live.
+        A roadmap is one public link that shows what you&apos;re doing and
+        what&apos;s next, in plain English. No login for the people you share it
+        with. Pick a name and a link to start — you can change both later.
       </p>
 
       <form action={formAction} className="flex flex-col gap-5">
@@ -77,18 +79,11 @@ export function CreateWorkspaceForm() {
             required
             placeholder="Acme Corp"
             onChange={handleNameChange}
-            className="rounded-lg border px-3.5 py-2.5 text-sm outline-none transition-all"
+            className="field rounded-lg border px-3.5 py-2.5 text-sm"
             style={{
               background: "var(--bg-elev)",
-              borderColor: "var(--border)",
               color: "var(--ink)",
             }}
-            onFocus={(e) =>
-              (e.currentTarget.style.borderColor = "var(--brand)")
-            }
-            onBlur={(e) =>
-              (e.currentTarget.style.borderColor = "var(--border)")
-            }
           />
         </div>
 
@@ -101,12 +96,12 @@ export function CreateWorkspaceForm() {
           >
             Your public link
           </label>
-          <div className="flex items-center rounded-lg border overflow-hidden" style={{ borderColor: "var(--border)", background: "var(--bg-elev)" }}>
+          <div className="field flex items-center rounded-lg border overflow-hidden" style={{ background: "var(--bg-elev)" }}>
             <span
               className="px-3 py-2.5 text-sm select-none"
               style={{ color: "var(--ink-quiet)", borderRight: "1px solid var(--border)" }}
             >
-              roadmap/
+              roadmap.signalstudio.ie/
             </span>
             <input
               id="ws-slug"
@@ -116,25 +111,36 @@ export function CreateWorkspaceForm() {
               placeholder="acme-corp"
               value={slug}
               onChange={handleSlugChange}
-              className="flex-1 px-3 py-2.5 text-sm outline-none bg-transparent"
+              aria-describedby="ws-slug-feedback"
+              aria-invalid={slug ? !slugOk : undefined}
+              className="flex-1 px-3 py-2.5 text-sm outline-none bg-transparent focus:outline-none"
               style={{ color: "var(--ink)" }}
             />
           </div>
-          {slug && !slugOk && (
-            <p className="text-xs" style={{ color: "var(--status-blocked)" }}>
-              3–32 chars, lowercase letters/numbers/hyphens, not reserved.
-            </p>
-          )}
-          {slug && slugOk && (
-            <p className="text-xs" style={{ color: "var(--status-done)" }}>
-              Looks good.
-            </p>
-          )}
+          <p
+            id="ws-slug-feedback"
+            aria-live="polite"
+            className="text-xs"
+            style={{
+              color: !slug
+                ? "var(--ink-quiet)"
+                : slugOk
+                  ? "var(--status-done)"
+                  : "var(--status-blocked)",
+            }}
+          >
+            {!slug
+              ? "3–32 characters: lowercase letters, numbers, hyphens."
+              : slugOk
+                ? "Looks good."
+                : "3–32 chars, lowercase letters/numbers/hyphens, not reserved."}
+          </p>
         </div>
 
         {/* Error */}
         {state.error && (
           <div
+            role="alert"
             className="rounded-lg border px-3.5 py-2.5 text-sm"
             style={{
               color: "var(--roadmap-red-fg)",
@@ -160,8 +166,10 @@ export function CreateWorkspaceForm() {
         <button
           type="submit"
           disabled={pending || !slugOk}
-          className="mt-1 rounded-lg px-4 py-2.5 text-sm font-medium text-white transition-all disabled:opacity-40"
-          style={{ background: "var(--brand)" }}
+          className="lift mt-1 rounded-lg px-4 py-2.5 text-sm font-medium text-white disabled:opacity-40"
+          style={{
+            background: "var(--brand)",
+          }}
         >
           {pending ? "Creating…" : "Create workspace"}
         </button>

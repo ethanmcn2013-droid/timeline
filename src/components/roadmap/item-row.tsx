@@ -54,10 +54,13 @@ export function ItemRow({
   return (
     <li
       className={
-        "grid grid-cols-[20px_1fr] grid-rows-[auto_auto] items-start gap-x-3 gap-y-1 border-b border-line-faint px-3 py-2.5 last:border-b-0 hover:bg-bg-tinted/40 transition-colors sm:grid-cols-[20px_72px_56px_1fr_auto] sm:grid-rows-1 sm:gap-y-0 sm:py-2 " +
+        "grid grid-cols-[20px_1fr] grid-rows-[auto_auto] items-start gap-x-3 gap-y-1 border-b border-line-faint px-3 py-2.5 last:border-b-0 hover:bg-bg-tinted/40 sm:grid-cols-[20px_72px_56px_1fr_auto] sm:grid-rows-1 sm:gap-y-0 sm:py-2 " +
         (isDone ? "opacity-60" : "")
       }
-      style={{ background: rowBg }}
+      style={{
+        background: rowBg,
+        transition: "background var(--motion-fast) var(--ease-standard)",
+      }}
     >
       {/* Status indicator — read-only dot */}
       <span
@@ -107,7 +110,8 @@ export function ItemRow({
           {showProject ? (
             <Link
               href={`/${workspaceSlug}/${task.projectSlug}`}
-              className="inline-flex items-center gap-1 text-[10px] font-medium uppercase tracking-[0.1em] text-ink-quiet transition-colors hover:text-ink"
+              className="inline-flex items-center gap-1 text-[10px] font-medium uppercase tracking-[0.1em] text-ink-quiet hover:text-ink"
+              style={{ transition: "color var(--motion-fast) var(--ease-standard)" }}
             >
               <span
                 aria-hidden
@@ -133,9 +137,10 @@ export function ItemRow({
           <Link
             href={`/${workspaceSlug}/${task.projectSlug}/${task.id}`}
             className={
-              "text-[13px] font-medium leading-[1.4] tracking-[-0.005em] transition-colors hover:underline " +
+              "text-[13px] font-medium leading-[1.4] tracking-[-0.005em] hover:underline " +
               (isDone ? "text-ink-quiet line-through" : "text-ink")
             }
+            style={{ transition: "color var(--motion-fast) var(--ease-standard), opacity var(--motion-fast) var(--ease-standard)" }}
           >
             {task.title}
           </Link>
@@ -164,8 +169,9 @@ export function ItemRow({
         </span>
         <Link
           href={`/${workspaceSlug}/${task.projectSlug}/${task.id}`}
-          className="ml-auto transition-colors hover:text-ink sm:ml-0"
+          className="ml-auto hover:text-ink sm:ml-0"
           aria-label="Open item"
+          style={{ transition: "color var(--motion-fast) var(--ease-standard)" }}
         >
           <svg
             width="13"

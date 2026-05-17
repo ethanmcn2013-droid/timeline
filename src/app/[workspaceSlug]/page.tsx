@@ -20,21 +20,30 @@ import { MilestoneCard } from "@/components/roadmap/milestone-card";
 import { MetaStrip } from "@/components/roadmap/meta-strip";
 import { ProgressRing } from "@/components/roadmap/progress-ring";
 import { ShortcutsOverlay } from "@/components/roadmap/shortcuts-overlay";
-import { WorkspaceViewSwitcher } from "@/components/roadmap/workspace-view-switcher";
+import {
+  WorkspaceViewSwitcher,
+  WorkspaceViewSwitcherStatic,
+} from "@/components/roadmap/workspace-view-switcher";
+import {
+  WorkspaceViewBody,
+  WorkspaceViewBodyStatic,
+  OverviewOnly,
+  OverviewOnlyStatic,
+} from "@/components/roadmap/workspace-view-client";
 import { ScheduleView } from "@/components/roadmap/schedule-view";
 import { RoadmapFlow } from "@/components/roadmap/roadmap-flow";
 import { MilestoneMap } from "@/components/roadmap/milestone-map";
 import { SiteFooter } from "@/components/marketing/site-footer";
-import type { WorkspaceView } from "@/components/showcase/types";
 import Link from "next/link";
 
-// Public roadmap is read-only. ISR with a 5-min window; the source-save
-// action calls revalidatePath on edit so stakeholders see fresh data
-// immediately rather than waiting out the window.
-//
-// Note: searchParams are passed to the page but the DATA fetch is not
-// branched per view — all views use the same allTasks/projects/etc fetch
-// that happens once. Only the JSX branch changes. ISR is preserved.
+// Public roadmap is read-only, ISR with a 5-min window. The page reads
+// NO dynamic APIs (no searchParams/cookies/headers) so this revalidate
+// genuinely engages — every shared-link hit is served from cache, not a
+// fresh 4-query Turso round-trip. The source-save action calls
+// revalidatePath on edit so stakeholders see changes immediately rather
+// than waiting out the window. View selection (?view=) is resolved
+// client-side by WorkspaceViewBody — see that component for why reading
+// it server-side here would silently break ISR.
 export const revalidate = 300;
 
 export async function generateMetadata({
@@ -53,23 +62,18 @@ export async function generateMetadata({
 
 export default async function WorkspaceRoadmapPage({
   params,
-  searchParams,
 }: {
   params: Promise<{ workspaceSlug: string }>;
-  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
+  // NOTE: this page deliberately does NOT read searchParams. Reading
+  // them server-side silently opts the whole route out of ISR (every
+  // shared-link hit ran 4 uncached Turso round-trips), and ISR caches
+  // by pathname only — `?view=x` is the same cache entry as the bare
+  // URL regardless. All four views are rendered server-side once from
+  // the single data fetch below; WorkspaceViewBody (client) toggles
+  // which one is visible from ?view=. revalidate=300 now genuinely
+  // engages.
   const { workspaceSlug } = await params;
-  const sp = await searchParams;
-
-  // Derive active view from ?view= param. Default is "overview".
-  // Validate against known values so a typo doesn't crash the render.
-  const rawView = typeof sp.view === "string" ? sp.view : undefined;
-  const activeView: WorkspaceView =
-    rawView === "roadmap" ||
-    rawView === "milestones" ||
-    rawView === "schedule"
-      ? rawView
-      : "overview";
 
   const workspace = await getWorkspace(workspaceSlug);
   if (!workspace) notFound();
@@ -202,7 +206,12 @@ export default async function WorkspaceRoadmapPage({
   const progress = totalForProgress > 0 ? counts.shipped / totalForProgress : 0;
 
   const hasItems = allTasks.length > 0;
-  const isDemoWorkspace = workspace.slug === "tasks";
+  // isDemoWorkspace: reads the explicit schema flag rather than a reserved
+  // slug comparison. The slug === "tasks" coupling was fragile — it would
+  // silently break if the demo workspace were renamed. The isDemo column
+  // (schema 0003_workspace_is_demo.sql, default false) is set true only
+  // by the seed script.
+  const isDemoWorkspace = workspace.isDemo;
 
   // The dial + Next-milestone lockup earn their hero placement only
   // when the workspace tells a *story* — not when it's just rendering
@@ -268,8 +277,72 @@ export default async function WorkspaceRoadmapPage({
   });
 
   return (
-    <div className="flex min-h-screen flex-col" style={{ background: "var(--bg)" }}>
-      <WorkspaceHeader workspace={workspace} />
+    // data-workspace-view-root is the anchor for the pre-paint inline script
+    // that sets data-view="<active>" before first render, so CSS can
+    // immediately show only the deep-linked view panel without a flash.
+    <div
+      className="flex min-h-screen flex-col"
+      style={{ background: "var(--bg)" }}
+      data-workspace-view-root
+    >
+      {/*
+        Pre-paint view selection: runs synchronously during HTML parse,
+        before any pixels are drawn. Reads ?view= from the URL, sets
+        data-view on the root wrapper, and corrects aria-current on the
+        static switcher tabs so the correct panel and active tab are
+        visible on the very first frame — no flash, no hydration wait.
+
+        The paired <style> block below implements the CSS rule that hides
+        non-matching panels when data-view is set (i.e. only for
+        deep-linked non-overview views — when there is no view param the
+        attribute is absent and no CSS fires, so overview shows as the
+        safe default).
+
+        No-JS: script never runs → no data-view → overview shows (correct).
+        Hydration: WorkspaceViewBody + WorkspaceViewSwitcher take over for
+        subsequent in-page switching, at which point the data-view attribute
+        and static aria-current values become irrelevant.
+      */}
+      <style
+        // eslint-disable-next-line react/no-danger
+        dangerouslySetInnerHTML={{
+          __html: `
+[data-workspace-view-root][data-view] [data-view-panel] { display: none; }
+[data-workspace-view-root][data-view="overview"] [data-view-panel="overview"],
+[data-workspace-view-root][data-view="roadmap"] [data-view-panel="roadmap"],
+[data-workspace-view-root][data-view="milestones"] [data-view-panel="milestones"],
+[data-workspace-view-root][data-view="schedule"] [data-view-panel="schedule"] { display: revert; }
+`.trim(),
+        }}
+      />
+      <script
+        // eslint-disable-next-line react/no-danger
+        dangerouslySetInnerHTML={{
+          __html: `(function(){try{
+var m=location.search.match(/[?&]view=(roadmap|milestones|schedule)(?:&|$)/);
+if(!m)return;
+var v=m[1];
+var root=document.querySelector('[data-workspace-view-root]');
+if(!root)return;
+root.setAttribute('data-view',v);
+var tabs=root.querySelectorAll('[data-view-tab]');
+for(var i=0;i<tabs.length;i++){
+  var t=tabs[i];
+  var tid=t.getAttribute('data-view-tab');
+  if(tid===v){
+    t.setAttribute('aria-current','page');
+    t.style.color='#ffffff';
+    t.style.background='var(--ink)';
+  } else {
+    t.removeAttribute('aria-current');
+    t.style.color='var(--ink-quiet)';
+    t.style.background='transparent';
+  }
+}
+}catch(e){}})();`,
+        }}
+      />
+      <WorkspaceHeader workspace={workspace} refusedCount={counts.refused} />
       {isDemoWorkspace && (
         <div
           className="w-full border-b px-6 py-2 text-center text-[12px] text-ink-soft"
@@ -333,12 +406,11 @@ export default async function WorkspaceRoadmapPage({
                     </p>
                   ) : null}
                   {/* View switcher — client island. Suspense required because
-                      useSearchParams() inside suspends until params are known. */}
-                  <Suspense fallback={null}>
-                    <WorkspaceViewSwitcher
-                      activeView={activeView}
-                      workspaceSlug={workspaceSlug}
-                    />
+                      useSearchParams() inside suspends until params are known.
+                      The static fallback renders the nav in SSR HTML so
+                      no-JS visitors see the tabs immediately. */}
+                  <Suspense fallback={<WorkspaceViewSwitcherStatic workspaceSlug={workspaceSlug} />}>
+                    <WorkspaceViewSwitcher workspaceSlug={workspaceSlug} />
                   </Suspense>
                 </div>
               </div>
@@ -363,19 +435,62 @@ export default async function WorkspaceRoadmapPage({
                 views (Roadmap board / Milestones / Schedule) each carry their
                 own counts in-surface; the band there is redundant and, on the
                 board, contradictory (it counts milestones the lanes exclude). */}
-            {hasItems && activeView === "overview" ? (
-              <div className="mt-8 flex flex-wrap items-end gap-x-8 gap-y-3">
-                <BigStat label="Total" value={counts.total} />
-                <BigStat label="Done" value={counts.shipped} tone="shipped" />
-                <BigStat label="Doing" value={counts.inFlight} tone="flight" />
-                <BigStat label="Next" value={counts.next} />
-                {counts.blocked > 0 ? (
-                  <BigStat label="Blocked" value={counts.blocked} tone="blocked" />
-                ) : null}
-                {counts.refused > 0 ? (
-                  <BigStat label="Won't do" value={counts.refused} tone="refused" />
-                ) : null}
-              </div>
+            {hasItems ? (
+              <Suspense
+                fallback={
+                  // Wrap in data-view-panel="overview" so the pre-paint CSS
+                  // rule hides the stats band when a non-overview view is
+                  // deep-linked — consistent with OverviewOnly on the client.
+                  <OverviewOnlyStatic>
+                    <div
+                      data-view-panel="overview"
+                      className="mt-8 flex flex-wrap items-end gap-x-8 gap-y-3"
+                    >
+                      <BigStat label="Total" value={counts.total} />
+                      <BigStat label="Done" value={counts.shipped} tone="shipped" />
+                      <BigStat label="Doing" value={counts.inFlight} tone="flight" />
+                      <BigStat label="Next" value={counts.next} />
+                      {counts.blocked > 0 ? (
+                        <BigStat
+                          label="Blocked"
+                          value={counts.blocked}
+                          tone="blocked"
+                        />
+                      ) : null}
+                      {counts.refused > 0 ? (
+                        <BigStat
+                          label="Won't do"
+                          value={counts.refused}
+                          tone="refused"
+                        />
+                      ) : null}
+                    </div>
+                  </OverviewOnlyStatic>
+                }
+              >
+                <OverviewOnly>
+                  <div className="mt-8 flex flex-wrap items-end gap-x-8 gap-y-3">
+                    <BigStat label="Total" value={counts.total} />
+                    <BigStat label="Done" value={counts.shipped} tone="shipped" />
+                    <BigStat label="Doing" value={counts.inFlight} tone="flight" />
+                    <BigStat label="Next" value={counts.next} />
+                    {counts.blocked > 0 ? (
+                      <BigStat
+                        label="Blocked"
+                        value={counts.blocked}
+                        tone="blocked"
+                      />
+                    ) : null}
+                    {counts.refused > 0 ? (
+                      <BigStat
+                        label="Won't do"
+                        value={counts.refused}
+                        tone="refused"
+                      />
+                    ) : null}
+                  </div>
+                </OverviewOnly>
+              </Suspense>
             ) : null}
           </div>
         </section>
@@ -383,52 +498,136 @@ export default async function WorkspaceRoadmapPage({
         {/* ── View body ─────────────────────────────────────────────────────── */}
         {!hasItems ? (
           <section className="px-6 py-24 text-center">
-            <div className="mx-auto max-w-md">
+            <div className="mx-auto max-w-md space-y-2">
               <p className="text-[15px] text-ink-soft">
                 Nothing yet. The owner is still drafting.
               </p>
+              <p className="text-[13px] text-ink-quiet">
+                This page stays current as the plan moves — check back, or
+                bookmark it.
+              </p>
             </div>
           </section>
-        ) : activeView === "milestones" ? (
-          milestones.length === 0 ? (
-            <section className="px-6 py-24 text-center">
-              <div className="mx-auto max-w-md">
-                <p className="text-[15px] text-ink-soft">
-                  No milestones yet. The owner is still drafting.
-                </p>
-              </div>
-            </section>
-          ) : (
-            <MilestoneMap milestones={milestoneNodes} projects={projects} />
-          )
-        ) : activeView === "schedule" ? (
-          <ScheduleView
-            tasks={visibleTasks}
-            milestones={milestones}
-            projects={projects}
-            projectMap={projectMap}
-          />
-        ) : activeView === "roadmap" ? (
-          <RoadmapFlow
-            tasks={visibleTasks}
-            projects={projects}
-            milestoneLabels={milestoneLabels}
-          />
         ) : (
-          /* overview — the original full layout */
-          <OverviewView
-            blockers={blockers}
-            milestones={milestones}
-            milestoneScopes={milestoneScopes}
-            projects={projects}
-            projectsWithCounts={projectsWithCounts}
-            projectMap={projectMap}
-            tasksByProject={tasksByProject}
-            milestoneFor={milestoneFor}
-            workspaceSlug={workspaceSlug}
-            upcoming={upcoming}
-            counts={counts}
-          />
+          /* All four views are server-rendered once from the single
+             data fetch above; WorkspaceViewBody (client) shows the one
+             matching ?view=. Suspense is required by useSearchParams.
+             The static fallback renders the overview in SSR HTML so
+             no-JS visitors see the full roadmap content immediately. */
+          <Suspense
+            fallback={
+              // All four view panels are pre-rendered in the SSR HTML.
+              // The pre-paint inline script + CSS selectively shows only
+              // the panel that matches ?view=, so deep-linked views
+              // render immediately without a flash or hydration wait.
+              // No-JS visitors get the overview (safe default).
+              <WorkspaceViewBodyStatic
+                overview={
+                  <OverviewView
+                    blockers={blockers}
+                    milestones={milestones}
+                    milestoneScopes={milestoneScopes}
+                    projects={projects}
+                    projectsWithCounts={projectsWithCounts}
+                    projectMap={projectMap}
+                    tasksByProject={tasksByProject}
+                    milestoneFor={milestoneFor}
+                    workspaceSlug={workspaceSlug}
+                    upcoming={upcoming}
+                    counts={counts}
+                  />
+                }
+                roadmap={
+                  <RoadmapFlow
+                    tasks={visibleTasks}
+                    projects={projects}
+                    milestoneLabels={milestoneLabels}
+                  />
+                }
+                schedule={
+                  <ScheduleView
+                    tasks={visibleTasks}
+                    milestones={milestones}
+                    projects={projects}
+                    projectMap={projectMap}
+                  />
+                }
+                milestones={
+                  milestones.length === 0 ? (
+                    <section className="px-6 py-24 text-center">
+                      <div className="mx-auto max-w-md space-y-2">
+                        <p className="text-[15px] text-ink-soft">
+                          No milestones yet. The owner is still drafting.
+                        </p>
+                        <p className="text-[13px] text-ink-quiet">
+                          This page stays current as the plan moves — check
+                          back, or bookmark it.
+                        </p>
+                      </div>
+                    </section>
+                  ) : (
+                    <MilestoneMap
+                      milestones={milestoneNodes}
+                      projects={projects}
+                    />
+                  )
+                }
+              />
+            }
+          >
+            <WorkspaceViewBody
+              overview={
+                <OverviewView
+                  blockers={blockers}
+                  milestones={milestones}
+                  milestoneScopes={milestoneScopes}
+                  projects={projects}
+                  projectsWithCounts={projectsWithCounts}
+                  projectMap={projectMap}
+                  tasksByProject={tasksByProject}
+                  milestoneFor={milestoneFor}
+                  workspaceSlug={workspaceSlug}
+                  upcoming={upcoming}
+                  counts={counts}
+                />
+              }
+              roadmap={
+                <RoadmapFlow
+                  tasks={visibleTasks}
+                  projects={projects}
+                  milestoneLabels={milestoneLabels}
+                />
+              }
+              schedule={
+                <ScheduleView
+                  tasks={visibleTasks}
+                  milestones={milestones}
+                  projects={projects}
+                  projectMap={projectMap}
+                />
+              }
+              milestones={
+                milestones.length === 0 ? (
+                  <section className="px-6 py-24 text-center">
+                    <div className="mx-auto max-w-md space-y-2">
+                      <p className="text-[15px] text-ink-soft">
+                        No milestones yet. The owner is still drafting.
+                      </p>
+                      <p className="text-[13px] text-ink-quiet">
+                        This page stays current as the plan moves — check
+                        back, or bookmark it.
+                      </p>
+                    </div>
+                  </section>
+                ) : (
+                  <MilestoneMap
+                    milestones={milestoneNodes}
+                    projects={projects}
+                  />
+                )
+              }
+            />
+          </Suspense>
         )}
       </main>
 
@@ -683,159 +882,8 @@ function OverviewView({
               </section>
             ) : null}
 
-            <p className="text-[10.5px] text-ink-faint">
-              Press{" "}
-              <kbd className="rounded border border-line px-1 py-0.5 font-mono text-[10px]">
-                ?
-              </kbd>{" "}
-              for shortcuts
-            </p>
           </div>
         </aside>
-      </div>
-    </div>
-  );
-}
-
-// ── View: Roadmap ─────────────────────────────────────────────────────────────
-// Focused scannable item list — the dated item list grouped by project then
-// week heading, as it renders today, as a named destination. No right rail,
-// no blocker cards. Just the items.
-
-function RoadmapView({
-  projects,
-  projectsWithCounts,
-  tasksByProject,
-  projectMap,
-  milestoneFor,
-  workspaceSlug,
-}: {
-  projects: Project[];
-  projectsWithCounts: ProjectWithCounts[];
-  projectMap: Map<string, Project>;
-  tasksByProject: Map<string, Task[]>;
-  milestoneFor: (t: Task) => string | null;
-  workspaceSlug: string;
-}) {
-  return (
-    <div className="mx-auto w-full max-w-[1240px] px-6 py-10">
-      {/* Project cards when multiple */}
-      {projects.length > 1 ? (
-        <section className="mb-10">
-          <h2 className="mb-5 text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-quiet">
-            Projects
-          </h2>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {projectsWithCounts.map((p) => (
-              <ProjectCard
-                key={p.slug}
-                project={p}
-                workspaceSlug={workspaceSlug}
-              />
-            ))}
-          </div>
-        </section>
-      ) : null}
-
-      <ItemListByProject
-        projects={projects}
-        tasksByProject={tasksByProject}
-        milestoneFor={milestoneFor}
-        workspaceSlug={workspaceSlug}
-      />
-    </div>
-  );
-}
-
-// ── View: Milestones ──────────────────────────────────────────────────────────
-// Milestone cards promoted to the full body — progress bars + T-N countdowns
-// + items owned by each milestone listed below the card.
-
-function MilestonesView({
-  milestones,
-  milestoneScopes,
-  projectMap,
-  allTasks,
-  workspaceSlug,
-}: {
-  milestones: Task[];
-  milestoneScopes: { inScope: number; shipped: number }[];
-  projectMap: Map<string, Project>;
-  allTasks: Task[];
-  workspaceSlug: string;
-}) {
-  if (milestones.length === 0) {
-    return (
-      <section className="px-6 py-24 text-center">
-        <div className="mx-auto max-w-md">
-          <p className="text-[15px] text-ink-soft">
-            No milestones yet. The owner is still drafting.
-          </p>
-        </div>
-      </section>
-    );
-  }
-
-  return (
-    <div className="mx-auto w-full max-w-[1240px] px-6 py-10">
-      <div className="space-y-10">
-        {milestones.map((m, i) => {
-          const proj = projectMap.get(m.projectSlug);
-          const scope = milestoneScopes[i];
-
-          // Items that fall under this milestone: non-refused, non-milestone
-          // tasks with a date on or before m.targetDate. Undated milestones
-          // show all non-refused tasks.
-          const ownedItems = allTasks.filter((t) => {
-            if (t.status === "refused") return false;
-            if (t.kind === "milestone" || t.isLaunch) return false;
-            if (!m.targetDate) return true;
-            if (!t.targetDate) return false;
-            return t.targetDate <= m.targetDate!;
-          });
-
-          return (
-            <section key={m.id}>
-              {/* Milestone card — full width */}
-              <div className="mb-4 sm:max-w-xl">
-                <MilestoneCard
-                  milestone={m}
-                  workspaceSlug={workspaceSlug}
-                  projectAccent={proj?.accent ?? "var(--brand)"}
-                  progress={
-                    scope.inScope > 0 ? scope.shipped / scope.inScope : 0
-                  }
-                  itemsInScope={scope.inScope}
-                  itemsShipped={scope.shipped}
-                />
-              </div>
-
-              {/* Owned items */}
-              {ownedItems.length > 0 ? (
-                <div>
-                  <div className="mb-2 text-[10.5px] font-semibold uppercase tracking-[0.14em] text-ink-quiet">
-                    Items toward this milestone
-                  </div>
-                  <ul className="overflow-hidden rounded-xl border border-line-soft">
-                    {ownedItems.map((t) => {
-                      const itemProj = projectMap.get(t.projectSlug);
-                      return (
-                        <ItemRow
-                          key={t.id}
-                          task={t}
-                          workspaceSlug={workspaceSlug}
-                          projectAccent={itemProj?.accent ?? "var(--brand)"}
-                          projectName={itemProj?.name ?? t.projectSlug}
-                          showProject={true}
-                        />
-                      );
-                    })}
-                  </ul>
-                </div>
-              ) : null}
-            </section>
-          );
-        })}
       </div>
     </div>
   );

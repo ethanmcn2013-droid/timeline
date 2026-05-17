@@ -186,6 +186,17 @@ export default function AboutPage() {
               See it live
             </Link>
           </div>
+          <p className="mt-5 text-[13px]" style={{ color: "var(--ink-quiet)" }}>
+            Free to start.{" "}
+            <a
+              href="https://signalstudio.ie/pricing"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline underline-offset-2 transition-colors hover:text-ink"
+            >
+              See all plans ↗
+            </a>
+          </p>
         </div>
       </main>
 

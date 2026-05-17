@@ -195,9 +195,12 @@ export function SuiteLauncher({ current }: { current: ProductSlug }) {
                 <li key={p.slug}>
                   <a
                     href={p.url}
-                    onMouseEnter={
-                      isCurrent ? undefined : () => prefetchProduct(p.url)
-                    }
+                    onMouseEnter={(e) => {
+                      if (isCurrent) return;
+                      prefetchProduct(p.url);
+                      e.currentTarget.style.background =
+                        "color-mix(in srgb, var(--ink) 5%, transparent)";
+                    }}
                     onFocus={
                       isCurrent ? undefined : () => prefetchProduct(p.url)
                     }
@@ -233,11 +236,6 @@ export function SuiteLauncher({ current }: { current: ProductSlug }) {
                         ? "color-mix(in srgb, var(--ink) 4%, transparent)"
                         : "transparent",
                       transition: "background 120ms",
-                    }}
-                    onMouseEnter={(e) => {
-                      if (!isCurrent)
-                        e.currentTarget.style.background =
-                          "color-mix(in srgb, var(--ink) 5%, transparent)";
                     }}
                     onMouseLeave={(e) => {
                       if (!isCurrent)

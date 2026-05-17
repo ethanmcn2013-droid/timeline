@@ -91,6 +91,8 @@ export function CreateProjectForm({
           placeholder="mobile-app-v2"
           value={slug}
           onChange={handleSlugChange}
+          aria-describedby="proj-slug-feedback"
+          aria-invalid={slug ? !slugOk : undefined}
           className="rounded-lg border px-3.5 py-2.5 text-sm outline-none"
           style={{
             background: "var(--bg-elev)",
@@ -98,15 +100,29 @@ export function CreateProjectForm({
             color: "var(--ink)",
           }}
         />
-        {slug && !slugOk && (
-          <p className="text-xs" style={{ color: "var(--status-blocked)" }}>
-            3–32 chars, lowercase letters/numbers/hyphens.
-          </p>
-        )}
+        <p
+          id="proj-slug-feedback"
+          aria-live="polite"
+          className="text-xs"
+          style={{
+            color: !slug
+              ? "var(--ink-quiet)"
+              : slugOk
+                ? "var(--status-done)"
+                : "var(--status-blocked)",
+          }}
+        >
+          {!slug
+            ? "Auto-filled from the name. 3–32 chars, lowercase."
+            : slugOk
+              ? "Looks good."
+              : "3–32 chars, lowercase letters/numbers/hyphens."}
+        </p>
       </div>
 
       {state.error && (
         <p
+          role="alert"
           className="rounded-lg border px-3.5 py-2.5 text-sm"
           style={{
             color: "var(--roadmap-red-fg)",

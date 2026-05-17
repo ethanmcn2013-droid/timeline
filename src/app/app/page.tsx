@@ -80,10 +80,11 @@ export default async function AppPage() {
                 <Link
                   key={p.slug}
                   href={`/app/source/${p.slug}`}
-                  className="flex items-center justify-between rounded-xl border px-4 py-3.5 transition-colors hover:border-indigo-300"
+                  className="flex items-center justify-between rounded-xl border px-4 py-3.5 hover:border-indigo-300"
                   style={{
                     background: "var(--bg-elev)",
                     borderColor: "var(--border)",
+                    transition: "border-color var(--motion-base) var(--ease-standard)",
                   }}
                 >
                   <div>
@@ -143,10 +144,11 @@ function EmptyProjects({ workspaceSlug }: { workspaceSlug: string }) {
         className="mb-1 text-sm font-medium"
         style={{ color: "var(--ink-soft)" }}
       >
-        No projects yet.
+        Add your first project
       </p>
-      <p className="mb-6 text-sm" style={{ color: "var(--ink-quiet)" }}>
-        A project is one roadmap — one plan, one slice of work.
+      <p className="mb-6 text-sm leading-relaxed" style={{ color: "var(--ink-quiet)" }}>
+        A project is one roadmap — one plan, one slice of work. Name it, paste
+        in what you&apos;re doing, and you&apos;ll have a public link to share.
       </p>
       <CreateProjectForm workspaceSlug={workspaceSlug} />
     </div>

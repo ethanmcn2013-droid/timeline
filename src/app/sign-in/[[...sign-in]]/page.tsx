@@ -21,7 +21,7 @@ export default function SignInPage() {
         <p className="mt-5 text-[13px]" style={{ color: "var(--ink-quiet)" }}>
           New here?{" "}
           <Link
-            href="/tasks"
+            href="/demo"
             className="underline underline-offset-2 transition-colors hover:text-ink-soft"
           >
             See a live demo first →

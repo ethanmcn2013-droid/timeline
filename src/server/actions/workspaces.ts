@@ -16,7 +16,15 @@ import {
 } from "@/server/db/queries";
 import { isValidSlug, slugify } from "@/lib/reserved-slugs";
 import { parseMarkdown } from "@/server/parser/parse-markdown";
-import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
+import { checkRateLimit, getClientIp, type RateLimitResult } from "@/lib/rate-limit";
+
+/** Translate a denied RateLimitResult into the correct user-facing error string. */
+function rateLimitError(result: RateLimitResult & { allowed: false }): string {
+  if (result.reason === "config-miss") {
+    return "This isn't available right now. Try again shortly.";
+  }
+  return "Too many requests. Try again later.";
+}
 import { getSyncedTemplateRoadmap } from "@/lib/templates.generated";
 import { resolveEntitlement } from "@/lib/entitlements-shared/reads";
 import { tierAtLeast } from "@/lib/entitlements-shared/tiers";
@@ -75,8 +83,8 @@ export async function createWorkspaceAction(
 
   // Rate limit: 5 workspace creations per IP per hour
   const ip = await getClientIp();
-  const allowed = await checkRateLimit("create-workspace", ip, 5, 3600);
-  if (!allowed) return { error: "Too many requests. Try again later." };
+  const rlResult = await checkRateLimit("create-workspace", ip, 5, 3600);
+  if (!rlResult.allowed) return { error: rateLimitError(rlResult) };
 
   const name = (formData.get("name") as string | null)?.trim() ?? "";
   const slug = (formData.get("slug") as string | null)?.trim() ?? "";
@@ -162,8 +170,8 @@ export async function createProjectAction(
   // and saveProjectSourceAction are both limited; this was the only
   // state-mutating action without a cap (reviewer P1, 2026-05-15).
   const ip = await getClientIp();
-  const allowed = await checkRateLimit("create-project", ip, 20, 3600);
-  if (!allowed) return { error: "Too many requests. Try again later." };
+  const rlResult = await checkRateLimit("create-project", ip, 20, 3600);
+  if (!rlResult.allowed) return { error: rateLimitError(rlResult) };
 
   // Verify user owns this workspace
   const workspace = await getWorkspace(workspaceSlug);
@@ -212,8 +220,8 @@ export async function saveProjectSourceAction(
 
   // Rate limit: 30 source saves per IP per 10 minutes (generous for iterating)
   const ip = await getClientIp();
-  const allowed = await checkRateLimit("save-source", ip, 30, 600);
-  if (!allowed) return { error: "Too many requests. Try again in a few minutes." };
+  const rlResult = await checkRateLimit("save-source", ip, 30, 600);
+  if (!rlResult.allowed) return { error: rateLimitError(rlResult) };
 
   // Verify ownership
   const workspace = await getWorkspace(workspaceSlug);

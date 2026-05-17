@@ -1,11 +1,9 @@
 "use client";
 
-import { useRouter, useSearchParams } from "next/navigation";
-import { LayoutGroup, motion } from "motion/react";
+import { useSearchParams } from "next/navigation";
 import type { WorkspaceView } from "@/components/showcase/types";
 
-// The four public views. "Schedule" is the gated fast-follow (P5) — items on
-// a real month axis by targetDate. Order here is the tab order.
+// The four public views. Order here is the tab order.
 const VIEWS: { id: WorkspaceView; label: string }[] = [
   { id: "overview", label: "Overview" },
   { id: "roadmap", label: "Roadmap" },
@@ -13,9 +11,66 @@ const VIEWS: { id: WorkspaceView; label: string }[] = [
   { id: "schedule", label: "Schedule" },
 ];
 
+/**
+ * Server-safe (no useSearchParams) version of the view switcher.
+ * Used as the Suspense fallback so the nav renders in SSR HTML and is
+ * visible without JavaScript.
+ *
+ * The SSR output defaults to Overview as the active tab (correct for the
+ * no-JS / no-param case). An inline script (injected early in the page)
+ * reads `location.search` before first paint and corrects both `aria-current`
+ * and the visual active-pill style on the matching `data-view-tab` anchor —
+ * so a deep-linked `?view=schedule` URL shows "Schedule" as active
+ * immediately with correct WCAG 4.1.2 semantics, before hydration.
+ *
+ * The client version (WorkspaceViewSwitcher) takes over once JS hydrates.
+ */
+export function WorkspaceViewSwitcherStatic({
+  workspaceSlug,
+}: {
+  workspaceSlug: string;
+}) {
+  function hrefFor(view: WorkspaceView): string {
+    if (view === "overview") return `/${workspaceSlug}`;
+    return `/${workspaceSlug}?view=${view}`;
+  }
+
+  return (
+    <nav aria-label="Workspace view">
+      <div
+        className="relative inline-flex items-center gap-0.5 rounded-full border p-0.5"
+        style={{
+          borderColor: "var(--border-soft)",
+          background: "var(--bg-elev)",
+        }}
+      >
+        {VIEWS.map((item) => {
+          // SSR default: overview is active. The inline pre-paint script
+          // corrects aria-current + visual state for other deep-linked views
+          // before the browser renders the first frame.
+          const isActive = item.id === "overview";
+          return (
+            <a
+              key={item.id}
+              href={hrefFor(item.id)}
+              aria-current={isActive ? "page" : undefined}
+              data-view-tab={item.id}
+              className="view-switcher-link relative inline-flex items-center rounded-full px-3 py-1 text-[11px] font-medium"
+              style={{
+                color: isActive ? "#ffffff" : "var(--ink-quiet)",
+                background: isActive ? "var(--ink)" : "transparent",
+              }}
+            >
+              {item.label}
+            </a>
+          );
+        })}
+      </div>
+    </nav>
+  );
+}
+
 type Props = {
-  /** Current active view, derived server-side from the ?view= param. */
-  activeView: WorkspaceView;
   /** The workspace slug, used to construct the URL. */
   workspaceSlug: string;
 };
@@ -25,34 +80,34 @@ type Props = {
  * Sits in the workspace hero header row near "Last updated".
  * Active pill: bg-ink text-white. Inactive: border-only.
  *
- * Implemented as a client island — reads and writes ?view= search param.
- * All view data is fetched server-side in a single pass; switching views
- * only changes which slice of that data renders (no extra fetches).
- * ISR (revalidate=300) is preserved: the page is NOT made dynamic.
+ * Implemented as plain anchor links pointing at ?view=<id> so it works
+ * without JavaScript and is correctly indexable. The server reads the
+ * ?view= param via WorkspaceViewBody (client), which keeps ISR intact —
+ * the route still caches by pathname only.
  *
- * Navigation uses router.push with shallow=false (default) so the server
- * component re-renders with the new searchParam but the fetch is cached.
+ * aria-current="page" marks the active link. No role=tablist/tab: those
+ * roles require a true in-place tabpanel contract (aria-controls, JS-only
+ * panel swap) — this switcher changes the URL, not a panel, so nav links
+ * are the correct semantic.
  */
-export function WorkspaceViewSwitcher({ activeView, workspaceSlug }: Props) {
-  const router = useRouter();
+export function WorkspaceViewSwitcher({ workspaceSlug }: Props) {
   const searchParams = useSearchParams();
+  const rawView = searchParams.get("view");
+  const activeView: WorkspaceView =
+    rawView === "roadmap" ||
+    rawView === "milestones" ||
+    rawView === "schedule"
+      ? rawView
+      : "overview";
 
-  function handleSwitch(view: WorkspaceView) {
-    const params = new URLSearchParams(searchParams.toString());
-    if (view === "overview") {
-      params.delete("view");
-    } else {
-      params.set("view", view);
-    }
-    const query = params.toString();
-    router.push(`/${workspaceSlug}${query ? `?${query}` : ""}`, { scroll: false });
+  function hrefFor(view: WorkspaceView): string {
+    if (view === "overview") return `/${workspaceSlug}`;
+    return `/${workspaceSlug}?view=${view}`;
   }
 
   return (
-    <LayoutGroup id="workspace-view-switcher">
+    <nav aria-label="Workspace view">
       <div
-        role="tablist"
-        aria-label="View"
         className="relative inline-flex items-center gap-0.5 rounded-full border p-0.5"
         style={{
           borderColor: "var(--border-soft)",
@@ -62,33 +117,21 @@ export function WorkspaceViewSwitcher({ activeView, workspaceSlug }: Props) {
         {VIEWS.map((item) => {
           const isActive = item.id === activeView;
           return (
-            <button
+            <a
               key={item.id}
-              role="tab"
-              aria-selected={isActive}
-              onClick={() => handleSwitch(item.id)}
-              className="relative inline-flex items-center rounded-full px-3 py-1 text-[11px] font-medium transition-colors"
+              href={hrefFor(item.id)}
+              aria-current={isActive ? "page" : undefined}
+              className="view-switcher-link relative inline-flex items-center rounded-full px-3 py-1 text-[11px] font-medium"
               style={{
                 color: isActive ? "#ffffff" : "var(--ink-quiet)",
+                background: isActive ? "var(--ink)" : "transparent",
               }}
             >
-              {isActive ? (
-                <motion.span
-                  layoutId="workspace-view-switcher-pill"
-                  className="absolute inset-0 rounded-full"
-                  style={{ background: "var(--ink)" }}
-                  transition={{
-                    type: "spring",
-                    stiffness: 380,
-                    damping: 30,
-                  }}
-                />
-              ) : null}
-              <span className="relative z-10">{item.label}</span>
-            </button>
+              {item.label}
+            </a>
           );
         })}
       </div>
-    </LayoutGroup>
+    </nav>
   );
 }
