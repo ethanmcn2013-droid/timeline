@@ -856,7 +856,7 @@ function OverviewView({
                             {t.title}
                           </span>
                           <span className="text-[10.5px] tabular-nums text-ink-quiet">
-                            {t.targetDate?.slice(5)}
+                            {t.targetDate ? formatShortDate(t.targetDate) : null}
                             {proj ? ` · ${proj.name}` : null}
                           </span>
                         </Link>

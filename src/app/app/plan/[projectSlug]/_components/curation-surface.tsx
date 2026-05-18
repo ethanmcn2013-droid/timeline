@@ -16,7 +16,7 @@
 import { useState, useTransition, useRef, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import type { EffectiveNode } from "@/server/db/queries";
-import { upsertNodeOverlayAction, syncMilestonesAction } from "@/server/actions/workspaces";
+import { upsertNodeOverlayAction, syncMilestonesAction, reorderNodesAction } from "@/server/actions/workspaces";
 
 const LANE_LABELS = ["Next", "In flight", "Shipped", "Later"] as const;
 type LaneLabel = typeof LANE_LABELS[number];
@@ -117,6 +117,9 @@ function NodeCard({
   onDragStart,
   onDragOver,
   onDrop,
+  onPointerDragStart,
+  onPointerDragOver,
+  onPointerDrop,
   isDraggingOver,
 }: {
   node: EffectiveNode;
@@ -125,6 +128,9 @@ function NodeCard({
   onDragStart: (id: string) => void;
   onDragOver: (id: string) => void;
   onDrop: (targetId: string) => void;
+  onPointerDragStart: (id: string) => void;
+  onPointerDragOver: (id: string) => void;
+  onPointerDrop: (targetId: string) => void;
   isDraggingOver: boolean;
 }) {
   const [editingTitle, setEditingTitle] = useState(false);
@@ -181,6 +187,7 @@ function NodeCard({
 
   return (
     <div
+      data-node-id={node.id}
       draggable
       onDragStart={() => onDragStart(node.id)}
       onDragOver={(e) => { e.preventDefault(); onDragOver(node.id); }}
@@ -199,9 +206,30 @@ function NodeCard({
       }}
     >
       <div style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
-        {/* Drag handle */}
+        {/* Drag handle — BV-1: Pointer Events for mouse+touch+pen (iOS Safari) */}
         <span
           aria-hidden
+          onPointerDown={(e) => {
+            // Only primary button / first touch
+            if (e.pointerType === "mouse" && e.button !== 0) return;
+            e.currentTarget.setPointerCapture(e.pointerId);
+            onPointerDragStart(node.id);
+          }}
+          onPointerMove={(e) => {
+            if (e.buttons === 0 && e.pointerType === "mouse") return;
+            // Find the element under the pointer (excluding the handle itself)
+            const target = document.elementFromPoint(e.clientX, e.clientY);
+            const card = target?.closest("[data-node-id]");
+            const targetId = card?.getAttribute("data-node-id");
+            if (targetId && targetId !== node.id) onPointerDragOver(targetId);
+          }}
+          onPointerUp={(e) => {
+            const target = document.elementFromPoint(e.clientX, e.clientY);
+            const card = target?.closest("[data-node-id]");
+            const targetId = card?.getAttribute("data-node-id");
+            if (targetId && targetId !== node.id) onPointerDrop(targetId);
+            else onPointerDrop(node.id); // dropped on self — no-op in handler
+          }}
           style={{
             flexShrink: 0,
             marginTop: 4,
@@ -211,6 +239,7 @@ function NodeCard({
             fontSize: 10,
             letterSpacing: "0.1em",
             userSelect: "none",
+            touchAction: "none", // required for Pointer Events on touch (iOS Safari)
           }}
         >
           ⠿
@@ -721,7 +750,11 @@ export function CurationSurface({
   const [savedAt, setSavedAt] = useState<number | null>(null);
   const savedTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   // Drag-to-reorder state (UX-1)
+  // HTML5 drag (mouse/desktop) and Pointer Events drag (touch/iOS Safari) share
+  // the same reorder logic; pointer state kept in a separate ref so the two
+  // paths don't interfere when a non-touch device fires both event sequences.
   const dragNodeId = useRef<string | null>(null);
+  const pointerDragNodeId = useRef<string | null>(null);
   const [dragOverId, setDragOverId] = useState<string | null>(null);
 
   // UX-2: router.refresh() instead of window.location.reload()
@@ -758,7 +791,40 @@ export function CurationSurface({
   // after a publish, even if the page was reloaded.
   const lsKey = `roadmap-publish-celebrated-${workspaceSlug}`;
 
-  // Drag-to-reorder handlers
+  // ── Shared reorder logic ────────────────────────────────────────────────────
+  // Used by both HTML5 drag and Pointer Events paths. Computes the new order,
+  // updates optimistic state, then batch-writes ALL sortOverride values (BV-2).
+
+  function applyReorder(sourceId: string, targetId: string) {
+    if (!sourceId || sourceId === targetId) return;
+
+    const ordered = [...nodes];
+    const srcIdx = ordered.findIndex((n) => n.id === sourceId);
+    const tgtIdx = ordered.findIndex((n) => n.id === targetId);
+    if (srcIdx < 0 || tgtIdx < 0) return;
+
+    const [moved] = ordered.splice(srcIdx, 1);
+    const insertAt = ordered.findIndex((n) => n.id === targetId);
+    ordered.splice(insertAt, 0, moved);
+
+    // Assign sortOverride 0..n for the full list
+    const updated = ordered.map((n, i) => ({ ...n, sortOrder: i }));
+    setNodes(updated);
+
+    // BV-2: batch-write ALL sibling sortOverrides so reload order is deterministic.
+    // reorderNodesAction writes every node in the ordered list, not just the moved one.
+    startTransition(async () => {
+      await reorderNodesAction(
+        workspaceSlug,
+        projectSlug,
+        updated.map((n) => n.id),
+      );
+      flashSaved();
+    });
+  }
+
+  // ── HTML5 drag handlers (mouse / desktop) ───────────────────────────────────
+
   function handleDragStart(id: string) {
     dragNodeId.current = id;
   }
@@ -771,34 +837,28 @@ export function CurationSurface({
     const sourceId = dragNodeId.current;
     dragNodeId.current = null;
     setDragOverId(null);
-    if (!sourceId || sourceId === targetId) return;
+    if (!sourceId) return;
+    applyReorder(sourceId, targetId);
+  }
 
-    // Compute new sort order: within-lane reorder.
-    // Build ordered flat list, move source to just before target, assign sortOverride.
-    const ordered = [...nodes];
-    const srcIdx = ordered.findIndex((n) => n.id === sourceId);
-    const tgtIdx = ordered.findIndex((n) => n.id === targetId);
-    if (srcIdx < 0 || tgtIdx < 0) return;
+  // ── Pointer Events handlers (touch / iOS Safari / pen) ─────────────────────
+  // BV-1: touch-action:none on the handle stops the browser scroll chain,
+  // enabling setPointerCapture to route all pointer events to the handle.
 
-    const [moved] = ordered.splice(srcIdx, 1);
-    const insertAt = ordered.findIndex((n) => n.id === targetId);
-    ordered.splice(insertAt, 0, moved);
+  function handlePointerDragStart(id: string) {
+    pointerDragNodeId.current = id;
+  }
 
-    // Assign sortOverride values (0-based index)
-    const updated = ordered.map((n, i) => ({ ...n, sortOrder: i }));
-    setNodes(updated);
+  function handlePointerDragOver(id: string) {
+    if (id !== pointerDragNodeId.current) setDragOverId(id);
+  }
 
-    // Persist sortOverride for the dragged node via server action
-    startTransition(async () => {
-      const srcNode = updated.find((n) => n.id === sourceId);
-      if (srcNode) {
-        await upsertNodeOverlayAction(workspaceSlug, {
-          nodeId: sourceId,
-          sortOverride: srcNode.sortOrder,
-        });
-        flashSaved();
-      }
-    });
+  function handlePointerDrop(targetId: string) {
+    const sourceId = pointerDragNodeId.current;
+    pointerDragNodeId.current = null;
+    setDragOverId(null);
+    if (!sourceId) return;
+    applyReorder(sourceId, targetId);
   }
 
   // Group by lane for display
@@ -1005,6 +1065,9 @@ export function CurationSurface({
                       onDragStart={handleDragStart}
                       onDragOver={handleDragOver}
                       onDrop={handleDrop}
+                      onPointerDragStart={handlePointerDragStart}
+                      onPointerDragOver={handlePointerDragOver}
+                      onPointerDrop={handlePointerDrop}
                       isDraggingOver={dragOverId === node.id}
                     />
                   ))}

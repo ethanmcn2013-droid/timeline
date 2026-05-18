@@ -17,6 +17,7 @@ import {
   isWorkspacePublished,
   writeRoadmapNodes,
   upsertNodeOverlay,
+  batchUpsertNodeSortOrders,
   type NodeOverlayInput,
 } from "@/server/db/queries";
 import { isValidSlug, slugify } from "@/lib/reserved-slugs";
@@ -291,6 +292,45 @@ export async function upsertNodeOverlayAction(
 }
 
 // ---------------------------------------------------------------------------
+// Reorder nodes (BV-2: batch-write ALL sibling sortOverride values)
+// ---------------------------------------------------------------------------
+
+export type ReorderNodesResult = { ok: true } | { error: string };
+
+/**
+ * Persist the full ordered node list after a drag-drop.
+ *
+ * Writes sortOverride for EVERY node in the lane — not just the moved node —
+ * so reload order is deterministic regardless of the Tasks-side sortOrder
+ * values. Fixes the BV-2 defect where sibling nodes reverted to Tasks DB
+ * order on the next page load.
+ *
+ * D6 invariant: revalidates only /app (dashboard) and /app/plan/… (curation
+ * view). Never touches /{workspaceSlug} — publish remains the only gate.
+ */
+export async function reorderNodesAction(
+  workspaceSlug: string,
+  projectSlug: string,
+  orderedNodeIds: string[],
+): Promise<ReorderNodesResult> {
+  const userId = await requireUser();
+
+  const workspace = await getWorkspace(workspaceSlug);
+  if (!workspace || workspace.ownerUserId !== userId) {
+    return { error: "Workspace not found." };
+  }
+
+  const entries = orderedNodeIds.map((nodeId, i) => ({ nodeId, sortOverride: i }));
+  await batchUpsertNodeSortOrders(workspaceSlug, entries);
+
+  // Revalidate private curation view only — D6 invariant preserved
+  revalidatePath("/app");
+  revalidatePath(`/app/plan/${projectSlug}`);
+
+  return { ok: true };
+}
+
+// ---------------------------------------------------------------------------
 // Publish / Unpublish workspace
 // ---------------------------------------------------------------------------
 
@@ -357,6 +397,11 @@ export async function unpublishWorkspaceAction(
   revalidatePath(`/${workspaceSlug}`);
   return { ok: true };
 }
+
+// D6 two-gate path contracts re-exported from revalidation-contracts.ts (BV-4).
+// The pure helpers live in a separate file so the test runner can import them
+// without pulling in next/cache or other server-only modules.
+export { syncRevalidationPaths, publishRevalidationPaths } from "./revalidation-contracts";
 
 // ---------------------------------------------------------------------------
 // Comments removed 2026-05-12 — Suite Review T3 decision. The locked

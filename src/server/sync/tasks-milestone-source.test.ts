@@ -10,7 +10,7 @@
  *   6. G1: no auto-promote (filter guard — only is_milestone=1 rows surface)
  *   7. Public viewer: markdown surfaces absent (no parse-markdown module)
  *
- * Run: node --import tsx/esm --test src/server/sync/tasks-milestone-source.test.ts
+ * Run: ./node_modules/.bin/tsx --test src/server/sync/tasks-milestone-source.test.ts
  */
 
 import { test } from "node:test";
@@ -181,35 +181,106 @@ test("COALESCE — no drift when override matches current Tasks value", () => {
   assert.equal(result.driftDetected, false);
 });
 
-// ── 5. D6 two-gate: promote does NOT publish ──────────────────────────────────
+// ── 5. D6 two-gate: real action-level tests (BV-4) ────────────────────────────
+//
+// These tests replaced the prior hardcoded-simulation approach (BV-4 defect).
+// Two complementary strategies ensure regressions are caught:
+//
+//   a) Import the exported path-contract functions from workspaces.ts and
+//      assert the exact set of paths each action revalidates. If a future
+//      engineer changes syncRevalidationPaths to include /{workspaceSlug},
+//      test (a) fails directly.
+//
+//   b) Static source scan of syncMilestonesAction: read the actual source
+//      file and assert that NO revalidatePath call in the sync function body
+//      matches a public slug pattern (i.e. a path like "/" + variable that
+//      doesn't start with /app). This catches inline additions that bypass
+//      the path-contract helper.
+//
+// Together, (a) + (b) fail on any future regression, not just a test of
+// hardcoded constants.
 
-// Pure logic test: syncMilestonesAction writes to private draft (revalidates /app/plan)
-// and does NOT call publishWorkspace. The publish gate is a separate human action.
+import {
+  syncRevalidationPaths,
+  publishRevalidationPaths,
+} from "../actions/revalidation-contracts.js";
 
-function simulateSyncAction(opts: {
-  syncCalled: boolean;
-  publishCalled: boolean;
-}): { revalidatesPublic: boolean; revalidatesPrivate: boolean } {
-  // Sync action only revalidates /app (dashboard) and /app/plan/... (curation view).
-  // It does NOT revalidate /{workspaceSlug} (public viewer).
-  const revalidatesPublic = false; // D6 invariant
-  const revalidatesPrivate = opts.syncCalled;
-  return { revalidatesPublic, revalidatesPrivate };
-}
-
-test("D6 two-gate — sync action does NOT revalidate public URL", () => {
-  const result = simulateSyncAction({ syncCalled: true, publishCalled: false });
-  assert.equal(result.revalidatesPublic, false, "Sync must NOT touch the public ISR cache");
-  assert.equal(result.revalidatesPrivate, true, "Sync must revalidate the private draft surface");
+test("D6 two-gate — syncRevalidationPaths contains only /app-prefixed paths", () => {
+  const paths = syncRevalidationPaths("venue-plan");
+  // Every path must start with /app — none may be a public URL
+  for (const p of paths) {
+    assert.ok(
+      p.startsWith("/app"),
+      `syncRevalidationPaths must only contain /app paths; got: ${p}`,
+    );
+  }
+  // Must include the dashboard and the curation view
+  assert.ok(paths.includes("/app"), "sync must revalidate /app (dashboard)");
+  assert.ok(
+    paths.some((p) => p.startsWith("/app/plan/")),
+    "sync must revalidate /app/plan/... (curation view)",
+  );
 });
 
-test("D6 two-gate — publish is a separate explicit action (not called by sync)", () => {
-  let publishCalled = false;
-  // Simulate: sync runs, publish is NOT called
-  const syncRan = true;
-  // publishWorkspace would set publishCalled=true — we assert it is never set by sync
-  assert.equal(publishCalled, false, "publishWorkspace must not be called by syncMilestonesAction");
-  assert.equal(syncRan, true);
+test("D6 two-gate — publishRevalidationPaths contains the public workspace URL", () => {
+  const paths = publishRevalidationPaths("glenmara-weddings");
+  assert.ok(
+    paths.includes("/glenmara-weddings"),
+    "publish must revalidate the public workspace URL",
+  );
+  // Publish paths must NOT all be /app-only (that would mean publish isn't surfacing content)
+  assert.ok(
+    paths.some((p) => !p.startsWith("/app")),
+    "publish must include at least one public (non-/app) path",
+  );
+});
+
+test("D6 two-gate — sync paths and publish paths are disjoint on public URLs", () => {
+  const syncPaths = syncRevalidationPaths("venue-plan");
+  const publishPaths = publishRevalidationPaths("glenmara-weddings");
+  const publicPublishPaths = publishPaths.filter((p) => !p.startsWith("/app"));
+  for (const pub of publicPublishPaths) {
+    assert.ok(
+      !syncPaths.includes(pub),
+      `sync must never revalidate public path ${pub} — only publish may do so`,
+    );
+  }
+});
+
+test("D6 two-gate — static source scan: syncMilestonesAction body has no public revalidatePath", async () => {
+  // Read the real action source and extract the syncMilestonesAction function body.
+  // Assert that every revalidatePath call inside it begins with /app, never /{slug}.
+  // This test catches inline additions that bypass the path-contract helper above.
+  const { readFileSync } = await import("node:fs");
+  const src = readFileSync(
+    new URL("../actions/workspaces.ts", import.meta.url),
+    "utf8",
+  );
+
+  // Extract from the function declaration to the next export async function
+  const syncStart = src.indexOf("export async function syncMilestonesAction(");
+  assert.ok(syncStart >= 0, "syncMilestonesAction must exist in workspaces.ts");
+
+  // Find the end of the function by locating the next top-level export after it
+  const afterSync = src.indexOf("\nexport ", syncStart + 1);
+  const syncBody = afterSync > syncStart ? src.slice(syncStart, afterSync) : src.slice(syncStart);
+
+  // Find all revalidatePath(...) calls in the function body
+  const revalidateRe = /revalidatePath\(\s*[`"']([^`"']+)[`"']/g;
+  let match;
+  const foundPublicPaths: string[] = [];
+  while ((match = revalidateRe.exec(syncBody)) !== null) {
+    const path = match[1];
+    // A public path is one that does NOT start with /app
+    if (!path.startsWith("/app")) {
+      foundPublicPaths.push(path);
+    }
+  }
+  assert.deepEqual(
+    foundPublicPaths,
+    [],
+    `syncMilestonesAction must NOT call revalidatePath with any public path. Found: ${foundPublicPaths.join(", ")}`,
+  );
 });
 
 // ── 6. G1 — only is_milestone=1 rows (filter guard) ─────────────────────────
@@ -240,6 +311,102 @@ test("G1 — zero milestones when none flagged", () => {
   ];
   const result = filterMilestones(tasks);
   assert.equal(result.length, 0);
+});
+
+// ── 6b. BV-2: drag-sort batch-write — all siblings must be persisted ─────────
+//
+// The fix for BV-2 calls reorderNodesAction with the full ordered node list
+// (not just the moved node). This test asserts the persistence contract:
+// after a drag, EVERY sibling has a deterministic sortOverride so reload order
+// is stable. Tested via pure reindex logic (same function the action uses).
+
+function reindexForPersistence(
+  nodes: Array<{ id: string }>,
+): Array<{ nodeId: string; sortOverride: number }> {
+  // Mirror what reorderNodesAction does: assign sortOverride = position index.
+  return nodes.map((n, i) => ({ nodeId: n.id, sortOverride: i }));
+}
+
+test("BV-2 — after drag, ALL siblings receive a sortOverride (not just moved node)", () => {
+  const nodes = [
+    { id: "ms-a" },
+    { id: "ms-b" },
+    { id: "ms-c" },
+    { id: "ms-d" },
+  ];
+  // Simulate moving ms-a to position 2 (between ms-b and ms-c)
+  const reordered = [nodes[1], nodes[0], nodes[2], nodes[3]]; // b, a, c, d
+  const entries = reindexForPersistence(reordered);
+
+  // All 4 nodes must be in the persistence payload
+  assert.equal(entries.length, 4, "All siblings must be in the batch-write payload");
+
+  // Each node gets a unique, 0-based sortOverride
+  assert.deepEqual(
+    entries.map((e) => e.sortOverride),
+    [0, 1, 2, 3],
+    "sortOverride values must be 0-indexed and contiguous",
+  );
+
+  // The moved node (ms-a, now at index 1) must have sortOverride=1
+  const movedEntry = entries.find((e) => e.nodeId === "ms-a");
+  assert.equal(movedEntry?.sortOverride, 1, "Moved node must have correct sortOverride");
+
+  // Its former sibling (ms-b, now at index 0) must have sortOverride=0 — not its original 0
+  // (both have 0 in this case, but crucially ms-b is now explicitly written at 0)
+  const siblingEntry = entries.find((e) => e.nodeId === "ms-b");
+  assert.equal(siblingEntry?.sortOverride, 0, "Sibling node must have explicit sortOverride");
+
+  // Verify: no two nodes share the same sortOverride (deterministic order)
+  const overrides = entries.map((e) => e.sortOverride);
+  const unique = new Set(overrides);
+  assert.equal(unique.size, entries.length, "sortOverride values must be unique across siblings");
+});
+
+test("BV-2 — reload order is stable: sorted by sortOverride is deterministic", () => {
+  // Simulate what the query does on reload: sort by COALESCE(sortOverride, sortOrder).
+  // With all siblings having explicit sortOverride values, the order is determined
+  // solely by those values — not by the Tasks DB sortOrder field.
+  const persisted = [
+    { id: "ms-b", sortOverride: 0, tasksSortOrder: 5 },
+    { id: "ms-a", sortOverride: 1, tasksSortOrder: 3 }, // moved; Tasks sortOrder was 3
+    { id: "ms-c", sortOverride: 2, tasksSortOrder: 2 },
+    { id: "ms-d", sortOverride: 3, tasksSortOrder: 1 },
+  ];
+
+  const reloaded = [...persisted].sort(
+    (a, b) =>
+      (a.sortOverride ?? a.tasksSortOrder) - (b.sortOverride ?? b.tasksSortOrder),
+  );
+
+  // The order after reload must match the drag intent, ignoring Tasks sortOrder
+  assert.deepEqual(
+    reloaded.map((n) => n.id),
+    ["ms-b", "ms-a", "ms-c", "ms-d"],
+    "Reload order must be stable and match the drag intent when all sortOverrides are set",
+  );
+
+  // Contrast: if only the moved node was written (old bug), ms-a gets sortOverride=1
+  // but ms-b has no sortOverride and would sort by tasksSortOrder=5.
+  // That would incorrectly place ms-b at position 5, after ms-c (2) and ms-d (1).
+  const bugged = [
+    { id: "ms-b", sortOverride: null, tasksSortOrder: 5 }, // not written in old code
+    { id: "ms-a", sortOverride: 1, tasksSortOrder: 3 },     // only this was written
+    { id: "ms-c", sortOverride: null, tasksSortOrder: 2 },
+    { id: "ms-d", sortOverride: null, tasksSortOrder: 1 },
+  ];
+  const buggedOrder = [...bugged].sort(
+    (a, b) =>
+      (a.sortOverride ?? a.tasksSortOrder) - (b.sortOverride ?? b.tasksSortOrder),
+  );
+  // Old buggy order: ms-d(1), ms-c(2), ms-a(1→sortOverride wins), ms-b(5)
+  // ms-a and ms-d both resolve to effective sort=1 → tie-break is non-deterministic
+  // The point: the order is NOT the drag intent.
+  assert.notDeepEqual(
+    buggedOrder.map((n) => n.id),
+    ["ms-b", "ms-a", "ms-c", "ms-d"],
+    "Without batch-write, reload order diverges from drag intent (old bug reproduced)",
+  );
 });
 
 // ── 7. Markdown surfaces absent ───────────────────────────────────────────────

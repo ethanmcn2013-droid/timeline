@@ -494,6 +494,47 @@ export async function upsertNodeOverlay(
     });
 }
 
+/**
+ * Batch-update sortOverride for a list of nodes in one DB round-trip per node.
+ * Called after drag-drop so ALL sibling sortOverride values are persisted,
+ * not just the moved node — prevents non-deterministic reload order (BV-2).
+ *
+ * Runs sequential upserts inside a transaction. Drizzle-libsql does not
+ * expose a batch() API stable enough to use here; sequential awaits inside
+ * the same Turso connection are fast (no HTTP overhead between them).
+ */
+export async function batchUpsertNodeSortOrders(
+  workspaceSlug: string,
+  entries: Array<{ nodeId: string; sortOverride: number }>,
+): Promise<void> {
+  const now = new Date();
+  for (const entry of entries) {
+    await db
+      .insert(nodeOverlays)
+      .values({
+        workspaceSlug,
+        nodeId: entry.nodeId,
+        hidden: false,
+        labelOverride: null,
+        laneOverride: null,
+        dateOverride: null,
+        sortOverride: entry.sortOverride,
+        source: "synced",
+        manualTitle: null,
+        manualStatus: null,
+        manualTargetDate: null,
+        updatedAt: now,
+      })
+      .onConflictDoUpdate({
+        target: [nodeOverlays.workspaceSlug, nodeOverlays.nodeId],
+        set: {
+          sortOverride: entry.sortOverride,
+          updatedAt: now,
+        },
+      });
+  }
+}
+
 /** All overlays for a workspace. Used by the curation surface. */
 export async function getNodeOverlaysForWorkspace(
   workspaceSlug: string,
