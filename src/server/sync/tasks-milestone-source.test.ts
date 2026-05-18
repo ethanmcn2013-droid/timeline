@@ -240,14 +240,12 @@ test("G1 — zero milestones when none flagged", () => {
 // ── 7. Markdown surfaces absent ───────────────────────────────────────────────
 
 test("RW-2 — parse-markdown module does not exist", async () => {
-  let moduleNotFound = false;
-  try {
-    // Use dynamic import so this doesn't fail at parse time
-    await import("../parser/parse-markdown.js");
-  } catch (e: unknown) {
-    // Node ERR_MODULE_NOT_FOUND or similar
-    moduleNotFound = true;
-  }
+  // Filesystem check — the parser file must not exist (RW-2 excised it).
+  // Avoid a typed import so tsc doesn't try to resolve the deleted module.
+  const { existsSync } = await import("node:fs");
+  const moduleNotFound = !existsSync(
+    new URL("../parser/parse-markdown.ts", import.meta.url),
+  );
   assert.equal(
     moduleNotFound,
     true,

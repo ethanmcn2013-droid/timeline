@@ -19,6 +19,7 @@ export const demoWorkspace: Workspace = {
 export const demoProjects: Project[] = [
   {
     workspaceSlug: "tasks",
+    sourceTasksWorkspaceId: null,
     slug: "product",
     name: "Product Roadmap",
     oneLiner: "What we're building — and what we said no to.",
@@ -250,6 +251,7 @@ export const weddingDemoWorkspace: Workspace = {
 export const weddingDemoProjects: Project[] = [
   {
     workspaceSlug: "wedding-planning",
+    sourceTasksWorkspaceId: null,
     slug: "planning",
     name: "Planning Roadmap",
     oneLiner: "What is decided, what is moving, and what needs attention before the day.",

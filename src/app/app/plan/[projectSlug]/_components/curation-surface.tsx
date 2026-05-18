@@ -227,7 +227,6 @@ function NodeCard({
               style={{
                 fontSize: 14,
                 fontWeight: 600,
-                color: "var(--ink)",
                 letterSpacing: "-0.01em",
                 lineHeight: 1.4,
                 background: "none",
