@@ -17,9 +17,39 @@ import {
   projectSources,
   tasks,
   activity,
+  nodeOverlays,
 } from "./schema";
-import type { Workspace, Project, ProjectSource, Task, Activity } from "./schema";
-import type { ParsedItem } from "@/server/parser/parse-markdown";
+import type { Workspace, Project, ProjectSource, Task, Activity, NodeOverlay } from "./schema";
+import type { Status } from "./schema";
+
+// Re-export for callers (workspaces.ts action layer)
+export type { NodeOverlay };
+
+/** Input shape for writeRoadmapNodes — one synced milestone from Tasks DB. */
+export type SyncedMilestone = {
+  /** Deterministic id: `ms-{tasksWorkspaceId}-{tasksTaskId}` */
+  id: string;
+  projectSlug: string;
+  workspaceSlug: string;
+  title: string;
+  status: Status;
+  targetDate: string | null;
+  sortOrder: number;
+};
+
+/** Input shape for upsertNodeOverlay */
+export type NodeOverlayInput = {
+  nodeId: string;
+  hidden?: boolean;
+  labelOverride?: string | null;
+  laneOverride?: string | null;
+  dateOverride?: string | null;
+  sortOverride?: number | null;
+  source?: "synced" | "manual";
+  manualTitle?: string | null;
+  manualStatus?: Status | null;
+  manualTargetDate?: string | null;
+};
 
 // ---------------------------------------------------------------------------
 // Workspace queries
@@ -354,86 +384,239 @@ export async function getLastUpdatedForWorkspace(
 }
 
 // ---------------------------------------------------------------------------
-// Parsed-item writes — parser-driven
+// Roadmap node writes — sync-driven (replaces markdown saveSourceAndItems)
 //
-// Workspace status counts are derived in the page render from the task
-// list it already fetches (see app/[workspaceSlug]/page.tsx) rather than
-// a second full-table read. The standalone getCountsForWorkspace +
-// unused upsertParsedItems were removed 2026-05-15.
+// RW-2: markdown was the only input path; structured sync is the new path.
+// The projectSources table write is STOPPED here (table def kept one cycle
+// per ARCH_SPEC §2 item 11 instruction). writeRoadmapNodes is the shared
+// writer for sync + manual D5 nodes. Named per ARCH_SPEC §1.4.
 // ---------------------------------------------------------------------------
 
 /**
- * Atomic write of parsed items + project source row. Prevents the failure
- * mode where items land in the tasks table but the source row's
- * lastParsedAt is never updated (editor renders "never parsed" while the
- * public viewer renders fresh items).
+ * Batched upsert of synced milestone nodes into the tasks table.
+ * Reuses the tasks table (same schema, kind='milestone') — the
+ * nodes are identifiable by their deterministic ms-{…} id prefix.
+ *
+ * Tasks owns EXISTENCE. Roadmap never writes back to Tasks.
+ * Overlay wins on display (see getNodesWithOverlays).
+ *
+ * Called by sync action + D5 manual-add path.
  */
-export async function saveSourceAndItems(input: {
+export async function writeRoadmapNodes(
+  workspaceSlug: string,
+  projectSlug: string,
+  milestones: SyncedMilestone[],
+): Promise<void> {
+  if (milestones.length === 0) return;
+  await db
+    .insert(tasks)
+    .values(
+      milestones.map((m) => ({
+        id: m.id,
+        projectSlug,
+        workspaceSlug,
+        title: m.title,
+        description: "",
+        status: m.status,
+        kind: "milestone" as const,
+        targetDate: m.targetDate ?? undefined,
+        sortOrder: m.sortOrder,
+        isLaunch: true,
+        assignee: "claude-code" as const,
+      })),
+    )
+    .onConflictDoUpdate({
+      target: tasks.id,
+      set: {
+        title: sql`excluded.title`,
+        status: sql`excluded.status`,
+        targetDate: sql`excluded.target_date`,
+        sortOrder: sql`excluded.sort_order`,
+        updatedAt: sql`(unixepoch())`,
+      },
+    });
+}
+
+// ---------------------------------------------------------------------------
+// Node overlay queries — curation layer
+// ---------------------------------------------------------------------------
+
+/**
+ * Upsert a curation overlay for one node. Only provided fields are written;
+ * null clears an override (restores generated value).
+ */
+export async function upsertNodeOverlay(
+  workspaceSlug: string,
+  input: NodeOverlayInput,
+): Promise<void> {
+  const now = new Date();
+  await db
+    .insert(nodeOverlays)
+    .values({
+      workspaceSlug,
+      nodeId: input.nodeId,
+      hidden: input.hidden ?? false,
+      labelOverride: input.labelOverride ?? null,
+      laneOverride: input.laneOverride ?? null,
+      dateOverride: input.dateOverride ?? null,
+      sortOverride: input.sortOverride ?? null,
+      source: input.source ?? "synced",
+      manualTitle: input.manualTitle ?? null,
+      manualStatus: input.manualStatus ?? null,
+      manualTargetDate: input.manualTargetDate ?? null,
+      updatedAt: now,
+    })
+    .onConflictDoUpdate({
+      target: [nodeOverlays.workspaceSlug, nodeOverlays.nodeId],
+      set: {
+        hidden: input.hidden !== undefined ? input.hidden : sql`hidden`,
+        labelOverride: input.labelOverride !== undefined ? input.labelOverride : sql`label_override`,
+        laneOverride: input.laneOverride !== undefined ? input.laneOverride : sql`lane_override`,
+        dateOverride: input.dateOverride !== undefined ? input.dateOverride : sql`date_override`,
+        sortOverride: input.sortOverride !== undefined ? input.sortOverride : sql`sort_override`,
+        manualTitle: input.manualTitle !== undefined ? input.manualTitle : sql`manual_title`,
+        manualStatus: input.manualStatus !== undefined ? input.manualStatus : sql`manual_status`,
+        manualTargetDate: input.manualTargetDate !== undefined ? input.manualTargetDate : sql`manual_target_date`,
+        updatedAt: now,
+      },
+    });
+}
+
+/** All overlays for a workspace. Used by the curation surface. */
+export async function getNodeOverlaysForWorkspace(
+  workspaceSlug: string,
+): Promise<NodeOverlay[]> {
+  return db
+    .select()
+    .from(nodeOverlays)
+    .where(eq(nodeOverlays.workspaceSlug, workspaceSlug))
+    .orderBy(asc(nodeOverlays.nodeId));
+}
+
+/**
+ * Effective node list for a workspace — generated tasks LEFT JOIN overlays.
+ * COALESCE: overlay fields win when set; generated fields flow through when null.
+ *
+ * Used by the curation view (owner) and the public viewer's node list.
+ * hidden=true rows are filtered from the public viewer by the caller;
+ * the curation view renders them dimmed.
+ *
+ * Lane mapping (display strings per DECISIONS D8):
+ *   status "next"      → "Next"
+ *   status "in-flight" → "In flight"
+ *   status "shipped"   → "Shipped"
+ *   no targetDate      → "Later" (presentational grouping, D7)
+ */
+export type EffectiveNode = {
+  id: string;
   projectSlug: string;
   workspaceSlug: string;
-  rawMarkdown: string;
-  parseError?: string | null;
-  lastParsedAt?: Date | null;
-  items: ParsedItem[];
-}): Promise<void> {
-  await db.transaction(async (tx) => {
-    // Single batched INSERT … ON CONFLICT DO UPDATE instead of one
-    // round trip per item. Conflicting rows take the incoming values
-    // via excluded.* — keeps markdown-as-source-of-truth semantics
-    // while collapsing N Turso WAN round trips into one statement.
-    if (input.items.length > 0) {
-      await tx
-        .insert(tasks)
-        .values(
-          input.items.map((item) => ({
-            id: item.id,
-            projectSlug: item.projectSlug,
-            workspaceSlug: item.workspaceSlug,
-            title: item.title,
-            description: item.description,
-            status: item.status,
-            kind: item.kind,
-            targetDate: item.targetDate ?? undefined,
-            weekHeading: item.weekHeading ?? undefined,
-            category: item.category ?? undefined,
-            sortOrder: item.sortOrder,
-            isLaunch: item.isLaunch,
-            assignee: "claude-code" as const,
-          })),
-        )
-        .onConflictDoUpdate({
-          target: tasks.id,
-          set: {
-            title: sql`excluded.title`,
-            description: sql`excluded.description`,
-            status: sql`excluded.status`,
-            kind: sql`excluded.kind`,
-            targetDate: sql`excluded.target_date`,
-            weekHeading: sql`excluded.week_heading`,
-            category: sql`excluded.category`,
-            sortOrder: sql`excluded.sort_order`,
-            isLaunch: sql`excluded.is_launch`,
-          },
-        });
-    }
-    await tx
-      .insert(projectSources)
-      .values({
-        projectSlug: input.projectSlug,
-        workspaceSlug: input.workspaceSlug,
-        rawMarkdown: input.rawMarkdown,
-        lastParsedAt: input.lastParsedAt ?? null,
-        parseError: input.parseError ?? null,
-      })
-      .onConflictDoUpdate({
-        target: [projectSources.projectSlug, projectSources.workspaceSlug],
-        set: {
-          rawMarkdown: input.rawMarkdown,
-          lastParsedAt: input.lastParsedAt ?? null,
-          parseError: input.parseError ?? null,
-        },
-      });
+  title: string;          // COALESCE(labelOverride, generated title)
+  status: Status;         // generated (Tasks is source of truth)
+  targetDate: string | null; // COALESCE(dateOverride, generated targetDate)
+  sortOrder: number;      // COALESCE(sortOverride, generated sortOrder)
+  lane: "Next" | "In flight" | "Shipped" | "Later"; // display string
+  hidden: boolean;        // from overlay (default false)
+  laneOverride: string | null;
+  labelOverride: string | null;
+  dateOverride: string | null;
+  source: "synced" | "manual";
+  /** True when Tasks updated title/status/date AFTER a human override was set */
+  driftDetected: boolean;
+};
+
+export async function getEffectiveNodesForWorkspace(
+  workspaceSlug: string,
+): Promise<EffectiveNode[]> {
+  const [allMilestoneTasks, allOverlays] = await Promise.all([
+    db
+      .select()
+      .from(tasks)
+      .where(
+        and(
+          eq(tasks.workspaceSlug, workspaceSlug),
+          eq(tasks.kind, "milestone"),
+        ),
+      )
+      .orderBy(asc(tasks.sortOrder)),
+    getNodeOverlaysForWorkspace(workspaceSlug),
+  ]);
+
+  const overlayMap = new Map<string, NodeOverlay>(
+    allOverlays.map((o) => [o.nodeId, o]),
+  );
+
+  // Manual nodes (source="manual") exist only in overlays — no tasks row
+  const manualNodes: EffectiveNode[] = allOverlays
+    .filter((o) => o.source === "manual")
+    .map((o) => {
+      const status: Status = o.manualStatus ?? "next";
+      return {
+        id: o.nodeId,
+        projectSlug: workspaceSlug, // manual nodes inherit first project slug via caller
+        workspaceSlug,
+        title: o.manualTitle ?? "(untitled)",
+        status,
+        targetDate: o.manualTargetDate ?? null,
+        sortOrder: o.sortOverride ?? 9999,
+        lane: statusToLane(status, o.manualTargetDate),
+        hidden: o.hidden,
+        laneOverride: o.laneOverride,
+        labelOverride: o.labelOverride,
+        dateOverride: o.dateOverride,
+        source: "manual",
+        driftDetected: false,
+      };
+    });
+
+  const syncedNodes: EffectiveNode[] = allMilestoneTasks.map((t) => {
+    const o = overlayMap.get(t.id);
+    const effectiveTitle = o?.labelOverride ?? t.title;
+    const effectiveDate = o?.dateOverride !== undefined ? o.dateOverride : t.targetDate;
+    const effectiveSort = o?.sortOverride ?? t.sortOrder;
+    const hidden = o?.hidden ?? false;
+    const lane = o?.laneOverride
+      ? (o.laneOverride as EffectiveNode["lane"])
+      : statusToLane(t.status, effectiveDate);
+
+    // Drift: Tasks changed a field that the owner had overridden
+    const driftDetected = Boolean(
+      o &&
+        ((o.labelOverride !== null && o.labelOverride !== t.title) ||
+         (o.dateOverride !== null && o.dateOverride !== t.targetDate)),
+    );
+
+    return {
+      id: t.id,
+      projectSlug: t.projectSlug,
+      workspaceSlug,
+      title: effectiveTitle,
+      status: t.status,
+      targetDate: effectiveDate ?? null,
+      sortOrder: effectiveSort,
+      lane,
+      hidden,
+      laneOverride: o?.laneOverride ?? null,
+      labelOverride: o?.labelOverride ?? null,
+      dateOverride: o?.dateOverride ?? null,
+      source: "synced",
+      driftDetected,
+    };
   });
+
+  // Merge: synced first, then manual; sort by sortOrder
+  return [...syncedNodes, ...manualNodes].sort((a, b) => a.sortOrder - b.sortOrder);
+}
+
+/** Map task status + date to a display lane (D4/D7/D8). Pure. */
+export function statusToLane(
+  status: Status,
+  targetDate: string | null | undefined,
+): EffectiveNode["lane"] {
+  if (status === "shipped") return "Shipped";
+  if (status === "in-flight") return "In flight";
+  if (!targetDate) return "Later"; // presentational, D7
+  return "Next";
 }
 
 // ---------------------------------------------------------------------------

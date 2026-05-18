@@ -9,18 +9,21 @@ import {
   createProject,
   getWorkspace,
   getWorkspacesForUser,
-  upsertProjectSource,
-  saveSourceAndItems,
   getProjectsForWorkspace,
   getTasksForWorkspace,
   seedWorkspaceFromTemplate,
   publishWorkspace,
   unpublishWorkspace,
   isWorkspacePublished,
+  writeRoadmapNodes,
+  upsertNodeOverlay,
+  type NodeOverlayInput,
 } from "@/server/db/queries";
 import { isValidSlug, slugify } from "@/lib/reserved-slugs";
-import { parseMarkdown } from "@/server/parser/parse-markdown";
 import { checkRateLimit, getClientIp, type RateLimitResult } from "@/lib/rate-limit";
+import { getSyncedTemplateRoadmap } from "@/lib/templates.generated";
+import { resolveEntitlement } from "@/lib/entitlements-shared/reads";
+import { tierAtLeast } from "@/lib/entitlements-shared/tiers";
 
 /** Translate a denied RateLimitResult into the correct user-facing error string. */
 function rateLimitError(result: RateLimitResult & { allowed: false }): string {
@@ -29,9 +32,6 @@ function rateLimitError(result: RateLimitResult & { allowed: false }): string {
   }
   return "Too many requests. Try again later.";
 }
-import { getSyncedTemplateRoadmap } from "@/lib/templates.generated";
-import { resolveEntitlement } from "@/lib/entitlements-shared/reads";
-import { tierAtLeast } from "@/lib/entitlements-shared/tiers";
 
 /** Roadmap's tier policy (E-4, 2026-05-14; revised post-validation):
  *  - Free / Event / Wedding: max 1 workspace.
@@ -171,8 +171,7 @@ export async function createProjectAction(
   const userId = await requireUser();
 
   // Rate limit: 20 project creations per IP per hour. createWorkspaceAction
-  // and saveProjectSourceAction are both limited; this was the only
-  // state-mutating action without a cap (reviewer P1, 2026-05-15).
+  // is also limited; this covers the project-creation path (reviewer P1, 2026-05-15).
   const ip = await getClientIp();
   const rlResult = await checkRateLimit("create-project", ip, 20, 3600);
   if (!rlResult.allowed) return { error: rateLimitError(rlResult) };
@@ -213,97 +212,82 @@ export async function createProjectAction(
 }
 
 // ---------------------------------------------------------------------------
-// Markdown source upsert
+// Sync milestones from Tasks DB → private draft
 // ---------------------------------------------------------------------------
 
-export type SaveSourceResult =
-  | { ok: true; count: number; lastParsedAt: string }
+export type SyncMilestonesResult =
+  | { ok: true; count: number }
   | { error: string };
 
-export async function saveProjectSourceAction(
-  projectSlug: string,
+export async function syncMilestonesAction(
   workspaceSlug: string,
-  rawMarkdown: string,
-): Promise<SaveSourceResult> {
+): Promise<SyncMilestonesResult> {
   const userId = await requireUser();
 
-  // Rate limit: 30 source saves per IP per 10 minutes (generous for iterating)
-  const ip = await getClientIp();
-  const rlResult = await checkRateLimit("save-source", ip, 30, 600);
-  if (!rlResult.allowed) return { error: rateLimitError(rlResult) };
-
-  // Verify ownership
   const workspace = await getWorkspace(workspaceSlug);
   if (!workspace || workspace.ownerUserId !== userId) {
     return { error: "Workspace not found." };
   }
 
-  // Verify the project actually belongs to this workspace. Without this guard
-  // a caller could supply a projectSlug from a different workspace and
-  // upsert task rows under a {workspaceSlug, projectSlug} composite key
-  // that crosses tenants. (Reviewer P1, 2026-05-15.)
   const ownedProjects = await getProjectsForWorkspace(workspaceSlug);
-  if (!ownedProjects.some((p) => p.slug === projectSlug)) {
-    return { error: "Project not found." };
+  if (ownedProjects.length === 0) {
+    return { error: "Create a project first." };
   }
 
-  if (!rawMarkdown?.trim()) {
-    return { error: "Nothing to save — paste some markdown first." };
-  }
-  // Cap the markdown size — anything beyond this is almost certainly
-  // pasted-by-mistake data rather than a real roadmap. Without a cap
-  // the parser loop walks the whole blob and the upsert does one
-  // round-trip per item, which compounds badly.
-  if (rawMarkdown.length > 200_000) {
-    return {
-      error: "Roadmap markdown is too long (max 200 KB). Trim it down and try again.",
-    };
+  // Import lazily to avoid bundling in the non-sync path
+  const { makeMilestoneSyncSource } = await import("@/server/sync/tasks-milestone-source");
+  const source = makeMilestoneSyncSource();
+  if (!source) {
+    return { error: "Tasks sync is not configured. Set TASKS_DATABASE_URL and TASKS_AUTH_TOKEN." };
   }
 
-  // Parse markdown → roadmap items
-  let parsed: ReturnType<typeof parseMarkdown>;
-  try {
-    parsed = parseMarkdown({ rawMarkdown, workspaceSlug, projectSlug });
-  } catch (e) {
-    // Parser shouldn't throw, but defense in depth
-    await upsertProjectSource({
-      projectSlug,
-      workspaceSlug,
-      rawMarkdown,
-      parseError: String(e),
-      lastParsedAt: null,
-    });
-    return { error: "Parse failed." };
+  const ownerEmail = workspace.ownerEmail;
+  if (!ownerEmail) {
+    return { error: "Owner email not resolved. Re-sign in to refresh your profile." };
   }
 
-  if (parsed.parseError) {
-    await upsertProjectSource({
-      projectSlug,
-      workspaceSlug,
-      rawMarkdown,
-      parseError: parsed.parseError,
-      lastParsedAt: null,
-    });
-    return { error: `Parse error: ${parsed.parseError}` };
-  }
+  const rawMilestones = await source.getMilestonesForEmail(ownerEmail);
 
-  // Atomic write: parsed items + source metadata in one transaction. Prior
-  // shape left a window where items were written but lastParsedAt never set.
-  const lastParsedAt = new Date();
-  await saveSourceAndItems({
-    projectSlug,
+  // Map milestones to roadmap nodes and write to the first project
+  // (D3: one workspace = one project in v1). Fill in workspace + project slug.
+  const targetProject = ownedProjects[0];
+  const milestones = rawMilestones.map((m) => ({
+    ...m,
     workspaceSlug,
-    rawMarkdown,
-    parseError: null,
-    lastParsedAt,
-    items: parsed.items,
-  });
+    projectSlug: targetProject.slug,
+  }));
+  await writeRoadmapNodes(workspaceSlug, targetProject.slug, milestones);
 
-  revalidatePath(`/app/source/${projectSlug}`);
-  // Also invalidate the public viewer so stakeholders see fresh data immediately.
-  revalidatePath(`/${workspaceSlug}`);
-  revalidatePath(`/${workspaceSlug}/${projectSlug}`);
-  return { ok: true, count: parsed.items.length, lastParsedAt: lastParsedAt.toISOString() };
+  // Revalidate private draft only — NOT the public URL (D6 two-gate)
+  revalidatePath("/app");
+  revalidatePath(`/app/plan/${targetProject.slug}`);
+
+  return { ok: true, count: milestones.length };
+}
+
+// ---------------------------------------------------------------------------
+// Curation overlay upsert
+// ---------------------------------------------------------------------------
+
+export type UpsertOverlayResult = { ok: true } | { error: string };
+
+export async function upsertNodeOverlayAction(
+  workspaceSlug: string,
+  overlay: NodeOverlayInput,
+): Promise<UpsertOverlayResult> {
+  const userId = await requireUser();
+
+  const workspace = await getWorkspace(workspaceSlug);
+  if (!workspace || workspace.ownerUserId !== userId) {
+    return { error: "Workspace not found." };
+  }
+
+  await upsertNodeOverlay(workspaceSlug, overlay);
+
+  // Revalidate curation view only — public URL not touched until Publish
+  revalidatePath(`/app/plan/${overlay.nodeId.split("-")[2] ?? ""}`);
+
+  return { ok: true };
 }
 
 // ---------------------------------------------------------------------------

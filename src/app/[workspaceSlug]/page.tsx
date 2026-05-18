@@ -36,6 +36,7 @@ import { ScheduleView } from "@/components/roadmap/schedule-view";
 import { RoadmapFlow } from "@/components/roadmap/roadmap-flow";
 import { MilestoneMap } from "@/components/roadmap/milestone-map";
 import { SiteFooter } from "@/components/marketing/site-footer";
+import { SuiteLoaderField } from "@/components/system/SuiteLoader";
 import Link from "next/link";
 
 // Public roadmap is read-only, ISR with a 5-min window. The page reads
@@ -171,37 +172,13 @@ for(var i=0;i<tabs.length;i++){
   );
 }
 
-// ── Local content-well fallback ───────────────────────────────────────────────
-// Shown while WorkspaceContentWell resolves. Scoped to the content area only —
-// the header above is already painted. Single indigo dot on paper-white per
-// LOADING_SYSTEM.md §1.
-// TODO: replace with canonical SuiteLoader (LOADING_SYSTEM.md §1) once
-// the studio repo's SuiteLoader is copied across all repos (later wave).
+// ── Content-well fallback (RW-5) ─────────────────────────────────────────────
+// Canonical SuiteLoaderField replaces the prior hand-rolled ContentWellFallback.
+// Byte-identical across all 5 repos; eliminates the ~250px circle balloon
+// that occurred when the 0.16em .roadmap-dot pre-font balloon mis-scaled.
+// ARCH_SPEC §3, DESIGN.md §13.
 function ContentWellFallback() {
-  return (
-    <div
-      style={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        flex: 1,
-        minHeight: "40dvh",
-      }}
-    >
-      <div
-        className="signal-loading-dot"
-        aria-hidden
-        style={{
-          width: 12,
-          height: 12,
-          borderRadius: "50%",
-          background: "var(--indigo, #4f46e5)",
-          flexShrink: 0,
-          willChange: "transform, opacity",
-        }}
-      />
-    </div>
-  );
+  return <SuiteLoaderField />;
 }
 
 // ── Content well ─────────────────────────────────────────────────────────────

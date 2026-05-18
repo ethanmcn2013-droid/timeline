@@ -5,7 +5,6 @@ import { resolveEntitlement } from "@/lib/entitlements-shared/reads";
 import { TIER_LABEL } from "@/lib/entitlements-shared/tiers";
 import { CreateWorkspaceForm } from "./_components/create-workspace-form";
 import { CreateProjectForm } from "./_components/create-project-form";
-import { PublicUrlChip } from "./_components/public-url-chip";
 import { PublishControl } from "./_components/publish-control";
 import { ROADMAP_URL } from "@/lib/product-urls";
 
@@ -46,12 +45,12 @@ export default async function AppPage() {
           >
             {workspace.name}
           </h1>
-          <PublicUrlChip url={`${publicBase}/${workspace.slug}`} />
-          {/* Publish control — Layer 1 (seamless-ecosystem-2026-05-18) */}
+          {/* Publish control — Layer 1 (seamless-ecosystem-2026-05-18); includes URL chip */}
           <div className="mt-3">
             <PublishControl
               workspaceSlug={workspace.slug}
               initialPublished={workspacePublished}
+              publicUrl={`${publicBase}/${workspace.slug}`}
             />
           </div>
         </div>
@@ -85,7 +84,7 @@ export default async function AppPage() {
               {projects.map((p) => (
                 <Link
                   key={p.slug}
-                  href={`/app/source/${p.slug}`}
+                  href={`/app/plan/${p.slug}`}
                   className="flex items-center justify-between rounded-xl border px-4 py-3.5 hover:border-indigo-300"
                   style={{
                     background: "var(--bg-elev)",
@@ -153,8 +152,8 @@ function EmptyProjects({ workspaceSlug }: { workspaceSlug: string }) {
         Add your first project
       </p>
       <p className="mb-6 text-sm leading-relaxed" style={{ color: "var(--ink-quiet)" }}>
-        A project is one roadmap — one plan, one slice of work. Name it, paste
-        in what you&apos;re doing, and you&apos;ll have a public link to share.
+        A project is one roadmap — one plan, one slice of work. Name it, mark
+        tasks as milestones in Signal Tasks, and you&apos;ll have a public link to share.
       </p>
       <CreateProjectForm workspaceSlug={workspaceSlug} />
     </div>

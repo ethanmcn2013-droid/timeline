@@ -75,6 +75,12 @@ export const projects = sqliteTable(
     // Existing rows backfilled to published in migration 0004.
     // Migration: 0004_add_published_at.sql
     publishedAt: integer("published_at", { mode: "timestamp" }),
+    /** Immutable Tasks workspace id this project syncs milestones from.
+     *  NULL = manual-only (D5 escape hatch, never auto-synced).
+     *  Non-null = sync target; set on first milestone promote.
+     *  Stores Tasks `workspaces.id` (UUID), not a name/slug — rename-safe.
+     *  Migration: 0005_add_source_tasks_workspace_id.sql (additive) */
+    sourceTasksWorkspaceId: text("source_tasks_workspace_id"),
   },
   (t) => [
     primaryKey({ columns: [t.workspaceSlug, t.slug] }),
@@ -386,9 +392,66 @@ export const projectSources = sqliteTable(
   ],
 );
 
+/**
+ * NodeOverlays — curation layer for synced milestone nodes.
+ *
+ * Tasks owns EXISTENCE (milestone flag + un-flag), Roadmap owns PRESENTATION.
+ * This table stores per-node human-layer overrides: hidden, relabelled,
+ * date/lane/sort overrides. Public render = generated LEFT JOIN overlays,
+ * effective = COALESCE(overlay, generated). ARCH_SPEC §1.5.
+ *
+ * Conflict rules:
+ *   (1) task un-flagged in Tasks → generated row removed on re-sync,
+ *       overlay orphaned (not deleted — safe; query filters by existing nodes)
+ *   (2) Tasks changes an overridden field → overlay wins display,
+ *       generated still stored, quiet "source changed" affordance shown
+ *   (3) non-overridden fields → generated flows through
+ *
+ * nodeId format: `ms-{tasksWorkspaceId}-{tasksTaskId}` (deterministic).
+ * source="manual" nodes also get overlay rows (they ARE the source of truth).
+ *
+ * Migration: 0005_add_nodeOverlays_sourceTasksWorkspaceId.sql
+ */
+export const nodeOverlays = sqliteTable(
+  "node_overlays",
+  {
+    workspaceSlug: text("workspace_slug").notNull(),
+    nodeId: text("node_id").notNull(),
+    /** When true, the node is hidden from all renders. Row is kept for curation. */
+    hidden: integer("hidden", { mode: "boolean" }).notNull().default(false),
+    /** Human-authored label override. NULL = use generated title. */
+    labelOverride: text("label_override"),
+    /** Lane override (display string). NULL = use generated lane. */
+    laneOverride: text("lane_override"),
+    /** Date override (ISO YYYY-MM-DD). NULL = use generated targetDate. */
+    dateOverride: text("date_override"),
+    /** Float sort position (gap-list, e.g. 1.5 between 1 and 2). NULL = generated sortOrder. */
+    sortOverride: integer("sort_override"),
+    /** "synced" | "manual" — manual nodes were created via the D5 structured form,
+     *  not promoted from Tasks. Manual nodes have no generated counterpart. */
+    source: text("source").$type<"synced" | "manual">().notNull().default("synced"),
+    /** For manual nodes: title, status, targetDate are stored here (no generated row).
+     *  These are the "generated" values — they just happen to be authored here. */
+    manualTitle: text("manual_title"),
+    manualStatus: text("manual_status").$type<Status>(),
+    manualTargetDate: text("manual_target_date"),
+    createdAt: integer("created_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+    updatedAt: integer("updated_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (t) => [
+    primaryKey({ columns: [t.workspaceSlug, t.nodeId] }),
+    index("idx_node_overlays_workspace").on(t.workspaceSlug),
+  ],
+);
+
 export type Project = typeof projects.$inferSelect;
 export type Task = typeof tasks.$inferSelect;
 export type Subtask = typeof subtasks.$inferSelect;
 export type Comment = typeof comments.$inferSelect;
 export type Workspace = typeof workspaces.$inferSelect;
 export type ProjectSource = typeof projectSources.$inferSelect;
+export type NodeOverlay = typeof nodeOverlays.$inferSelect;
