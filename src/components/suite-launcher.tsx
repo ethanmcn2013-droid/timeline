@@ -29,18 +29,18 @@ const PRODUCTS_MARKETING: {
 const PRODUCTS_APP: {
   slug: ProductSlug;
   word: string;
-  tagline: string;
+  label: string;
   url: string;
 }[] = [
-  { slug: "roadmap",   word: "roadmap",   tagline: "Open roadmap",   url: `${ROADMAP_URL}/app` },
-  { slug: "tasks",     word: "tasks",     tagline: "Open tasks",     url: `${TASKS_URL}/app` },
-  { slug: "notes",     word: "notes",     tagline: "Open notes",     url: `${NOTES_URL}/app` },
-  { slug: "analytics", word: "analytics", tagline: "Open analytics", url: `${ANALYTICS_URL}/app` },
+  { slug: "roadmap",   word: "roadmap",   label: "Open roadmap",   url: `${ROADMAP_URL}/app` },
+  { slug: "tasks",     word: "tasks",     label: "Open tasks",     url: `${TASKS_URL}/app` },
+  { slug: "notes",     word: "notes",     label: "Open notes",     url: `${NOTES_URL}/app` },
+  { slug: "analytics", word: "analytics", label: "Open analytics", url: `${ANALYTICS_URL}/app` },
 ];
 
 const INDIGO = "#4f46e5";
 
-const PRODUCT_ORIGINS = [TASKS_URL, ROADMAP_URL, NOTES_URL, ANALYTICS_URL];
+const PRODUCT_ORIGINS = [ROADMAP_URL, TASKS_URL, NOTES_URL, ANALYTICS_URL];
 
 // App entries per product — prefetch destination for auth state
 const APP_ENTRIES = [
@@ -294,7 +294,7 @@ export function SuiteLauncher({ current }: { current: ProductSlug }) {
                           color: "var(--ink-quiet)",
                         }}
                       >
-                        {p.tagline}
+                        {"label" in p ? p.label : p.tagline}
                       </div>
                     </div>
                     {isCurrent ? (
