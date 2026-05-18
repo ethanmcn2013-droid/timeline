@@ -108,10 +108,15 @@ function applyOverlay(
   const effectiveTitle = overlay.labelOverride ?? task.title;
   const effectiveDate =
     overlay.dateOverride !== undefined ? overlay.dateOverride : task.targetDate;
+  // An override is "active" only when actually set. labelOverride null/undefined
+  // = no override; dateOverride undefined = no override (null = explicit clear).
+  // Drift = an active override whose value diverges from the current Tasks value.
+  const labelActive =
+    overlay.labelOverride !== null && overlay.labelOverride !== undefined;
+  const dateActive = overlay.dateOverride !== undefined;
   const driftDetected = Boolean(
-    overlay &&
-      ((overlay.labelOverride !== null && overlay.labelOverride !== task.title) ||
-       (overlay.dateOverride !== null && overlay.dateOverride !== task.targetDate)),
+    (labelActive && overlay.labelOverride !== task.title) ||
+      (dateActive && overlay.dateOverride !== task.targetDate),
   );
   return { title: effectiveTitle, targetDate: effectiveDate ?? null, driftDetected };
 }

@@ -579,11 +579,16 @@ export async function getEffectiveNodesForWorkspace(
       ? (o.laneOverride as EffectiveNode["lane"])
       : statusToLane(t.status, effectiveDate);
 
-    // Drift: Tasks changed a field that the owner had overridden
+    // Drift: Tasks changed a field the owner had ACTIVELY overridden.
+    // labelOverride null/undefined = no override; dateOverride undefined = no
+    // override (null = explicit clear). Only an active override that diverges
+    // from the current Tasks value is drift — a matching override is not.
+    const labelActive =
+      o != null && o.labelOverride !== null && o.labelOverride !== undefined;
+    const dateActive = o != null && o.dateOverride !== undefined;
     const driftDetected = Boolean(
-      o &&
-        ((o.labelOverride !== null && o.labelOverride !== t.title) ||
-         (o.dateOverride !== null && o.dateOverride !== t.targetDate)),
+      (labelActive && o!.labelOverride !== t.title) ||
+        (dateActive && o!.dateOverride !== t.targetDate),
     );
 
     return {
