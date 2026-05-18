@@ -283,6 +283,43 @@
   to   { opacity: 1; transform: translateY(0); }
 }
 
+/* ── RW-5 Dot-morph — cross-origin pre-paint primitive ───────────
+   CREATIVE_SPEC §3 · ARCH_SPEC §3
+   Canonical block. Copy byte-identical into each repo's globals.css.
+   Never modify individually — any change must propagate to all 5.
+
+   Source-side: word collapses toward its period, dot lifts.
+   Destination-side: dot-land fires if data-dot-landing="1" on <html>.
+   Reduced-motion: no animation (rules below are no-preference only).
+   ──────────────────────────────────────────────────────────────── */
+
+/* Source-side — word collapses toward its period */
+@keyframes word-collapse {
+  0%   { opacity: 1; letter-spacing: -0.025em; }
+  100% { opacity: 0; letter-spacing: -0.15em; }
+}
+
+/* Source-side — dot lifts after word collapses */
+@keyframes dot-lift {
+  0%   { transform: scale(1);    opacity: 1; }
+  100% { transform: scale(1.25); opacity: 0.7; }
+}
+
+/* Destination-side — dot settles into the wordmark period */
+@keyframes dot-land {
+  0%   { transform: scale(1.5); opacity: 0.6; }
+  100% { transform: scale(1);   opacity: 1; }
+}
+
+/* Apply destination animation only when sessionStorage flag was detected.
+   Scoped to no-preference — reduced-motion gets static dot, no jump. */
+@media (prefers-reduced-motion: no-preference) {
+  [data-dot-landing="1"] .brand-mark .md,
+  [data-dot-landing="1"] .brand-mark .pd {
+    animation: dot-land 320ms cubic-bezier(.2, .9, .2, 1.2) forwards;
+  }
+}
+
 /* ────────────────────────────────────────────────────────────
    Tailwind theme bindings — exposes the tokens as Tailwind
    utility classes (e.g. `bg-indigo-600`, `text-ink-900`,
@@ -399,6 +436,13 @@ body {
   overflow-x: clip;
 }
 
+/* RW-5: neutralise the Layer-0 pre-paint pseudo-elements once globals.css
+   loads. The inline <style> in layout.tsx paints body::before (white field)
+   and body::after (indigo dot) for the brief pre-stylesheet window.
+   Once this stylesheet loads, the SuiteLoader div takes over. */
+body::before,
+body::after { content: none; }
+
 ::selection {
   background: var(--indigo-200);
   color: var(--ink-900);
@@ -505,40 +549,12 @@ body {
   100%    { opacity: 0; transform: scale(2.6); }
 }
 
-/* ────────────────────────────────────────────────────────────
-   Roadmap wordmark dot — M·03 sweep.
-   Per suite gesture-vocab v1 (ratified 2026-05-16): Roadmap=sweep,
-   the dot tracks left→right along a timeline then loops. 5.4s at
-   cubic-bezier(.22,.7,.2,1). Direction as a continuous read, not
-   a one-shot settle.
-   Suite table: Tasks=pulse · Analytics=tick · Notes=caret ·
-   Studio=broadcast · Roadmap=sweep.
-   ──────────────────────────────────────────────────────────── */
-@keyframes roadmap-dot-sweep {
-  0%   { transform: translateY(-0.36em) translateX(0); opacity: 1; }
-  60%  { transform: translateY(-0.36em) translateX(4px); opacity: 1; }
-  62%  { transform: translateY(-0.36em) translateX(4px); opacity: 0; }
-  70%  { transform: translateY(-0.36em) translateX(0); opacity: 0; }
-  78%  { transform: translateY(-0.36em) translateX(0); opacity: 1; }
-  100% { transform: translateY(-0.36em) translateX(0); opacity: 1; }
-}
-.roadmap-dot {
-  display: inline-block;
-  width: 0.30em;
-  height: 0.30em;
-  /* R3 fix: px ceiling so the dot cannot balloon to ~250px before the
-     font stack resolves. max-width/max-height clamp without breaking the
-     em-relative sizing at normal wordmark sizes (18–24px → 5.4–7.2px). */
-  max-width: 8px;
-  max-height: 8px;
-  background-color: var(--brand);
-  border-radius: 50%;
-  margin-left: 0.14em;
-  transform: translateY(-0.36em);
-  /* 5.4s is deliberate — the sweep is a slow timeline read, not a UI beat.
-     Easing uses --ease-standard from the motion contract (transform-only path). */
-  animation: roadmap-dot-sweep 5.4s var(--ease-standard) infinite;
-}
+/* RW-5: .roadmap-dot and @keyframes roadmap-dot-sweep removed.
+   The ~250px balloon was an un-migrated Seamless residual (0.30em pre-font).
+   All loader markup now routes through the canonical SuiteLoader/SuiteLoaderField
+   (LOADING_SYSTEM.md §1). The wordmark's period gesture (sweep) was a
+   loading-state visual — with the Layer-0 pre-paint primitive in place, it
+   is not needed. See ARCH_SPEC §3 for rationale. */
 
 /* ────────────────────────────────────────────────────────────
    View-switcher active pill — tasteful CSS-only transition.

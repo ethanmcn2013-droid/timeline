@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { Suspense } from "react";
+import { SuiteLoaderField } from "@/components/system/SuiteLoader";
 import { formatRelative } from "@/lib/format";
 import {
   getWorkspace,
@@ -165,7 +166,7 @@ for(var i=0;i<tabs.length;i++){
       {/* Content well: draft gate + 4 heavy reads deferred to Suspense.
           The header above always paints first; the content area streams in
           behind it. Fallback scoped to the content well only (P1-3). */}
-      <Suspense fallback={<ContentWellFallback />}>
+      <Suspense fallback={<SuiteLoaderField />}>
         <WorkspaceContentWell workspaceSlug={workspaceSlug} workspace={workspace} />
       </Suspense>
     </div>
@@ -180,7 +181,6 @@ for(var i=0;i<tabs.length;i++){
 function ContentWellFallback() {
   return <SuiteLoaderField />;
 }
-
 // ── Content well ─────────────────────────────────────────────────────────────
 // Async Server Component owning the draft/publish gate + the 4 heavy reads.
 // Sits behind the Suspense boundary above. The WorkspaceHeader renders before
