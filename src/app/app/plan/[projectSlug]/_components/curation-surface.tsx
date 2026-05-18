@@ -13,7 +13,8 @@
  * a separate explicit action from the /app dashboard.
  */
 
-import { useState, useTransition, useRef } from "react";
+import { useState, useTransition, useRef, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import type { EffectiveNode } from "@/server/db/queries";
 import { upsertNodeOverlayAction, syncMilestonesAction } from "@/server/actions/workspaces";
 
@@ -113,10 +114,18 @@ function NodeCard({
   node,
   workspaceSlug,
   onUpdate,
+  onDragStart,
+  onDragOver,
+  onDrop,
+  isDraggingOver,
 }: {
   node: EffectiveNode;
   workspaceSlug: string;
   onUpdate: () => void;
+  onDragStart: (id: string) => void;
+  onDragOver: (id: string) => void;
+  onDrop: (targetId: string) => void;
+  isDraggingOver: boolean;
 }) {
   const [editingTitle, setEditingTitle] = useState(false);
   const [titleValue, setTitleValue] = useState(node.title);
@@ -172,17 +181,40 @@ function NodeCard({
 
   return (
     <div
+      draggable
+      onDragStart={() => onDragStart(node.id)}
+      onDragOver={(e) => { e.preventDefault(); onDragOver(node.id); }}
+      onDrop={(e) => { e.preventDefault(); onDrop(node.id); }}
       style={{
         paddingBlock: 12,
         paddingInline: 16,
         borderBottom: "1px solid var(--hairline)",
         opacity: node.hidden ? 0.4 : isPending ? 0.7 : 1,
         transition: "opacity 160ms ease-out",
-        borderLeft: "2px solid var(--indigo-soft, rgba(79,70,229,0.12))",
-        background: "var(--paper)",
+        borderLeft: isDraggingOver
+          ? "2px solid var(--indigo, #4f46e5)"
+          : "2px solid var(--indigo-soft, rgba(79,70,229,0.12))",
+        background: isDraggingOver ? "var(--paper-soft, #fafafa)" : "var(--paper)",
+        cursor: "grab",
       }}
     >
       <div style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
+        {/* Drag handle */}
+        <span
+          aria-hidden
+          style={{
+            flexShrink: 0,
+            marginTop: 4,
+            color: "var(--ink-faint)",
+            cursor: "grab",
+            lineHeight: 1,
+            fontSize: 10,
+            letterSpacing: "0.1em",
+            userSelect: "none",
+          }}
+        >
+          ⠿
+        </span>
         {/* Status circle */}
         <StatusCircle lane={node.lane} isMilestone />
 
@@ -339,18 +371,25 @@ function NodeCard({
               }}
             />
 
-            {/* Source indicator */}
+            {/* Source indicator — chain-link icon per CREATIVE_SPEC (DRAG: replace ⇄ glyph) */}
             {node.source === "synced" && (
               <span
                 style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 3,
                   fontSize: 9,
-                  color: "var(--ink-ghost)",
+                  color: "var(--ink-faint)",
                   fontFamily: "var(--font-mono-stack)",
                   letterSpacing: "0.05em",
                 }}
                 title="Synced from Signal Tasks"
               >
-                ⇄ Tasks
+                <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                  <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+                  <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+                </svg>
+                Tasks
               </span>
             )}
           </div>
@@ -672,14 +711,93 @@ export function CurationSurface({
   isPublished: boolean;
   publicUrl: string;
 }) {
+  const router = useRouter();
   const [nodes, setNodes] = useState(initialNodes);
-  const [isPending, startTransition] = useTransition();
+  const [, startTransition] = useTransition();
+  // D11 auto-sync: fires once on mount (pull-on-visit). Does NOT publish.
+  const [autoSyncing, setAutoSyncing] = useState(false);
+  const didAutoSync = useRef(false);
+  // "Saved" tick DRAG: shows for 1.5s after any successful overlay upsert
+  const [savedAt, setSavedAt] = useState<number | null>(null);
+  const savedTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // Drag-to-reorder state (UX-1)
+  const dragNodeId = useRef<string | null>(null);
+  const [dragOverId, setDragOverId] = useState<string | null>(null);
 
-  function refresh() {
-    // Re-fetch is handled by server revalidatePath; client just force-refreshes
-    // by triggering a router refresh via startTransition + window.location
+  // UX-2: router.refresh() instead of window.location.reload()
+  const refresh = useCallback(() => {
     startTransition(() => {
-      window.location.reload();
+      router.refresh();
+    });
+  }, [router]);
+
+  // "Saved" tick helper
+  const flashSaved = useCallback(() => {
+    setSavedAt(Date.now());
+    if (savedTimerRef.current) clearTimeout(savedTimerRef.current);
+    savedTimerRef.current = setTimeout(() => setSavedAt(null), 1500);
+  }, []);
+
+  // D11 auto-sync on load: pulls Tasks milestones into the private draft.
+  // D6 two-gate is preserved — syncMilestonesAction only revalidates /app and
+  // /app/plan/[slug], never the public /{workspaceSlug} path.
+  useEffect(() => {
+    if (didAutoSync.current) return;
+    didAutoSync.current = true;
+    setAutoSyncing(true);
+    syncMilestonesAction(workspaceSlug).then(() => {
+      setAutoSyncing(false);
+      router.refresh();
+    }).catch(() => {
+      setAutoSyncing(false);
+    });
+  }, [workspaceSlug, router]);
+
+  // DRAG: justPublished localStorage persistence
+  // Initialise from localStorage so the chip animation fires on first load
+  // after a publish, even if the page was reloaded.
+  const lsKey = `roadmap-publish-celebrated-${workspaceSlug}`;
+
+  // Drag-to-reorder handlers
+  function handleDragStart(id: string) {
+    dragNodeId.current = id;
+  }
+
+  function handleDragOver(id: string) {
+    if (id !== dragNodeId.current) setDragOverId(id);
+  }
+
+  function handleDrop(targetId: string) {
+    const sourceId = dragNodeId.current;
+    dragNodeId.current = null;
+    setDragOverId(null);
+    if (!sourceId || sourceId === targetId) return;
+
+    // Compute new sort order: within-lane reorder.
+    // Build ordered flat list, move source to just before target, assign sortOverride.
+    const ordered = [...nodes];
+    const srcIdx = ordered.findIndex((n) => n.id === sourceId);
+    const tgtIdx = ordered.findIndex((n) => n.id === targetId);
+    if (srcIdx < 0 || tgtIdx < 0) return;
+
+    const [moved] = ordered.splice(srcIdx, 1);
+    const insertAt = ordered.findIndex((n) => n.id === targetId);
+    ordered.splice(insertAt, 0, moved);
+
+    // Assign sortOverride values (0-based index)
+    const updated = ordered.map((n, i) => ({ ...n, sortOrder: i }));
+    setNodes(updated);
+
+    // Persist sortOverride for the dragged node via server action
+    startTransition(async () => {
+      const srcNode = updated.find((n) => n.id === sourceId);
+      if (srcNode) {
+        await upsertNodeOverlayAction(workspaceSlug, {
+          nodeId: sourceId,
+          sortOverride: srcNode.sortOrder,
+        });
+        flashSaved();
+      }
     });
   }
 
@@ -690,6 +808,8 @@ export function CurationSurface({
   const hiddenNodes = nodes.filter((n) => n.hidden);
 
   const isEmpty = nodes.length === 0;
+
+  const isSaved = savedAt !== null;
 
   return (
     <div>
@@ -736,18 +856,43 @@ export function CurationSurface({
 
       {/* Toolbar */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
-        <h2
-          style={{
-            fontSize: 11,
-            fontWeight: 600,
-            textTransform: "uppercase",
-            letterSpacing: "0.14em",
-            color: "var(--ink-quiet)",
-            margin: 0,
-          }}
-        >
-          Milestones
-        </h2>
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <h2
+            style={{
+              fontSize: 11,
+              fontWeight: 600,
+              textTransform: "uppercase",
+              letterSpacing: "0.14em",
+              color: "var(--ink-quiet)",
+              margin: 0,
+            }}
+          >
+            Milestones
+          </h2>
+          {/* DRAG: "Saved" 1.5s tick */}
+          {isSaved && (
+            <span
+              style={{
+                fontSize: 10,
+                color: "var(--ink-quiet)",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 3,
+                transition: "opacity 160ms",
+              }}
+            >
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+              Saved
+            </span>
+          )}
+          {autoSyncing && (
+            <span style={{ fontSize: 10, color: "var(--ink-faint)" }}>
+              Syncing…
+            </span>
+          )}
+        </div>
         <SyncButton workspaceSlug={workspaceSlug} onSync={refresh} />
       </div>
 
@@ -819,7 +964,7 @@ export function CurationSurface({
         </div>
       ) : (
         <>
-          {/* Lane-grouped node list */}
+          {/* Lane-grouped node list with drag-to-reorder (UX-1) */}
           <div
             style={{
               border: "1px solid var(--hairline)",
@@ -856,7 +1001,11 @@ export function CurationSurface({
                       key={node.id}
                       node={node}
                       workspaceSlug={workspaceSlug}
-                      onUpdate={refresh}
+                      onUpdate={() => { flashSaved(); refresh(); }}
+                      onDragStart={handleDragStart}
+                      onDragOver={handleDragOver}
+                      onDrop={handleDrop}
+                      isDraggingOver={dragOverId === node.id}
                     />
                   ))}
                 </div>
@@ -882,7 +1031,7 @@ export function CurationSurface({
 
       {/* D5 manual add */}
       <div id="manual-add" style={{ marginTop: 24 }}>
-        <ManualAddForm workspaceSlug={workspaceSlug} onAdd={refresh} />
+        <ManualAddForm workspaceSlug={workspaceSlug} onAdd={() => { flashSaved(); refresh(); }} />
       </div>
     </div>
   );

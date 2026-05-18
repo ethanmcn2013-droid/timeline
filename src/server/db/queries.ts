@@ -303,7 +303,14 @@ export async function createProject({
 // ProjectSource queries — always workspace + project scoped
 // ---------------------------------------------------------------------------
 
-/** Get the raw markdown source for a project. Returns null if none yet. */
+/**
+ * @deprecated RW-2 markdown excision. The projectSources table is retained for
+ * one cycle per ARCH_SPEC §2 ("keep one cycle, stop writes now"). Nothing calls
+ * upsertProjectSource anymore. This function is dead code — do NOT add new callers.
+ * Remove both functions in the next cleanup cycle.
+ *
+ * Get the raw markdown source for a project. Returns null if none yet.
+ */
 export async function getProjectSource(
   projectSlug: string,
   workspaceSlug: string,
@@ -321,7 +328,12 @@ export async function getProjectSource(
   return row ?? null;
 }
 
-/** Insert or replace the raw markdown source for a project. */
+/**
+ * @deprecated RW-2 markdown excision. Writes are stopped; zero callers remain.
+ * Remove in the next cleanup cycle alongside getProjectSource.
+ *
+ * Insert or replace the raw markdown source for a project.
+ */
 export async function upsertProjectSource({
   projectSlug,
   workspaceSlug,

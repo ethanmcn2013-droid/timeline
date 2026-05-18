@@ -35,9 +35,9 @@ export const demoTasks: Task[] = [
     id: "tasks-product-001",
     projectSlug: "product",
     workspaceSlug: "tasks",
-    title: "Workspace onboarding — paste your markdown",
+    title: "Workspace onboarding — first-run experience",
     description:
-      "First-run experience for new workspaces. Paste a markdown roadmap, we parse it into structured items. Zero forms, zero dropdowns.",
+      "First-run experience for new workspaces. Mark tasks as milestones in Signal Tasks and they appear in your plan automatically.",
     status: "in-flight",
     phase: null,
     tier: null,

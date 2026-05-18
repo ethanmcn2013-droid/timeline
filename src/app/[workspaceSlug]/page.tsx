@@ -37,7 +37,6 @@ import { ScheduleView } from "@/components/roadmap/schedule-view";
 import { RoadmapFlow } from "@/components/roadmap/roadmap-flow";
 import { MilestoneMap } from "@/components/roadmap/milestone-map";
 import { SiteFooter } from "@/components/marketing/site-footer";
-import { SuiteLoaderField } from "@/components/system/SuiteLoader";
 import Link from "next/link";
 
 // Public roadmap is read-only, ISR with a 5-min window. The page reads
@@ -518,15 +517,18 @@ async function WorkspaceContentWell({
                       data-view-panel="overview"
                       className="mt-8 flex flex-wrap items-end gap-x-8 gap-y-3"
                     >
+                      {/* CREATIVE_SPEC §1.6: public view — all var(--ink), no tones.
+                          "Blocked" in red is alarming to a recipient who doesn't
+                          know what blocked means in this context. */}
                       <BigStat label="Total" value={counts.total} />
-                      <BigStat label="Done" value={counts.shipped} tone="shipped" />
-                      <BigStat label="Doing" value={counts.inFlight} tone="flight" />
+                      <BigStat label="Done" value={counts.shipped} />
+                      <BigStat label="Doing" value={counts.inFlight} />
                       <BigStat label="Next" value={counts.next} />
                       {counts.blocked > 0 ? (
-                        <BigStat label="Blocked" value={counts.blocked} tone="blocked" />
+                        <BigStat label="Blocked" value={counts.blocked} />
                       ) : null}
                       {counts.refused > 0 ? (
-                        <BigStat label="Won't do" value={counts.refused} tone="refused" />
+                        <BigStat label="Won't do" value={counts.refused} />
                       ) : null}
                     </div>
                   </OverviewOnlyStatic>
@@ -534,15 +536,16 @@ async function WorkspaceContentWell({
               >
                 <OverviewOnly>
                   <div className="mt-8 flex flex-wrap items-end gap-x-8 gap-y-3">
+                    {/* CREATIVE_SPEC §1.6: public view — all var(--ink), no tones. */}
                     <BigStat label="Total" value={counts.total} />
-                    <BigStat label="Done" value={counts.shipped} tone="shipped" />
-                    <BigStat label="Doing" value={counts.inFlight} tone="flight" />
+                    <BigStat label="Done" value={counts.shipped} />
+                    <BigStat label="Doing" value={counts.inFlight} />
                     <BigStat label="Next" value={counts.next} />
                     {counts.blocked > 0 ? (
-                      <BigStat label="Blocked" value={counts.blocked} tone="blocked" />
+                      <BigStat label="Blocked" value={counts.blocked} />
                     ) : null}
                     {counts.refused > 0 ? (
-                      <BigStat label="Won't do" value={counts.refused} tone="refused" />
+                      <BigStat label="Won't do" value={counts.refused} />
                     ) : null}
                   </div>
                 </OverviewOnly>
@@ -1048,6 +1051,22 @@ function weeksBetween(fromIso: string, toIso: string): number {
   return weeks;
 }
 
+/**
+ * Format ISO date as "Jun 12" — CREATIVE_SPEC §1.3.
+ * Year shown only when it differs from the current calendar year.
+ */
+function formatShortDate(iso: string): string {
+  const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(iso);
+  if (!m) return iso;
+  const year = Number(m[1]);
+  const d = new Date(year, Number(m[2]) - 1, Number(m[3]));
+  return d.toLocaleDateString(undefined, {
+    month: "short",
+    day: "numeric",
+    ...(year !== new Date().getFullYear() ? { year: "numeric" } : {}),
+  });
+}
+
 function daysUntilSimple(iso: string): number {
   const target = new Date(iso + "T00:00:00Z").getTime();
   const today = new Date();
@@ -1074,7 +1093,7 @@ function NextMilestoneStrip({ milestones }: { milestones: Task[] }) {
         {next.title}
       </span>
       <span className="text-[11px] tabular-nums text-ink-quiet">
-        {next.targetDate}
+        {formatShortDate(next.targetDate!)}
         {days >= 0 ? ` · T-${days}` : ` · −${Math.abs(days)}d`}
       </span>
     </div>

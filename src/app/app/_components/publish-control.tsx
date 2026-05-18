@@ -33,8 +33,14 @@ export function PublishControl({
   const [published, setPublished] = useState(initialPublished);
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
-  // Track the publish-moment animation state
-  const [justPublished, setJustPublished] = useState(false);
+  // DRAG: justPublished persisted to localStorage `roadmap-publish-celebrated-{slug}`
+  // so the chip animation fires on first load even after a page reload.
+  // UX_SPEC §RW-4 "roadmap-publish-celebrated-{workspaceSlug}" pattern.
+  const lsKey = `roadmap-publish-celebrated-${workspaceSlug}`;
+  const [justPublished, setJustPublished] = useState(() => {
+    if (typeof window === "undefined") return false;
+    try { return localStorage.getItem(lsKey) === "1"; } catch { return false; }
+  });
 
   const url = publicUrl ?? "";
   const displayUrl = url.replace(/^https?:\/\//, "");
@@ -52,6 +58,7 @@ export function PublishControl({
       } else {
         setPublished(true);
         setJustPublished(true);
+        try { localStorage.setItem(lsKey, "1"); } catch { /* SSR / private browsing */ }
       }
     });
   }
@@ -59,6 +66,7 @@ export function PublishControl({
   function handleUnpublish() {
     setError(null);
     setJustPublished(false);
+    try { localStorage.removeItem(lsKey); } catch { /* SSR / private browsing */ }
     startTransition(async () => {
       const result = await unpublishWorkspaceAction(workspaceSlug);
       if ("error" in result) {

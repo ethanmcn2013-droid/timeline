@@ -1,6 +1,26 @@
 import Link from "next/link";
 import type { Task } from "@/server/db/schema";
 
+/**
+ * Format an ISO date string as "Jun 12" (month abbrev + day).
+ * Year appended only when it differs from the current calendar year.
+ * CREATIVE_SPEC §1.3 — "always ISO-derived but displayed human."
+ */
+function formatShort(iso: string): string {
+  const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(iso);
+  if (!m) return iso;
+  const year = Number(m[1]);
+  const month = Number(m[2]) - 1;
+  const day = Number(m[3]);
+  const d = new Date(year, month, day);
+  const currentYear = new Date().getFullYear();
+  return d.toLocaleDateString(undefined, {
+    month: "short",
+    day: "numeric",
+    ...(year !== currentYear ? { year: "numeric" } : {}),
+  });
+}
+
 /** Days-until in calendar days, signed. Negative = in the past. */
 function daysUntil(iso: string): number {
   const target = new Date(iso + "T00:00:00Z");
@@ -70,7 +90,7 @@ export function MilestoneCard({
             </Link>
             {milestone.targetDate ? (
               <span className="text-[10.5px] tabular-nums text-ink-quiet">
-                {milestone.targetDate}
+                {formatShort(milestone.targetDate)}
               </span>
             ) : null}
           </div>
