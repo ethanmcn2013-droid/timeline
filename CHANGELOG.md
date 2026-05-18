@@ -3,6 +3,20 @@
 Convention: BRAND.md §6.5. Entries before 2026-05-14 keep their
 original shape; the new shape starts at the next cycle.
 
+## 2026-05-18 · R·12 · tightens · escape hatch reconciled to suite-wide §14 canonical
+
+**The seamless-ecosystem escape hatch used a roadmap-local cookie name
+(`roadmap_demo_mode`) while every other Signal product already implemented
+DESIGN.md §14's `signal_preview_public` — meaning "View public site" was
+the only escape hatch in the suite that wouldn't survive a cross-product
+session handoff.** The reconcile lands five files: the middleware reads
+the canonical cookie and accepts `?preview=public` as an alternative entry
+point; client-side cookie writes gain a 24-hour expiry (`max-age=86400`)
+and `SameSite=Strict` to match the spec; and the account menu now renders
+"Exit preview" when the cookie is live, with a click clearing it. No Layer
+0 change — `/{workspaceSlug}/*` category-C routes were never in the
+M-allowlist and remain unrestricted for all visitors.
+
 ## 2026-05-17 · R·10 · ships · the wedding example is a calm plan, not a stakeholder roadmap
 
 **The one artifact the whole venue pitch points at was rendering a
