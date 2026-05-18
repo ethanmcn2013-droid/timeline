@@ -345,7 +345,7 @@ export async function publishWorkspaceAction(
   if (allTasks.length === 0) {
     return {
       error:
-        "Add some items to your roadmap before publishing. Stakeholders need something to read.",
+        "Add items to your projects before publishing. Stakeholders need something to read.",
     };
   }
 

@@ -1,131 +1,42 @@
 /**
- * Authenticated app segment loading boundary (App Router).
+ * Roadmap /app segment loading boundary — App Router loading.tsx
  *
- * Renders a nav-skeleton + content shimmer instead of a blank white
- * frame during auth resolution and data fetches. Prevents the
- * sign-in flash (R5) by keeping the app chrome visible while the
- * server resolves the Clerk session.
+ * Spec: LOADING_SYSTEM.md §1 (2026-05-18 seamless-wave, D8 remediation).
+ * Supersedes: wordmark + roadmap-dot sweep composite.
  *
- * Gesture: sweep — dot tracks left→right on the wordmark.
+ * Canonical single-dot: same visual as the root loading.tsx so the
+ * user sees one consistent identity regardless of which segment is
+ * streaming. The ContentWellFallback (Suspense fallback within the
+ * workspace page) uses the same token-driven dot pattern — see
+ * roadmap/src/app/[workspaceSlug]/page.tsx.
+ *
+ * Server Component: zero JS overhead, paints with RSC shell.
  */
 export default function AppLoading() {
   return (
     <div
-      aria-label="Loading your workspace"
-      role="status"
+      aria-hidden
       style={{
-        minHeight: "100dvh",
+        position: "fixed",
+        inset: 0,
         display: "flex",
-        flexDirection: "column",
-        background: "var(--bg, #ffffff)",
+        alignItems: "center",
+        justifyContent: "center",
+        background: "var(--paper, #ffffff)",
+        zIndex: 9999,
       }}
     >
-      {/* App top bar skeleton — mirrors AppLayout chrome */}
-      <header
+      <div
+        className="signal-loading-dot"
         style={{
-          position: "sticky",
-          top: 0,
-          zIndex: 50,
-          borderBottom: "1px solid var(--border, rgba(17,17,17,0.10))",
-          background: "color-mix(in srgb, var(--bg, #fff) 85%, transparent)",
-          backdropFilter: "blur(12px)",
+          width: 12,
+          height: 12,
+          borderRadius: "50%",
+          background: "var(--indigo, #4f46e5)",
+          flexShrink: 0,
+          willChange: "transform, opacity",
         }}
-      >
-        <div
-          style={{
-            margin: "0 auto",
-            maxWidth: "64rem",
-            padding: "0 1.5rem",
-            height: "3rem",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-          }}
-        >
-          {/* Wordmark with sweep animation */}
-          <span
-            style={{
-              display: "inline-flex",
-              alignItems: "baseline",
-              fontSize: "18px",
-              fontWeight: 600,
-              letterSpacing: "-0.05em",
-              color: "var(--ink, #111111)",
-              userSelect: "none",
-            }}
-          >
-            roadmap
-            <span
-              className="roadmap-dot"
-              aria-hidden
-              style={{
-                width: "clamp(4px, 0.30em, 8px)",
-                height: "clamp(4px, 0.30em, 8px)",
-              }}
-            />
-          </span>
-
-          {/* Avatar placeholder */}
-          <div
-            aria-hidden
-            className="skeleton-shimmer"
-            style={{
-              width: "2rem",
-              height: "2rem",
-              borderRadius: "50%",
-            }}
-          />
-        </div>
-      </header>
-
-      {/* Content shimmer */}
-      <main
-        style={{
-          flex: 1,
-          display: "flex",
-          flexDirection: "column",
-          maxWidth: "64rem",
-          width: "100%",
-          margin: "0 auto",
-          padding: "3rem 1.5rem",
-          gap: "1rem",
-        }}
-      >
-        {/* Title skeleton */}
-        <div
-          aria-hidden
-          className="skeleton-shimmer"
-          style={{
-            height: "1.75rem",
-            width: "12rem",
-            borderRadius: "6px",
-          }}
-        />
-        {/* Subtitle skeleton */}
-        <div
-          aria-hidden
-          className="skeleton-shimmer"
-          style={{
-            height: "1rem",
-            width: "8rem",
-            borderRadius: "6px",
-            marginBottom: "1.5rem",
-          }}
-        />
-        {/* Row skeletons */}
-        {[100, 85, 92].map((w, i) => (
-          <div
-            key={i}
-            aria-hidden
-            className="skeleton-shimmer"
-            style={{
-              height: "3.5rem",
-              width: `${w}%`,
-              borderRadius: "10px",
-            }}
-          />
-        ))}
-      </main>
+      />
     </div>
   );
 }
