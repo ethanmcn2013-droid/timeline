@@ -36,7 +36,6 @@ import { ScheduleView } from "@/components/roadmap/schedule-view";
 import { RoadmapFlow } from "@/components/roadmap/roadmap-flow";
 import { MilestoneMap } from "@/components/roadmap/milestone-map";
 import { SiteFooter } from "@/components/marketing/site-footer";
-import { Wordmark } from "@/components/brand/wordmark";
 import Link from "next/link";
 
 // Public roadmap is read-only, ISR with a 5-min window. The page reads
@@ -63,46 +62,195 @@ export async function generateMetadata({
   };
 }
 
+// ── P1-3 shell / content split ────────────────────────────────────────────────
+// The outer page component resolves only getWorkspace (React-cached — the
+// generateMetadata call above reuses the same request-deduped query).
+// Everything that requires data — the draft/publish gate plus the four heavy
+// reads — lives in WorkspaceContentWell behind a Suspense boundary scoped to
+// the content well only. The WorkspaceHeader + ShortcutsOverlay paint
+// immediately from the cache; they never re-blank while the data resolves.
+//
+// revalidate=300 still engages: the outer shell and the content well are
+// co-located in the same route segment, so ISR caches the whole composed
+// output at the pathname boundary. The Suspense split is a streaming
+// concern, not a caching concern.
+
 export default async function WorkspaceRoadmapPage({
   params,
 }: {
   params: Promise<{ workspaceSlug: string }>;
 }) {
-  // NOTE: this page deliberately does NOT read searchParams. Reading
-  // them server-side silently opts the whole route out of ISR (every
-  // shared-link hit ran 4 uncached Turso round-trips), and ISR caches
-  // by pathname only — `?view=x` is the same cache entry as the bare
-  // URL regardless. All four views are rendered server-side once from
-  // the single data fetch below; WorkspaceViewBody (client) toggles
-  // which one is visible from ?view=. revalidate=300 now genuinely
-  // engages.
   const { workspaceSlug } = await params;
 
+  // getWorkspace is React-cached — shared with generateMetadata above and
+  // with WorkspaceContentWell below (all three reuse one Turso round-trip).
   const workspace = await getWorkspace(workspaceSlug);
   if (!workspace) notFound();
 
+  return (
+    // data-workspace-view-root: anchor for the pre-paint inline script that
+    // sets data-view="<active>" before first render so CSS immediately shows
+    // only the deep-linked view panel without a flash. Placed on the outer
+    // shell so the script is present even during Suspense resolution.
+    <div
+      className="flex min-h-screen flex-col"
+      style={{ background: "var(--bg)" }}
+      data-workspace-view-root
+    >
+      {/*
+        Pre-paint view selection: runs synchronously during HTML parse,
+        before any pixels are drawn. Reads ?view= from the URL, sets
+        data-view on the root wrapper, and corrects aria-current on the
+        static switcher tabs so the correct panel and active tab are
+        visible on the very first frame — no flash, no hydration wait.
+
+        Paired <style> block: hides non-matching panels when data-view is
+        set (deep-linked non-overview views only — when there is no view
+        param the attribute is absent and no CSS fires, so overview shows
+        as the safe default).
+
+        No-JS: script never runs → no data-view → overview shows (correct).
+        Hydration: WorkspaceViewBody + WorkspaceViewSwitcher take over for
+        subsequent in-page switching, making the data-view attribute and
+        static aria-current values irrelevant.
+      */}
+      <style
+        // eslint-disable-next-line react/no-danger
+        dangerouslySetInnerHTML={{
+          __html: `
+[data-workspace-view-root][data-view] [data-view-panel] { display: none; }
+[data-workspace-view-root][data-view="overview"] [data-view-panel="overview"],
+[data-workspace-view-root][data-view="roadmap"] [data-view-panel="roadmap"],
+[data-workspace-view-root][data-view="milestones"] [data-view-panel="milestones"],
+[data-workspace-view-root][data-view="schedule"] [data-view-panel="schedule"] { display: revert; }
+`.trim(),
+        }}
+      />
+      <script
+        // eslint-disable-next-line react/no-danger
+        dangerouslySetInnerHTML={{
+          __html: `(function(){try{
+var m=location.search.match(/[?&]view=(roadmap|milestones|schedule)(?:&|$)/);
+if(!m)return;
+var v=m[1];
+var root=document.querySelector('[data-workspace-view-root]');
+if(!root)return;
+root.setAttribute('data-view',v);
+var tabs=root.querySelectorAll('[data-view-tab]');
+for(var i=0;i<tabs.length;i++){
+  var t=tabs[i];
+  var tid=t.getAttribute('data-view-tab');
+  if(tid===v){
+    t.setAttribute('aria-current','page');
+    t.style.color='#ffffff';
+    t.style.background='var(--ink)';
+  } else {
+    t.removeAttribute('aria-current');
+    t.style.color='var(--ink-quiet)';
+    t.style.background='transparent';
+  }
+}
+}catch(e){}})();`,
+        }}
+      />
+
+      {/* Chrome: renders from the React-cached getWorkspace — no Turso
+          round-trip beyond what generateMetadata already consumed.
+          refusedCount=0 here; WorkspaceHeader will update when content
+          resolves via the content well (nice-to-have detail, not blocking). */}
+      <WorkspaceHeader workspace={workspace} refusedCount={0} />
+      <ShortcutsOverlay />
+
+      {/* Content well: draft gate + 4 heavy reads deferred to Suspense.
+          The header above always paints first; the content area streams in
+          behind it. Fallback scoped to the content well only (P1-3). */}
+      <Suspense fallback={<ContentWellFallback />}>
+        <WorkspaceContentWell workspaceSlug={workspaceSlug} workspace={workspace} />
+      </Suspense>
+    </div>
+  );
+}
+
+// ── Local content-well fallback ───────────────────────────────────────────────
+// Shown while WorkspaceContentWell resolves. Scoped to the content area only —
+// the header above is already painted. Single indigo dot on paper-white per
+// LOADING_SYSTEM.md §1.
+// TODO: replace with canonical SuiteLoader (LOADING_SYSTEM.md §1) once
+// the studio repo's SuiteLoader is copied across all repos (later wave).
+function ContentWellFallback() {
+  return (
+    <div
+      style={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        flex: 1,
+        minHeight: "40dvh",
+      }}
+    >
+      <div
+        className="signal-loading-dot"
+        aria-hidden
+        style={{
+          width: 10,
+          height: 10,
+          borderRadius: "50%",
+          background: "var(--indigo, #4f46e5)",
+          flexShrink: 0,
+          willChange: "transform, opacity",
+        }}
+      />
+    </div>
+  );
+}
+
+// ── Content well ─────────────────────────────────────────────────────────────
+// Async Server Component owning the draft/publish gate + the 4 heavy reads.
+// Sits behind the Suspense boundary above. The WorkspaceHeader renders before
+// this resolves (P1-3 fix).
+//
+// workspace is already resolved by the outer page component from the cache —
+// passed down to avoid a second lookup while keeping the type narrowed.
+async function WorkspaceContentWell({
+  workspaceSlug,
+  workspace,
+}: {
+  workspaceSlug: string;
+  workspace: {
+    ownerUserId: string;
+    name: string;
+    isDemo: boolean;
+    description: string | null;
+    slug: string;
+    ownerName: string | null;
+  };
+}) {
   // Draft/publish gate (Layer 1 — seamless-ecosystem-2026-05-18).
-  // Order: check publish state and owner identity in parallel so the
-  // public read path (published) adds zero latency over the prior version.
+  // Run in parallel to keep the happy path fast.
   //
   // Rule:
-  //   - Published → everyone sees the roadmap (unchanged from before).
+  //   - Published → everyone sees the roadmap.
   //   - Draft + owner (current authed user) → owner preview allowed.
-  //   - Draft + non-owner (or logged out) → "Not published yet" state.
+  //   - Draft + non-owner (or logged out) → calm "Not published yet" content.
   //
-  // This is NOT a login wall. Logged-out visitors to a draft workspace get
-  // the friendly "not published yet" page — not a redirect to sign-in.
+  // This is NOT a login wall. Logged-out visitors to a draft workspace see
+  // the friendly not-published message — not a sign-in redirect.
   const [published, currentUser] = await Promise.all([
     isWorkspacePublished(workspaceSlug),
     getCurrentUser(),
   ]);
   const isOwner = currentUser?.userId === workspace.ownerUserId;
   if (!published && !isOwner) {
-    return <DraftNotPublished workspaceName={workspace.name} />;
+    return (
+      <>
+        <DraftNotPublishedContent workspaceName={workspace.name} />
+        <SiteFooter />
+      </>
+    );
   }
 
-  // Single data fetch — all three views share this payload.
-  // No per-view branching in the data layer; ISR is not broken.
+  // Single data fetch — all four views share this payload.
+  // No per-view branching in the data layer; ISR remains intact.
   const [projects, allTasks, upcoming, lastUpdated] = await Promise.all([
     getProjectsForWorkspace(workspaceSlug),
     getTasksForWorkspace(workspaceSlug),
@@ -110,8 +258,8 @@ export default async function WorkspaceRoadmapPage({
     getLastUpdatedForWorkspace(workspaceSlug),
   ]);
 
-  // Workspace-level status counts derived from the task list we already
-  // fetched, rather than a second full-table read (was getCountsForWorkspace).
+  // Workspace-level status counts derived from the task list already fetched,
+  // rather than a second full-table read (was getCountsForWorkspace).
   const counts = {
     total: allTasks.length,
     shipped: 0,
@@ -187,10 +335,9 @@ export default async function WorkspaceRoadmapPage({
     });
 
   // Un-shipped milestones with a date, in chronological order. The
-  // page renders each item with a soft "→ for <milestone>" line that
-  // points at the *earliest* such milestone the item falls under
-  // (item.targetDate ≤ milestone.targetDate). Refused items skip the
-  // line entirely — they're not building toward anything.
+  // page renders each item with a soft "→ for <milestone>" line pointing at
+  // the earliest such milestone the item falls under (item.targetDate ≤
+  // milestone.targetDate). Refused items skip the line entirely.
   const pendingMilestones = milestones.filter(
     (m) => m.status !== "shipped" && m.targetDate,
   );
@@ -205,8 +352,7 @@ export default async function WorkspaceRoadmapPage({
     return null;
   }
 
-  // Blockers: status=blocked items. We don't gate the roadmap on these,
-  // but we surface them as a card grid above the list (Tasks GTM rhythm).
+  // Blockers: status=blocked items. Surfaced as a card grid above the list.
   const blockers = allTasks
     .filter((t) => t.status === "blocked")
     .sort((a, b) => {
@@ -229,21 +375,15 @@ export default async function WorkspaceRoadmapPage({
   const progress = totalForProgress > 0 ? counts.shipped / totalForProgress : 0;
 
   const hasItems = allTasks.length > 0;
-  // isDemoWorkspace: reads the explicit schema flag rather than a reserved
-  // slug comparison. The slug === "tasks" coupling was fragile — it would
-  // silently break if the demo workspace were renamed. The isDemo column
-  // (schema 0003_workspace_is_demo.sql, default false) is set true only
-  // by the seed script.
+  // isDemoWorkspace: reads the explicit schema flag, not a reserved-slug check.
   const isDemoWorkspace = workspace.isDemo;
 
   // The dial + Next-milestone lockup earn their hero placement only
-  // when the workspace tells a *story* — not when it's just rendering
-  // a count.
+  // when the workspace tells a *story* — not when it's just rendering a count.
   const hasMomentum = totalForProgress >= 5 || milestones.length > 0;
 
-  // Make sure the h1 always ends in a period — the rhythmic signature
-  // of "studio. shipping log." / "The other roadmap." — without
-  // doubling up when a workspace name already ends in one.
+  // H1 always ends in a period — the rhythmic signature of the brand —
+  // without doubling up when a workspace name already ends in one.
   const heroTitle = /[.!?]$/.test(workspace.name)
     ? workspace.name
     : `${workspace.name}.`;
@@ -270,10 +410,9 @@ export default async function WorkspaceRoadmapPage({
     return { inScope, shipped };
   });
 
-  // ── Serialisable inputs for the client visualisations ────────────────────
-  // Roadmap flow map: precompute milestoneFor() per task (the fn can't cross
-  // the RSC boundary). Milestone map: precompute scope + feeding-item statuses
-  // per milestone using the same predicate MilestonesView used.
+  // Serialisable inputs for the client visualisations:
+  // Roadmap flow map: precompute milestoneFor() per task (fn can't cross RSC boundary).
+  // Milestone map: precompute scope + feeding-item statuses per milestone.
   const milestoneLabels: Record<string, string | null> = {};
   for (const t of visibleTasks) milestoneLabels[t.id] = milestoneFor(t);
 
@@ -300,72 +439,7 @@ export default async function WorkspaceRoadmapPage({
   });
 
   return (
-    // data-workspace-view-root is the anchor for the pre-paint inline script
-    // that sets data-view="<active>" before first render, so CSS can
-    // immediately show only the deep-linked view panel without a flash.
-    <div
-      className="flex min-h-screen flex-col"
-      style={{ background: "var(--bg)" }}
-      data-workspace-view-root
-    >
-      {/*
-        Pre-paint view selection: runs synchronously during HTML parse,
-        before any pixels are drawn. Reads ?view= from the URL, sets
-        data-view on the root wrapper, and corrects aria-current on the
-        static switcher tabs so the correct panel and active tab are
-        visible on the very first frame — no flash, no hydration wait.
-
-        The paired <style> block below implements the CSS rule that hides
-        non-matching panels when data-view is set (i.e. only for
-        deep-linked non-overview views — when there is no view param the
-        attribute is absent and no CSS fires, so overview shows as the
-        safe default).
-
-        No-JS: script never runs → no data-view → overview shows (correct).
-        Hydration: WorkspaceViewBody + WorkspaceViewSwitcher take over for
-        subsequent in-page switching, at which point the data-view attribute
-        and static aria-current values become irrelevant.
-      */}
-      <style
-        // eslint-disable-next-line react/no-danger
-        dangerouslySetInnerHTML={{
-          __html: `
-[data-workspace-view-root][data-view] [data-view-panel] { display: none; }
-[data-workspace-view-root][data-view="overview"] [data-view-panel="overview"],
-[data-workspace-view-root][data-view="roadmap"] [data-view-panel="roadmap"],
-[data-workspace-view-root][data-view="milestones"] [data-view-panel="milestones"],
-[data-workspace-view-root][data-view="schedule"] [data-view-panel="schedule"] { display: revert; }
-`.trim(),
-        }}
-      />
-      <script
-        // eslint-disable-next-line react/no-danger
-        dangerouslySetInnerHTML={{
-          __html: `(function(){try{
-var m=location.search.match(/[?&]view=(roadmap|milestones|schedule)(?:&|$)/);
-if(!m)return;
-var v=m[1];
-var root=document.querySelector('[data-workspace-view-root]');
-if(!root)return;
-root.setAttribute('data-view',v);
-var tabs=root.querySelectorAll('[data-view-tab]');
-for(var i=0;i<tabs.length;i++){
-  var t=tabs[i];
-  var tid=t.getAttribute('data-view-tab');
-  if(tid===v){
-    t.setAttribute('aria-current','page');
-    t.style.color='#ffffff';
-    t.style.background='var(--ink)';
-  } else {
-    t.removeAttribute('aria-current');
-    t.style.color='var(--ink-quiet)';
-    t.style.background='transparent';
-  }
-}
-}catch(e){}})();`,
-        }}
-      />
-      <WorkspaceHeader workspace={workspace} refusedCount={counts.refused} />
+    <>
       {isDemoWorkspace && (
         <div
           className="w-full border-b px-6 py-2 text-center text-[12px] text-ink-soft"
@@ -374,7 +448,6 @@ for(var i=0;i<tabs.length;i++){
           You&apos;re viewing a public demo workspace — this is what your roadmap could look like.
         </div>
       )}
-      <ShortcutsOverlay />
 
       <main className="flex-1">
         {/* Hero — typographic title + meta strip + progress dial + view switcher */}
@@ -429,7 +502,7 @@ for(var i=0;i<tabs.length;i++){
                     </p>
                   ) : null}
                   {/* View switcher — client island. Suspense required because
-                      useSearchParams() inside suspends until params are known.
+                      useSearchParams() suspends until params are known.
                       The static fallback renders the nav in SSR HTML so
                       no-JS visitors see the tabs immediately. */}
                   <Suspense fallback={<WorkspaceViewSwitcherStatic workspaceSlug={workspaceSlug} />}>
@@ -456,8 +529,7 @@ for(var i=0;i<tabs.length;i++){
 
             {/* Stats row — semantic counts — Overview only. The three map
                 views (Roadmap board / Milestones / Schedule) each carry their
-                own counts in-surface; the band there is redundant and, on the
-                board, contradictory (it counts milestones the lanes exclude). */}
+                own counts in-surface; the band there is redundant. */}
             {hasItems ? (
               <Suspense
                 fallback={
@@ -474,18 +546,10 @@ for(var i=0;i<tabs.length;i++){
                       <BigStat label="Doing" value={counts.inFlight} tone="flight" />
                       <BigStat label="Next" value={counts.next} />
                       {counts.blocked > 0 ? (
-                        <BigStat
-                          label="Blocked"
-                          value={counts.blocked}
-                          tone="blocked"
-                        />
+                        <BigStat label="Blocked" value={counts.blocked} tone="blocked" />
                       ) : null}
                       {counts.refused > 0 ? (
-                        <BigStat
-                          label="Won't do"
-                          value={counts.refused}
-                          tone="refused"
-                        />
+                        <BigStat label="Won't do" value={counts.refused} tone="refused" />
                       ) : null}
                     </div>
                   </OverviewOnlyStatic>
@@ -498,18 +562,10 @@ for(var i=0;i<tabs.length;i++){
                     <BigStat label="Doing" value={counts.inFlight} tone="flight" />
                     <BigStat label="Next" value={counts.next} />
                     {counts.blocked > 0 ? (
-                      <BigStat
-                        label="Blocked"
-                        value={counts.blocked}
-                        tone="blocked"
-                      />
+                      <BigStat label="Blocked" value={counts.blocked} tone="blocked" />
                     ) : null}
                     {counts.refused > 0 ? (
-                      <BigStat
-                        label="Won't do"
-                        value={counts.refused}
-                        tone="refused"
-                      />
+                      <BigStat label="Won't do" value={counts.refused} tone="refused" />
                     ) : null}
                   </div>
                 </OverviewOnly>
@@ -520,29 +576,32 @@ for(var i=0;i<tabs.length;i++){
 
         {/* ── View body ─────────────────────────────────────────────────────── */}
         {!hasItems ? (
+          // Published workspace with projects but no items yet (can occur if
+          // the owner publishes right after content is removed). The prior copy
+          // "Nothing yet. The owner is still drafting." is wrong here — the
+          // owner is NOT drafting, the workspace is published. Calm, accurate.
           <section className="px-6 py-24 text-center">
             <div className="mx-auto max-w-md space-y-2">
               <p className="text-[15px] text-ink-soft">
-                Nothing yet. The owner is still drafting.
+                Nothing here yet.
               </p>
               <p className="text-[13px] text-ink-quiet">
-                This page stays current as the plan moves — check back, or
-                bookmark it.
+                This page updates as the plan moves — check back, or bookmark it.
               </p>
             </div>
           </section>
         ) : (
-          /* All four views are server-rendered once from the single
-             data fetch above; WorkspaceViewBody (client) shows the one
-             matching ?view=. Suspense is required by useSearchParams.
-             The static fallback renders the overview in SSR HTML so
-             no-JS visitors see the full roadmap content immediately. */
+          /* All four views are server-rendered once from the single data fetch;
+             WorkspaceViewBody (client) shows the one matching ?view=.
+             Suspense is required by useSearchParams. The static fallback
+             renders the overview in SSR HTML so no-JS visitors see the full
+             roadmap content immediately. */
           <Suspense
             fallback={
               // All four view panels are pre-rendered in the SSR HTML.
-              // The pre-paint inline script + CSS selectively shows only
-              // the panel that matches ?view=, so deep-linked views
-              // render immediately without a flash or hydration wait.
+              // The pre-paint inline script + CSS selectively shows only the
+              // panel that matches ?view=, so deep-linked views render
+              // immediately without a flash or hydration wait.
               // No-JS visitors get the overview (safe default).
               <WorkspaceViewBodyStatic
                 overview={
@@ -580,11 +639,11 @@ for(var i=0;i<tabs.length;i++){
                     <section className="px-6 py-24 text-center">
                       <div className="mx-auto max-w-md space-y-2">
                         <p className="text-[15px] text-ink-soft">
-                          No milestones yet. The owner is still drafting.
+                          No milestones yet.
                         </p>
                         <p className="text-[13px] text-ink-quiet">
-                          This page stays current as the plan moves — check
-                          back, or bookmark it.
+                          This page updates as the plan moves — check back, or
+                          bookmark it.
                         </p>
                       </div>
                     </section>
@@ -634,11 +693,11 @@ for(var i=0;i<tabs.length;i++){
                   <section className="px-6 py-24 text-center">
                     <div className="mx-auto max-w-md space-y-2">
                       <p className="text-[15px] text-ink-soft">
-                        No milestones yet. The owner is still drafting.
+                        No milestones yet.
                       </p>
                       <p className="text-[13px] text-ink-quiet">
-                        This page stays current as the plan moves — check
-                        back, or bookmark it.
+                        This page updates as the plan moves — check back, or
+                        bookmark it.
                       </p>
                     </div>
                   </section>
@@ -655,13 +714,13 @@ for(var i=0;i<tabs.length;i++){
       </main>
 
       <SiteFooter />
-    </div>
+    </>
   );
 }
 
 // ── View: Overview ────────────────────────────────────────────────────────────
-// The current full-featured layout: blockers, milestones, project cards, item
-// list, right rail. This is the default when ?view= is absent.
+// The full layout: blockers, milestones, project cards, item list, right rail.
+// Default when ?view= is absent.
 
 function OverviewView({
   blockers,
@@ -913,7 +972,7 @@ function OverviewView({
 }
 
 // ── Shared sub-component ──────────────────────────────────────────────────────
-// Item list grouped by project then week heading. Used by overview + roadmap views.
+// Item list grouped by project then week heading.
 
 function ItemListByProject({
   projects,
@@ -985,7 +1044,7 @@ function ItemListByProject({
   );
 }
 
-// ── Helpers ──────────────────────────────────────────────────────────────────
+// ── Helpers ───────────────────────────────────────────────────────────────────
 
 function groupByWeek(
   tasks: Task[],
@@ -1012,8 +1071,6 @@ function weeksBetween(fromIso: string, toIso: string): number {
   return weeks;
 }
 
-// formatRelative extracted to src/lib/format.ts — Phase 11.3
-
 function daysUntilSimple(iso: string): number {
   const target = new Date(iso + "T00:00:00Z").getTime();
   const today = new Date();
@@ -1026,7 +1083,6 @@ function daysUntilSimple(iso: string): number {
 }
 
 function NextMilestoneStrip({ milestones }: { milestones: Task[] }) {
-  // Surface the next un-shipped milestone with a date.
   const next = milestones.find(
     (m) => m.status !== "shipped" && m.targetDate,
   );
@@ -1048,46 +1104,37 @@ function NextMilestoneStrip({ milestones }: { milestones: Task[] }) {
   );
 }
 
-// ── Draft / not-published state ───────────────────────────────────────────────
-// Shown to non-owners visiting a draft workspace. Not a 404, not a login wall.
-// Brand voice: plain English, no "error" framing, no invitation to sign in
-// (that would make it feel like an auth gate). LAYER0_ROUTE_ALLOWLIST.md §Roadmap.
+// ── Draft / not-published content ─────────────────────────────────────────────
+// Shown inside the content well (behind WorkspaceHeader) to non-owners
+// visiting a draft workspace. Not a 404, not a login wall. Brand voice:
+// plain English, no "error" framing, no sign-in invitation.
+//
+// The outer shell always renders WorkspaceHeader; this component only
+// provides the content area message. LAYER0_ROUTE_ALLOWLIST.md §Roadmap.
 
-function DraftNotPublished({ workspaceName }: { workspaceName: string }) {
+function DraftNotPublishedContent({ workspaceName }: { workspaceName: string }) {
   return (
-    <div className="flex min-h-screen flex-col" style={{ background: "var(--bg)" }}>
-      <header className="border-b px-6 py-4" style={{ borderColor: "var(--line-soft)" }}>
-        <div className="mx-auto w-full max-w-[1240px]">
-          <Wordmark size="md" />
-        </div>
-      </header>
-
-      <main className="flex flex-1 flex-col items-center justify-center px-6 py-24 text-center">
-        <div className="mx-auto max-w-sm">
-          <p
-            className="mb-4 text-[11px] font-semibold uppercase tracking-[0.16em]"
-            style={{ color: "var(--ink-quiet)" }}
-          >
-            Not published yet
-          </p>
-          <h1
-            className="mb-4 text-[clamp(1.75rem,1.4rem+1.5vw,2.5rem)] font-semibold leading-[1.1]"
-            style={{ letterSpacing: "-0.035em", color: "var(--ink)" }}
-          >
-            {workspaceName}.
-          </h1>
-          <p
-            className="mb-10 text-[15px] leading-[1.55]"
-            style={{ color: "var(--ink-soft)" }}
-          >
-            This plan isn&apos;t public yet. The owner will share it when it&apos;s ready.
-          </p>
-        </div>
-      </main>
-
-      <SiteFooter />
-    </div>
+    <main className="flex flex-1 flex-col items-center justify-center px-6 py-24 text-center">
+      <div className="mx-auto max-w-sm">
+        <p
+          className="mb-4 text-[11px] font-semibold uppercase tracking-[0.16em]"
+          style={{ color: "var(--ink-quiet)" }}
+        >
+          Not published yet
+        </p>
+        <h1
+          className="mb-4 text-[clamp(1.75rem,1.4rem+1.5vw,2.5rem)] font-semibold leading-[1.1]"
+          style={{ letterSpacing: "-0.035em", color: "var(--ink)" }}
+        >
+          {workspaceName}.
+        </h1>
+        <p
+          className="mb-10 text-[15px] leading-[1.55]"
+          style={{ color: "var(--ink-soft)" }}
+        >
+          This plan isn&apos;t public yet. The owner will share it when it&apos;s ready.
+        </p>
+      </div>
+    </main>
   );
 }
-
-// Also need Wordmark for the DraftNotPublished component

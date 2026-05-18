@@ -1,6 +1,5 @@
 import Link from "next/link";
 import type { Workspace } from "@/server/db/schema";
-import { Wordmark } from "@/components/brand/wordmark";
 import { SuiteLauncher } from "@/components/suite-launcher";
 import { WorkspaceAuthControls } from "./workspace-auth-controls";
 
@@ -71,10 +70,14 @@ export function WorkspaceHeader({
               What didn&apos;t make it
             </Link>
           ) : null}
+          {/* P2-4 fix: SuiteLauncher IS the product identity anchor — it shows
+              "signal studio." and contains the roadmap entry in its menu.
+              The standalone <Wordmark> duplicated "roadmap." in the same
+              header row, creating a double-brand strip. One identity element
+              per header is the IA_COHERENCE.md canon. */}
           <div className="hidden sm:inline-flex">
             <SuiteLauncher current="roadmap" />
           </div>
-          <Wordmark size="sm" href="/" />
           {/* Auth-aware owner controls — client island, renders nothing for guests */}
           <WorkspaceAuthControls ownerUserId={workspace.ownerUserId} />
         </div>
