@@ -88,14 +88,19 @@ export function PublishControl({
           maxWidth: 480,
         }}
       >
+        {/* Item 6: more inviting draft-state copy.
+            "Ready to share" reframes from restriction ("private") to
+            possibility. The key trust signal — no account needed — leads.
+            D6 two-gate preserved: publish is still an explicit human action. */}
         <p
           style={{
             fontSize: 13,
-            color: "var(--ink-soft, #3f3f46)",
+            fontWeight: 500,
+            color: "var(--ink, #111111)",
             marginBottom: 4,
           }}
         >
-          This plan is private.
+          Ready to share this plan?
         </p>
         <p
           style={{
@@ -105,7 +110,8 @@ export function PublishControl({
             lineHeight: 1.5,
           }}
         >
-          Publish it to get a link anyone can open — no account needed.
+          Publish to get a link anyone can open — no account, no friction.
+          Great for clients, stakeholders, or anyone you want to keep informed.
         </p>
         {error && (
           <p
@@ -255,6 +261,7 @@ export function PublishControl({
         </div>
       )}
 
+      {/* Item 6: reassure the sharer — plain language, no hype. */}
       <p
         style={{
           fontSize: 12,
@@ -263,7 +270,8 @@ export function PublishControl({
           lineHeight: 1.5,
         }}
       >
-        Anyone with this link can read the plan. No account.
+        Anyone with this link can read the plan — no account, no sign-up.
+        Send it to a client, a stakeholder, or anyone following along.
       </p>
 
       {error && (
