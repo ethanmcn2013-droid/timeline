@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import type { WorkspaceView } from "@/components/showcase/types";
 
@@ -117,10 +118,17 @@ export function WorkspaceViewSwitcher({ workspaceSlug }: Props) {
         {VIEWS.map((item) => {
           const isActive = item.id === activeView;
           return (
-            <a
+            // P1-5 fix: <Link> with scroll={false} + replace so tab switches
+            // are client-side URL updates, never full page reloads. Plain
+            // <a> tags caused full navigations → loading.tsx triggered → white
+            // flash on every tab switch. scroll={false} preserves position.
+            <Link
               key={item.id}
               href={hrefFor(item.id)}
+              scroll={false}
+              replace
               aria-current={isActive ? "page" : undefined}
+              data-view-tab={item.id}
               className="view-switcher-link relative inline-flex items-center rounded-full px-3 py-1 text-[11px] font-medium"
               style={{
                 color: isActive ? "#ffffff" : "var(--ink-quiet)",
@@ -128,7 +136,7 @@ export function WorkspaceViewSwitcher({ workspaceSlug }: Props) {
               }}
             >
               {item.label}
-            </a>
+            </Link>
           );
         })}
       </div>

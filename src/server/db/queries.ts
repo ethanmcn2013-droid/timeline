@@ -170,26 +170,45 @@ export async function getProjectsForWorkspace(
 }
 
 /**
- * Returns true if ALL projects in the workspace are published (published_at
- * is non-null). A workspace with zero projects is considered unpublished.
+ * Returns true iff the workspace is genuinely ready for public viewing:
+ *   1. At least one project exists.
+ *   2. Every project has published_at set (non-null).
+ *   3. At least one task exists for the workspace slug (COUNT > 0).
  *
- * For the public viewer the relevant check is per-project — see
- * isWorkspacePublished below which is the coarser workspace-level gate
- * used by /{workspaceSlug} before showing the roadmap or returning 404-style.
+ * Condition 3 prevents the P0-2 defect: a workspace with projects but
+ * zero tasks renders an empty public roadmap. The owner presses Publish,
+ * believes it is live, but stakeholders see "Nothing yet." This three-part
+ * gate ensures "published" means the roadmap has visible content.
  *
- * We treat a workspace as "published" when it has at least one project and
- * every project in it is published. This matches the UX: Publish publishes
- * all projects in the workspace at once.
+ * createProjectAction calls this to decide whether new projects should
+ * inherit published_at. That call is safe under the new check: a workspace
+ * where all existing projects are published AND tasks exist is still
+ * considered published, so new projects correctly inherit the published
+ * state. The empty-workspace guard returns false immediately (row count = 0)
+ * before reaching the task count, so a zero-project workspace can never
+ * unintentionally pass.
+ *
+ * Callers that only need the project-level gate (publish/unpublish mutations)
+ * should call getProjectsForWorkspace and check rows directly.
  */
 export async function isWorkspacePublished(
   workspaceSlug: string,
 ): Promise<boolean> {
-  const rows = await db
+  // Step 1+2: require ≥1 project, all published.
+  const projectRows = await db
     .select({ publishedAt: projects.publishedAt })
     .from(projects)
     .where(eq(projects.workspaceSlug, workspaceSlug));
-  if (rows.length === 0) return false;
-  return rows.every((r) => r.publishedAt !== null);
+  if (projectRows.length === 0) return false;
+  if (!projectRows.every((r) => r.publishedAt !== null)) return false;
+
+  // Step 3: require at least one task in the workspace.
+  const taskCountRows = await db
+    .select({ id: tasks.id })
+    .from(tasks)
+    .where(eq(tasks.workspaceSlug, workspaceSlug))
+    .limit(1);
+  return taskCountRows.length > 0;
 }
 
 /**

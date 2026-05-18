@@ -1,51 +1,49 @@
 /**
- * Root-level loading boundary (App Router).
+ * Roadmap root loading boundary — App Router loading.tsx
  *
- * Renders the Roadmap sweep gesture on paper white during any
- * top-level route transition. The dot is px-clamped so it cannot
- * balloon before the font stack resolves.
+ * Spec: LOADING_SYSTEM.md §1 (2026-05-18 seamless-wave, D8 remediation).
+ * Supersedes: wordmark + roadmap-dot sweep composite (old implementation).
  *
- * Gesture: sweep — dot tracks left→right, 5.4s cubic-bezier(.22,.7,.2,1).
- * Class: .roadmap-dot  Keyframes: roadmap-dot-sweep  (globals.css)
+ * Visual: one indigo dot. Paper-white field. No wordmark. No chrome.
+ * No skeleton. Server Component: zero JS overhead, paints with RSC shell.
+ *
+ * The dot class `signal-loading-dot` is defined in globals.css:
+ *   - @media no-preference: signal-load-pulse 1.8s infinite
+ *   - @media reduce: animation:none; opacity:0.85 (static dot, brand present)
+ *
+ * LOADING_SYSTEM.md hard refusals (cite doc if asked to change):
+ *   1. No wordmark in the loading state.
+ *   2. No skeleton bars.
+ *   3. No large disc, spinner, or ring.
+ *   4. No product-colour differentiation.
+ *   5. No text in the loading state.
+ *   6. No top progress bar (creative-director refusal).
  */
-export default function RootLoading() {
+export default function Loading() {
   return (
     <div
-      aria-label="Loading"
-      role="status"
+      aria-hidden
       style={{
-        minHeight: "100dvh",
+        position: "fixed",
+        inset: 0,
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        background: "var(--bg, #ffffff)",
+        background: "var(--paper, #ffffff)",
+        zIndex: 9999,
       }}
     >
-      {/* Wordmark-sized sweep indicator: px-clamped so em never inherits
-          an unhydrated font size and the dot stays ≤8px tall. */}
-      <span
-        aria-hidden
+      <div
+        className="signal-loading-dot"
         style={{
-          display: "inline-flex",
-          alignItems: "baseline",
-          fontSize: "18px",        /* fixed — matches Wordmark size="md" */
-          fontWeight: 600,
-          letterSpacing: "-0.05em",
-          color: "var(--ink, #111111)",
-          userSelect: "none",
+          width: 12,
+          height: 12,
+          borderRadius: "50%",
+          background: "var(--indigo, #4f46e5)",
+          flexShrink: 0,
+          willChange: "transform, opacity",
         }}
-      >
-        roadmap
-        <span
-          className="roadmap-dot"
-          style={{
-            /* Hard px ceiling — overrides the 0.30em value so it can never
-               scale above 8px regardless of inherited font size. */
-            width: "clamp(4px, 0.30em, 8px)",
-            height: "clamp(4px, 0.30em, 8px)",
-          }}
-        />
-      </span>
+      />
     </div>
   );
 }

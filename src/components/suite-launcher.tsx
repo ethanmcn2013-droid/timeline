@@ -12,35 +12,35 @@ import {
 
 type ProductSlug = "tasks" | "roadmap" | "notes" | "analytics";
 
-/** Marketing URLs (shown when unauthed). */
+/** Marketing URLs (shown when unauthed). §1I order: Roadmap → Tasks → Notes → Analytics. */
 const PRODUCTS_MARKETING: {
   slug: ProductSlug;
   word: string;
   tagline: string;
   url: string;
 }[] = [
-  { slug: "tasks", word: "tasks", tagline: "Execution clarity", url: TASKS_URL },
-  { slug: "roadmap", word: "roadmap", tagline: "Direction clarity", url: ROADMAP_URL },
-  { slug: "notes", word: "notes", tagline: "Capture clarity", url: NOTES_URL },
-  { slug: "analytics", word: "analytics", tagline: "Attention clarity", url: ANALYTICS_URL },
+  { slug: "roadmap",   word: "roadmap",   tagline: "Direction clarity",  url: ROADMAP_URL },
+  { slug: "tasks",     word: "tasks",     tagline: "Execution clarity",  url: TASKS_URL },
+  { slug: "notes",     word: "notes",     tagline: "Capture clarity",    url: NOTES_URL },
+  { slug: "analytics", word: "analytics", tagline: "Attention clarity",  url: ANALYTICS_URL },
 ];
 
-/** App deep-link URLs (shown when authed — go straight to the product app). */
+/** App deep-link URLs (shown when authed). §1C labels, §1I order. */
 const PRODUCTS_APP: {
   slug: ProductSlug;
   word: string;
-  tagline: string;
+  label: string;
   url: string;
 }[] = [
-  { slug: "tasks", word: "tasks", tagline: "Open tasks", url: `${TASKS_URL}/app` },
-  { slug: "roadmap", word: "roadmap", tagline: "Open roadmap", url: `${ROADMAP_URL}/app` },
-  { slug: "notes", word: "notes", tagline: "Open notes", url: `${NOTES_URL}/app` },
-  { slug: "analytics", word: "analytics", tagline: "Open analytics", url: `${ANALYTICS_URL}/app` },
+  { slug: "roadmap",   word: "roadmap",   label: "Open roadmap",   url: `${ROADMAP_URL}/app` },
+  { slug: "tasks",     word: "tasks",     label: "Open tasks",     url: `${TASKS_URL}/app` },
+  { slug: "notes",     word: "notes",     label: "Open notes",     url: `${NOTES_URL}/app` },
+  { slug: "analytics", word: "analytics", label: "Open analytics", url: `${ANALYTICS_URL}/app` },
 ];
 
 const INDIGO = "#4f46e5";
 
-const PRODUCT_ORIGINS = [TASKS_URL, ROADMAP_URL, NOTES_URL, ANALYTICS_URL];
+const PRODUCT_ORIGINS = [ROADMAP_URL, TASKS_URL, NOTES_URL, ANALYTICS_URL];
 
 // App entries per product — prefetch destination for auth state
 const APP_ENTRIES = [
@@ -294,7 +294,7 @@ export function SuiteLauncher({ current }: { current: ProductSlug }) {
                           color: "var(--ink-quiet)",
                         }}
                       >
-                        {p.tagline}
+                        {"label" in p ? p.label : p.tagline}
                       </div>
                     </div>
                     {isCurrent ? (
@@ -315,32 +315,61 @@ export function SuiteLauncher({ current }: { current: ProductSlug }) {
               );
             })}
           </ul>
-          <a
-            href={STUDIO_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={() => setOpen(false)}
-            style={{
-              display: "block",
-              borderTop: "1px solid var(--border)",
-              padding: "10px 14px",
-              fontSize: 11,
-              color: "var(--ink-quiet)",
-              textDecoration: "none",
-              transition: "background 120ms, color 120ms",
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background =
-                "color-mix(in srgb, var(--ink) 4%, transparent)";
-              e.currentTarget.style.color = "var(--ink)";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = "transparent";
-              e.currentTarget.style.color = "var(--ink-quiet)";
-            }}
-          >
-            Visit signalstudio.ie →
-          </a>
+          {/* Footer — §1F: authed="Back to Signal Studio →" same-tab (P2-1b fix);
+              unauthed="Visit signalstudio.ie →" new tab. isSignedIn from useUser(). */}
+          {isSignedIn ? (
+            <a
+              href={STUDIO_URL}
+              onClick={() => setOpen(false)}
+              style={{
+                display: "block",
+                borderTop: "1px solid var(--border)",
+                padding: "10px 14px",
+                fontSize: 11,
+                color: "var(--ink-quiet)",
+                textDecoration: "none",
+                transition: "background 120ms, color 120ms",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background =
+                  "color-mix(in srgb, var(--ink) 4%, transparent)";
+                e.currentTarget.style.color = "var(--ink)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = "transparent";
+                e.currentTarget.style.color = "var(--ink-quiet)";
+              }}
+            >
+              Back to Signal Studio →
+            </a>
+          ) : (
+            <a
+              href={STUDIO_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => setOpen(false)}
+              style={{
+                display: "block",
+                borderTop: "1px solid var(--border)",
+                padding: "10px 14px",
+                fontSize: 11,
+                color: "var(--ink-quiet)",
+                textDecoration: "none",
+                transition: "background 120ms, color 120ms",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background =
+                  "color-mix(in srgb, var(--ink) 4%, transparent)";
+                e.currentTarget.style.color = "var(--ink)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = "transparent";
+                e.currentTarget.style.color = "var(--ink-quiet)";
+              }}
+            >
+              Visit signalstudio.ie →
+            </a>
+          )}
         </div>
       ) : null}
     </div>

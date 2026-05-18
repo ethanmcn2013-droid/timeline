@@ -12,6 +12,7 @@ import {
   upsertProjectSource,
   saveSourceAndItems,
   getProjectsForWorkspace,
+  getTasksForWorkspace,
   seedWorkspaceFromTemplate,
   publishWorkspace,
   unpublishWorkspace,
@@ -315,6 +316,11 @@ export type PublishResult = { ok: true } | { error: string };
  * Publish all projects in the owner's workspace.
  * Sets published_at on every project row. /{workspaceSlug}/... public URLs
  * become live and no-auth forwardable after this action.
+ *
+ * Hard-refuses an empty publish (D2, P0-2): a workspace with no projects or
+ * no tasks produces a blank public roadmap. The owner pressing Publish on an
+ * empty workspace believed it would go live; instead they get a calm,
+ * actionable message. published_at is never set on this path.
  */
 export async function publishWorkspaceAction(
   workspaceSlug: string,
@@ -324,6 +330,25 @@ export async function publishWorkspaceAction(
   if (!workspace || workspace.ownerUserId !== userId) {
     return { error: "Workspace not found." };
   }
+
+  // Guard: refuse to publish a workspace that has no content to share.
+  // Check projects first (cheap list), then tasks (one-fetch existence check).
+  const existingProjects = await getProjectsForWorkspace(workspaceSlug);
+  if (existingProjects.length === 0) {
+    return {
+      error:
+        "Add at least one project before publishing. Your roadmap needs something to share.",
+    };
+  }
+
+  const allTasks = await getTasksForWorkspace(workspaceSlug);
+  if (allTasks.length === 0) {
+    return {
+      error:
+        "Add items to your projects before publishing. Stakeholders need something to read.",
+    };
+  }
+
   await publishWorkspace(workspaceSlug);
   revalidatePath("/app");
   revalidatePath(`/${workspaceSlug}`);
