@@ -12,41 +12,41 @@ import {
 
 type ProductSlug = "tasks" | "roadmap" | "notes" | "analytics";
 
-/** Marketing URLs (shown when unauthed). §1I order: Roadmap → Tasks → Notes → Analytics. */
+/** Marketing URLs (shown when unauthed). Product order (operator-directed 2026-05-18): notes → tasks → roadmap → analytics. */
 const PRODUCTS_MARKETING: {
   slug: ProductSlug;
   word: string;
   tagline: string;
   url: string;
 }[] = [
-  { slug: "roadmap",   word: "roadmap",   tagline: "Direction clarity",  url: ROADMAP_URL },
-  { slug: "tasks",     word: "tasks",     tagline: "Execution clarity",  url: TASKS_URL },
   { slug: "notes",     word: "notes",     tagline: "Capture clarity",    url: NOTES_URL },
+  { slug: "tasks",     word: "tasks",     tagline: "Execution clarity",  url: TASKS_URL },
+  { slug: "roadmap",   word: "roadmap",   tagline: "Direction clarity",  url: ROADMAP_URL },
   { slug: "analytics", word: "analytics", tagline: "Attention clarity",  url: ANALYTICS_URL },
 ];
 
-/** App deep-link URLs (shown when authed). §1C labels, §1I order. */
+/** App deep-link URLs (shown when authed). §1C labels. Product order (operator-directed 2026-05-18): notes → tasks → roadmap → analytics. */
 const PRODUCTS_APP: {
   slug: ProductSlug;
   word: string;
   label: string;
   url: string;
 }[] = [
-  { slug: "roadmap",   word: "roadmap",   label: "Open roadmap",   url: `${ROADMAP_URL}/app` },
-  { slug: "tasks",     word: "tasks",     label: "Open tasks",     url: `${TASKS_URL}/app` },
   { slug: "notes",     word: "notes",     label: "Open notes",     url: `${NOTES_URL}/app` },
+  { slug: "tasks",     word: "tasks",     label: "Open tasks",     url: `${TASKS_URL}/app` },
+  { slug: "roadmap",   word: "roadmap",   label: "Open roadmap",   url: `${ROADMAP_URL}/app` },
   { slug: "analytics", word: "analytics", label: "Open analytics", url: `${ANALYTICS_URL}/app` },
 ];
 
 const INDIGO = "#4f46e5";
 
-const PRODUCT_ORIGINS = [ROADMAP_URL, TASKS_URL, NOTES_URL, ANALYTICS_URL];
+const PRODUCT_ORIGINS = [NOTES_URL, TASKS_URL, ROADMAP_URL, ANALYTICS_URL];
 
 // App entries per product — prefetch destination for auth state
 const APP_ENTRIES = [
+  `${NOTES_URL}/app`,
   `${TASKS_URL}/app`,
   `${ROADMAP_URL}/app`,
-  `${NOTES_URL}/app`,
   `${ANALYTICS_URL}/app`,
 ];
 
