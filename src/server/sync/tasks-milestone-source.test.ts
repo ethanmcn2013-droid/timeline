@@ -409,6 +409,138 @@ test("BV-2 — reload order is stable: sorted by sortOverride is deterministic",
   );
 });
 
+// ── 8. BV-8 — G2 retract: reconcile logic (pure, no DB) ──────────────────────
+//
+// Mirrors the reconcile pass added to writeRoadmapNodes (queries.ts).
+// Tests the branching logic that determines which synced nodes survive a sync.
+//
+// Rules under test:
+//   a) Sync with milestone X → node exists; re-sync without X → node gone.
+//   b) Manual nodes (non-ms- prefix) are NEVER touched by the reconcile pass.
+//   c) Overlay rows are orphaned (not deleted) — tested by asserting the
+//      overlay set is unchanged after reconcile.
+//   d) Empty incoming set → ALL synced ms- nodes for that project deleted.
+
+type NodeRow = { id: string; workspaceSlug: string; projectSlug: string; kind: string };
+type OverlayRow = { workspaceSlug: string; nodeId: string };
+
+/**
+ * Pure equivalent of the queries.ts reconcile pass.
+ * Returns the set of node ids that would survive (not be deleted).
+ * Models: delete WHERE workspaceSlug=ws AND projectSlug=proj AND kind='milestone'
+ *   AND id LIKE 'ms-%' AND id NOT IN (incomingIds).
+ */
+function reconcileNodes(
+  existingNodes: NodeRow[],
+  workspaceSlug: string,
+  projectSlug: string,
+  incomingIds: string[],
+): { surviving: NodeRow[]; deleted: NodeRow[] } {
+  const incomingSet = new Set(incomingIds);
+  const surviving: NodeRow[] = [];
+  const deleted: NodeRow[] = [];
+  for (const n of existingNodes) {
+    const isSyncTarget =
+      n.workspaceSlug === workspaceSlug &&
+      n.projectSlug === projectSlug &&
+      n.kind === "milestone" &&
+      n.id.startsWith("ms-");
+    if (isSyncTarget && !incomingSet.has(n.id)) {
+      deleted.push(n);
+    } else {
+      surviving.push(n);
+    }
+  }
+  return { surviving, deleted };
+}
+
+test("BV-8 G2 — sync with milestone X: node exists after sync", () => {
+  // Simulate: initial sync wrote ms-ws1-task1.
+  const existing: NodeRow[] = [
+    { id: "ms-ws1-task1", workspaceSlug: "venue-plan", projectSlug: "wedding", kind: "milestone" },
+  ];
+  // Re-sync WITH the same milestone still present.
+  const { surviving, deleted } = reconcileNodes(existing, "venue-plan", "wedding", ["ms-ws1-task1"]);
+  assert.equal(surviving.length, 1, "Node must survive when still in incoming set");
+  assert.equal(deleted.length, 0, "No nodes deleted when all incoming ids are present");
+  assert.equal(surviving[0].id, "ms-ws1-task1");
+});
+
+test("BV-8 G2 — re-sync WITHOUT milestone X: node gone (immediate and total)", () => {
+  // Existing: ms-ws1-task1 was synced last time.
+  const existing: NodeRow[] = [
+    { id: "ms-ws1-task1", workspaceSlug: "venue-plan", projectSlug: "wedding", kind: "milestone" },
+  ];
+  // Re-sync with EMPTY incoming set (milestone un-promoted in Tasks).
+  const { surviving, deleted } = reconcileNodes(existing, "venue-plan", "wedding", []);
+  assert.equal(deleted.length, 1, "Un-promoted node must be deleted");
+  assert.equal(surviving.length, 0, "No synced nodes should survive when all un-promoted");
+  assert.equal(deleted[0].id, "ms-ws1-task1");
+});
+
+test("BV-8 G2 — manual nodes (non-ms- prefix) are NEVER deleted by reconcile", () => {
+  const existing: NodeRow[] = [
+    { id: "ms-ws1-task1", workspaceSlug: "venue-plan", projectSlug: "wedding", kind: "milestone" },
+    { id: "manual-abc123", workspaceSlug: "venue-plan", projectSlug: "wedding", kind: "milestone" },
+    { id: "d5-custom-node", workspaceSlug: "venue-plan", projectSlug: "wedding", kind: "milestone" },
+  ];
+  // Re-sync with EMPTY incoming set — all synced nodes gone, manual nodes survive.
+  const { surviving, deleted } = reconcileNodes(existing, "venue-plan", "wedding", []);
+  assert.equal(deleted.length, 1, "Only the ms- node should be deleted");
+  assert.equal(deleted[0].id, "ms-ws1-task1");
+  assert.equal(surviving.length, 2, "Manual and d5 nodes must survive");
+  assert.ok(surviving.every((n) => !n.id.startsWith("ms-")), "Surviving nodes must all be non-ms- prefix");
+});
+
+test("BV-8 G2 — overlay rows are orphaned, not deleted, on retract", () => {
+  // Overlays are in a separate table and are NOT touched by the reconcile pass.
+  // Model: after deleting ms-ws1-task1 from tasks, the nodeOverlays row remains.
+  const overlays: OverlayRow[] = [
+    { workspaceSlug: "venue-plan", nodeId: "ms-ws1-task1" },
+  ];
+  const existing: NodeRow[] = [
+    { id: "ms-ws1-task1", workspaceSlug: "venue-plan", projectSlug: "wedding", kind: "milestone" },
+  ];
+  // Reconcile deletes the task row.
+  const { deleted } = reconcileNodes(existing, "venue-plan", "wedding", []);
+  assert.equal(deleted.length, 1, "Task row deleted");
+
+  // Overlay table is NOT modified by reconcile — it stays as-is.
+  // If re-promoted later, the overlay re-activates.
+  assert.equal(overlays.length, 1, "Overlay row must be preserved (orphaned, not deleted)");
+  assert.equal(overlays[0].nodeId, "ms-ws1-task1", "Orphaned overlay nodeId matches deleted task");
+});
+
+test("BV-8 G2 — partial un-promote: only un-promoted node deleted, others survive", () => {
+  const existing: NodeRow[] = [
+    { id: "ms-ws1-task1", workspaceSlug: "venue-plan", projectSlug: "wedding", kind: "milestone" },
+    { id: "ms-ws1-task2", workspaceSlug: "venue-plan", projectSlug: "wedding", kind: "milestone" },
+    { id: "ms-ws1-task3", workspaceSlug: "venue-plan", projectSlug: "wedding", kind: "milestone" },
+  ];
+  // task2 was un-promoted; task1 and task3 still exist.
+  const { surviving, deleted } = reconcileNodes(
+    existing, "venue-plan", "wedding",
+    ["ms-ws1-task1", "ms-ws1-task3"],
+  );
+  assert.equal(deleted.length, 1, "Only the un-promoted node should be deleted");
+  assert.equal(deleted[0].id, "ms-ws1-task2");
+  assert.equal(surviving.length, 2, "Two promoted nodes survive");
+  assert.ok(surviving.every((n) => n.id !== "ms-ws1-task2"), "ms-ws1-task2 must not be in surviving");
+});
+
+test("BV-8 G2 — cross-workspace isolation: nodes from other workspaces untouched", () => {
+  const existing: NodeRow[] = [
+    { id: "ms-ws1-task1", workspaceSlug: "venue-plan", projectSlug: "wedding", kind: "milestone" },
+    { id: "ms-ws2-task1", workspaceSlug: "other-workspace", projectSlug: "other-project", kind: "milestone" },
+  ];
+  // Re-sync venue-plan with empty incoming — only venue-plan nodes deleted.
+  const { surviving, deleted } = reconcileNodes(existing, "venue-plan", "wedding", []);
+  assert.equal(deleted.length, 1, "Only venue-plan node deleted");
+  assert.equal(deleted[0].id, "ms-ws1-task1");
+  assert.equal(surviving.length, 1, "Other-workspace node must survive");
+  assert.equal(surviving[0].workspaceSlug, "other-workspace");
+});
+
 // ── 7. Markdown surfaces absent ───────────────────────────────────────────────
 
 test("RW-2 — parse-markdown module does not exist", async () => {

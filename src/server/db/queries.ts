@@ -9,7 +9,7 @@
  */
 
 import { cache } from "react";
-import { eq, and, asc, desc, lte, gte, ne, sql } from "drizzle-orm";
+import { eq, and, asc, desc, lte, gte, ne, sql, like } from "drizzle-orm";
 import { db } from "./index";
 import {
   workspaces,
@@ -405,48 +405,100 @@ export async function getLastUpdatedForWorkspace(
 // ---------------------------------------------------------------------------
 
 /**
- * Batched upsert of synced milestone nodes into the tasks table.
+ * Batched upsert of synced milestone nodes into the tasks table,
+ * followed by a G2 reconcile pass that deletes stale synced nodes.
+ *
  * Reuses the tasks table (same schema, kind='milestone') — the
  * nodes are identifiable by their deterministic ms-{…} id prefix.
  *
  * Tasks owns EXISTENCE. Roadmap never writes back to Tasks.
  * Overlay wins on display (see getNodesWithOverlays).
  *
- * Called by sync action + D5 manual-add path.
+ * G2 (STRATEGY_SPEC): un-promote is immediate and total.
+ * Any synced node whose source milestone is no longer in the incoming
+ * set is DELETED from the roadmap on this sync pass. Only synced nodes
+ * (id LIKE 'ms-%') are eligible for deletion — manual nodes (id prefix
+ * 'manual-' or any other non-ms prefix) are never touched here. The
+ * nodeOverlays row for a deleted node is deliberately orphaned per
+ * ARCH_SPEC §1.5: if the milestone is re-promoted, the overlay re-applies.
+ *
+ * When milestones is empty (all un-promoted): all synced nodes for this
+ * workspace+project are deleted so no stale nodes remain.
+ *
+ * Called by sync action + D5 manual-add path (D5 uses non-ms ids, so
+ * the reconcile pass never touches D5 manual nodes).
  */
 export async function writeRoadmapNodes(
   workspaceSlug: string,
   projectSlug: string,
   milestones: SyncedMilestone[],
 ): Promise<void> {
-  if (milestones.length === 0) return;
-  await db
-    .insert(tasks)
-    .values(
-      milestones.map((m) => ({
-        id: m.id,
-        projectSlug,
-        workspaceSlug,
-        title: m.title,
-        description: "",
-        status: m.status,
-        kind: "milestone" as const,
-        targetDate: m.targetDate ?? undefined,
-        sortOrder: m.sortOrder,
-        isLaunch: true,
-        assignee: "claude-code" as const,
-      })),
-    )
-    .onConflictDoUpdate({
-      target: tasks.id,
-      set: {
-        title: sql`excluded.title`,
-        status: sql`excluded.status`,
-        targetDate: sql`excluded.target_date`,
-        sortOrder: sql`excluded.sort_order`,
-        updatedAt: sql`(unixepoch())`,
-      },
-    });
+  // Step 1 — upsert incoming synced nodes (skip when empty, but still run step 2).
+  if (milestones.length > 0) {
+    await db
+      .insert(tasks)
+      .values(
+        milestones.map((m) => ({
+          id: m.id,
+          projectSlug,
+          workspaceSlug,
+          title: m.title,
+          description: "",
+          status: m.status,
+          kind: "milestone" as const,
+          targetDate: m.targetDate ?? undefined,
+          sortOrder: m.sortOrder,
+          isLaunch: true,
+          assignee: "claude-code" as const,
+        })),
+      )
+      .onConflictDoUpdate({
+        target: tasks.id,
+        set: {
+          title: sql`excluded.title`,
+          status: sql`excluded.status`,
+          targetDate: sql`excluded.target_date`,
+          sortOrder: sql`excluded.sort_order`,
+          updatedAt: sql`(unixepoch())`,
+        },
+      });
+  }
+
+  // Step 2 — G2 reconcile: delete synced nodes not in the incoming set.
+  // Targets only rows with the deterministic 'ms-' prefix so manual nodes
+  // (D5, any other non-ms prefix) are never deleted by this pass.
+  // The nodeOverlays row is intentionally NOT deleted — orphaned overlays
+  // re-activate if the milestone is re-promoted (ARCH_SPEC §1.5).
+  const incomingIds = milestones.map((m) => m.id);
+  if (incomingIds.length === 0) {
+    // All milestones un-promoted — delete every synced node for this project.
+    await db
+      .delete(tasks)
+      .where(
+        and(
+          eq(tasks.workspaceSlug, workspaceSlug),
+          eq(tasks.projectSlug, projectSlug),
+          eq(tasks.kind, "milestone"),
+          like(tasks.id, "ms-%"),
+        ),
+      );
+  } else {
+    // Some milestones remain — delete only those no longer in the incoming set.
+    // sql.join builds a safely-parameterised NOT IN list without notInArray
+    // (which is present in drizzle-orm internals but not the top-level export).
+    const idList = sql.join(incomingIds.map((id) => sql`${id}`), sql`, `);
+    await db
+      .delete(tasks)
+      .where(
+        and(
+          eq(tasks.workspaceSlug, workspaceSlug),
+          eq(tasks.projectSlug, projectSlug),
+          eq(tasks.kind, "milestone"),
+          like(tasks.id, "ms-%"),
+          sql`${tasks.id} NOT IN (${idList})`,
+        ),
+      );
+  }
 }
 
 // ---------------------------------------------------------------------------

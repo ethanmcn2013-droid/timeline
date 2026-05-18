@@ -21,7 +21,6 @@ import { BigStat } from "@/components/roadmap/big-stat";
 import { BlockerCard } from "@/components/roadmap/blocker-card";
 import { MilestoneCard } from "@/components/roadmap/milestone-card";
 import { MetaStrip } from "@/components/roadmap/meta-strip";
-import { ProgressRing } from "@/components/roadmap/progress-ring";
 import { ShortcutsOverlay } from "@/components/roadmap/shortcuts-overlay";
 import {
   WorkspaceViewSwitcher,
@@ -489,9 +488,15 @@ async function WorkspaceContentWell({
 
               {hasItems && totalForProgress > 0 ? (
                 hasMomentum ? (
-                  <div className="hidden flex-shrink-0 items-center gap-6 sm:flex">
-                    <NextMilestoneStrip milestones={milestones} />
-                    <ProgressRing value={progress} size={80} label="done" />
+                  <div className="hidden flex-shrink-0 sm:block">
+                    {/* CREATIVE_SPEC §1.4: one composed milestone emphasis block —
+                        NextMilestoneStrip + ProgressRing collapsed into a single unit. */}
+                    <MilestoneEmphasisBlock
+                      milestones={milestones}
+                      progress={progress}
+                      totalForProgress={totalForProgress}
+                      shipped={counts.shipped}
+                    />
                   </div>
                 ) : (
                   <div className="hidden flex-shrink-0 self-end text-right sm:block">
@@ -787,7 +792,6 @@ function OverviewView({
                       key={m.id}
                       milestone={m}
                       workspaceSlug={workspaceSlug}
-                      projectAccent={proj?.accent ?? "var(--brand)"}
                       progress={
                         scope.inScope > 0 ? scope.shipped / scope.inScope : 0
                       }
@@ -1078,24 +1082,174 @@ function daysUntilSimple(iso: string): number {
   return Math.round((target - todayUTC) / (1000 * 60 * 60 * 24));
 }
 
-function NextMilestoneStrip({ milestones }: { milestones: Task[] }) {
+/**
+ * CREATIVE_SPEC §1.4 — milestone emphasis block.
+ * Collapses the prior NextMilestoneStrip + ProgressRing sibling pair into
+ * one composed unit: eyebrow + title + date/count meta on the left,
+ * 48px ProgressRing on the right. One block, not two widgets.
+ *
+ * Exact tokens from §1.4:
+ *   padding: 16px 20px
+ *   border: 1px solid var(--hairline)
+ *   border-radius: 10px   (--r-3)
+ *   background: var(--paper)
+ *   min-width: 220px, max-width: 280px
+ *
+ * The T-N countdown number uses var(--accent) — one of six named indigo uses
+ * (CREATIVE_SPEC §1.7). Everything else stays ink / ink-quiet.
+ */
+function MilestoneEmphasisBlock({
+  milestones,
+  progress,
+  totalForProgress,
+  shipped,
+}: {
+  milestones: Task[];
+  progress: number;
+  totalForProgress: number;
+  shipped: number;
+}) {
   const next = milestones.find(
     (m) => m.status !== "shipped" && m.targetDate,
   );
-  if (!next) return null;
-  const days = daysUntilSimple(next.targetDate!);
+  // When there is no upcoming dated milestone, fall back to overall progress only.
+  // §1.4 block still renders so the ring earns its hero placement.
+  const pct = Math.round(Math.max(0, Math.min(1, progress)) * 100);
+  const size = 48;
+  const stroke = 4;
+  const radius = (size - stroke) / 2;
+  const circumference = 2 * Math.PI * radius;
+  const offset = circumference * (1 - Math.max(0, Math.min(1, progress)));
+
+  const days = next?.targetDate ? daysUntilSimple(next.targetDate) : null;
+
   return (
-    <div className="flex flex-col items-end text-right">
-      <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-ink-quiet">
-        Next milestone
-      </span>
-      <span className="mt-0.5 max-w-[180px] truncate text-[13px] font-semibold text-ink">
-        {next.title}
-      </span>
-      <span className="text-[11px] tabular-nums text-ink-quiet">
-        {formatShortDate(next.targetDate!)}
-        {days >= 0 ? ` · T-${days}` : ` · −${Math.abs(days)}d`}
-      </span>
+    <div
+      style={{
+        padding: "16px 20px",
+        border: "1px solid var(--hairline, #e4e4e7)",
+        borderRadius: 10,
+        background: "var(--paper, #ffffff)",
+        minWidth: 220,
+        maxWidth: 280,
+        display: "flex",
+        alignItems: "center",
+        gap: 16,
+      }}
+    >
+      {/* Left: eyebrow + title + date meta */}
+      <div style={{ flex: 1, minWidth: 0 }}>
+        {/* Eyebrow — §1.4 exact token */}
+        <div
+          style={{
+            fontFamily: "var(--font-mono-stack)",
+            fontSize: 10,
+            textTransform: "uppercase",
+            letterSpacing: "0.14em",
+            color: "var(--ink-quiet)",
+            marginBottom: 6,
+          }}
+        >
+          Next milestone
+        </div>
+
+        {/* Title — §1.4: 15px / 600 / -0.02em */}
+        <div
+          style={{
+            fontSize: 15,
+            fontWeight: 600,
+            color: "var(--ink)",
+            letterSpacing: "-0.02em",
+            lineHeight: 1.3,
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            whiteSpace: "nowrap",
+          }}
+        >
+          {next?.title ?? "No upcoming milestone"}
+        </div>
+
+        {/* Date + count meta — §1.4 mono 11px, marginTop 4px */}
+        <div
+          style={{
+            fontFamily: "var(--font-mono-stack)",
+            fontSize: 11,
+            color: "var(--ink-quiet)",
+            marginTop: 4,
+            display: "flex",
+            alignItems: "center",
+            gap: 6,
+            flexWrap: "wrap",
+          }}
+        >
+          {next?.targetDate ? (
+            <>
+              <span>{formatShortDate(next.targetDate)}</span>
+              {days !== null ? (
+                <span
+                  style={{
+                    // §1.4 + §1.7: T-N is the indigo use in this block.
+                    color: days >= 0 ? "var(--accent, #4f46e5)" : "var(--ink-quiet)",
+                    fontWeight: 600,
+                  }}
+                >
+                  {days >= 0 ? `T-${days}` : `−${Math.abs(days)}d`}
+                </span>
+              ) : null}
+            </>
+          ) : null}
+          <span>{totalForProgress > 0 ? `${shipped} of ${totalForProgress} shipped` : null}</span>
+        </div>
+      </div>
+
+      {/* Right: 48px ProgressRing — inside the block per §1.4 */}
+      <div
+        role="img"
+        aria-label={`Progress: ${pct}%`}
+        style={{ position: "relative", flexShrink: 0, width: size, height: size }}
+      >
+        <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} aria-hidden>
+          <circle
+            cx={size / 2}
+            cy={size / 2}
+            r={radius}
+            fill="none"
+            stroke="var(--line-soft)"
+            strokeWidth={stroke}
+          />
+          <circle
+            cx={size / 2}
+            cy={size / 2}
+            r={radius}
+            fill="none"
+            stroke="var(--status-shipped)"
+            strokeWidth={stroke}
+            strokeLinecap="round"
+            strokeDasharray={circumference}
+            strokeDashoffset={offset}
+            transform={`rotate(-90 ${size / 2} ${size / 2})`}
+            style={{ transition: "stroke-dashoffset 600ms cubic-bezier(0.22,1,0.36,1)" }}
+          />
+        </svg>
+        <span
+          style={{
+            position: "absolute",
+            inset: 0,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            fontFamily: "var(--font-mono-stack)",
+            fontSize: Math.round(size * 0.28),
+            fontWeight: 600,
+            color: "var(--ink)",
+            lineHeight: 1,
+          }}
+        >
+          {pct}
+          <span style={{ fontSize: 8, opacity: 0.7, marginLeft: 1 }}>%</span>
+        </span>
+      </div>
     </div>
   );
 }
