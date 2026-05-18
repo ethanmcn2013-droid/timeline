@@ -5,18 +5,17 @@
  *
  * When authed:
  *   - No "Sign in" / "Start for free" — replaced by UserButton (Clerk avatar).
- *   - Account menu carries "View public site" escape hatch which sets a
- *     short-lived cookie suppressing the M→app redirect for that tab.
- *     This lets the owner demo the marketing site while logged in.
+ *   - Account menu carries "View public site" / "Exit preview" escape hatch
+ *     per DESIGN.md §14. Sets `signal_preview_public=1` (24h, SameSite=Strict).
  *
  * When unauthed:
  *   - Original "Sign in" + "Start for free" CTAs render unchanged.
  *
- * Escape hatch implementation:
- *   Sets a session cookie `roadmap_demo_mode=1` (no expiry = session cookie)
- *   then navigates to the marketing root. The proxy.ts middleware reads this
- *   cookie and skips the M→app redirect while it's present. The cookie is
- *   cleared on next /app navigation or on tab close.
+ * Escape hatch implementation (§14 canonical):
+ *   Cookie name: `signal_preview_public` (suite-wide; not repo-local).
+ *   Expiry: `max-age=86400` (24h). SameSite=Strict.
+ *   Also accepts `?preview=public` query param (proxy.ts reads it server-side).
+ *   "Exit preview" clears the cookie and reloads.
  */
 
 import { useUser } from "@clerk/nextjs";
@@ -41,18 +40,30 @@ function ArrowIcon() {
 }
 
 function EscapeHatchButton() {
-  function enableDemoMode() {
-    // Session cookie — no expiry so it clears on tab close.
-    document.cookie = "roadmap_demo_mode=1; path=/; SameSite=Lax";
-    // Force a full navigation so the middleware re-evaluates without the
-    // M→app redirect in effect.
+  // §14: check if the preview cookie is currently active to toggle label.
+  const isPreviewActive =
+    typeof document !== "undefined" &&
+    document.cookie.includes("signal_preview_public=1");
+
+  function activatePreview() {
+    // §14: 24h cookie, SameSite=Strict.
+    document.cookie =
+      "signal_preview_public=1; path=/; max-age=86400; SameSite=Strict";
+    // Force a full navigation so the middleware re-evaluates.
     window.location.href = "/";
+  }
+
+  function exitPreview() {
+    // §14: deactivation — clear cookie and reload.
+    document.cookie =
+      "signal_preview_public=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Strict";
+    window.location.reload();
   }
 
   return (
     <button
       type="button"
-      onClick={enableDemoMode}
+      onClick={isPreviewActive ? exitPreview : activatePreview}
       style={{
         display: "flex",
         alignItems: "center",
@@ -75,7 +86,7 @@ function EscapeHatchButton() {
         <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
         <circle cx="12" cy="12" r="3" />
       </svg>
-      View public site
+      {isPreviewActive ? "Exit preview" : "View public site"}
     </button>
   );
 }
@@ -195,7 +206,9 @@ export function AuthNavControls({
             label="View public site"
             labelIcon={<ArrowIcon />}
             onClick={() => {
-              document.cookie = "roadmap_demo_mode=1; path=/; SameSite=Lax";
+              // §14: 24h cookie, SameSite=Strict.
+              document.cookie =
+                "signal_preview_public=1; path=/; max-age=86400; SameSite=Strict";
               window.location.href = "/";
             }}
           />

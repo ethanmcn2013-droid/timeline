@@ -89,9 +89,9 @@ export function WorkspaceAuthControls({
             label="View public site"
             labelIcon={<EyeIcon />}
             onClick={() => {
-              // Escape hatch: suppress M→app redirect so the owner can
-              // navigate to marketing pages while logged in.
-              document.cookie = "roadmap_demo_mode=1; path=/; SameSite=Lax";
+              // §14 canonical escape hatch: suppress M→app redirect (24h).
+              document.cookie =
+                "signal_preview_public=1; path=/; max-age=86400; SameSite=Strict";
               window.location.href = "/";
             }}
           />

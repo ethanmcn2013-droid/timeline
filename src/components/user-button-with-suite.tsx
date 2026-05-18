@@ -60,12 +60,18 @@ function EyeIcon() {
 /**
  * Roadmap-flavoured Clerk UserButton with:
  *   - Sibling product "Open X" deep-links to /app (not marketing).
- *   - "View public site" escape hatch — sets a session cookie so the
- *     M→app redirect is suppressed for this tab, letting the owner
- *     demo the marketing surface while logged in.
- *     (SEAMLESS_ECOSYSTEM_PLAN.md §Hard-never + escape hatch)
+ *   - "View public site" / "Exit preview" escape hatch — §14 canonical.
+ *     Sets `signal_preview_public=1; max-age=86400; SameSite=Strict` (24h)
+ *     so the M→app redirect is suppressed while the owner demos the
+ *     marketing surface while logged in. "Exit preview" clears the cookie.
  */
 export function UserButtonWithSuite({ current }: { current: ProductSlug }) {
+  // Escape hatch state: check if the preview cookie is currently active.
+  // Reading document.cookie is synchronous and safe in a client component.
+  const isPreviewActive =
+    typeof document !== "undefined" &&
+    document.cookie.includes("signal_preview_public=1");
+
   return (
     <UserButton>
       <UserButton.MenuItems>
@@ -77,15 +83,29 @@ export function UserButtonWithSuite({ current }: { current: ProductSlug }) {
             labelIcon={<ArrowIcon />}
           />
         ))}
-        <UserButton.Action
-          label="View public site"
-          labelIcon={<EyeIcon />}
-          onClick={() => {
-            // Set session cookie — clears on tab close.
-            document.cookie = "roadmap_demo_mode=1; path=/; SameSite=Lax";
-            window.location.href = "/";
-          }}
-        />
+        {isPreviewActive ? (
+          <UserButton.Action
+            label="Exit preview"
+            labelIcon={<EyeIcon />}
+            onClick={() => {
+              // §14: deactivation clears the cookie then reloads.
+              document.cookie =
+                "signal_preview_public=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Strict";
+              window.location.reload();
+            }}
+          />
+        ) : (
+          <UserButton.Action
+            label="View public site"
+            labelIcon={<EyeIcon />}
+            onClick={() => {
+              // §14: 24h cookie, SameSite=Strict (perceived continuity, tab-local).
+              document.cookie =
+                "signal_preview_public=1; path=/; max-age=86400; SameSite=Strict";
+              window.location.href = "/";
+            }}
+          />
+        )}
       </UserButton.MenuItems>
     </UserButton>
   );

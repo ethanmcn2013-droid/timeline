@@ -19,12 +19,13 @@ import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
  * We NEVER use a "any route not in M is public" heuristic — that heuristic
  * eats /{workspaceSlug}/* routes (category C) and breaks the no-auth promise.
  *
- * Escape hatch: the owner can set a short-lived localStorage flag
- * "roadmap_preview_as_logged_out" to suppress the M→app redirect for that
- * tab. This lets the owner demo the marketing site while logged in.
- * The check is done client-side (the middleware can't read localStorage);
- * the escape hatch header "__roadmap_demo_mode" is set by the client
- * before any M-route navigation. We check for it here in the middleware.
+ * Escape hatch (DESIGN.md §14 canonical): the owner can activate
+ * "View public site" to suppress the M→app redirect for that tab.
+ * Mechanism: a short-lived cookie `signal_preview_public=1` (max-age 86400,
+ * SameSite=Strict) set client-side, read here in the middleware.
+ * A `?preview=public` query param is also accepted as an alternative entry
+ * point (useful for screen-recording handoffs). Cookie name and param are
+ * suite-wide canonical — do NOT use repo-local names.
  */
 
 import { NextResponse } from "next/server";
@@ -71,8 +72,11 @@ export default clerkMiddleware(async (auth, req) => {
   // Escape hatch: if the request carries the demo-mode cookie, pass through
   // so the owner can view the marketing site while logged in.
   if (userId && isMarketingRoute(req)) {
-    const demoMode = req.cookies.get("roadmap_demo_mode")?.value === "1";
-    if (!demoMode) {
+    // §14 canonical escape hatch: cookie OR ?preview=public query param.
+    const isPreview =
+      req.cookies.get("signal_preview_public")?.value === "1" ||
+      req.nextUrl.searchParams.get("preview") === "public";
+    if (!isPreview) {
       return NextResponse.redirect(new URL("/app", req.url));
     }
   }
