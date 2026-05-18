@@ -398,10 +398,9 @@ export async function unpublishWorkspaceAction(
   return { ok: true };
 }
 
-// D6 two-gate path contracts re-exported from revalidation-contracts.ts (BV-4).
-// The pure helpers live in a separate file so the test runner can import them
-// without pulling in next/cache or other server-only modules.
-export { syncRevalidationPaths, publishRevalidationPaths } from "./revalidation-contracts";
+// D6 two-gate path contracts live in ./revalidation-contracts.ts (BV-4).
+// NOT re-exported here: a "use server" file may only export async functions.
+// Tests import them directly from ./revalidation-contracts.
 
 // ---------------------------------------------------------------------------
 // Comments removed 2026-05-12 — Suite Review T3 decision. The locked
