@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { Suspense } from "react";
+import { SuiteLoaderField } from "@/components/system/SuiteLoader";
 import { formatRelative } from "@/lib/format";
 import {
   getWorkspace,
@@ -164,42 +165,9 @@ for(var i=0;i<tabs.length;i++){
       {/* Content well: draft gate + 4 heavy reads deferred to Suspense.
           The header above always paints first; the content area streams in
           behind it. Fallback scoped to the content well only (P1-3). */}
-      <Suspense fallback={<ContentWellFallback />}>
+      <Suspense fallback={<SuiteLoaderField />}>
         <WorkspaceContentWell workspaceSlug={workspaceSlug} workspace={workspace} />
       </Suspense>
-    </div>
-  );
-}
-
-// ── Local content-well fallback ───────────────────────────────────────────────
-// Shown while WorkspaceContentWell resolves. Scoped to the content area only —
-// the header above is already painted. Single indigo dot on paper-white per
-// LOADING_SYSTEM.md §1.
-// TODO: replace with canonical SuiteLoader (LOADING_SYSTEM.md §1) once
-// the studio repo's SuiteLoader is copied across all repos (later wave).
-function ContentWellFallback() {
-  return (
-    <div
-      style={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        flex: 1,
-        minHeight: "40dvh",
-      }}
-    >
-      <div
-        className="signal-loading-dot"
-        aria-hidden
-        style={{
-          width: 12,
-          height: 12,
-          borderRadius: "50%",
-          background: "var(--indigo, #4f46e5)",
-          flexShrink: 0,
-          willChange: "transform, opacity",
-        }}
-      />
     </div>
   );
 }
