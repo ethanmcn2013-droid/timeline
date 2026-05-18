@@ -431,7 +431,7 @@ async function WorkspaceContentWell({
             <MetaStrip
               anchor={workspace.name}
               items={[
-                dateRange ? `${dateRange.from} → ${dateRange.to}` : null,
+                dateRange ? `${formatShortDate(dateRange.from)} → ${formatShortDate(dateRange.to)}` : null,
                 dateRange
                   ? `${weeksBetween(dateRange.from, dateRange.to)} weeks`
                   : null,

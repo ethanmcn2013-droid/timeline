@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { Task } from "@/server/db/schema";
 import { KindPill } from "./kind-pill";
+import { StatusCircle } from "./milestone-card";
 
 /**
  * Compact read-only item row for the dense public roadmap list.
@@ -35,22 +36,6 @@ export function ItemRow({
       ? "color-mix(in srgb, var(--roadmap-violet-bg) 60%, var(--bg-elevated))"
       : "var(--bg-elevated)";
 
-  const checkBg = isDone
-    ? "var(--status-shipped)"
-    : isDoing
-      ? "var(--status-flight)"
-      : isStuck
-        ? "var(--status-blocked)"
-        : "transparent";
-
-  const checkBorder = isDone
-    ? "var(--status-shipped)"
-    : isDoing
-      ? "var(--status-flight)"
-      : isStuck
-        ? "var(--status-blocked)"
-        : "var(--ink-quiet)";
-
   return (
     <li
       className={
@@ -62,32 +47,12 @@ export function ItemRow({
         transition: "background var(--motion-fast) var(--ease-standard)",
       }}
     >
-      {/* Status indicator — read-only dot */}
+      {/* Status indicator — §1.2 outlined grammar, no status-palette colours */}
       <span
         aria-label={`Status: ${task.status}`}
-        className="row-start-1 mt-0.5 inline-flex h-4 w-4 flex-shrink-0 items-center justify-center rounded border"
-        style={{ background: checkBg, borderColor: checkBorder }}
+        className="row-start-1 inline-flex flex-shrink-0 items-start pt-[3px]"
       >
-        {isDone ? (
-          <svg
-            width="10"
-            height="10"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="white"
-            strokeWidth="3"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            aria-hidden
-          >
-            <polyline points="20 6 9 17 4 12" />
-          </svg>
-        ) : isDoing ? (
-          <span
-            className="h-1.5 w-1.5 rounded-full"
-            style={{ background: "white" }}
-          />
-        ) : null}
+        <StatusCircle status={task.status} isMilestone={false} />
       </span>
 
       {/* Date — desktop only */}

@@ -46,7 +46,7 @@ function daysUntil(iso: string): number {
  * Later: dashed ghost border, transparent fill.
  * Next (default): empty, ghost or indigo border.
  */
-function StatusCircle({
+export function StatusCircle({
   status,
   isMilestone,
 }: {
