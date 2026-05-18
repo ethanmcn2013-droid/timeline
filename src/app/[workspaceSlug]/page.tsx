@@ -164,7 +164,7 @@ for(var i=0;i<tabs.length;i++){
       {/* Content well: draft gate + 4 heavy reads deferred to Suspense.
           The header above always paints first; the content area streams in
           behind it. Fallback scoped to the content well only (P1-3). */}
-      <Suspense fallback={<SuiteLoaderField />}>
+      <Suspense fallback={null}>
         <WorkspaceContentWell workspaceSlug={workspaceSlug} workspace={workspace} />
       </Suspense>
     </div>
