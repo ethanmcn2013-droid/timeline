@@ -36,6 +36,12 @@ export const metadata: Metadata = {
       "Everything that matters, in one place. The plan a venue keeps for you, in plain English.",
     type: "website",
   },
+  twitter: {
+    card: "summary_large_image",
+    title: "Your wedding plan — kept by Glenmara House",
+    description:
+      "Everything that matters, in one place. The plan a venue keeps for you, in plain English.",
+  },
 };
 
 type State = "Done" | "Underway" | "Waiting on you" | "Coming up";

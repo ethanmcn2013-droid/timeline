@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { auth } from "@clerk/nextjs/server";
 import { Wordmark } from "@/components/brand/wordmark";
 import { SuiteLauncher } from "@/components/suite-launcher";
 import { AuthNavControls } from "./auth-nav-controls";
@@ -9,7 +10,7 @@ const NAV: { href: string; label: string; external?: boolean }[] = [
   { href: UMBRELLA_PRICING, label: "Pricing",   external: true },
   { href: "/about",         label: "About"      },
   { href: "/demo",          label: "Demo"       },
-  { href: "/changelog",     label: "Changelog"  },
+  { href: "/changelog",     label: "Dispatch"   },
 ];
 
 /**

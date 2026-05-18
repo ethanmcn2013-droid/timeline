@@ -14,14 +14,14 @@ export default function SignUpPage() {
           className="mb-5 text-[13px]"
           style={{ color: "var(--ink-soft)" }}
         >
-          Free during early access. No card required.
+          Free to start.
         </p>
         <SignUp />
         <p
           className="mt-5 text-[13px]"
           style={{ color: "var(--ink-quiet)" }}
         >
-          You&apos;ll get a workspace. Add a project. Share a URL. Done.
+          You&apos;ll have a workspace live in minutes. Share one link. Anyone can read it.
         </p>
       </main>
     </div>

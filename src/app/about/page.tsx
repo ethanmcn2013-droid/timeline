@@ -8,6 +8,12 @@ export const metadata: Metadata = {
   title: "About — Signal Roadmap",
   description:
     "Direction clarity from Signal Studio. Built for people who need the plan without a glossary.",
+  openGraph: {
+    title: "About — Signal Roadmap",
+    description:
+      "Direction clarity from Signal Studio. Built for people who need the plan without a glossary.",
+    type: "website",
+  },
 };
 
 const ANTI_FEATURES = [
