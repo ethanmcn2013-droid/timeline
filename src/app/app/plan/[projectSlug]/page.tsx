@@ -1,11 +1,13 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { requireUser, getCurrentWorkspace } from "@/server/auth";
 import {
   getProjectsForWorkspace,
-  getProjectSource,
+  getEffectiveNodesForWorkspace,
+  isWorkspacePublished,
 } from "@/server/db/queries";
-import { SourceEditor } from "./_components/source-editor";
+import { CurationSurface } from "./_components/curation-surface";
+import { ROADMAP_URL } from "@/lib/product-urls";
 
 export async function generateMetadata({
   params,
@@ -13,10 +15,10 @@ export async function generateMetadata({
   params: Promise<{ projectSlug: string }>;
 }) {
   const { projectSlug } = await params;
-  return { title: `Source — ${projectSlug} — Roadmap` };
+  return { title: `Plan — ${projectSlug} — Roadmap` };
 }
 
-export default async function SourcePage({
+export default async function PlanPage({
   params,
 }: {
   params: Promise<{ projectSlug: string }>;
@@ -25,22 +27,28 @@ export default async function SourcePage({
   const userId = await requireUser();
   const workspace = await getCurrentWorkspace(userId);
 
-  if (!workspace) {
-    // No workspace yet — shouldn't normally be reachable but handle it.
-    notFound();
-  }
+  if (!workspace) notFound();
 
   // Verify the project belongs to this workspace
   const projects = await getProjectsForWorkspace(workspace.slug);
   const project = projects.find((p) => p.slug === projectSlug);
   if (!project) notFound();
 
-  const source = await getProjectSource(projectSlug, workspace.slug);
+  const [effectiveNodes, workspacePublished] = await Promise.all([
+    getEffectiveNodesForWorkspace(workspace.slug),
+    isWorkspacePublished(workspace.slug),
+  ]);
+
+  const publicBase = process.env.NEXT_PUBLIC_SITE_URL ?? ROADMAP_URL;
+  const publicUrl = `${publicBase}/${workspace.slug}`;
 
   return (
     <div className="mx-auto flex w-full max-w-4xl flex-1 flex-col px-6 py-10">
       {/* Breadcrumb */}
-      <nav className="mb-6 flex items-center gap-1.5 text-xs" style={{ color: "var(--ink-quiet)" }}>
+      <nav
+        className="mb-6 flex items-center gap-1.5 text-xs"
+        style={{ color: "var(--ink-quiet)" }}
+      >
         <Link
           href="/app"
           className="transition-colors hover:text-ink"
@@ -51,11 +59,11 @@ export default async function SourcePage({
         <span aria-hidden>/</span>
         <span style={{ color: "var(--ink)" }}>{project.name}</span>
         <span aria-hidden>/</span>
-        <span>source</span>
+        <span>plan</span>
       </nav>
 
       {/* Heading */}
-      <div className="mb-6">
+      <div className="mb-8">
         <h1
           className="text-2xl font-semibold"
           style={{ letterSpacing: "-0.025em", color: "var(--ink)" }}
@@ -66,16 +74,17 @@ export default async function SourcePage({
           className="mt-1 text-sm"
           style={{ color: "var(--ink-soft)" }}
         >
-          Markdown source
+          Curate your milestones. Only published items reach the shared link.
         </p>
       </div>
 
-      <SourceEditor
-        projectSlug={projectSlug}
+      {/* Curation surface */}
+      <CurationSurface
+        initialNodes={effectiveNodes}
         workspaceSlug={workspace.slug}
-        initialContent={source?.rawMarkdown ?? ""}
-        initialLastParsedAt={source?.lastParsedAt?.toISOString() ?? null}
-        initialCount={null}
+        projectSlug={projectSlug}
+        isPublished={workspacePublished}
+        publicUrl={publicUrl}
       />
     </div>
   );

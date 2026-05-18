@@ -19,6 +19,7 @@ export const demoWorkspace: Workspace = {
 export const demoProjects: Project[] = [
   {
     workspaceSlug: "tasks",
+    sourceTasksWorkspaceId: null,
     slug: "product",
     name: "Product Roadmap",
     oneLiner: "What we're building — and what we said no to.",
@@ -34,9 +35,9 @@ export const demoTasks: Task[] = [
     id: "tasks-product-001",
     projectSlug: "product",
     workspaceSlug: "tasks",
-    title: "Workspace onboarding — paste your markdown",
+    title: "Workspace onboarding — first-run experience",
     description:
-      "First-run experience for new workspaces. Paste a markdown roadmap, we parse it into structured items. Zero forms, zero dropdowns.",
+      "First-run experience for new workspaces. Mark tasks as milestones in Signal Tasks and they appear in your plan automatically.",
     status: "in-flight",
     phase: null,
     tier: null,
@@ -250,6 +251,7 @@ export const weddingDemoWorkspace: Workspace = {
 export const weddingDemoProjects: Project[] = [
   {
     workspaceSlug: "wedding-planning",
+    sourceTasksWorkspaceId: null,
     slug: "planning",
     name: "Planning Roadmap",
     oneLiner: "What is decided, what is moving, and what needs attention before the day.",
