@@ -45,9 +45,9 @@ const db = drizzle(client, { schema });
 const ITEMS = [
   {
     id: `${WORKSPACE_SLUG}-${PROJECT_SLUG}-001`,
-    title: "Workspace onboarding — paste your markdown",
+    title: "One-minute workspace setup",
     description:
-      "First-run experience for new workspaces. Paste a markdown roadmap, we parse it into structured items. Zero forms, zero dropdowns.",
+      "New workspaces are usable in under a minute. Nothing to configure first.",
     status: "in-flight" as schema.Status,
     kind: "cycle" as schema.Kind,
     targetDate: "2026-05-14",
@@ -85,7 +85,7 @@ const ITEMS = [
   },
   {
     id: `${WORKSPACE_SLUG}-${PROJECT_SLUG}-005`,
-    title: "Composite-PK multi-tenancy",
+    title: "Per-workspace data isolation",
     description:
       "Project slugs are now scoped per workspace — two teams can each have a project called \"blog\" without colliding. Schema migration shipped cleanly.",
     status: "shipped" as schema.Status,
