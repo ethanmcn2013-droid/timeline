@@ -18,7 +18,9 @@ import {
   getTasksForWorkspace,
   getUpcomingTasks,
   getWorkspace,
+  isWorkspacePublished,
 } from "@/server/db/queries";
+import { getCurrentUser } from "@/server/auth";
 import type { Project, Task, Workspace } from "@/server/db/schema";
 
 // Public shared-update page — read-only. ISR with a 5-min window matches
@@ -287,6 +289,17 @@ async function loadSharedUpdateDataset(
   try {
     const workspace = await getWorkspace(workspaceSlug);
     if (!workspace) return getDemoSharedUpdateDataset(workspaceSlug);
+
+    // Publish gate — mirrors WorkspaceContentWell in [workspaceSlug]/page.tsx.
+    // Draft workspaces are only visible to their owner; non-owners (including
+    // logged-out visitors) receive null, which the caller converts to notFound().
+    const [published, currentUser] = await Promise.all([
+      isWorkspacePublished(workspaceSlug),
+      getCurrentUser(),
+    ]);
+    if (!published && currentUser?.userId !== workspace.ownerUserId) {
+      return null;
+    }
 
     const [projects, tasks, upcoming] = await Promise.all([
       getProjectsForWorkspace(workspaceSlug),

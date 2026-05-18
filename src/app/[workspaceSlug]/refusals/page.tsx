@@ -4,7 +4,9 @@ import {
   getWorkspace,
   getProjectsForWorkspace,
   getRefusedTasks,
+  isWorkspacePublished,
 } from "@/server/db/queries";
+import { getCurrentUser } from "@/server/auth";
 import type { Project, Task } from "@/server/db/schema";
 import { WorkspaceHeader } from "@/components/roadmap/workspace-header";
 import { MetaStrip } from "@/components/roadmap/meta-strip";
@@ -38,6 +40,17 @@ export default async function RefusalsPage({
 
   const workspace = await getWorkspace(workspaceSlug);
   if (!workspace) notFound();
+
+  // Publish gate — mirrors WorkspaceContentWell in [workspaceSlug]/page.tsx.
+  // Draft workspaces are only visible to their owner; non-owners (including
+  // logged-out visitors) see notFound() rather than the refused-task list.
+  const [published, currentUser] = await Promise.all([
+    isWorkspacePublished(workspaceSlug),
+    getCurrentUser(),
+  ]);
+  if (!published && currentUser?.userId !== workspace.ownerUserId) {
+    notFound();
+  }
 
   const [refused, projects] = await Promise.all([
     getRefusedTasks(workspaceSlug),
