@@ -27,7 +27,7 @@ export default function AppLayout({
           borderColor: "var(--border)",
         }}
       >
-        <div className="mx-auto flex h-12 w-full max-w-4xl items-center justify-between px-6">
+        <div className="mx-auto flex h-14 w-full max-w-[80rem] items-center justify-between px-6">
           <div className="flex items-center gap-3">
             <SuiteLauncher current="roadmap" />
             <span aria-hidden className="hidden sm:inline" style={{ color: "var(--ink-faint)", fontSize: 12 }}>/</span>

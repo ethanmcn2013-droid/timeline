@@ -11,15 +11,15 @@ import {
 type ProductSlug = "tasks" | "roadmap" | "notes" | "analytics";
 
 /**
- * Product entries — always deep-link to /app (this component is only shown
- * to authed users in the app chrome). Layer 3 update: app-context deep links
- * instead of marketing URLs.
+ * Product entries — always deep-link to /app (authed surface only).
+ * §1G canonical labels (lowercase product noun). §1I order: roadmap→tasks→notes→analytics.
+ * roadmap is excluded at render time (current product filter).
  */
 const PRODUCTS: { slug: ProductSlug; label: string; url: string }[] = [
-  { slug: "tasks",     label: "Open Tasks",     url: `${TASKS_URL}/app`     },
-  { slug: "roadmap",   label: "Open Roadmap",   url: `${ROADMAP_URL}/app`   },
-  { slug: "notes",     label: "Open Notes",     url: `${NOTES_URL}/app`     },
-  { slug: "analytics", label: "Open Analytics", url: `${ANALYTICS_URL}/app` },
+  { slug: "roadmap",   label: "Open roadmap",   url: `${ROADMAP_URL}/app`   },
+  { slug: "tasks",     label: "Open tasks",     url: `${TASKS_URL}/app`     },
+  { slug: "notes",     label: "Open notes",     url: `${NOTES_URL}/app`     },
+  { slug: "analytics", label: "Open analytics", url: `${ANALYTICS_URL}/app` },
 ];
 
 function ArrowIcon() {
