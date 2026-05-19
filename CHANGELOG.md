@@ -3,6 +3,10 @@
 Convention: BRAND.md §6.5. Entries before 2026-05-14 keep their
 original shape; the new shape starts at the next cycle.
 
+## 2026-05-19 · R·15 · fixes · manual-only published workspaces now render publicly
+
+**A workspace whose milestones were all created by hand — never synced from Signal Tasks — now shows its plan to stakeholders instead of "Nothing here yet."** `isWorkspacePublished` was checking the `tasks` table only; manual nodes live entirely in `node_overlays`. The public page now fetches effective nodes and merges manual milestones in; `hasItems` accounts for visible effective nodes. The plan page's CurationSurface is now behind a scoped Suspense boundary so the breadcrumb and heading paint immediately on navigation, eliminating the full-page skeleton flash (D4). DEPLOYED to production 2026-05-19 (dpl_7ED9taw6MqfYApj5EMYLvccZX4F1, main 4db4892).
+
 ## 2026-05-19 · R·14 · ships · the manual milestone path works, and the route voids are gone
 
 **A milestone added by hand now persists and appears immediately — the core
