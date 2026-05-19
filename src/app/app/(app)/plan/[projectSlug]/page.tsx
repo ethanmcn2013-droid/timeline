@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
+import { Suspense } from "react";
 import { requireUser, getCurrentWorkspace } from "@/server/auth";
 import {
   getProjectsForWorkspace,
@@ -29,22 +30,19 @@ export default async function PlanPage({
 
   if (!workspace) notFound();
 
-  // Verify the project belongs to this workspace
+  // Verify the project belongs to this workspace.
+  // getProjectsForWorkspace is a fast indexed read — resolves before
+  // the heavier getEffectiveNodesForWorkspace call below.
   const projects = await getProjectsForWorkspace(workspace.slug);
   const project = projects.find((p) => p.slug === projectSlug);
   if (!project) notFound();
-
-  const [effectiveNodes, workspacePublished] = await Promise.all([
-    getEffectiveNodesForWorkspace(workspace.slug),
-    isWorkspacePublished(workspace.slug),
-  ]);
 
   const publicBase = process.env.NEXT_PUBLIC_SITE_URL ?? ROADMAP_URL;
   const publicUrl = `${publicBase}/${workspace.slug}`;
 
   return (
     <div className="mx-auto flex w-full max-w-4xl flex-1 flex-col px-6 py-10">
-      {/* Breadcrumb */}
+      {/* Breadcrumb — renders immediately; no data-dependent await below this point */}
       <nav
         className="mb-6 flex items-center gap-1.5 text-xs"
         style={{ color: "var(--ink-quiet)" }}
@@ -60,7 +58,7 @@ export default async function PlanPage({
         <span style={{ color: "var(--ink)" }}>{project.name}</span>
       </nav>
 
-      {/* Heading */}
+      {/* Heading — renders immediately */}
       <div className="mb-8">
         <h1
           className="text-2xl font-semibold"
@@ -76,14 +74,71 @@ export default async function PlanPage({
         </p>
       </div>
 
-      {/* Curation surface */}
-      <CurationSurface
-        initialNodes={effectiveNodes}
-        workspaceSlug={workspace.slug}
-        projectSlug={projectSlug}
-        isPublished={workspacePublished}
-        publicUrl={publicUrl}
-      />
+      {/* D4 fix: CurationSurface is behind a scoped Suspense boundary.
+          The breadcrumb + heading above render immediately when this page
+          loads, eliminating the full-page skeleton flash caused by the
+          (app)/loading.tsx route-group fallback covering the whole viewport.
+          The skeleton here is scoped to just the curation area. */}
+      <Suspense fallback={<CurationSurfaceSkeleton />}>
+        <PlanPageContent
+          workspaceSlug={workspace.slug}
+          projectSlug={projectSlug}
+          publicUrl={publicUrl}
+        />
+      </Suspense>
+    </div>
+  );
+}
+
+// ── Async data component — deferred behind Suspense ───────────────────────────
+// Resolves getEffectiveNodesForWorkspace + isWorkspacePublished while the
+// breadcrumb and heading above are already visible.
+
+async function PlanPageContent({
+  workspaceSlug,
+  projectSlug,
+  publicUrl,
+}: {
+  workspaceSlug: string;
+  projectSlug: string;
+  publicUrl: string;
+}) {
+  const [effectiveNodes, workspacePublished] = await Promise.all([
+    getEffectiveNodesForWorkspace(workspaceSlug),
+    isWorkspacePublished(workspaceSlug),
+  ]);
+
+  return (
+    <CurationSurface
+      initialNodes={effectiveNodes}
+      workspaceSlug={workspaceSlug}
+      projectSlug={projectSlug}
+      isPublished={workspacePublished}
+      publicUrl={publicUrl}
+    />
+  );
+}
+
+// ── Skeleton fallback ─────────────────────────────────────────────────────────
+// Scoped to the curation surface area only. Matches the approximate shape
+// of the node list — a few shimmer rows — without taking over the full viewport.
+
+function CurationSurfaceSkeleton() {
+  return (
+    <div aria-hidden className="flex flex-col gap-3">
+      {[1, 2, 3].map((i) => (
+        <div
+          key={i}
+          className="flex items-center justify-between rounded-xl border px-4 py-3.5"
+          style={{ borderColor: "var(--border)" }}
+        >
+          <div className="flex flex-col gap-1.5">
+            <div className="skeleton-shimmer h-3.5 w-48 rounded" />
+            <div className="skeleton-shimmer h-3 w-24 rounded" />
+          </div>
+          <div className="skeleton-shimmer h-5 w-5 rounded" />
+        </div>
+      ))}
     </div>
   );
 }

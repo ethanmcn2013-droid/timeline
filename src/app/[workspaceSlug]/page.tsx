@@ -7,6 +7,7 @@ import {
   getWorkspace,
   getProjectsForWorkspace,
   getTasksForWorkspace,
+  getEffectiveNodesForWorkspace,
   getUpcomingTasks,
   getLastUpdatedForWorkspace,
   isWorkspacePublished,
@@ -226,9 +227,14 @@ async function WorkspaceContentWell({
 
   // Single data fetch — all four views share this payload.
   // No per-view branching in the data layer; ISR remains intact.
-  const [projects, allTasks, upcoming, lastUpdated] = await Promise.all([
+  // effectiveNodes is included to support manual-only workspaces (D1 fix):
+  // milestones created via "+ Add a milestone" live only in node_overlays,
+  // not in the tasks table. getEffectiveNodesForWorkspace is React-cached so
+  // this call deduplicates with any prior call in the same request.
+  const [projects, allTasks, effectiveNodes, upcoming, lastUpdated] = await Promise.all([
     getProjectsForWorkspace(workspaceSlug),
     getTasksForWorkspace(workspaceSlug),
+    getEffectiveNodesForWorkspace(workspaceSlug),
     getUpcomingTasks(workspaceSlug, 14),
     getLastUpdatedForWorkspace(workspaceSlug),
   ]);
@@ -297,17 +303,66 @@ async function WorkspaceContentWell({
 
   // Milestones (kind=milestone OR isLaunch), sorted by targetDate asc,
   // un-dated last. Refused milestones drop out.
-  const milestones = allTasks
+  //
+  // D1 fix: manual milestones (source="manual" in node_overlays, never
+  // written to tasks) are not in allTasks. Merge them in from effectiveNodes
+  // so manual-only workspaces render milestones on the public page.
+  // Manual nodes are hidden=false (hidden ones are excluded by isWorkspacePublished
+  // and the owner uses the curation surface to toggle them).
+  const syncedMilestones = allTasks.filter(
+    (t) => (t.kind === "milestone" || t.isLaunch) && t.status !== "refused",
+  );
+  // Ids of synced milestones already accounted for — prevents double-rendering
+  // an effective node whose backing task row is already in syncedMilestones.
+  const syncedMilestoneIds = new Set(syncedMilestones.map((t) => t.id));
+  // Fabricate Task-shaped objects for manual nodes so all downstream consumers
+  // (MilestoneCard, MilestoneMap, ScheduleView, right rail) work unchanged.
+  // Only fields actually read by those consumers are populated; the rest get
+  // safe zero-values. The first project slug is used as projectSlug because
+  // manual nodes are workspace-scoped, not project-scoped at the DB level.
+  const defaultProjectSlug = projects[0]?.slug ?? workspaceSlug;
+  const manualMilestones: Task[] = effectiveNodes
     .filter(
-      (t) =>
-        (t.kind === "milestone" || t.isLaunch) && t.status !== "refused",
+      (n) =>
+        n.source === "manual" &&
+        !n.hidden &&
+        n.status !== "refused" &&
+        !syncedMilestoneIds.has(n.id),
     )
-    .sort((a, b) => {
-      if (a.targetDate && b.targetDate) return a.targetDate.localeCompare(b.targetDate);
-      if (a.targetDate) return -1;
-      if (b.targetDate) return 1;
-      return a.sortOrder - b.sortOrder;
-    });
+    .map((n) => ({
+      id: n.id,
+      projectSlug: defaultProjectSlug,
+      workspaceSlug,
+      title: n.title,
+      description: "",
+      status: n.status,
+      phase: null,
+      tier: null,
+      assignee: "claude-code" as const,
+      cycleLabel: null,
+      targetDate: n.targetDate,
+      sortOrder: n.sortOrder,
+      kind: "milestone" as const,
+      category: null,
+      priority: null,
+      blockerId: null,
+      unblocks: null,
+      weekHeading: null,
+      channel: null,
+      isLaunch: true,
+      day: null,
+      postingTime: null,
+      createdAt: new Date(0),
+      updatedAt: new Date(0),
+      completedAt: null,
+    }));
+
+  const milestones = [...syncedMilestones, ...manualMilestones].sort((a, b) => {
+    if (a.targetDate && b.targetDate) return a.targetDate.localeCompare(b.targetDate);
+    if (a.targetDate) return -1;
+    if (b.targetDate) return 1;
+    return a.sortOrder - b.sortOrder;
+  });
 
   // Un-shipped milestones with a date, in chronological order. The
   // page renders each item with a soft "→ for <milestone>" line pointing at
@@ -349,7 +404,11 @@ async function WorkspaceContentWell({
   const totalForProgress = counts.total - counts.refused;
   const progress = totalForProgress > 0 ? counts.shipped / totalForProgress : 0;
 
-  const hasItems = allTasks.length > 0;
+  // D1 fix: a manual-only workspace has allTasks.length === 0 but has
+  // visible effective nodes. hasItems gates the "Nothing here yet" path,
+  // so we must include non-hidden effective nodes in the count.
+  const visibleEffectiveNodes = effectiveNodes.filter((n) => !n.hidden);
+  const hasItems = allTasks.length > 0 || visibleEffectiveNodes.length > 0;
   // isDemoWorkspace: reads the explicit schema flag, not a reserved-slug check.
   const isDemoWorkspace = workspace.isDemo;
 

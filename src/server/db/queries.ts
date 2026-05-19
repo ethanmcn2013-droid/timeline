@@ -203,20 +203,24 @@ export async function getProjectsForWorkspace(
  * Returns true iff the workspace is genuinely ready for public viewing:
  *   1. At least one project exists.
  *   2. Every project has published_at set (non-null).
- *   3. At least one task exists for the workspace slug (COUNT > 0).
+ *   3. At least one visible item exists — either a task in the tasks table
+ *      OR a non-hidden manual node in node_overlays (source='manual').
  *
  * Condition 3 prevents the P0-2 defect: a workspace with projects but
- * zero tasks renders an empty public roadmap. The owner presses Publish,
- * believes it is live, but stakeholders see "Nothing yet." This three-part
- * gate ensures "published" means the roadmap has visible content.
+ * zero items renders an empty public roadmap. The owner presses Publish,
+ * believes it is live, but stakeholders see "Nothing yet."
+ *
+ * D1 fix (2026-05-19): the original check only queried the tasks table,
+ * so a manual-only workspace (milestones created via "+ Add a milestone",
+ * stored in node_overlays with source='manual', never written to tasks)
+ * always failed the gate and showed "Not published yet" to stakeholders
+ * even after the owner pressed Publish. The fix extends step 3 to also
+ * count non-hidden manual node_overlays rows.
  *
  * createProjectAction calls this to decide whether new projects should
- * inherit published_at. That call is safe under the new check: a workspace
- * where all existing projects are published AND tasks exist is still
- * considered published, so new projects correctly inherit the published
- * state. The empty-workspace guard returns false immediately (row count = 0)
- * before reaching the task count, so a zero-project workspace can never
- * unintentionally pass.
+ * inherit published_at. The empty-workspace guard returns false immediately
+ * (row count = 0) before reaching the content check, so a zero-project
+ * workspace can never unintentionally pass.
  *
  * Callers that only need the project-level gate (publish/unpublish mutations)
  * should call getProjectsForWorkspace and check rows directly.
@@ -232,13 +236,29 @@ export async function isWorkspacePublished(
   if (projectRows.length === 0) return false;
   if (!projectRows.every((r) => r.publishedAt !== null)) return false;
 
-  // Step 3: require at least one task in the workspace.
+  // Step 3: require at least one visible item.
+  // Check tasks first (the common case for synced workspaces — fast exit).
+  // Fall through to manual overlays for manual-only workspaces (D1 fix).
   const taskCountRows = await db
     .select({ id: tasks.id })
     .from(tasks)
     .where(eq(tasks.workspaceSlug, workspaceSlug))
     .limit(1);
-  return taskCountRows.length > 0;
+  if (taskCountRows.length > 0) return true;
+
+  // No tasks: check for non-hidden manual nodes in node_overlays.
+  const manualNodeRows = await db
+    .select({ nodeId: nodeOverlays.nodeId })
+    .from(nodeOverlays)
+    .where(
+      and(
+        eq(nodeOverlays.workspaceSlug, workspaceSlug),
+        eq(nodeOverlays.source, "manual"),
+        eq(nodeOverlays.hidden, false),
+      ),
+    )
+    .limit(1);
+  return manualNodeRows.length > 0;
 }
 
 /**
@@ -630,9 +650,9 @@ export type EffectiveNode = {
   driftDetected: boolean;
 };
 
-export async function getEffectiveNodesForWorkspace(
+export const getEffectiveNodesForWorkspace = cache(async (
   workspaceSlug: string,
-): Promise<EffectiveNode[]> {
+): Promise<EffectiveNode[]> => {
   const [allMilestoneTasks, allOverlays] = await Promise.all([
     db
       .select()
@@ -716,7 +736,7 @@ export async function getEffectiveNodesForWorkspace(
 
   // Merge: synced first, then manual; sort by sortOrder
   return [...syncedNodes, ...manualNodes].sort((a, b) => a.sortOrder - b.sortOrder);
-}
+});
 
 /** Map task status + date to a display lane (D4/D7/D8). Pure. */
 export function statusToLane(
