@@ -100,6 +100,7 @@
   --paper-elev:  #ffffff;
   --paper-soft:  #fafafa;
   --paper-deep:  #f4f4f5;
+  --paper-bone:  #ebebec; /* skeleton bone trough — see SUITE-SKELETON-RECONCILE */
 
   --bg:          var(--paper);
   --bg-elev:     var(--paper-elev);
@@ -676,6 +677,42 @@ select,
 }
 
 /* ────────────────────────────────────────────────────────────
+   Fix 4: ManualAddForm title input — visible focus ring.
+   Matches the suite-wide :focus-visible pattern above.
+   outline:none was removed from the inline style; this class
+   provides the canonical 2px indigo ring on keyboard focus.
+   ──────────────────────────────────────────────────────────── */
+.manual-add-title-input:focus {
+  outline: none;
+}
+.manual-add-title-input:focus-visible {
+  outline: 2px solid var(--indigo-600);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+/* ────────────────────────────────────────────────────────────
+   Fix 9: quiet link hover — underline only on hover, color unchanged.
+   Used by "or add one manually" and "+ Add a milestone".
+   ──────────────────────────────────────────────────────────── */
+.quiet-link-hover:hover {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* ────────────────────────────────────────────────────────────
+   Sync-from-Tasks button — secondary ghost hover affordance.
+   Tokens: --paper-soft (#fafafa) bg, --ink-ghost (#d4d4d8) border.
+   transition mirrors the button's inline transition (120ms bg + border,
+   160ms opacity) and collapses to 0.01ms under reduced-motion via the
+   contract block at the bottom of this file.
+   ──────────────────────────────────────────────────────────── */
+.sync-button:hover:not(:disabled) {
+  background: var(--paper-soft);
+  border-color: var(--ink-ghost);
+}
+
+/* ────────────────────────────────────────────────────────────
    Animations
    ──────────────────────────────────────────────────────────── */
 @keyframes ticker-scroll {
@@ -735,9 +772,24 @@ select,
   display: inline-block;
 }
 
+/* ── H1 (roadmap-elevation): Clerk UserButton avatar clamp ──────────
+   Belt-and-braces companion to the clerkAppearance.elements config.
+   The JS config fixes avatar size post-hydration; this CSS guard
+   covers the pre-hydration window where Clerk paints its default
+   ~40px indigo circle before React takes over. Constrained to 32×32px
+   to match the header's h-14 proportions. Do NOT enlarge — the 32px
+   value is a ceiling, not a floor; Clerk's own image may be smaller. */
+.cl-userButtonAvatarBox,
+.cl-avatarBox {
+  width: 2rem !important;  /* 32px */
+  height: 2rem !important; /* 32px */
+  max-width: 2rem !important;
+  max-height: 2rem !important;
+}
+
 /* ────────────────────────────────────────────────────────────
    Skeleton shimmer — ghost-chrome loading / empty states
-   Used by: src/app/app/loading.tsx, src/app/[workspaceSlug]/[projectSlug]/loading.tsx
+   Used by: src/app/app/(app)/loading.tsx, src/app/[workspaceSlug]/[projectSlug]/loading.tsx
    ──────────────────────────────────────────────────────────── */
 @keyframes skeleton-sweep {
   0%   { background-position: -400px 0; }
@@ -747,10 +799,10 @@ select,
 .skeleton-shimmer {
   background: linear-gradient(
     90deg,
-    var(--bg-deep) 0%,
-    color-mix(in srgb, var(--bg-deep) 40%, var(--bg-elev)) 40%,
-    color-mix(in srgb, var(--bg-deep) 40%, var(--bg-elev)) 60%,
-    var(--bg-deep) 100%
+    var(--paper-bone) 0%,
+    var(--paper-deep) 40%,
+    var(--paper-deep) 60%,
+    var(--paper-bone) 100%
   );
   background-size: 800px 100%;
   animation: skeleton-sweep 1.4s ease-in-out infinite;
@@ -760,7 +812,7 @@ select,
 @media (prefers-reduced-motion: reduce) {
   .skeleton-shimmer {
     animation: none;
-    background: var(--bg-deep);
+    background: var(--paper-bone);
   }
 }
 
@@ -788,6 +840,90 @@ select,
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+  }
+}
+
+/* ────────────────────────────────────────────────────────────
+   M2/fix4: Date input — custom calendar affordance. Cross-browser.
+   Suppresses the OS ::-webkit-calendar-picker-indicator ONLY on
+   .date-input-custom — does NOT affect any other date input.
+   The .date-input-wrapper provides the position:relative context
+   for the absolutely-positioned .date-input-icon-btn button.
+   The button calls showPicker?.() on click — works on Firefox where
+   the WebKit pseudo-element doesn't exist. WebKit indicator opacity:0
+   is kept as the click-through fallback where showPicker is unsupported.
+   SVG inside the button has pointer-events:none so the button receives
+   all clicks rather than the SVG element itself.
+   tabIndex={-1} on the button keeps the native <input> as the only tab stop.
+   ──────────────────────────────────────────────────────────── */
+.date-input-wrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.date-input-custom::-webkit-calendar-picker-indicator {
+  opacity: 0;
+  position: absolute;
+  right: 0;
+  width: 28px;
+  height: 100%;
+  cursor: pointer;
+}
+
+/* Button wrapper for the calendar icon. Not a tab stop (tabIndex=-1 on element).
+   Positioned absolutely inside .date-input-wrapper. */
+.date-input-icon-btn {
+  position: absolute;
+  right: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  color: var(--ink-quiet);
+  /* Ensure it sits above the input's content but below any focus ring */
+  pointer-events: auto;
+}
+
+.date-input-icon {
+  display: block;
+  flex-shrink: 0;
+  /* SVG itself doesn't need to be a pointer target — the button wrapper catches it */
+  pointer-events: none;
+}
+
+.date-input-custom:focus-visible {
+  outline: 2px solid var(--indigo-600);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+/* ────────────────────────────────────────────────────────────
+   M5: Roadmap wordmark ambient gesture — .roadmap-dot opacity pulse.
+   Low-key identity mark: 0.85 → 1.0 at 3s ease-in-out alternate.
+   Scoped to .roadmap-dot only — does NOT affect .signal-loading-dot
+   (the SuiteLoader dot) or .skeleton-shimmer (the loading ghost).
+   prefers-reduced-motion: static at full opacity, no animation.
+   ──────────────────────────────────────────────────────────── */
+@keyframes roadmap-dot-ambient {
+  from { opacity: 0.85; }
+  to   { opacity: 1.0; }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .roadmap-dot {
+    animation: roadmap-dot-ambient 3s ease-in-out infinite alternate;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .roadmap-dot {
+    animation: none;
+    opacity: 1;
   }
 }
 

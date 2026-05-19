@@ -58,8 +58,6 @@ export default async function PlanPage({
         </Link>
         <span aria-hidden>/</span>
         <span style={{ color: "var(--ink)" }}>{project.name}</span>
-        <span aria-hidden>/</span>
-        <span>plan</span>
       </nav>
 
       {/* Heading */}
@@ -74,7 +72,7 @@ export default async function PlanPage({
           className="mt-1 text-sm"
           style={{ color: "var(--ink-soft)" }}
         >
-          Curate your milestones. Only published items reach the shared link.
+          Curate your milestones. Use the eye icon to hide items from your public link.
         </p>
       </div>
 

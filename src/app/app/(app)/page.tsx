@@ -46,7 +46,8 @@ export default async function AppPage() {
             {workspace.name}
           </h1>
           {/* Publish control — Layer 1 (seamless-ecosystem-2026-05-18); includes URL chip */}
-          <div className="mt-3">
+          {/* id="publish": M4 nudge hash anchor — no smooth-scroll, native fragment jump */}
+          <div id="publish" className="mt-3">
             <PublishControl
               workspaceSlug={workspace.slug}
               initialPublished={workspacePublished}

@@ -50,11 +50,12 @@ export function Wordmark({
       style={{ letterSpacing: "-0.05em", textDecoration: "none" }}
     >
       <span style={{ fontWeight: 600, color: "var(--ink)" }}>roadmap</span>
-      {/* The `.md` class is targeted by the `dot-land` keyframe in globals.css
-          when data-dot-landing="1" is set on <html> by the inline head script.
-          No animation at rest — dot-land fires only on cross-product arrival. */}
+      {/* `.md` is targeted by `dot-land` in globals.css on cross-product arrival.
+          `.roadmap-dot` adds M5 ambient opacity pulse (0.85→1.0, 3s alternate)
+          guarded by prefers-reduced-motion in globals.css. Does not conflict with
+          SuiteLoader (.signal-loading-dot) or skeleton (.skeleton-shimmer). */}
       <span
-        className="md"
+        className="md roadmap-dot"
         aria-hidden
         style={{
           display: "inline-block",

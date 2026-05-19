@@ -15,6 +15,7 @@
 
 import { useState, useTransition, useRef, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import type { EffectiveNode } from "@/server/db/queries";
 import { upsertNodeOverlayAction, syncMilestonesAction, reorderNodesAction } from "@/server/actions/workspaces";
 
@@ -113,7 +114,10 @@ function StatusCircle({ lane, isMilestone }: { lane: LaneLabel; isMilestone: boo
 function NodeCard({
   node,
   workspaceSlug,
+  projectSlug,
   onUpdate,
+  onWriteStart,
+  onWriteEnd,
   onDragStart,
   onDragOver,
   onDrop,
@@ -124,7 +128,10 @@ function NodeCard({
 }: {
   node: EffectiveNode;
   workspaceSlug: string;
+  projectSlug: string;
   onUpdate: () => void;
+  onWriteStart: () => void;
+  onWriteEnd: () => void;
   onDragStart: (id: string) => void;
   onDragOver: (id: string) => void;
   onDrop: (targetId: string) => void;
@@ -137,49 +144,70 @@ function NodeCard({
   const [titleValue, setTitleValue] = useState(node.title);
   const [isPending, startTransition] = useTransition();
   const inputRef = useRef<HTMLInputElement>(null);
+  const dateInputRef = useRef<HTMLInputElement>(null);
 
   function commitTitle() {
     if (titleValue.trim() === node.title) {
       setEditingTitle(false);
       return;
     }
+    onWriteStart();
     startTransition(async () => {
-      await upsertNodeOverlayAction(workspaceSlug, {
-        nodeId: node.id,
-        labelOverride: titleValue.trim() || null,
-      });
-      onUpdate();
+      try {
+        await upsertNodeOverlayAction(workspaceSlug, projectSlug, {
+          nodeId: node.id,
+          labelOverride: titleValue.trim() || null,
+        });
+        onUpdate();
+      } finally {
+        onWriteEnd();
+      }
     });
     setEditingTitle(false);
   }
 
   function toggleHidden() {
+    onWriteStart();
     startTransition(async () => {
-      await upsertNodeOverlayAction(workspaceSlug, {
-        nodeId: node.id,
-        hidden: !node.hidden,
-      });
-      onUpdate();
+      try {
+        await upsertNodeOverlayAction(workspaceSlug, projectSlug, {
+          nodeId: node.id,
+          hidden: !node.hidden,
+        });
+        onUpdate();
+      } finally {
+        onWriteEnd();
+      }
     });
   }
 
   function setLane(lane: LaneLabel) {
+    onWriteStart();
     startTransition(async () => {
-      await upsertNodeOverlayAction(workspaceSlug, {
-        nodeId: node.id,
-        laneOverride: lane !== node.lane ? lane : null,
-      });
-      onUpdate();
+      try {
+        await upsertNodeOverlayAction(workspaceSlug, projectSlug, {
+          nodeId: node.id,
+          laneOverride: lane !== node.lane ? lane : null,
+        });
+        onUpdate();
+      } finally {
+        onWriteEnd();
+      }
     });
   }
 
   function setDate(dateStr: string) {
+    onWriteStart();
     startTransition(async () => {
-      await upsertNodeOverlayAction(workspaceSlug, {
-        nodeId: node.id,
-        dateOverride: dateStr || null,
-      });
-      onUpdate();
+      try {
+        await upsertNodeOverlayAction(workspaceSlug, projectSlug, {
+          nodeId: node.id,
+          dateOverride: dateStr || null,
+        });
+        onUpdate();
+      } finally {
+        onWriteEnd();
+      }
     });
   }
 
@@ -348,6 +376,8 @@ function NodeCard({
           >
             {/* Lane segmented control */}
             <div
+              role="radiogroup"
+              aria-label="Lane"
               style={{
                 display: "flex",
                 gap: 0,
@@ -360,10 +390,12 @@ function NodeCard({
                 <button
                   key={l}
                   type="button"
+                  role="radio"
+                  aria-checked={node.lane === l}
                   onClick={() => setLane(l)}
                   style={{
-                    fontSize: 10,
-                    padding: "2px 7px",
+                    fontSize: 11,
+                    padding: "4px 10px",
                     border: "none",
                     background:
                       node.lane === l
@@ -383,22 +415,55 @@ function NodeCard({
               ))}
             </div>
 
-            {/* Date input */}
-            <input
-              type="date"
-              value={node.targetDate ?? ""}
-              onChange={(e) => setDate(e.target.value)}
-              style={{
-                fontSize: 10,
-                fontFamily: "var(--font-mono-stack)",
-                color: "var(--ink-quiet)",
-                border: "1px solid var(--hairline)",
-                borderRadius: 4,
-                padding: "2px 6px",
-                background: "transparent",
-                cursor: "pointer",
-              }}
-            />
+            {/* Date input — M2/fix3: same .date-input-wrapper/.date-input-custom treatment
+                as ManualAddForm. Button wraps the SVG and calls showPicker?.(). */}
+            <div className="date-input-wrapper" style={{ display: "inline-flex" }}>
+              <input
+                ref={dateInputRef}
+                type="date"
+                value={node.targetDate ?? ""}
+                onChange={(e) => setDate(e.target.value)}
+                className="date-input-custom"
+                style={{
+                  fontSize: 11,
+                  fontFamily: "var(--font-mono-stack)",
+                  color: "var(--ink-quiet)",
+                  border: "1px solid var(--hairline)",
+                  borderRadius: 4,
+                  padding: "3px 7px",
+                  paddingRight: 22,
+                  background: "transparent",
+                  cursor: "pointer",
+                }}
+              />
+              <button
+                type="button"
+                tabIndex={-1}
+                aria-label="Pick a date"
+                onClick={() => {
+                  try { dateInputRef.current?.showPicker?.(); } catch { /* showPicker unsupported or not user-activated */ }
+                }}
+                className="date-input-icon-btn"
+              >
+                <svg
+                  aria-hidden
+                  width="12"
+                  height="12"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.8"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="date-input-icon"
+                >
+                  <rect x="3" y="4" width="18" height="18" rx="2" />
+                  <line x1="16" y1="2" x2="16" y2="6" />
+                  <line x1="8" y1="2" x2="8" y2="6" />
+                  <line x1="3" y1="10" x2="21" y2="10" />
+                </svg>
+              </button>
+            </div>
 
             {/* Source indicator — chain-link icon per CREATIVE_SPEC (DRAG: replace ⇄ glyph) */}
             {node.source === "synced" && (
@@ -464,19 +529,46 @@ function NodeCard({
 
 // ── D5 manual add form ────────────────────────────────────────────────────────
 
+/**
+ * ManualAddForm — lifted open state (H2).
+ *
+ * `open` and `onClose` are now owned by CurationSurface (single source of
+ * truth). Draft fields (title, lane, date) are also hoisted to the parent so
+ * they survive the isEmpty branch swap mid-typing. The form has no internal
+ * open gate; it renders unconditionally when mounted. C1d: on server error,
+ * the parent keeps `manualAddOpen=true` so the form stays mounted with fields
+ * intact (trivially guaranteed since draft lives in the parent).
+ */
 function ManualAddForm({
   workspaceSlug,
+  projectSlug,
   onAdd,
+  onWriteStart,
+  onWriteEnd,
+  onClose,
+  title,
+  setTitle,
+  lane,
+  setLane,
+  date,
+  setDate,
 }: {
   workspaceSlug: string;
+  projectSlug: string;
   onAdd: () => void;
+  onWriteStart: () => void;
+  onWriteEnd: () => void;
+  onClose: () => void;
+  title: string;
+  setTitle: (v: string) => void;
+  lane: "Next" | "In flight" | "Shipped";
+  setLane: (v: "Next" | "In flight" | "Shipped") => void;
+  date: string;
+  setDate: (v: string) => void;
 }) {
-  const [open, setOpen] = useState(false);
-  const [title, setTitle] = useState("");
-  const [lane, setLane] = useState<"Next" | "In flight" | "Shipped">("Next");
-  const [date, setDate] = useState("");
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
+  const manualDateInputRef = useRef<HTMLInputElement>(null);
 
   function handleAdd() {
     if (!title.trim()) {
@@ -489,41 +581,33 @@ function ManualAddForm({
       "Shipped": "shipped",
     };
     const nodeId = `ms-manual-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+    onWriteStart();
     startTransition(async () => {
-      await upsertNodeOverlayAction(workspaceSlug, {
-        nodeId,
-        source: "manual",
-        manualTitle: title.trim(),
-        manualStatus: laneToStatus[lane],
-        manualTargetDate: date || null,
-      });
-      setTitle("");
-      setDate("");
-      setLane("Next");
-      setOpen(false);
-      setError(null);
-      onAdd();
+      try {
+        const result = await upsertNodeOverlayAction(workspaceSlug, projectSlug, {
+          nodeId,
+          source: "manual",
+          manualTitle: title.trim(),
+          manualStatus: laneToStatus[lane],
+          manualTargetDate: date || null,
+        });
+        if ("error" in result) {
+          setError(result.error);
+          // C1d: keep form open with fields intact — do NOT call onClose or reset.
+          // Draft lives in the parent so fields are preserved regardless of isEmpty swap.
+          return;
+        }
+        // Success: clear hoisted draft, close (parent sets manualAddOpen=false)
+        setTitle("");
+        setDate("");
+        setLane("Next");
+        setError(null);
+        onAdd();
+        onClose();
+      } finally {
+        onWriteEnd();
+      }
     });
-  }
-
-  if (!open) {
-    return (
-      <button
-        type="button"
-        onClick={() => setOpen(true)}
-        style={{
-          fontSize: 12,
-          color: "var(--indigo, #4f46e5)",
-          background: "none",
-          border: "none",
-          cursor: "pointer",
-          padding: "8px 0",
-          display: "block",
-        }}
-      >
-        + Add a milestone
-      </button>
-    );
   }
 
   return (
@@ -551,6 +635,7 @@ function ManualAddForm({
             placeholder="Tasting menu confirmed"
             maxLength={80}
             autoFocus
+            className="manual-add-title-input"
             style={{
               width: "100%",
               fontSize: 13,
@@ -559,7 +644,6 @@ function ManualAddForm({
               borderRadius: 6,
               background: "var(--paper)",
               color: "var(--ink)",
-              outline: "none",
             }}
           />
         </div>
@@ -567,15 +651,22 @@ function ManualAddForm({
         {/* Lane */}
         <div>
           <label
+            id="manual-add-lane-label"
             style={{ fontSize: 11, color: "var(--ink-quiet)", display: "block", marginBottom: 4 }}
           >
             Which lane?
           </label>
-          <div style={{ display: "flex", gap: 0, border: "1px solid var(--hairline)", borderRadius: 6, overflow: "hidden", width: "fit-content" }}>
+          <div
+            role="radiogroup"
+            aria-labelledby="manual-add-lane-label"
+            style={{ display: "flex", gap: 0, border: "1px solid var(--hairline)", borderRadius: 6, overflow: "hidden", width: "fit-content" }}
+          >
             {(["Next", "In flight", "Shipped"] as const).map((l) => (
               <button
                 key={l}
                 type="button"
+                role="radio"
+                aria-checked={lane === l}
                 onClick={() => setLane(l)}
                 style={{
                   fontSize: 11,
@@ -593,31 +684,75 @@ function ManualAddForm({
           </div>
         </div>
 
-        {/* Date */}
+        {/* Date — M2: native date input with custom calendar affordance.
+            OS calendar-picker-indicator is CSS-suppressed via .date-input-custom
+            (scoped — does NOT affect other date inputs). A custom SVG calendar
+            icon is rendered as a sibling inside a position:relative wrapper;
+            pointer-events:none on the icon lets clicks fall through to the input.
+            Keyboard and screen-reader behavior unchanged — the native <input> is
+            the real control. focus-visible ring applied via globals.css. */}
         <div>
           <label
             style={{ fontSize: 11, color: "var(--ink-quiet)", display: "block", marginBottom: 4 }}
           >
             Date (optional)
           </label>
-          <input
-            type="date"
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
-            style={{
-              fontSize: 12,
-              fontFamily: "var(--font-mono-stack)",
-              padding: "4px 8px",
-              border: "1px solid var(--hairline)",
-              borderRadius: 6,
-              background: "var(--paper)",
-              color: "var(--ink-quiet)",
-            }}
-          />
+          <div className="date-input-wrapper">
+            <input
+              ref={manualDateInputRef}
+              type="date"
+              value={date}
+              onChange={(e) => setDate(e.target.value)}
+              className="date-input-custom"
+              style={{
+                fontSize: 12,
+                fontFamily: "var(--font-mono-stack)",
+                padding: "4px 8px",
+                paddingRight: 28,
+                border: "1px solid var(--hairline)",
+                borderRadius: 6,
+                background: "var(--paper)",
+                color: "var(--ink-quiet)",
+                width: "100%",
+              }}
+            />
+            {/* M2/fix4: button wraps the SVG so clicking it calls showPicker?.(). Cross-browser:
+                on Firefox the WebKit pseudo-element doesn't exist; the button is the real trigger.
+                tabIndex={-1} keeps the input as the only tab stop. try/catch swallows
+                showPicker throws (not user-activated, or unsupported). The WebKit
+                indicator opacity:0 fallback in globals.css remains for non-showPicker browsers. */}
+            <button
+              type="button"
+              tabIndex={-1}
+              aria-label="Pick a date"
+              onClick={() => {
+                try { manualDateInputRef.current?.showPicker?.(); } catch { /* showPicker unsupported or not user-activated */ }
+              }}
+              className="date-input-icon-btn"
+            >
+              <svg
+                aria-hidden
+                width="13"
+                height="13"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.8"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="date-input-icon"
+              >
+                <rect x="3" y="4" width="18" height="18" rx="2" />
+                <line x1="16" y1="2" x2="16" y2="6" />
+                <line x1="8" y1="2" x2="8" y2="6" />
+                <line x1="3" y1="10" x2="21" y2="10" />
+              </svg>
+            </button>
+          </div>
         </div>
 
         {error && (
-          <p style={{ fontSize: 11, color: "var(--status-blocked)", margin: 0 }}>{error}</p>
+          <p role="alert" style={{ fontSize: 11, color: "var(--status-blocked)", margin: 0 }}>{error}</p>
         )}
 
         <div style={{ display: "flex", gap: 8 }}>
@@ -642,10 +777,12 @@ function ManualAddForm({
           <button
             type="button"
             onClick={() => {
-              setOpen(false);
+              // Draft fields are hoisted — clear them on explicit cancel
               setTitle("");
               setDate("");
+              setLane("Next");
               setError(null);
+              onClose();
             }}
             style={{
               fontSize: 12,
@@ -667,6 +804,11 @@ function ManualAddForm({
 
 // ── Sync button ───────────────────────────────────────────────────────────────
 
+/**
+ * H3: when sync returns 0 milestones, replace the ghost "No milestones found
+ * in Tasks." text with a weighted inline chip + actionable copy + Open Tasks
+ * link. Uses paper surface + hairline border + ink-soft text — calm, on-voice.
+ */
 function SyncButton({
   workspaceSlug,
   onSync,
@@ -675,27 +817,43 @@ function SyncButton({
   onSync: () => void;
 }) {
   const [isPending, startTransition] = useTransition();
-  const [result, setResult] = useState<string | null>(null);
+  const [result, setResult] = useState<"zero" | "count" | "error" | null>(null);
+  const [syncCount, setSyncCount] = useState(0);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const tasksUrl = process.env.NEXT_PUBLIC_TASKS_URL ?? "https://tasks.signalstudio.ie";
 
   function handleSync() {
+    // Fix 2: clear previous result at the START of each sync so zero/error
+    // results from the prior run don't linger while the new request is in-flight.
+    setResult(null);
+    setErrorMsg(null);
     startTransition(async () => {
       const res = await syncMilestonesAction(workspaceSlug);
       if ("error" in res) {
-        setResult(res.error);
-      } else {
-        setResult(res.count === 0 ? "No milestones found in Tasks." : `${res.count} milestone${res.count === 1 ? "" : "s"} synced.`);
+        setErrorMsg(res.error);
+        setResult("error");
+        // Fix 2: error persists — NO auto-clear timer. User must re-trigger sync.
+      } else if (res.count === 0) {
+        setResult("zero");
         onSync();
+        // Fix 2: zero persists — NO auto-clear timer. User must re-trigger sync.
+      } else {
+        setSyncCount(res.count);
+        setResult("count");
+        onSync();
+        // Fix 2: ONLY the success-count result auto-clears after 5s.
+        setTimeout(() => { setResult(null); }, 5000);
       }
-      setTimeout(() => setResult(null), 3000);
     });
   }
 
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+    <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
       <button
         type="button"
         onClick={handleSync}
         disabled={isPending}
+        className="sync-button"
         style={{
           fontSize: 12,
           fontWeight: 500,
@@ -709,7 +867,7 @@ function SyncButton({
           display: "flex",
           alignItems: "center",
           gap: 6,
-          transition: "opacity 160ms",
+          transition: "background 120ms, border-color 120ms, opacity 160ms",
         }}
       >
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
@@ -718,8 +876,60 @@ function SyncButton({
         </svg>
         {isPending ? "Syncing…" : "Sync from Tasks"}
       </button>
-      {result && (
-        <span style={{ fontSize: 11, color: "var(--ink-quiet)" }}>{result}</span>
+
+      {/* H3 — zero-result chip: paper surface, hairline border, ink-soft text.
+          Fix 5: copy names real Tasks affordance ("Milestone" button) — no em-dash.
+          Fix 6: flex + maxWidth so chip wraps cleanly at 320px. */}
+      {result === "zero" && (
+        <span
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            alignItems: "center",
+            gap: 5,
+            maxWidth: "min(400px, 92vw)",
+            fontSize: 11,
+            fontWeight: 500,
+            color: "var(--ink-soft)",
+            background: "var(--paper)",
+            border: "1px solid var(--hairline)",
+            borderRadius: 6,
+            padding: "3px 9px",
+            lineHeight: 1.4,
+          }}
+        >
+          <span>
+            No milestones found yet.{" "}
+            <span style={{ fontWeight: 400, color: "var(--ink-quiet)" }}>
+              Open a task in Signal Tasks and tap the Milestone button. It&apos;ll appear here automatically.
+            </span>
+          </span>{" "}
+          <a
+            href={tasksUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              color: "var(--indigo, #4f46e5)",
+              textDecoration: "none",
+              fontWeight: 500,
+              whiteSpace: "nowrap",
+            }}
+          >
+            Open Tasks
+          </a>
+        </span>
+      )}
+
+      {/* Count confirmation */}
+      {result === "count" && (
+        <span style={{ fontSize: 11, color: "var(--ink-quiet)" }}>
+          {syncCount} milestone{syncCount === 1 ? "" : "s"} synced.
+        </span>
+      )}
+
+      {/* Error — Fix 3: var(--status-blocked) = #ef4444 (confirmed in globals.css line 52) */}
+      {result === "error" && (
+        <span style={{ fontSize: 11, color: "var(--status-blocked)" }}>{errorMsg}</span>
       )}
     </div>
   );
@@ -742,6 +952,17 @@ export function CurationSurface({
 }) {
   const router = useRouter();
   const [nodes, setNodes] = useState(initialNodes);
+  // H2: lifted open state — single source of truth for the manual add form.
+  // When isEmpty===true and manualAddOpen===true, ManualAddForm replaces the
+  // empty-state container in situ. When nodes exist, the bottom affordance also
+  // drives this state. ManualAddForm has no internal open gate.
+  const [manualAddOpen, setManualAddOpen] = useState(false);
+  // Fix 1: hoisted draft state — survives isEmpty branch swap mid-typing.
+  const [draftTitle, setDraftTitle] = useState("");
+  const [draftLane, setDraftLane] = useState<"Next" | "In flight" | "Shipped">("Next");
+  const [draftDate, setDraftDate] = useState("");
+  // C1c: track in-flight upsert writes; RSC prop sync is suppressed while > 0
+  const pendingWriteCount = useRef(0);
   const [, startTransition] = useTransition();
   // D11 auto-sync: fires once on mount (pull-on-visit). Does NOT publish.
   const [autoSyncing, setAutoSyncing] = useState(false);
@@ -771,6 +992,23 @@ export function CurationSurface({
     savedTimerRef.current = setTimeout(() => setSavedAt(null), 1500);
   }, []);
 
+  // C1a: absorb RSC prop updates into local state, but only when no writes are
+  // settling. While pendingWriteCount > 0 the optimistic state is authoritative;
+  // once the count returns to 0 the next RSC push (from router.refresh()) applies.
+  useEffect(() => {
+    if (pendingWriteCount.current === 0) setNodes(initialNodes);
+    return () => { pendingWriteCount.current = 0; };
+  }, [initialNodes]);
+
+  // C1c write-count helpers — passed into NodeCard and ManualAddForm
+  const handleWriteStart = useCallback(() => {
+    pendingWriteCount.current += 1;
+  }, []);
+
+  const handleWriteEnd = useCallback(() => {
+    pendingWriteCount.current = Math.max(0, pendingWriteCount.current - 1);
+  }, []);
+
   // D11 auto-sync on load: pulls Tasks milestones into the private draft.
   // D6 two-gate is preserved — syncMilestonesAction only revalidates /app and
   // /app/plan/[slug], never the public /{workspaceSlug} path.
@@ -780,7 +1018,11 @@ export function CurationSurface({
     setAutoSyncing(true);
     syncMilestonesAction(workspaceSlug).then(() => {
       setAutoSyncing(false);
-      router.refresh();
+      // C1c: only refresh if no writes are in flight — avoids clobbering
+      // optimistic state mid-write with stale RSC data.
+      if (pendingWriteCount.current === 0) {
+        router.refresh();
+      }
     }).catch(() => {
       setAutoSyncing(false);
     });
@@ -873,8 +1115,10 @@ export function CurationSurface({
 
   return (
     <div>
-      {/* Published banner */}
-      {isPublished && (
+      {/* Plan-state banner — single element for both published and unpublished-with-nodes states.
+          M4: when unpublished and ≥1 visible node exists, show a quiet nudge. Same element,
+          two states — no second competing banner. Kept quiet: no coloured bar, no loud CTA. */}
+      {isPublished ? (
         <div
           style={{
             marginBottom: 24,
@@ -912,7 +1156,32 @@ export function CurationSurface({
             </svg>
           </a>
         </div>
-      )}
+      ) : nodes.filter((n) => !n.hidden).length > 0 ? (
+        /* M4 unpublished-with-nodes nudge — quiet, declarative, same visual register as published banner */
+        <div
+          style={{
+            marginBottom: 24,
+            padding: "10px 14px",
+            borderRadius: 8,
+            border: "1px solid var(--hairline)",
+            background: "var(--paper-soft, #fafafa)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: 12,
+          }}
+        >
+          <span style={{ fontSize: 12, color: "var(--ink-quiet)" }}>
+            Not published yet.{" "}
+            <Link
+              href="/app#publish"
+              style={{ color: "var(--ink-soft)", textDecoration: "underline", textUnderlineOffset: "2px" }}
+            >
+              Publish it from your dashboard.
+            </Link>
+          </span>
+        </div>
+      ) : null}
 
       {/* Toolbar */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
@@ -956,72 +1225,98 @@ export function CurationSurface({
         <SyncButton workspaceSlug={workspaceSlug} onSync={refresh} />
       </div>
 
-      {/* Empty state */}
+      {/* Empty state — H2: single primary CTA + quiet inline manual-add link.
+          When manualAddOpen, ManualAddForm replaces the container in situ.
+          No scrollIntoView. No detached anchor div. */}
       {isEmpty ? (
-        <div
-          style={{
-            textAlign: "center",
-            padding: "48px 24px",
-            color: "var(--ink-quiet)",
-          }}
-        >
-          <div style={{ fontSize: 24, marginBottom: 16, opacity: 0.4 }}>◇</div>
-          <p
+        manualAddOpen ? (
+          /* H2: form replaces empty state in the same container/position.
+             Fix 7: matching padding to empty state to prevent layout jump on swap. */
+          <div style={{ padding: "48px 24px" }}>
+            <ManualAddForm
+              workspaceSlug={workspaceSlug}
+              projectSlug={projectSlug}
+              onAdd={() => { flashSaved(); refresh(); }}
+              onWriteStart={handleWriteStart}
+              onWriteEnd={handleWriteEnd}
+              onClose={() => setManualAddOpen(false)}
+              title={draftTitle}
+              setTitle={setDraftTitle}
+              lane={draftLane}
+              setLane={setDraftLane}
+              date={draftDate}
+              setDate={setDraftDate}
+            />
+          </div>
+        ) : (
+          <div
             style={{
-              fontSize: 15,
-              fontWeight: 500,
-              color: "var(--ink-soft)",
-              marginBottom: 8,
-            }}
-          >
-            Your plan fills itself in.
-          </p>
-          <p
-            style={{
-              fontSize: 13,
+              textAlign: "center",
+              padding: "48px 24px",
               color: "var(--ink-quiet)",
-              lineHeight: 1.55,
-              maxWidth: 320,
-              margin: "0 auto 20px",
             }}
           >
-            Mark tasks as milestones in Signal Tasks and they&apos;ll appear here automatically.
-          </p>
-          <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
-            <a
-              href={process.env.NEXT_PUBLIC_TASKS_URL ?? "https://tasks.signalstudio.ie"}
-              target="_blank"
-              rel="noopener noreferrer"
+            <div style={{ fontSize: 24, marginBottom: 16, opacity: 0.4 }}>◇</div>
+            <p
               style={{
-                fontSize: 13,
+                fontSize: 15,
                 fontWeight: 500,
-                padding: "8px 18px",
-                borderRadius: 999,
-                background: "var(--ink)",
-                color: "var(--paper)",
-                textDecoration: "none",
+                color: "var(--ink-soft)",
+                marginBottom: 8,
               }}
             >
-              Open Tasks
-            </a>
+              Your plan fills itself in.
+            </p>
+            <p
+              style={{
+                fontSize: 13,
+                color: "var(--ink-quiet)",
+                lineHeight: 1.55,
+                maxWidth: 320,
+                margin: "0 auto 16px",
+              }}
+            >
+              Mark tasks as milestones in Signal Tasks and they&apos;ll appear here automatically.
+            </p>
+            {/* Fix 8: marginBottom 16 (was 12) */}
+            <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap", marginBottom: 16 }}>
+              <a
+                href={process.env.NEXT_PUBLIC_TASKS_URL ?? "https://tasks.signalstudio.ie"}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  fontSize: 13,
+                  fontWeight: 500,
+                  padding: "8px 18px",
+                  borderRadius: 999,
+                  background: "var(--ink)",
+                  color: "var(--paper)",
+                  textDecoration: "none",
+                }}
+              >
+                Open Tasks
+              </a>
+            </div>
+            {/* Quiet inline manual-add link — no background, no border, no pill.
+                Fix 9: hover underline via className. */}
             <button
               type="button"
-              onClick={() => {
-                // Scroll to manual add form (it's at the bottom)
-                document.getElementById("manual-add")?.scrollIntoView({ behavior: "smooth" });
-              }}
+              onClick={() => setManualAddOpen(true)}
+              className="quiet-link-hover"
               style={{
                 fontSize: 13,
                 color: "var(--ink-quiet)",
                 background: "none",
                 border: "none",
                 cursor: "pointer",
+                padding: 0,
+                lineHeight: 1.5,
               }}
             >
               or add one manually
             </button>
           </div>
-        </div>
+        )
       ) : (
         <>
           {/* Lane-grouped node list with drag-to-reorder (UX-1) */}
@@ -1061,7 +1356,10 @@ export function CurationSurface({
                       key={node.id}
                       node={node}
                       workspaceSlug={workspaceSlug}
+                      projectSlug={projectSlug}
                       onUpdate={() => { flashSaved(); refresh(); }}
+                      onWriteStart={handleWriteStart}
+                      onWriteEnd={handleWriteEnd}
                       onDragStart={handleDragStart}
                       onDragOver={handleDragOver}
                       onDrop={handleDrop}
@@ -1092,10 +1390,49 @@ export function CurationSurface({
         </>
       )}
 
-      {/* D5 manual add */}
-      <div id="manual-add" style={{ marginTop: 24 }}>
-        <ManualAddForm workspaceSlug={workspaceSlug} onAdd={() => { flashSaved(); refresh(); }} />
-      </div>
+      {/* D5 manual add — only shown when nodes exist (non-empty).
+          H2: drives the same lifted manualAddOpen state; no second mechanism.
+          When isEmpty, the form lives in the empty-state container above. */}
+      {!isEmpty && (
+        <div style={{ marginTop: 24 }}>
+          {manualAddOpen ? (
+            /* Fix 1: pass hoisted draft props so the form is state-continuous
+               regardless of which render position (empty or non-empty) is active. */
+            <ManualAddForm
+              workspaceSlug={workspaceSlug}
+              projectSlug={projectSlug}
+              onAdd={() => { flashSaved(); refresh(); }}
+              onWriteStart={handleWriteStart}
+              onWriteEnd={handleWriteEnd}
+              onClose={() => setManualAddOpen(false)}
+              title={draftTitle}
+              setTitle={setDraftTitle}
+              lane={draftLane}
+              setLane={setDraftLane}
+              date={draftDate}
+              setDate={setDraftDate}
+            />
+          ) : (
+            /* Fix 9: hover underline via className */
+            <button
+              type="button"
+              onClick={() => setManualAddOpen(true)}
+              className="quiet-link-hover"
+              style={{
+                fontSize: 12,
+                color: "var(--indigo, #4f46e5)",
+                background: "none",
+                border: "none",
+                cursor: "pointer",
+                padding: "8px 0",
+                display: "block",
+              }}
+            >
+              + Add a milestone
+            </button>
+          )}
+        </div>
+      )}
     </div>
   );
 }

@@ -36,12 +36,16 @@ function isWorkspacePublishedLogic(
 
 // ── Pure logic extracted from publishWorkspaceAction guard ───────────────────
 // Mirrors the guard in workspaces.ts publishWorkspaceAction.
+//
+// Production logic (2026-05-19): the second gate counts VISIBLE EFFECTIVE nodes
+// (synced tasks + manual overlays, hidden===false) via getEffectiveNodesForWorkspace.
+// A manual-only roadmap with visibleNodeCount≥1 must PASS even if taskCount is 0.
 
 type PublishGuardResult = { ok: true } | { error: string };
 
 function publishWorkspaceGuard(
   projectCount: number,
-  taskCount: number,
+  visibleNodeCount: number,
 ): PublishGuardResult {
   if (projectCount === 0) {
     return {
@@ -49,10 +53,10 @@ function publishWorkspaceGuard(
         "Add at least one project before publishing. Your roadmap needs something to share.",
     };
   }
-  if (taskCount === 0) {
+  if (visibleNodeCount === 0) {
     return {
       error:
-        "Add some items to your roadmap before publishing. Stakeholders need something to read.",
+        "Add items to your projects before publishing. Your plan needs something to share.",
     };
   }
   return { ok: true };
@@ -122,21 +126,31 @@ test("publishWorkspaceAction guard — zero projects → error, published_at uns
   assert.equal(publishCalled, false, "publishWorkspace must not be called");
 });
 
-test("publishWorkspaceAction guard — project exists + zero tasks → error, published_at unset", () => {
+test("publishWorkspaceAction guard — project exists + zero visible nodes → error, published_at unset", () => {
   let publishCalled = false;
+  // visibleNodeCount=0: no synced tasks AND no manual overlays visible.
   const result = publishWorkspaceGuard(1, 0);
-  assert.ok("error" in result, "Should return error for zero tasks");
+  assert.ok("error" in result, "Should return error for zero visible nodes");
   assert.match(
     (result as { error: string }).error,
-    /items|roadmap/i,
-    "Error message should mention roadmap items",
+    /items/i,
+    "Error message should mention items",
   );
   assert.equal(publishCalled, false, "publishWorkspace must not be called");
 });
 
-test("publishWorkspaceAction guard — project + tasks present → ok", () => {
+test("publishWorkspaceAction guard — project + synced tasks visible → ok", () => {
+  // Standard path: synced milestones from Tasks with visibleNodeCount≥1.
   const result = publishWorkspaceGuard(1, 3);
   assert.ok("ok" in result && (result as { ok: true }).ok === true, "Should return ok");
+});
+
+test("publishWorkspaceAction guard — manual-only roadmap (visibleNodeCount≥1, taskCount 0) → ok", () => {
+  // Manual milestone added directly via curation overlay (source="manual").
+  // Production uses getEffectiveNodesForWorkspace — manual overlays count.
+  // This test asserts the guard PASSES when visible nodes exist but raw task count is 0.
+  const result = publishWorkspaceGuard(1, 1); // 1 visible manual node, 0 synced tasks
+  assert.ok("ok" in result && (result as { ok: true }).ok === true, "Manual-only roadmap must pass publish guard");
 });
 
 // ── Drag-reorder sortOrder persistence ────────────────────────────────────────

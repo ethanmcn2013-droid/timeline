@@ -10,7 +10,7 @@ import {
   getWorkspace,
   getWorkspacesForUser,
   getProjectsForWorkspace,
-  getTasksForWorkspace,
+  getEffectiveNodesForWorkspace,
   seedWorkspaceFromTemplate,
   publishWorkspace,
   unpublishWorkspace,
@@ -274,19 +274,24 @@ export type UpsertOverlayResult = { ok: true } | { error: string };
 
 export async function upsertNodeOverlayAction(
   workspaceSlug: string,
+  projectSlug: string,
   overlay: NodeOverlayInput,
 ): Promise<UpsertOverlayResult> {
   const userId = await requireUser();
 
   const workspace = await getWorkspace(workspaceSlug);
   if (!workspace || workspace.ownerUserId !== userId) {
-    return { error: "Workspace not found." };
+    return { error: "Something went wrong. Reload the page and try again." };
   }
 
-  await upsertNodeOverlay(workspaceSlug, overlay);
+  try {
+    await upsertNodeOverlay(workspaceSlug, overlay);
+  } catch {
+    return { error: "Couldn't save that milestone. Check your connection and try again." };
+  }
 
   // Revalidate curation view only — public URL not touched until Publish
-  revalidatePath(`/app/plan/${overlay.nodeId.split("-")[2] ?? ""}`);
+  revalidatePath(`/app/plan/${projectSlug}`);
 
   return { ok: true };
 }
@@ -365,11 +370,15 @@ export async function publishWorkspaceAction(
     };
   }
 
-  const allTasks = await getTasksForWorkspace(workspaceSlug);
-  if (allTasks.length === 0) {
+  // Use effective nodes (synced tasks + manual overlays) — same source the
+  // curation surface renders. A manual-only roadmap (source="manual" rows,
+  // no tasks rows) is valid content and must not be blocked by a tasks-only check.
+  const effectiveNodes = await getEffectiveNodesForWorkspace(workspaceSlug);
+  const visibleNodes = effectiveNodes.filter((n) => !n.hidden);
+  if (visibleNodes.length === 0) {
     return {
       error:
-        "Add items to your projects before publishing. Stakeholders need something to read.",
+        "Add items to your projects before publishing. Your plan needs something to share.",
     };
   }
 
