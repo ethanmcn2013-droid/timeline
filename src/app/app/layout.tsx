@@ -1,6 +1,5 @@
 import { ClerkProvider } from "@clerk/nextjs";
-import { Wordmark } from "@/components/brand/wordmark";
-import { SuiteLauncher } from "@/components/suite-launcher";
+import { SuiteSwitcher } from "@/components/suite-switcher-pills";
 import { UserButtonWithSuite } from "@/components/user-button-with-suite";
 import { ClearDemoMode } from "./_components/clear-demo-mode";
 import { clerkAppearance } from "@/lib/clerk-appearance";
@@ -28,10 +27,8 @@ export default function AppLayout({
         }}
       >
         <div className="mx-auto flex h-14 w-full max-w-[80rem] items-center justify-between px-6">
-          <div className="flex items-center gap-3">
-            <SuiteLauncher current="roadmap" />
-            <span aria-hidden className="hidden sm:inline" style={{ color: "var(--ink-faint)", fontSize: 12 }}>/</span>
-            <Wordmark size="md" />
+          <div className="flex min-w-0 items-center">
+            <SuiteSwitcher current="roadmap" />
           </div>
           <UserButtonWithSuite current="roadmap" />
         </div>

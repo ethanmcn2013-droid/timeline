@@ -3,6 +3,17 @@
 Convention: BRAND.md §6.5. Entries before 2026-05-14 keep their
 original shape; the new shape starts at the next cycle.
 
+## 2026-05-19 · R·13 · ships · the workspace chrome carries four visible pills
+
+**The authed `/app` chrome now shows all four products as always-visible
+pills instead of the hidden "signal studio." popover trigger.** The shared
+canonical `SuiteSwitcher` replaces the launcher in the app layout, carrying
+the umbrella anchor once, the dot-morph jump, hover-prefetch and preconnect.
+The public workspace header — the forwarded shared-plan view a guest sees —
+deliberately keeps the popover: suite pills must not leak the logged-in
+affordance to a stakeholder reading a plan. Build clean; deployed to prod
+and verified (200 marketing, 307 app entry).
+
 ## 2026-05-18 · R·12 · tightens · escape hatch reconciled to suite-wide §14 canonical
 
 **The seamless-ecosystem escape hatch used a roadmap-local cookie name
