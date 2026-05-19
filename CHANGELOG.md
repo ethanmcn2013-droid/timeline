@@ -3,6 +3,26 @@
 Convention: BRAND.md §6.5. Entries before 2026-05-14 keep their
 original shape; the new shape starts at the next cycle.
 
+## 2026-05-19 · R·14 · ships · the manual milestone path works, and the route voids are gone
+
+**A milestone added by hand now persists and appears immediately — the core
+write path that was silently failing on production is fixed, end to end.**
+The plan editor no longer froze its node state at mount, the overlay write
+revalidated a wrong path, and a background sync could clobber an in-flight
+edit; all three are closed, with the create form now holding open and
+surfacing the reason when a save fails. Navigating into the app no longer
+flashes a charcoal void or an oversized dot: the authed shell is one
+persistent route group with in-flow skeletons. The empty state collapses to
+one clear action with the add form opening in place; a sync that finds
+nothing now says exactly what to do in Signal Tasks instead of a dead grey
+line; the publish gate counts what you actually see, so a hand-built plan
+can be published. Copy made honest and declarative, date inputs unified, a
+quiet publish nudge added, the wordmark given its own ambient mark.
+Panel-gated end to end (holistic 9.5/9.5/9.5/9.7). Build clean; deployed to
+prod and verified (200 marketing, 307 app entry, 200 public plan). Deferred
+by plan: the RSC-driven node refactor (H4); tracked in
+ELEVATION_C2_TICKET.md.
+
 ## 2026-05-19 · R·13 · ships · the workspace chrome carries four visible pills
 
 **The authed `/app` chrome now shows all four products as always-visible
