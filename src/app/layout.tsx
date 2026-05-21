@@ -30,6 +30,7 @@ export const metadata: Metadata = {
   description:
     "Public plans, decisions, and changes written in plain English.",
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? ROADMAP_URL),
+  manifest: "/manifest.webmanifest",
   openGraph: {
     title: "Signal Roadmap — direction clarity",
     description:

@@ -3,6 +3,10 @@
 Convention: BRAND.md §6.5. Entries before 2026-05-14 keep their
 original shape; the new shape starts at the next cycle.
 
+## 2026-05-21 · R·16 · ships · close your account, install the app to your home screen
+
+**Settings · Account is now reachable from the avatar dropdown, with an irreversible delete that closes your Signal identity in one step; the web app installs to a phone or desktop home screen with the Roadmap mark.** Typing your email confirms the delete; the server wipes every workspace you own — projects, items, sources, the lot — and then asks the identity layer to close the account. There is no grace period; the action is final and visible before you commit to it. Installable add-to-home-screen now ships a manifest, an Apple touch icon carrying the full wordmark, and a maskable Android tile. The cross-origin first-paint window — the moment when another product hops to the workspace surface — now paints the wordmark identity loader instead of a bare dot, on both the authed wrapper and the public viewer. Required for Apple App Store submission later this summer.
+
 ## 2026-05-19 · R·15 · fixes · manual-only published workspaces now render publicly
 
 **A workspace whose milestones were all created by hand — never synced from Signal Tasks — now shows its plan to stakeholders instead of "Nothing here yet."** `isWorkspacePublished` was checking the `tasks` table only; manual nodes live entirely in `node_overlays`. The public page now fetches effective nodes and merges manual milestones in; `hasItems` accounts for visible effective nodes. The plan page's CurationSurface is now behind a scoped Suspense boundary so the breadcrumb and heading paint immediately on navigation, eliminating the full-page skeleton flash (D4). DEPLOYED to production 2026-05-19 (dpl_7ED9taw6MqfYApj5EMYLvccZX4F1, main 4db4892).
