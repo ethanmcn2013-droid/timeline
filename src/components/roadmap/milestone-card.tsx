@@ -2,6 +2,21 @@ import Link from "next/link";
 import type { Task } from "@/server/db/schema";
 
 /**
+ * Anchor id for a milestone within a workspace overview page. Manual milestones
+ * route to this anchor (no project drill-down exists for them); synced
+ * milestones can also be deep-linked via this anchor when needed. Used by the
+ * `[projectSlug]/[id]` graceful redirect for manual ids.
+ */
+export function milestoneAnchorId(id: string): string {
+  return `milestone-${id}`;
+}
+
+/** True when an id was minted by the manual-add form (not promoted from Tasks). */
+export function isManualMilestoneId(id: string): boolean {
+  return id.startsWith("ms-manual-");
+}
+
+/**
  * Format an ISO date string as "Jun 12" (month abbrev + day).
  * Year appended only when it differs from the current calendar year.
  * CREATIVE_SPEC §1.3 — "always ISO-derived but displayed human."
@@ -126,6 +141,7 @@ export function MilestoneCard({
   progress,
   itemsInScope,
   itemsShipped,
+  isManual = false,
 }: {
   milestone: Task;
   workspaceSlug: string;
@@ -133,13 +149,19 @@ export function MilestoneCard({
   progress: number;
   itemsInScope: number;
   itemsShipped: number;
+  /** Manual milestones have no project drill-down — the title renders as an
+   *  in-page anchor jump instead of a Link to a project-scoped detail route
+   *  that would 404 (no `tasks` row exists for manual node ids). */
+  isManual?: boolean;
 }) {
   const isShipped = milestone.status === "shipped";
   const d = milestone.targetDate ? daysUntil(milestone.targetDate) : null;
   const pct = Math.round(Math.max(0, Math.min(1, progress)) * 100);
+  const anchorId = milestoneAnchorId(milestone.id);
 
   return (
     <article
+      id={anchorId}
       style={{
         // CREATIVE_SPEC §1.2: milestone row gets a quiet accent-soft left border.
         // No card shadow, no background colour — presence through weight and the
@@ -160,22 +182,40 @@ export function MilestoneCard({
 
         <div style={{ minWidth: 0, flex: 1 }}>
           <div style={{ display: "flex", flexWrap: "wrap", alignItems: "baseline", gap: "0 8px" }}>
-            <Link
-              href={`/${workspaceSlug}/${milestone.projectSlug}/${milestone.id}`}
-              style={{
-                // CREATIVE_SPEC §1.2: title font-weight 600 for milestone (elevation #2).
-                fontSize: 14,
-                fontWeight: 600,
-                letterSpacing: "-0.01em",
-                lineHeight: 1.4,
-                color: isShipped
-                  ? "color-mix(in srgb, var(--ink) 70%, transparent)"
-                  : "var(--ink)",
-                textDecoration: isShipped ? "line-through" : "none",
-              }}
-            >
-              {milestone.title}
-            </Link>
+            {isManual ? (
+              <a
+                href={`#${anchorId}`}
+                style={{
+                  fontSize: 14,
+                  fontWeight: 600,
+                  letterSpacing: "-0.01em",
+                  lineHeight: 1.4,
+                  color: isShipped
+                    ? "color-mix(in srgb, var(--ink) 70%, transparent)"
+                    : "var(--ink)",
+                  textDecoration: isShipped ? "line-through" : "none",
+                }}
+              >
+                {milestone.title}
+              </a>
+            ) : (
+              <Link
+                href={`/${workspaceSlug}/${milestone.projectSlug}/${milestone.id}`}
+                style={{
+                  // CREATIVE_SPEC §1.2: title font-weight 600 for milestone (elevation #2).
+                  fontSize: 14,
+                  fontWeight: 600,
+                  letterSpacing: "-0.01em",
+                  lineHeight: 1.4,
+                  color: isShipped
+                    ? "color-mix(in srgb, var(--ink) 70%, transparent)"
+                    : "var(--ink)",
+                  textDecoration: isShipped ? "line-through" : "none",
+                }}
+              >
+                {milestone.title}
+              </Link>
+            )}
             {milestone.targetDate ? (
               <span
                 style={{

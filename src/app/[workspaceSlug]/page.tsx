@@ -19,7 +19,11 @@ import type { ProjectWithCounts } from "@/components/roadmap/project-card";
 import { ItemRow } from "@/components/roadmap/item-row";
 import { BigStat } from "@/components/roadmap/big-stat";
 import { BlockerCard } from "@/components/roadmap/blocker-card";
-import { MilestoneCard } from "@/components/roadmap/milestone-card";
+import {
+  MilestoneCard,
+  isManualMilestoneId,
+  milestoneAnchorId,
+} from "@/components/roadmap/milestone-card";
 import { MetaStrip } from "@/components/roadmap/meta-strip";
 import { ShortcutsOverlay } from "@/components/roadmap/shortcuts-overlay";
 import {
@@ -931,7 +935,6 @@ function OverviewView({
               </div>
               <div className="grid gap-3 sm:grid-cols-2">
                 {milestones.map((m, i) => {
-                  const proj = projectMap.get(m.projectSlug);
                   const scope = milestoneScopes[i];
                   return (
                     <MilestoneCard
@@ -943,6 +946,7 @@ function OverviewView({
                       }
                       itemsInScope={scope.inScope}
                       itemsShipped={scope.shipped}
+                      isManual={isManualMilestoneId(m.id)}
                     />
                   );
                 })}
@@ -1034,17 +1038,31 @@ function OverviewView({
                         key={m.id}
                         className="flex items-baseline justify-between gap-2"
                       >
-                        <Link
-                          href={`/${workspaceSlug}/${m.projectSlug}/${m.id}`}
-                          className={
-                            "min-w-0 truncate text-[12px] transition-colors hover:text-ink-soft " +
-                            (isShipped
-                              ? "text-ink-quiet line-through"
-                              : "font-medium text-ink")
-                          }
-                        >
-                          {m.title}
-                        </Link>
+                        {isManualMilestoneId(m.id) ? (
+                          <a
+                            href={`#${milestoneAnchorId(m.id)}`}
+                            className={
+                              "min-w-0 truncate text-[12px] transition-colors hover:text-ink-soft " +
+                              (isShipped
+                                ? "text-ink-quiet line-through"
+                                : "font-medium text-ink")
+                            }
+                          >
+                            {m.title}
+                          </a>
+                        ) : (
+                          <Link
+                            href={`/${workspaceSlug}/${m.projectSlug}/${m.id}`}
+                            className={
+                              "min-w-0 truncate text-[12px] transition-colors hover:text-ink-soft " +
+                              (isShipped
+                                ? "text-ink-quiet line-through"
+                                : "font-medium text-ink")
+                            }
+                          >
+                            {m.title}
+                          </Link>
+                        )}
                         <span className="flex-shrink-0 text-[10.5px] tabular-nums text-ink-quiet">
                           {isShipped
                             ? "done"

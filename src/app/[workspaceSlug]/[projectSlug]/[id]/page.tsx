@@ -1,4 +1,4 @@
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import type { Metadata } from "next";
 import {
   getWorkspace,
@@ -11,6 +11,10 @@ import { StatusPill } from "@/components/roadmap/status-pill";
 import { KindPill } from "@/components/roadmap/kind-pill";
 import { ActivityPanel } from "@/components/roadmap/activity-panel";
 import { SiteFooter } from "@/components/marketing/site-footer";
+import {
+  isManualMilestoneId,
+  milestoneAnchorId,
+} from "@/components/roadmap/milestone-card";
 import Link from "next/link";
 
 export const revalidate = 300;
@@ -25,6 +29,12 @@ export async function generateMetadata({
   }>;
 }): Promise<Metadata> {
   const { workspaceSlug, projectSlug, id } = await params;
+  // Symmetry with the page redirect: a manual-milestone id has no task row;
+  // signal the overview as the canonical destination via noindex so robots
+  // don't waste a crawl on the about-to-redirect URL.
+  if (isManualMilestoneId(id)) {
+    return { title: "Roadmap", robots: { index: false, follow: true } };
+  }
   const task = await getTask(workspaceSlug, projectSlug, id);
   if (!task) return { title: "Not Found" };
   return {
@@ -43,6 +53,14 @@ export default async function TaskDetailPage({
   }>;
 }) {
   const { workspaceSlug, projectSlug, id } = await params;
+
+  // Manual-milestone deep links pre-dating the in-page-anchor fix would land
+  // here with a synthetic id and a `projects[0]` projectSlug — neither has a
+  // backing tasks row to resolve. Redirect to the overview anchor instead of
+  // 404'ing so external/shared links and crawlers degrade gracefully.
+  if (isManualMilestoneId(id)) {
+    redirect(`/${workspaceSlug}#${milestoneAnchorId(id)}`);
+  }
 
   const [workspace, project, task] = await Promise.all([
     getWorkspace(workspaceSlug),
