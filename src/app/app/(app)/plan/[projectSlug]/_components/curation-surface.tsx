@@ -17,7 +17,12 @@ import { useState, useTransition, useRef, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import type { EffectiveNode } from "@/server/db/queries";
-import { upsertNodeOverlayAction, syncMilestonesAction, reorderNodesAction } from "@/server/actions/workspaces";
+import {
+  upsertNodeOverlayAction,
+  syncMilestonesAction,
+  reorderNodesAction,
+  type UpsertOverlayResult,
+} from "@/server/actions/workspaces";
 
 const LANE_LABELS = ["Next", "In flight", "Shipped", "Later"] as const;
 type LaneLabel = typeof LANE_LABELS[number];
@@ -118,6 +123,7 @@ function NodeCard({
   onUpdate,
   onWriteStart,
   onWriteEnd,
+  onError,
   onDragStart,
   onDragOver,
   onDrop,
@@ -132,6 +138,8 @@ function NodeCard({
   onUpdate: () => void;
   onWriteStart: () => void;
   onWriteEnd: () => void;
+  /** C2: surface a transient advisory message when an inline edit silently fails. */
+  onError: (message: string) => void;
   onDragStart: (id: string) => void;
   onDragOver: (id: string) => void;
   onDrop: (targetId: string) => void;
@@ -146,6 +154,24 @@ function NodeCard({
   const inputRef = useRef<HTMLInputElement>(null);
   const dateInputRef = useRef<HTMLInputElement>(null);
 
+  // C2 helper — single result-handler shared by all four inline-edit sites.
+  // The four sites are structurally identical (write → on success refresh, on
+  // error surface a transient message). Extracting kills four copies and makes
+  // the error path uniform. `onLocalRevert` is optional because most edits
+  // have no local optimistic state — they fire-and-refresh — except for the
+  // title input which mirrors the value in local React state.
+  function handleEditResult(
+    result: UpsertOverlayResult,
+    onLocalRevert?: () => void,
+  ) {
+    if ("error" in result) {
+      onError(result.error);
+      onLocalRevert?.();
+      return;
+    }
+    onUpdate();
+  }
+
   function commitTitle() {
     if (titleValue.trim() === node.title) {
       setEditingTitle(false);
@@ -154,11 +180,14 @@ function NodeCard({
     onWriteStart();
     startTransition(async () => {
       try {
-        await upsertNodeOverlayAction(workspaceSlug, projectSlug, {
+        const result = await upsertNodeOverlayAction(workspaceSlug, projectSlug, {
           nodeId: node.id,
           labelOverride: titleValue.trim() || null,
         });
-        onUpdate();
+        handleEditResult(result, () => setTitleValue(node.title));
+      } catch {
+        onError("Couldn't save that change. Check your connection and try again.");
+        setTitleValue(node.title);
       } finally {
         onWriteEnd();
       }
@@ -170,11 +199,13 @@ function NodeCard({
     onWriteStart();
     startTransition(async () => {
       try {
-        await upsertNodeOverlayAction(workspaceSlug, projectSlug, {
+        const result = await upsertNodeOverlayAction(workspaceSlug, projectSlug, {
           nodeId: node.id,
           hidden: !node.hidden,
         });
-        onUpdate();
+        handleEditResult(result);
+      } catch {
+        onError("Couldn't save that change. Check your connection and try again.");
       } finally {
         onWriteEnd();
       }
@@ -185,11 +216,13 @@ function NodeCard({
     onWriteStart();
     startTransition(async () => {
       try {
-        await upsertNodeOverlayAction(workspaceSlug, projectSlug, {
+        const result = await upsertNodeOverlayAction(workspaceSlug, projectSlug, {
           nodeId: node.id,
           laneOverride: lane !== node.lane ? lane : null,
         });
-        onUpdate();
+        handleEditResult(result);
+      } catch {
+        onError("Couldn't save that change. Check your connection and try again.");
       } finally {
         onWriteEnd();
       }
@@ -200,11 +233,13 @@ function NodeCard({
     onWriteStart();
     startTransition(async () => {
       try {
-        await upsertNodeOverlayAction(workspaceSlug, projectSlug, {
+        const result = await upsertNodeOverlayAction(workspaceSlug, projectSlug, {
           nodeId: node.id,
           dateOverride: dateStr || null,
         });
-        onUpdate();
+        handleEditResult(result);
+      } catch {
+        onError("Couldn't save that change. Check your connection and try again.");
       } finally {
         onWriteEnd();
       }
@@ -969,6 +1004,11 @@ export function CurationSurface({
   const didAutoSync = useRef(false);
   // "Saved" tick DRAG: shows for 1.5s after any successful overlay upsert
   const [savedAt, setSavedAt] = useState<number | null>(null);
+  // C2: error flash state — surfaces a transient `role="status"` message when
+  // a NodeCard inline edit or a reorder action returns `{ error: string }`.
+  // Mutually exclusive with savedAt (see flashSaved / flashError below).
+  const [errorFlash, setErrorFlash] = useState<{ message: string; ts: number } | null>(null);
+  const errorTimerRef = useRef<NodeJS.Timeout | null>(null);
   const savedTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   // Drag-to-reorder state (UX-1)
   // HTML5 drag (mouse/desktop) and Pointer Events drag (touch/iOS Safari) share
@@ -990,6 +1030,21 @@ export function CurationSurface({
     setSavedAt(Date.now());
     if (savedTimerRef.current) clearTimeout(savedTimerRef.current);
     savedTimerRef.current = setTimeout(() => setSavedAt(null), 1500);
+    // C2: clear any stale error flash — success supersedes the prior failure.
+    if (errorTimerRef.current) clearTimeout(errorTimerRef.current);
+    setErrorFlash(null);
+  }, []);
+
+  // C2: error flash for silent-fail writes (NodeCard inline edits + reorder).
+  // Longer-lived than savedAt (4s vs 1.5s) so a user who looked away while
+  // an edit was in flight has time to register the message.
+  const flashError = useCallback((message: string) => {
+    setErrorFlash({ message, ts: Date.now() });
+    if (errorTimerRef.current) clearTimeout(errorTimerRef.current);
+    errorTimerRef.current = setTimeout(() => setErrorFlash(null), 4000);
+    // Mutual exclusivity — a fresh error supersedes a "Saved" tick.
+    if (savedTimerRef.current) clearTimeout(savedTimerRef.current);
+    setSavedAt(null);
   }, []);
 
   // C1a: absorb RSC prop updates into local state, but only when no writes are
@@ -1051,17 +1106,30 @@ export function CurationSurface({
 
     // Assign sortOverride 0..n for the full list
     const updated = ordered.map((n, i) => ({ ...n, sortOrder: i }));
+    // C2: snapshot before the optimistic mutation so a failed write can revert
+    // to the exact prior order. Same shape as the NodeCard inline-edit pattern.
+    const previousNodes = nodes;
     setNodes(updated);
 
     // BV-2: batch-write ALL sibling sortOverrides so reload order is deterministic.
     // reorderNodesAction writes every node in the ordered list, not just the moved one.
     startTransition(async () => {
-      await reorderNodesAction(
-        workspaceSlug,
-        projectSlug,
-        updated.map((n) => n.id),
-      );
-      flashSaved();
+      try {
+        const result = await reorderNodesAction(
+          workspaceSlug,
+          projectSlug,
+          updated.map((n) => n.id),
+        );
+        if ("error" in result) {
+          flashError(result.error);
+          setNodes(previousNodes);
+          return;
+        }
+        flashSaved();
+      } catch {
+        flashError("Couldn't save that reorder. Check your connection and try again.");
+        setNodes(previousNodes);
+      }
     });
   }
 
@@ -1216,6 +1284,29 @@ export function CurationSurface({
               Saved
             </span>
           )}
+          {/* C2: transient advisory flash for silent-fail writes.
+              role="status" (not alert) — non-blocking, polite-announce.
+              Mutually exclusive with the Saved tick. Auto-clears at 4s. */}
+          {errorFlash && !isSaved && (
+            <span
+              role="status"
+              style={{
+                fontSize: 10,
+                color: "var(--ink-soft)",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 3,
+                transition: "opacity 160ms",
+              }}
+            >
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                <circle cx="12" cy="12" r="10" />
+                <line x1="12" y1="8" x2="12" y2="12" />
+                <line x1="12" y1="16" x2="12.01" y2="16" />
+              </svg>
+              {errorFlash.message}
+            </span>
+          )}
           {autoSyncing && (
             <span style={{ fontSize: 10, color: "var(--ink-faint)" }}>
               Syncing…
@@ -1360,6 +1451,7 @@ export function CurationSurface({
                       onUpdate={() => { flashSaved(); refresh(); }}
                       onWriteStart={handleWriteStart}
                       onWriteEnd={handleWriteEnd}
+                      onError={flashError}
                       onDragStart={handleDragStart}
                       onDragOver={handleDragOver}
                       onDrop={handleDrop}

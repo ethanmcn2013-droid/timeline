@@ -326,7 +326,14 @@ export async function reorderNodesAction(
   }
 
   const entries = orderedNodeIds.map((nodeId, i) => ({ nodeId, sortOverride: i }));
-  await batchUpsertNodeSortOrders(workspaceSlug, entries);
+  try {
+    await batchUpsertNodeSortOrders(workspaceSlug, entries);
+  } catch {
+    // C2 symmetry with upsertNodeOverlayAction — return string error so the
+    // caller's optimistic UI can revert + surface a transient role=status
+    // message, instead of bubbling a rejected promise into the React tree.
+    return { error: "Couldn't save that reorder. Check your connection and try again." };
+  }
 
   // Revalidate private curation view only — D6 invariant preserved
   revalidatePath("/app");
