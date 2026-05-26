@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { SiteNav } from "@/components/marketing/site-nav";
 import { SiteFooter } from "@/components/marketing/site-footer";
+import { RoadmapHeroLoader } from "@/components/marketing/roadmap-hero-loader";
 import { Hero } from "@/components/marketing/hero";
 import { ItemAnatomy } from "@/components/marketing/anatomy";
 
@@ -28,11 +29,20 @@ const STEPS = [
   },
 ] as const;
 
+/**
+ * Roadmap marketing homepage — structure:
+ *   1. RoadmapHeroLoader — roll + Limerick map heartbeat animation
+ *   2. Hero              — product intro text + CTAs + live demo card → /demo
+ *   3. ItemAnatomy       — roadmap item anatomy breakdown
+ *   4. How it works      — three-step plain-language explainer
+ *   5. CTA               — confident close
+ */
 export default function HomePage() {
   return (
     <div className="flex min-h-screen flex-col">
       <SiteNav />
       <main className="flex-1">
+        <RoadmapHeroLoader />
         <Hero />
 
         {/* What an item is — the product's smallest unit, explained */}
