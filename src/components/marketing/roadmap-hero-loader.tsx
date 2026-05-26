@@ -376,7 +376,7 @@ export function RoadmapHeroLoader() {
 
 const CSS = `
 .rml-hero-section{
-  position:relative;overflow:hidden;background:#fafaf7;
+  position:relative;overflow:hidden;background:var(--bg, #ffffff);
   display:flex;flex-direction:column;
   align-items:center;justify-content:center;
   min-height:min(88vh,900px);

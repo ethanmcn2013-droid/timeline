@@ -16,7 +16,7 @@ const NAV: { href: string; label: string; external?: boolean }[] = [
 /**
  * Marketing SiteNav — Layer 3 auth-aware update (seamless-ecosystem-2026-05-18).
  *
- * "Sign in / Start for free" are replaced by the account menu when authed.
+ * "Sign in" is replaced by the account menu when authed.
  * The escape hatch ("View public site") lives inside AuthNavControls.
  *
  * Kept as a server component — AuthNavControls handles the Clerk read

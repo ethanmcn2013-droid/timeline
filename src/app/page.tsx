@@ -5,37 +5,12 @@ import { RoadmapHeroLoader } from "@/components/marketing/roadmap-hero-loader";
 import { Hero } from "@/components/marketing/hero";
 import { ItemAnatomy } from "@/components/marketing/anatomy";
 
-// One narrative, nothing redundant. The hero shows the real product; the rest
-// answers the three things a first-time visitor actually asks — what is an
-// item, how do I make one, and can I see it. No duplicate feature triads, no
-// hairline dividers between every block. "Everything important. Nothing
-// distracting." (BRAND.md §2).
-
-const STEPS = [
-  {
-    index: "01",
-    title: "Write it in plain English",
-    body: "Type the plan the way you'd explain it out loud. No statuses to configure, no board to build first.",
-  },
-  {
-    index: "02",
-    title: "Publish to one link",
-    body: "It becomes a page the moment you publish. No embed code, no export, no screenshot of a board.",
-  },
-  {
-    index: "03",
-    title: "Anyone can read it",
-    body: "Send the link to a client, a couple, a crew. They open it and understand it. No account, no app.",
-  },
-] as const;
-
 /**
  * Roadmap marketing homepage — structure:
  *   1. RoadmapHeroLoader — roll + Limerick map heartbeat animation
- *   2. Hero              — product intro text + CTAs + live demo card → /demo
+ *   2. Hero              — product intro text + animated live demo
  *   3. ItemAnatomy       — roadmap item anatomy breakdown
- *   4. How it works      — three-step plain-language explainer
- *   5. CTA               — confident close
+ *   4. CTA               — confident close
  */
 export default function HomePage() {
   return (
@@ -47,42 +22,6 @@ export default function HomePage() {
 
         {/* What an item is — the product's smallest unit, explained */}
         <ItemAnatomy />
-
-        {/* How it works — one triad, the only one */}
-        <section id="how-it-works" className="px-6 pt-24 pb-8 md:pt-32">
-          <div className="mx-auto w-full max-w-[1240px]">
-            <p
-              className="mb-12 font-mono text-[11px] font-semibold uppercase tracking-[0.16em]"
-              style={{ color: "var(--ink-quiet)" }}
-            >
-              How it works
-            </p>
-            <div className="grid gap-x-10 gap-y-12 sm:grid-cols-3">
-              {STEPS.map((step) => (
-                <div key={step.index} className="flex flex-col gap-3">
-                  <span
-                    className="font-mono text-[12px] font-semibold tracking-[0.14em]"
-                    style={{ color: "var(--brand)" }}
-                  >
-                    {step.index}
-                  </span>
-                  <h3
-                    className="text-[16px] font-semibold"
-                    style={{ color: "var(--ink)", letterSpacing: "-0.015em" }}
-                  >
-                    {step.title}
-                  </h3>
-                  <p
-                    className="text-[14px] leading-[1.6]"
-                    style={{ color: "var(--ink-soft)" }}
-                  >
-                    {step.body}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
 
         {/* Confident close — one ask, no noise */}
         <section className="px-6 pt-28 pb-32 md:pt-36 md:pb-40">
@@ -97,8 +36,15 @@ export default function HomePage() {
                 color: "var(--ink)",
               }}
             >
-              Your plan, somewhere people will actually look.
+              Publish the version everyone can read.
             </h2>
+            <p
+              className="mt-5 max-w-[56ch] text-[15px] leading-[1.6]"
+              style={{ color: "var(--ink-soft)" }}
+            >
+              Give the work one public shape: what changed, why it matters,
+              and where the plan is going next.
+            </p>
             <div className="mt-8 flex flex-wrap items-center gap-3">
               <Link
                 href="/sign-up"

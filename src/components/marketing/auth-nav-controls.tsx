@@ -4,12 +4,12 @@
  * Auth-aware nav controls (Layer 3 — seamless-ecosystem-2026-05-18).
  *
  * When authed:
- *   - No "Sign in" / "Start for free" — replaced by UserButton (Clerk avatar).
+ *   - No "Sign in" — replaced by UserButton (Clerk avatar).
  *   - Account menu carries "View public site" / "Exit preview" escape hatch
  *     per DESIGN.md §14. Sets `signal_preview_public=1` (24h, SameSite=Strict).
  *
  * When unauthed:
- *   - Original "Sign in" + "Start for free" CTAs render unchanged.
+ *   - Sign in renders as the only auth control.
  *
  * Escape hatch implementation (§14 canonical):
  *   Cookie name: `signal_preview_public` (suite-wide; not repo-local).
@@ -104,38 +104,11 @@ export function AuthNavControls({
     return (
       <div className="flex items-center gap-2">
         <Link
-          href="/demo"
-          className="hidden rounded-full px-3.5 py-1.5 text-[13px] font-medium text-ink-soft hover:text-ink md:inline-flex"
-          style={{ transition: "color var(--motion-fast) var(--ease-standard)" }}
-        >
-          See it live
-        </Link>
-        <Link
           href="/sign-in"
           className="hidden rounded-full px-3.5 py-1.5 text-[13px] font-medium text-ink-soft hover:text-ink md:inline-flex"
           style={{ transition: "color var(--motion-fast) var(--ease-standard)" }}
         >
           Sign in
-        </Link>
-        <Link
-          href="/sign-up"
-          className="inline-flex items-center gap-1.5 rounded-full bg-ink px-3.5 py-1.5 text-[13px] font-medium text-white shadow-sm hover:-translate-y-px hover:shadow-md"
-          style={{ transition: "transform var(--motion-fast) var(--ease-standard), box-shadow var(--motion-fast) var(--ease-standard)" }}
-        >
-          Start for free
-          <svg
-            width="12"
-            height="12"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2.4"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            aria-hidden
-          >
-            <path d="M5 12h14M13 5l7 7-7 7" />
-          </svg>
         </Link>
         {/* Mobile menu — unauthed */}
         <details className="relative md:hidden">
@@ -190,16 +163,9 @@ export function AuthNavControls({
     );
   }
 
-  // Authed state: account menu only. No "Sign in", no "Start for free".
+  // Authed state: account menu only. No upper CTA.
   return (
     <div className="flex items-center gap-3">
-      <Link
-        href="/app"
-        className="hidden rounded-full px-3.5 py-1.5 text-[13px] font-medium text-ink-soft hover:text-ink md:inline-flex"
-        style={{ transition: "color var(--motion-fast) var(--ease-standard)" }}
-      >
-        Go to app
-      </Link>
       <UserButton>
         <UserButton.MenuItems>
           <UserButton.Action

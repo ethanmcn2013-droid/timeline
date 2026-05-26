@@ -43,7 +43,7 @@ const ANN: { slot: Slot; label: string; note: string }[] = [
   {
     slot: "decision",
     label: "Decision",
-    note: "Named as an outcome, not as a ticket. The work is the thing, not the JIRA-ID for the thing.",
+    note: "Named as an outcome, not as a ticket. The work is the thing, not the tracking code for the thing.",
   },
   {
     slot: "reason",
@@ -180,7 +180,8 @@ export function ItemAnatomy() {
   return (
     <MotionConfig reducedMotion="user">
       <section
-        className="px-6 py-20"
+        id="anatomy"
+        className="scroll-mt-24 px-6 py-20"
         aria-label="Anatomy of a roadmap item"
       >
         <div className="mx-auto w-full max-w-[1240px]">
