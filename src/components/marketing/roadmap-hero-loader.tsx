@@ -264,7 +264,7 @@ function buildMapStyle() {
 
   return [
     // Canvas
-    { id: "background", type: "background", paint: { "background-color": "#F8F7F4" } },
+    { id: "background", type: "background", paint: { "background-color": "#ffffff" } },
 
     // Landuse — warm stone fills, no green
     fill("lu-residential", "landuse", "#F5F4F1", 0.55, ["in", "class", "residential", "suburbs"]),
@@ -282,11 +282,11 @@ function buildMapStyle() {
                "fill-opacity": ["interpolate", ["linear"], ["zoom"], 13, 0.15, 15, 0.45] } },
 
     // Road casings — paper-white gap lines only
-    casing("rc-tertiary",  ["==", "class", "tertiary"],  "#F8F7F4", z(12, 1.5, 17, 5)),
-    casing("rc-secondary", ["==", "class", "secondary"], "#F8F7F4", z(11, 2,   17, 7)),
-    casing("rc-primary",   ["==", "class", "primary"],   "#F8F7F4", z(11, 2.5, 17, 9)),
-    casing("rc-trunk",     ["==", "class", "trunk"],     "#F8F7F4", z(10, 3,   17, 10)),
-    casing("rc-motorway",  ["==", "class", "motorway"],  "#F8F7F4", z(9,  4,   17, 12)),
+    casing("rc-tertiary",  ["==", "class", "tertiary"],  "#ffffff", z(12, 1.5, 17, 5)),
+    casing("rc-secondary", ["==", "class", "secondary"], "#ffffff", z(11, 2,   17, 7)),
+    casing("rc-primary",   ["==", "class", "primary"],   "#ffffff", z(11, 2.5, 17, 9)),
+    casing("rc-trunk",     ["==", "class", "trunk"],     "#ffffff", z(10, 3,   17, 10)),
+    casing("rc-motorway",  ["==", "class", "motorway"],  "#ffffff", z(9,  4,   17, 12)),
 
     // Road fills — all warm stone, narrow tone range, no bright indigo
     road("r-living",   ["==", "class", "living_street"],             "#DCDAD5", z(13, 0.5, 17, 2)),
@@ -308,7 +308,7 @@ const CSS = `
 .rml-hero-section {
   position: relative;
   overflow: hidden;
-  background: #F8F7F4;
+  background: #ffffff;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -378,9 +378,9 @@ const CSS = `
   background: radial-gradient(
     ellipse 75% 70% at var(--rml-origin-x) var(--rml-origin-y),
     transparent 30%,
-    rgba(248,247,244,0.40) 55%,
-    rgba(248,247,244,0.80) 78%,
-    rgba(248,247,244,0.97) 100%
+    rgba(255,255,255,0.40) 55%,
+    rgba(255,255,255,0.80) 78%,
+    rgba(255,255,255,0.97) 100%
   );
 }
 
