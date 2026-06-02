@@ -4,6 +4,7 @@ import { SiteFooter } from "@/components/marketing/site-footer";
 import { RoadmapHeroLoader } from "@/components/marketing/roadmap-hero-loader";
 import { Hero } from "@/components/marketing/hero";
 import { ItemAnatomy } from "@/components/marketing/anatomy";
+import { SuiteArrows } from "@/components/suite-arrows";
 
 /**
  * Roadmap marketing homepage — structure:
@@ -16,6 +17,7 @@ export default function HomePage() {
   return (
     <div className="flex min-h-screen flex-col">
       <SiteNav />
+      <SuiteArrows current="roadmap" />
       <main className="flex-1">
         <RoadmapHeroLoader />
         <Hero />
