@@ -83,6 +83,11 @@ async function upstashRateLimit(
       // Redis unavailable in prod — fail closed. Brute-force protection
       // must hold even when Redis is down.
       console.error("[rate-limit] Upstash pipeline failed in prod — denying request:", pipelineRes.status);
+      // TODO(roadmap-02): Sentry capture once @sentry/nextjs is wired in
+      //   this repo — Sentry.captureException(new Error(...), {
+      //     tags: { component: 'rate-limit', reason: 'upstash-unreachable' }
+      //   });
+      //   See audit/roadmap-audit.md (P1). Not adding the dep just for this.
       return false;
     }
     // Dev: fail open so local development is unblocked.

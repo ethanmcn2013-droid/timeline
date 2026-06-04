@@ -17,7 +17,14 @@ export default async function AppPage() {
 
   // ── No workspace yet ────────────────────────────────────────────────────
   if (!workspace) {
-    return <CreateWorkspaceForm />;
+    // Server-side check only — never expose env state to client JS.
+    // When Upstash isn't configured in prod, checkRateLimit() fails closed
+    // and would block every submit with a confusing message. Signal the
+    // operator-side pause up front so the form reads honestly instead.
+    const writesPaused =
+      process.env.NODE_ENV === "production" &&
+      !process.env.UPSTASH_REDIS_REST_URL;
+    return <CreateWorkspaceForm writesPaused={writesPaused} />;
   }
 
   // ── Workspace exists — show dashboard ───────────────────────────────────

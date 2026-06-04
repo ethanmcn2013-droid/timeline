@@ -7,7 +7,7 @@ import { useState } from "react";
 
 const initialState = { error: undefined as string | undefined };
 
-export function CreateWorkspaceForm() {
+export function CreateWorkspaceForm({ writesPaused = false }: { writesPaused?: boolean }) {
   const [state, formAction, pending] = useActionState(
     async (_prev: typeof initialState, formData: FormData) => {
       const result = await createWorkspaceAction(formData);
@@ -60,6 +60,20 @@ export function CreateWorkspaceForm() {
         what&apos;s next, in plain English. No login for the people you share it
         with. Pick a name and a link to start — you can change both later.
       </p>
+
+      {writesPaused && (
+        <div
+          role="status"
+          className="mb-6 rounded-lg border px-3.5 py-2.5 text-sm"
+          style={{
+            color: "var(--ink-soft)",
+            background: "var(--bg-deep)",
+            borderColor: "var(--border)",
+          }}
+        >
+          Workspace creation is paused. Back shortly.
+        </div>
+      )}
 
       <form action={formAction} className="flex flex-col gap-5">
         {/* Name */}
@@ -171,11 +185,11 @@ export function CreateWorkspaceForm() {
             not "disabled". WCAG AA contrast: white on #4f46e5 = 5.3:1. */}
         <button
           type="submit"
-          disabled={pending || !slugOk}
+          disabled={pending || !slugOk || writesPaused}
           className="lift mt-1 rounded-lg px-4 py-2.5 text-sm font-medium text-white"
           style={{
             background: "var(--brand)",
-            opacity: !slugOk && !pending ? 0.4 : 1,
+            opacity: (writesPaused || !slugOk) && !pending ? 0.4 : 1,
             cursor: pending ? "default" : undefined,
             display: "flex",
             alignItems: "center",
