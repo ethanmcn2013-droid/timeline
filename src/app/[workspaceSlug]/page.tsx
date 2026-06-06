@@ -19,7 +19,10 @@ import type { ProjectWithCounts } from "@/components/roadmap/project-card";
 import { ItemRow } from "@/components/roadmap/item-row";
 import { BigStat } from "@/components/roadmap/big-stat";
 import { BlockerCard } from "@/components/roadmap/blocker-card";
-import { countNeedsAttention } from "@/lib/roadmap/needs-attention";
+import {
+  attentionReason as computeAttentionReason,
+  countNeedsAttention,
+} from "@/lib/roadmap/needs-attention";
 import {
   MilestoneCard,
   isManualMilestoneId,
@@ -779,6 +782,7 @@ async function WorkspaceContentWell({
                     workspaceSlug={workspaceSlug}
                     upcoming={upcoming}
                     counts={counts}
+                    isOwner={isOwner}
                   />
                 }
                 roadmap={
@@ -833,6 +837,7 @@ async function WorkspaceContentWell({
                   workspaceSlug={workspaceSlug}
                   upcoming={upcoming}
                   counts={counts}
+                  isOwner={isOwner}
                 />
               }
               roadmap={
@@ -896,6 +901,7 @@ function OverviewView({
   workspaceSlug,
   upcoming,
   counts,
+  isOwner,
 }: {
   blockers: Task[];
   milestones: Task[];
@@ -915,6 +921,7 @@ function OverviewView({
     next: number;
     refused: number;
   };
+  isOwner: boolean;
 }) {
   return (
     <div className="mx-auto w-full max-w-[1240px] px-6 py-10">
@@ -1005,6 +1012,7 @@ function OverviewView({
             tasksByProject={tasksByProject}
             milestoneFor={milestoneFor}
             workspaceSlug={workspaceSlug}
+            isOwner={isOwner}
           />
         </div>
 
@@ -1154,11 +1162,15 @@ function ItemListByProject({
   tasksByProject,
   milestoneFor,
   workspaceSlug,
+  isOwner,
 }: {
   projects: Project[];
   tasksByProject: Map<string, Task[]>;
   milestoneFor: (t: Task) => string | null;
   workspaceSlug: string;
+  /** Threaded down so per-row attention indicators only render for the
+   *  owner — public stakeholders never see them. */
+  isOwner: boolean;
 }) {
   return (
     <>
@@ -1206,6 +1218,9 @@ function ItemListByProject({
                         projectName={project.name}
                         showProject={projects.length > 1}
                         milestoneLabel={showLabel}
+                        attentionReason={
+                          isOwner ? computeAttentionReason(t, Date.now()) : null
+                        }
                       />
                     );
                   })}

@@ -11,6 +11,10 @@ import type { Task } from "@/server/db/schema";
 import { BigStat } from "@/components/roadmap/big-stat";
 import { WorkspaceHeader } from "@/components/roadmap/workspace-header";
 import { ItemRow } from "@/components/roadmap/item-row";
+import {
+  attentionReason as computeAttentionReason,
+  countNeedsAttention,
+} from "@/lib/roadmap/needs-attention";
 import { MetaStrip } from "@/components/roadmap/meta-strip";
 import { ShortcutsOverlay } from "@/components/roadmap/shortcuts-overlay";
 import { SiteFooter } from "@/components/marketing/site-footer";
@@ -78,6 +82,13 @@ export default async function ProjectDrillDownPage({
   const allTasks = await getTasksForProject(workspaceSlug, projectSlug);
   const visibleTasks = allTasks.filter((t) => t.status !== "refused");
   const refusedCount = allTasks.filter((t) => t.status === "refused").length;
+
+  // Tier 3 derived attention signal — owner-only. Computed once per
+  // request from the existing fetch; consumed by the owner-only BigStat
+  // and the per-row Idle / Overdue pill on each ItemRow.
+  const needsAttentionCount = isOwner
+    ? countNeedsAttention(visibleTasks, Date.now())
+    : 0;
 
   const groups = groupByWeek(visibleTasks);
 
@@ -177,6 +188,14 @@ export default async function ProjectDrillDownPage({
                 {blocked > 0 ? (
                   <BigStat label="Waiting" value={blocked} tone="blocked" />
                 ) : null}
+                {/* Owner-only Tier 3 attention surface. Public visitors
+                    never see this number. */}
+                {isOwner && needsAttentionCount > 0 ? (
+                  <BigStat
+                    label="Needs attention"
+                    value={needsAttentionCount}
+                  />
+                ) : null}
                 {refusedCount > 0 ? (
                   <Link
                     href={`/${workspaceSlug}/refusals`}
@@ -217,6 +236,11 @@ export default async function ProjectDrillDownPage({
                         projectAccent={project.accent}
                         projectName={project.name}
                         showProject={false}
+                        attentionReason={
+                          isOwner
+                            ? computeAttentionReason(t, Date.now())
+                            : null
+                        }
                       />
                     ))}
                   </ul>

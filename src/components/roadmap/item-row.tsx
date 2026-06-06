@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { Task } from "@/server/db/schema";
 import { KindPill } from "./kind-pill";
 import { StatusCircle } from "./milestone-card";
+import type { AttentionReason } from "@/lib/roadmap/needs-attention";
 
 /**
  * Compact read-only item row for the dense public roadmap list.
@@ -16,6 +17,7 @@ export function ItemRow({
   projectName,
   showProject = true,
   milestoneLabel,
+  attentionReason,
 }: {
   task: Task;
   workspaceSlug: string;
@@ -26,6 +28,10 @@ export function ItemRow({
    *  title. Owner: the page computes which milestone this item rolls
    *  up to based on date; the row just renders the string. */
   milestoneLabel?: string | null;
+  /** Owner-only Tier 3 attention indicator. The page passes the value
+   *  only when the current user is the workspace owner — public
+   *  stakeholders never receive it, so the indicator can never leak. */
+  attentionReason?: AttentionReason | null;
 }) {
   const isDone = task.status === "shipped";
   const isDoing = task.status === "in-flight";
@@ -95,6 +101,33 @@ export function ItemRow({
               }}
             >
               Launch
+            </span>
+          ) : null}
+          {attentionReason ? (
+            <span
+              className="inline-flex items-center gap-1 rounded px-1.5 py-px text-[9.5px] font-semibold uppercase tracking-[0.08em]"
+              style={{
+                background:
+                  "color-mix(in srgb, var(--status-flight) 12%, transparent)",
+                color: "var(--status-flight)",
+              }}
+              aria-label={
+                attentionReason === "overdue"
+                  ? "Needs attention: overdue"
+                  : "Needs attention: idle"
+              }
+              title={
+                attentionReason === "overdue"
+                  ? "Past its target date"
+                  : "Idle for 14+ days"
+              }
+            >
+              <span
+                aria-hidden
+                className="inline-block h-1 w-1 rounded-full"
+                style={{ background: "var(--status-flight)" }}
+              />
+              {attentionReason === "overdue" ? "Overdue" : "Idle"}
             </span>
           ) : null}
         </div>
