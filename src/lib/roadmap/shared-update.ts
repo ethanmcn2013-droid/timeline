@@ -17,7 +17,7 @@ export interface SharedUpdateProject {
   done: number;
   doing: number;
   next: number;
-  blocked: number;
+  waiting: number;
   progress: number;
 }
 
@@ -79,7 +79,7 @@ export function buildSharedUpdate({
     .sort(sortRoadmapItems)
     .slice(0, 5);
   const needsAttention = visible
-    .filter((task) => task.status === "blocked")
+    .filter((task) => task.status === "waiting")
     .sort(sortRoadmapItems)
     .slice(0, 5);
   const nextCandidates = upcoming.length
@@ -123,14 +123,14 @@ function deriveState(tasks: Task[]): SharedUpdateModel["state"] {
     };
   }
 
-  const blocked = tasks.filter((task) => task.status === "blocked").length;
+  const waiting = tasks.filter((task) => task.status === "waiting").length;
   const doing = tasks.filter((task) => task.status === "in-flight").length;
   const next = tasks.filter((task) => task.status === "next").length;
 
-  if (blocked > 0) {
+  if (waiting > 0) {
     return {
       label: "Needs attention",
-      detail: pluralise(blocked, "item is", "items are") + " held up.",
+      detail: pluralise(waiting, "item is", "items are") + " waiting.",
       tone: "attention",
     };
   }
@@ -187,7 +187,7 @@ function buildProjectSnapshot(
   const done = tasks.filter((task) => task.status === "shipped").length;
   const doing = tasks.filter((task) => task.status === "in-flight").length;
   const next = tasks.filter((task) => task.status === "next").length;
-  const blocked = tasks.filter((task) => task.status === "blocked").length;
+  const waiting = tasks.filter((task) => task.status === "waiting").length;
   const total = tasks.length;
 
   return {
@@ -196,7 +196,7 @@ function buildProjectSnapshot(
     done,
     doing,
     next,
-    blocked,
+    waiting,
     progress: total > 0 ? Math.round((done / total) * 100) : 0,
   };
 }

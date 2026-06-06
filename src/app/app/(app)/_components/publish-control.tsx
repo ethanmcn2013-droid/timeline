@@ -114,7 +114,7 @@ export function PublishControl({
           <p
             style={{
               fontSize: 12,
-              color: "var(--status-blocked, #ef4444)",
+              color: "var(--alarm, #ef4444)",
               marginBottom: 10,
             }}
           >
@@ -275,7 +275,7 @@ export function PublishControl({
         <p
           style={{
             fontSize: 12,
-            color: "var(--status-blocked, #ef4444)",
+            color: "var(--alarm, #ef4444)",
             marginBottom: 8,
           }}
         >

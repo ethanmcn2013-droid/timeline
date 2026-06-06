@@ -44,24 +44,35 @@
   --aud-student:   #eab308;
   --aud-wedding:   #be185d;
 
-  /* ── Status tokens ────────────────────────────────────────── */
+  /* ── Status tokens (legacy aliases for lifted Tasks components) ── */
   --status-todo:     #6366f1;
   --status-progress: #f59e0b;
   --status-review:   #06b6d4;
   --status-done:     #10b981;
-  --status-blocked:  #ef4444;
 
-  /* ── Roadmap status tokens (canonical vocabulary: shipped/in-flight/next/blocked/refused)
-   *   Mirrors the Tasks design system so lifted components render correctly. */
+  /* ── Roadmap status tokens (canonical vocabulary: shipped/in-flight/next/waiting/refused)
+   *   Mirrors the Tasks design system so lifted components render correctly.
+   *   2026-06-06 (R·21): "blocked" renamed to "waiting" across the data layer.
+   *   The visual tone moved from alarm-red to calm sky to match the calmer word —
+   *   a "waiting" item is paused, not broken. The old alarm-red tone lives on as
+   *   --alarm below, for genuinely alarming surfaces (GTM blocker card, form
+   *   validation, error text). */
   --status-shipped:    #10b981;
   --status-shipped-bg: #d1fae5;
   --status-flight:     #f59e0b;
   --status-flight-bg:  #fef3c7;
   --status-next:       #6366f1;
   --status-next-bg:    #eef2ff;
-  --status-blocked-bg: #fee2e2;
+  --status-waiting:    #1d6fa3;
+  --status-waiting-bg: #eff6fc;
   --status-refused:    #71717a;
   --status-refused-bg: #f4f4f5;
+
+  /* ── Alarm semantic (the old --status-blocked red, kept for genuinely
+   *   alarming non-status surfaces: GTM blocker card, form validation,
+   *   error text on the curation surface). NOT a STATUS-enum tone. */
+  --alarm:    #ef4444;
+  --alarm-bg: #fee2e2;
 
   /* ── Additional background tokens used by lifted components ── */
   --bg-tinted:  color-mix(in srgb, var(--brand) 6%, var(--bg));
@@ -372,16 +383,20 @@
   --color-status-progress:    var(--status-progress);
   --color-status-review:      var(--status-review);
   --color-status-done:        var(--status-done);
-  --color-status-blocked:     var(--status-blocked);
   --color-status-shipped:     var(--status-shipped);
   --color-status-shipped-bg:  var(--status-shipped-bg);
   --color-status-flight:      var(--status-flight);
   --color-status-flight-bg:   var(--status-flight-bg);
   --color-status-next:        var(--status-next);
   --color-status-next-bg:     var(--status-next-bg);
-  --color-status-blocked-bg:  var(--status-blocked-bg);
+  --color-status-waiting:     var(--status-waiting);
+  --color-status-waiting-bg:  var(--status-waiting-bg);
   --color-status-refused:     var(--status-refused);
   --color-status-refused-bg:  var(--status-refused-bg);
+
+  /* Alarm semantic */
+  --color-alarm:    var(--alarm);
+  --color-alarm-bg: var(--alarm-bg);
 
   /* Semantic surfaces */
   --color-bg:          var(--bg);

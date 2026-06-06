@@ -44,7 +44,7 @@ export function BlockerCard({
             background: isResolved ? "var(--status-shipped)" : "transparent",
             borderColor: isResolved
               ? "var(--status-shipped)"
-              : "var(--status-blocked)",
+              : "var(--alarm)",
           }}
         >
           {isResolved ? (
@@ -101,14 +101,14 @@ export function BlockerCard({
                   className="ml-auto inline-flex items-center gap-1 rounded px-1.5 py-px font-semibold uppercase tracking-[0.08em]"
                   style={{
                     background:
-                      "color-mix(in srgb, var(--status-blocked) 12%, transparent)",
-                    color: "var(--status-blocked)",
+                      "color-mix(in srgb, var(--alarm) 12%, transparent)",
+                    color: "var(--alarm)",
                   }}
                 >
                   <span
                     aria-hidden
                     className="inline-block h-1 w-1 rounded-full"
-                    style={{ background: "var(--status-blocked)" }}
+                    style={{ background: "var(--alarm)" }}
                   />
                   two weeks
                 </span>

@@ -37,7 +37,7 @@ type Props = {
 const STATUS_DOT: Record<Task["status"], string> = {
   shipped: "var(--status-shipped)",
   "in-flight": "var(--status-flight)",
-  blocked: "var(--status-blocked)",
+  waiting: "var(--status-waiting)",
   next: "var(--status-next)",
   refused: "var(--status-refused)",
 };

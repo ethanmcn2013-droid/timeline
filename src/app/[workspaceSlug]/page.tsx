@@ -340,14 +340,14 @@ async function WorkspaceContentWell({
     total: allTasks.length,
     shipped: 0,
     inFlight: 0,
-    blocked: 0,
+    waiting: 0,
     next: 0,
     refused: 0,
   };
   for (const t of allTasks) {
     if (t.status === "shipped") counts.shipped++;
     else if (t.status === "in-flight") counts.inFlight++;
-    else if (t.status === "blocked") counts.blocked++;
+    else if (t.status === "waiting") counts.waiting++;
     else if (t.status === "next") counts.next++;
     else if (t.status === "refused") counts.refused++;
   }
@@ -371,7 +371,7 @@ async function WorkspaceContentWell({
     projectCounts.set(p.slug, {
       shipped: 0,
       "in-flight": 0,
-      blocked: 0,
+      waiting: 0,
       next: 0,
       refused: 0,
       total: 0,
@@ -383,7 +383,7 @@ async function WorkspaceContentWell({
     c.total++;
     if (t.status === "shipped") c.shipped++;
     else if (t.status === "in-flight") c["in-flight"]++;
-    else if (t.status === "blocked") c.blocked++;
+    else if (t.status === "waiting") c.waiting++;
     else if (t.status === "next") c.next++;
     else if (t.status === "refused") c.refused++;
   }
@@ -486,9 +486,9 @@ async function WorkspaceContentWell({
     return null;
   }
 
-  // Blockers: status=blocked items. Surfaced as a card grid above the list.
+  // Blockers: status=waiting items. Surfaced as a card grid above the list.
   const blockers = allTasks
-    .filter((t) => t.status === "blocked")
+    .filter((t) => t.status === "waiting")
     .sort((a, b) => {
       if (a.targetDate && b.targetDate) return a.targetDate.localeCompare(b.targetDate);
       return a.sortOrder - b.sortOrder;
@@ -692,8 +692,8 @@ async function WorkspaceContentWell({
                       <BigStat label="Done" value={counts.shipped} />
                       <BigStat label="Doing" value={counts.inFlight} />
                       <BigStat label="Next" value={counts.next} />
-                      {counts.blocked > 0 ? (
-                        <BigStat label="Waiting" value={counts.blocked} />
+                      {counts.waiting > 0 ? (
+                        <BigStat label="Waiting" value={counts.waiting} />
                       ) : null}
                       {/* Tier 3 derived attention signal — owner-only. A
                           stakeholder reading the public plan should never see
@@ -720,8 +720,8 @@ async function WorkspaceContentWell({
                     <BigStat label="Done" value={counts.shipped} />
                     <BigStat label="Doing" value={counts.inFlight} />
                     <BigStat label="Next" value={counts.next} />
-                    {counts.blocked > 0 ? (
-                      <BigStat label="Waiting" value={counts.blocked} />
+                    {counts.waiting > 0 ? (
+                      <BigStat label="Waiting" value={counts.waiting} />
                     ) : null}
                     {isOwner && needsAttentionCount > 0 ? (
                       <BigStat
@@ -917,7 +917,7 @@ function OverviewView({
     total: number;
     shipped: number;
     inFlight: number;
-    blocked: number;
+    waiting: number;
     next: number;
     refused: number;
   };

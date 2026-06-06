@@ -23,7 +23,7 @@ const NOW = Date.UTC(2026, 5, 6, 12, 0, 0); // 2026-06-06T12:00:00Z
 const DAY = 1000 * 60 * 60 * 24;
 
 function task(over: Partial<{
-  status: "in-flight" | "next" | "shipped" | "refused" | "blocked";
+  status: "in-flight" | "next" | "shipped" | "refused" | "waiting";
   targetDate: string | null;
   updatedAt: Date;
 }>) {
@@ -51,9 +51,9 @@ test("idle — 13-day-old in-flight task is still calm", () => {
   assert.equal(attentionReason(t, NOW), null);
 });
 
-test("idle — blocked counts as active for idle (so a stale waiting task surfaces)", () => {
+test("idle — waiting counts as active for idle (so a stale waiting task surfaces)", () => {
   const t = task({
-    status: "blocked",
+    status: "waiting",
     updatedAt: new Date(NOW - 20 * DAY),
   });
   assert.equal(attentionReason(t, NOW), "idle");
@@ -117,7 +117,7 @@ test("countNeedsAttention — counts mixed list correctly", () => {
     task({ status: "in-flight", targetDate: "2026-06-01" }), // overdue
     task({ status: "next" }), // calm
     task({ status: "shipped" }), // calm
-    task({ status: "blocked", updatedAt: new Date(NOW - 30 * DAY) }), // idle
+    task({ status: "waiting", updatedAt: new Date(NOW - 30 * DAY) }), // idle
   ];
   assert.equal(countNeedsAttention(tasks, NOW), 3);
 });

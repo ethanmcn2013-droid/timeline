@@ -127,7 +127,7 @@ const ITEMS: Seed[] = [
     title: "Florist arrival time still not confirmed",
     description:
       "The florist hasn't confirmed a setup window. This is the one thing most likely to slip — it needs a call this week.",
-    status: "blocked",
+    status: "waiting",
     kind: "cycle",
     targetDate: "2026-06-18",
     sort: 8,

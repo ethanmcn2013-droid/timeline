@@ -22,11 +22,11 @@ const STATUS_META: Record<
     fg: "var(--status-next)",
     border: "color-mix(in srgb, var(--status-next) 24%, transparent)",
   },
-  blocked: {
+  waiting: {
     label: "Waiting",
-    bg: "var(--status-blocked-bg)",
-    fg: "var(--status-blocked)",
-    border: "color-mix(in srgb, var(--status-blocked) 28%, transparent)",
+    bg: "var(--status-waiting-bg)",
+    fg: "var(--status-waiting)",
+    border: "color-mix(in srgb, var(--status-waiting) 28%, transparent)",
   },
   refused: {
     label: "Dropped",

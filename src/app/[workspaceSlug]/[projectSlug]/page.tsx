@@ -95,7 +95,7 @@ export default async function ProjectDrillDownPage({
   // Per-status counts
   const shipped = allTasks.filter((t) => t.status === "shipped").length;
   const inFlight = allTasks.filter((t) => t.status === "in-flight").length;
-  const blocked = allTasks.filter((t) => t.status === "blocked").length;
+  const blocked = allTasks.filter((t) => t.status === "waiting").length;
   const next = allTasks.filter((t) => t.status === "next").length;
 
   // Meta-strip data — same shape as the workspace surface, scoped
@@ -186,7 +186,7 @@ export default async function ProjectDrillDownPage({
                 ) : null}
                 {next > 0 ? <BigStat label="Next" value={next} /> : null}
                 {blocked > 0 ? (
-                  <BigStat label="Waiting" value={blocked} tone="blocked" />
+                  <BigStat label="Waiting" value={blocked} tone="waiting" />
                 ) : null}
                 {/* Owner-only Tier 3 attention surface. Public visitors
                     never see this number. */}

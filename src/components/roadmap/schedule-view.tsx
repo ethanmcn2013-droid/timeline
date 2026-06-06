@@ -192,7 +192,7 @@ export function ScheduleView({
       {/* Caption row — legend left, window range right */}
       <div className="mb-5 flex flex-wrap items-end justify-between gap-x-8 gap-y-3">
         <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-          {(["shipped", "in-flight", "next", "blocked"] as const).map((s) => (
+          {(["shipped", "in-flight", "next", "waiting"] as const).map((s) => (
             <span
               key={s}
               className="inline-flex items-center gap-1.5 text-[11px] text-ink-quiet"

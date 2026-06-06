@@ -4,8 +4,8 @@
  * uppercase label.
  *
  * Used on the workspace and project-detail surfaces. Tones map to
- * the semantic palette: shipped (green), flight (amber), blocked
- * (red), refused (quiet). No tone = ink default.
+ * the semantic palette: shipped (green), flight (amber), waiting
+ * (sky), refused (quiet). No tone = ink default.
  */
 export function BigStat({
   label,
@@ -14,12 +14,12 @@ export function BigStat({
 }: {
   label: string;
   value: number;
-  tone?: "shipped" | "flight" | "blocked" | "refused";
+  tone?: "shipped" | "flight" | "waiting" | "refused";
 }) {
   const colorMap = {
     shipped: "var(--status-shipped)",
     flight: "var(--status-flight)",
-    blocked: "var(--status-blocked)",
+    waiting: "var(--status-waiting)",
     refused: "var(--ink-quiet)",
   };
   const color = tone ? colorMap[tone] : "var(--ink)";

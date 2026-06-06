@@ -402,7 +402,7 @@ function ProjectSnapshot({
     done: number;
     doing: number;
     next: number;
-    blocked: number;
+    waiting: number;
     progress: number;
   };
 }) {
@@ -445,9 +445,9 @@ function ProjectSnapshot({
         <div className="mt-2 flex flex-wrap gap-2 text-[10.5px] text-ink-quiet">
           <span>{snapshot.doing} doing</span>
           <span>{snapshot.next} next</span>
-          {snapshot.blocked > 0 ? (
-            <span style={{ color: "var(--status-blocked)" }}>
-              {snapshot.blocked} held up
+          {snapshot.waiting > 0 ? (
+            <span style={{ color: "var(--status-waiting)" }}>
+              {snapshot.waiting} waiting
             </span>
           ) : null}
         </div>
@@ -465,7 +465,7 @@ function StateDot({
 }) {
   const color =
     tone === "attention"
-      ? "var(--status-blocked)"
+      ? "var(--status-waiting)"
       : tone === "clear"
         ? "var(--status-shipped)"
         : "var(--ink-quiet)";

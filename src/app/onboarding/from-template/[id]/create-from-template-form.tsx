@@ -62,7 +62,7 @@ export function CreateFromTemplateForm({
     shipped: "var(--status-done, #10b981)",
     "in-flight": "var(--status-doing, #f59e0b)",
     next: "var(--status-next, #6366f1)",
-    blocked: "var(--status-blocked, #ef4444)",
+    waiting: "var(--status-waiting, #1d6fa3)",
     refused: "var(--ink-quiet, #71717a)",
   };
 
@@ -205,7 +205,7 @@ export function CreateFromTemplateForm({
             />
           </div>
           {slug && !slugOk && (
-            <p className="text-xs" style={{ color: "var(--status-blocked)" }}>
+            <p className="text-xs" style={{ color: "var(--alarm)" }}>
               3–32 chars, lowercase letters/numbers/hyphens, not reserved.
             </p>
           )}

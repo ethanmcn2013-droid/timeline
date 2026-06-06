@@ -77,8 +77,8 @@ export type DemoState = {
 };
 
 // Canonical plain-English labels — must match the real product's Status type.
-// DB schema: next | in-flight | shipped | blocked | refused
-// Demo vocab: next | doing (=in-flight) | shipped | held (=blocked)
+// DB schema: next | in-flight | shipped | waiting | refused
+// Demo vocab: next | doing (=in-flight) | shipped | held (=waiting)
 // Map: doing→"Doing", held→"Waiting", retired aliases removed.
 export const STATUS_LABEL: Record<RowStatus, string> = {
   shipped: "Done",
@@ -92,7 +92,7 @@ export const STATUS_ORDER: RowStatus[] = ["shipped", "doing", "held", "next"];
 export const STATUS_TOKEN: Record<RowStatus, string> = {
   shipped: "var(--status-shipped)",
   doing: "var(--status-flight)",
-  held: "var(--status-blocked)",
+  held: "var(--status-waiting)",
   next: "var(--status-next)",
 };
 

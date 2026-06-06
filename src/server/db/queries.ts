@@ -137,7 +137,7 @@ export async function seedWorkspaceFromTemplate({
         projectSlug: string;
         title: string;
         description: string;
-        status: "shipped" | "in-flight" | "next" | "blocked" | "refused";
+        status: "shipped" | "in-flight" | "next" | "waiting" | "refused";
         targetDate?: string;
       }>;
     };

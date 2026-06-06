@@ -30,8 +30,8 @@ export type AttentionReason = "idle" | "overdue";
  * Returns the reason a task needs attention, or null if it's calm.
  *
  * - "overdue": targetDate is in the past AND status is not a settled state
- *   (shipped, refused). Past-date "next" / "in-flight" / "blocked" all qualify.
- * - "idle":   status is "in-flight" or "blocked" AND updatedAt is older than
+ *   (shipped, refused). Past-date "next" / "in-flight" / "waiting" all qualify.
+ * - "idle":   status is "in-flight" or "waiting" AND updatedAt is older than
  *   IDLE_DAYS_THRESHOLD. A task sitting in "Doing" for two weeks without an
  *   update is the canonical drift signal.
  *
@@ -50,7 +50,7 @@ export function attentionReason(
   }
 
   const isActiveState =
-    task.status === "in-flight" || task.status === "blocked";
+    task.status === "in-flight" || task.status === "waiting";
   if (isActiveState) {
     const updatedAtMs =
       task.updatedAt instanceof Date

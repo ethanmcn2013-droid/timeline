@@ -143,7 +143,7 @@ export function CreateWorkspaceForm({ writesPaused = false }: { writesPaused?: b
                 ? "var(--ink-quiet)"
                 : slugOk
                   ? "var(--status-done)"
-                  : "var(--status-blocked)",
+                  : "var(--alarm)",
             }}
           >
             {!slug

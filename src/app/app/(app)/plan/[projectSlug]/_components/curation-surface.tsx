@@ -843,7 +843,7 @@ function ManualAddForm({
         </div>
 
         {error && (
-          <p role="alert" style={{ fontSize: 11, color: "var(--status-blocked)", margin: 0 }}>{error}</p>
+          <p role="alert" style={{ fontSize: 11, color: "var(--alarm)", margin: 0 }}>{error}</p>
         )}
 
         <div style={{ display: "flex", gap: 8 }}>
@@ -1018,9 +1018,9 @@ function SyncButton({
         </span>
       )}
 
-      {/* Error — Fix 3: var(--status-blocked) = #ef4444 (confirmed in globals.css line 52) */}
+      {/* Error — Fix 3: var(--alarm) = #ef4444 (confirmed in globals.css line 52) */}
       {result === "error" && (
-        <span style={{ fontSize: 11, color: "var(--status-blocked)" }}>{errorMsg}</span>
+        <span style={{ fontSize: 11, color: "var(--alarm)" }}>{errorMsg}</span>
       )}
     </div>
   );

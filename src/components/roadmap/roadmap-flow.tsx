@@ -23,7 +23,7 @@ import { STATUS_DISPLAY } from "@/components/roadmap/status-pill";
 const LANES: { status: Status; hint: string }[] = [
   { status: "next", hint: "Lined up, not started" },
   { status: "in-flight", hint: "Being worked on now" },
-  { status: "blocked", hint: "Waiting on something" },
+  { status: "waiting", hint: "Waiting on something" },
   { status: "shipped", hint: "Finished and live" },
 ];
 
@@ -106,8 +106,8 @@ export function RoadmapFlow({ tasks, projects, milestoneLabels }: Props) {
                     color: "var(--ink-faint)",
                   }}
                 >
-                  {lane.status === "blocked"
-                    ? "Nothing held up."
+                  {lane.status === "waiting"
+                    ? "Nothing waiting."
                     : lane.status === "shipped"
                       ? "Nothing finished yet."
                       : "Nothing here yet."}

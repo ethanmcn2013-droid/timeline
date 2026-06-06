@@ -66,7 +66,7 @@ export const demoTasks: Task[] = [
     title: "Proof card on the marketing homepage",
     description:
       "A live screenshot of the demo workspace embedded in the homepage hero — so the product sells itself without a separate demo page. Blocked on screenshot infra.",
-    status: "blocked",
+    status: "waiting",
     phase: null,
     tier: null,
     assignee: "claude-code",
@@ -281,7 +281,7 @@ export const weddingDemoTasks: Task[] = [
     title: "Supplier arrival times need confirmation",
     description:
       "Photographer, florist, and band arrival times are not all confirmed yet. This is the main planning risk.",
-    status: "blocked",
+    status: "waiting",
     targetDate: "2026-05-15",
     sortOrder: 2,
   }),

@@ -92,12 +92,18 @@ export const projects = sqliteTable(
  * grouping: in-flight first, then next, then shipped, refused at
  * the bottom (because what we won't do is part of the roadmap).
  */
+/**
+ * 2026-06-06 (R·21): `blocked` renamed to `waiting` across the data layer.
+ * Migration 0006 backfills existing rows. Display label was already
+ * "Waiting" since R·19; this cycle aligns the persisted enum so the word
+ * a stakeholder reads is the same word stored in the database.
+ */
 export type Status =
   | "in-flight"
   | "next"
   | "shipped"
   | "refused"
-  | "blocked";
+  | "waiting";
 
 /** Phases anchor every task to the 12-month plan. */
 export type Phase = "A" | "B" | "C" | "D";

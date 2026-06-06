@@ -6,7 +6,7 @@ export type ProjectWithCounts = Project & {
   counts: {
     shipped: number;
     "in-flight": number;
-    blocked: number;
+    waiting: number;
     next: number;
     refused: number;
   };
@@ -67,7 +67,7 @@ export function ProjectCard({
       {/* Stat strip */}
       <div className="relative mt-6 grid grid-cols-4 gap-2">
         <Stat label="Doing" value={project.counts["in-flight"]} tone="flight" />
-        <Stat label="Waiting" value={project.counts.blocked} tone="blocked" />
+        <Stat label="Waiting" value={project.counts.waiting} tone="waiting" />
         <Stat label="Next" value={project.counts.next} tone="next" />
         <Stat label="Done" value={project.counts.shipped} tone="shipped" />
       </div>
@@ -115,12 +115,12 @@ function Stat({
 }: {
   label: string;
   value: number;
-  tone: "shipped" | "flight" | "blocked" | "next";
+  tone: "shipped" | "flight" | "waiting" | "next";
 }) {
   const tokens = {
     shipped: { fg: "var(--status-shipped)", bg: "var(--status-shipped-bg)" },
     flight: { fg: "var(--status-flight)", bg: "var(--status-flight-bg)" },
-    blocked: { fg: "var(--status-blocked)", bg: "var(--status-blocked-bg)" },
+    waiting: { fg: "var(--status-waiting)", bg: "var(--status-waiting-bg)" },
     next: { fg: "var(--status-next)", bg: "var(--status-next-bg)" },
   }[tone];
 

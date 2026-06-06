@@ -35,7 +35,7 @@ export function ItemRow({
 }) {
   const isDone = task.status === "shipped";
   const isDoing = task.status === "in-flight";
-  const isStuck = task.status === "blocked";
+  const isStuck = task.status === "waiting";
 
   const rowBg =
     task.isLaunch && !isDone
