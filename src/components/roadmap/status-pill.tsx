@@ -23,7 +23,7 @@ const STATUS_META: Record<
     border: "color-mix(in srgb, var(--status-next) 24%, transparent)",
   },
   blocked: {
-    label: "Blocked",
+    label: "Waiting",
     bg: "var(--status-blocked-bg)",
     fg: "var(--status-blocked)",
     border: "color-mix(in srgb, var(--status-blocked) 28%, transparent)",

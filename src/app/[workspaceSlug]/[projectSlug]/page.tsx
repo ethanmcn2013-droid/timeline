@@ -175,7 +175,7 @@ export default async function ProjectDrillDownPage({
                 ) : null}
                 {next > 0 ? <BigStat label="Next" value={next} /> : null}
                 {blocked > 0 ? (
-                  <BigStat label="Blocked" value={blocked} tone="blocked" />
+                  <BigStat label="Waiting" value={blocked} tone="blocked" />
                 ) : null}
                 {refusedCount > 0 ? (
                   <Link

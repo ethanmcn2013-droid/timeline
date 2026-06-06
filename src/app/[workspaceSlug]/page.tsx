@@ -673,14 +673,14 @@ async function WorkspaceContentWell({
                       className="mt-8 flex flex-wrap items-end gap-x-8 gap-y-3"
                     >
                       {/* CREATIVE_SPEC §1.6: public view — all var(--ink), no tones.
-                          "Blocked" in red is alarming to a recipient who doesn't
-                          know what blocked means in this context. */}
+                          "Waiting" reads calm to a recipient who doesn't know
+                          the internal language; "Blocked" in red was alarming. */}
                       <BigStat label="Total" value={counts.total} />
                       <BigStat label="Done" value={counts.shipped} />
                       <BigStat label="Doing" value={counts.inFlight} />
                       <BigStat label="Next" value={counts.next} />
                       {counts.blocked > 0 ? (
-                        <BigStat label="Blocked" value={counts.blocked} />
+                        <BigStat label="Waiting" value={counts.blocked} />
                       ) : null}
                       {counts.refused > 0 ? (
                         <BigStat label="Won't do" value={counts.refused} />
@@ -697,7 +697,7 @@ async function WorkspaceContentWell({
                     <BigStat label="Doing" value={counts.inFlight} />
                     <BigStat label="Next" value={counts.next} />
                     {counts.blocked > 0 ? (
-                      <BigStat label="Blocked" value={counts.blocked} />
+                      <BigStat label="Waiting" value={counts.blocked} />
                     ) : null}
                     {counts.refused > 0 ? (
                       <BigStat label="Won't do" value={counts.refused} />

@@ -13,7 +13,7 @@ const STATUS_LABEL: Record<string, string> = {
   shipped: "Done",
   "in-flight": "Doing",
   next: "To do",
-  blocked: "Blocked",
+  blocked: "Waiting",
   refused: "Dropped",
 };
 

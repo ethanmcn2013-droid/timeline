@@ -79,11 +79,11 @@ export type DemoState = {
 // Canonical plain-English labels — must match the real product's Status type.
 // DB schema: next | in-flight | shipped | blocked | refused
 // Demo vocab: next | doing (=in-flight) | shipped | held (=blocked)
-// Map: doing→"Doing", held→"Held up", retired aliases removed.
+// Map: doing→"Doing", held→"Waiting", retired aliases removed.
 export const STATUS_LABEL: Record<RowStatus, string> = {
   shipped: "Done",
   doing: "Doing",
-  held: "Held up",
+  held: "Waiting",
   next: "Next",
 };
 

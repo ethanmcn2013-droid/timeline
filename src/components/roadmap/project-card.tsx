@@ -67,7 +67,7 @@ export function ProjectCard({
       {/* Stat strip */}
       <div className="relative mt-6 grid grid-cols-4 gap-2">
         <Stat label="Doing" value={project.counts["in-flight"]} tone="flight" />
-        <Stat label="Blocked" value={project.counts.blocked} tone="blocked" />
+        <Stat label="Waiting" value={project.counts.blocked} tone="blocked" />
         <Stat label="Next" value={project.counts.next} tone="next" />
         <Stat label="Done" value={project.counts.shipped} tone="shipped" />
       </div>
