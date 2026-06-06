@@ -23,6 +23,7 @@ import {
   reorderNodesAction,
   type UpsertOverlayResult,
 } from "@/server/actions/workspaces";
+import { attentionReason } from "@/lib/roadmap/needs-attention";
 
 const LANE_LABELS = ["Next", "In flight", "Shipped", "Later"] as const;
 type LaneLabel = typeof LANE_LABELS[number];
@@ -248,6 +249,15 @@ function NodeCard({
 
   const isShipped = node.lane === "Shipped";
 
+  // Tier 3 attention signal — surface drift at edit time (R·22). Calendar-day
+  // anchored, so server-render and client-hydration agree within a calendar
+  // day; no hydration mismatch in practice. Owner-only surface (route gates
+  // ownership) so no isOwner check needed here.
+  const attention = attentionReason(
+    { status: node.status, targetDate: node.targetDate, updatedAt: node.updatedAt },
+    Date.now(),
+  );
+
   return (
     <div
       data-node-id={node.id}
@@ -397,6 +407,52 @@ function NodeCard({
             >
               Source changed in Tasks. Your edits are shown.
             </p>
+          )}
+
+          {/* Tier 3 attention pill (R·22) — matches ItemRow's calm amber
+              treatment from R·21. Owner-only surface by route, so no
+              isOwner gate. Pure derived signal: never persists, never
+              fires a write — just shows the owner what to look at. */}
+          {attention && (
+            <span
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 4,
+                marginTop: 4,
+                padding: "1px 6px",
+                borderRadius: 4,
+                fontSize: 9.5,
+                fontWeight: 600,
+                letterSpacing: "0.08em",
+                textTransform: "uppercase",
+                background:
+                  "color-mix(in srgb, var(--status-flight) 12%, transparent)",
+                color: "var(--status-flight)",
+              }}
+              aria-label={
+                attention === "overdue"
+                  ? "Needs attention: overdue"
+                  : "Needs attention: idle"
+              }
+              title={
+                attention === "overdue"
+                  ? "Past its target date"
+                  : "Idle for 14+ days"
+              }
+            >
+              <span
+                aria-hidden
+                style={{
+                  display: "inline-block",
+                  width: 4,
+                  height: 4,
+                  borderRadius: "50%",
+                  background: "var(--status-flight)",
+                }}
+              />
+              {attention === "overdue" ? "Overdue" : "Idle"}
+            </span>
           )}
 
           {/* Meta row: lane selector + date */}

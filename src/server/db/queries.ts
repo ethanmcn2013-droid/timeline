@@ -648,6 +648,11 @@ export type EffectiveNode = {
   source: "synced" | "manual";
   /** True when Tasks updated title/status/date AFTER a human override was set */
   driftDetected: boolean;
+  /** Last-touched timestamp of the underlying record. Synced nodes use the
+   *  Tasks row's updatedAt; manual nodes use the overlay row's updatedAt.
+   *  Feeds the Tier 3 needs-attention selector at the plan-editor surface
+   *  so drift is visible at edit time (R·22). */
+  updatedAt: Date;
 };
 
 export const getEffectiveNodesForWorkspace = cache(async (
@@ -691,6 +696,7 @@ export const getEffectiveNodesForWorkspace = cache(async (
         dateOverride: o.dateOverride,
         source: "manual",
         driftDetected: false,
+        updatedAt: o.updatedAt,
       };
     });
 
@@ -731,6 +737,7 @@ export const getEffectiveNodesForWorkspace = cache(async (
       dateOverride: o?.dateOverride ?? null,
       source: "synced",
       driftDetected,
+      updatedAt: t.updatedAt,
     };
   });
 
