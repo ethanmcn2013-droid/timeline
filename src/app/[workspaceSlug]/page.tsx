@@ -19,6 +19,7 @@ import type { ProjectWithCounts } from "@/components/roadmap/project-card";
 import { ItemRow } from "@/components/roadmap/item-row";
 import { BigStat } from "@/components/roadmap/big-stat";
 import { BlockerCard } from "@/components/roadmap/blocker-card";
+import { countNeedsAttention } from "@/lib/roadmap/needs-attention";
 import {
   MilestoneCard,
   isManualMilestoneId,
@@ -347,6 +348,15 @@ async function WorkspaceContentWell({
     else if (t.status === "next") counts.next++;
     else if (t.status === "refused") counts.refused++;
   }
+
+  // Tier 3 derived attention signal. Computed once per request on the
+  // server; consumed by the owner-only "Needs attention" BigStat below.
+  // Refused tasks are excluded — a dropped item is not drift, and counting
+  // them here would inflate the signal with intentional removals.
+  const needsAttentionCount = countNeedsAttention(
+    allTasks.filter((t) => t.status !== "refused"),
+    Date.now(),
+  );
 
   const projectMap = new Map<string, Project>(projects.map((p) => [p.slug, p]));
 
@@ -682,6 +692,17 @@ async function WorkspaceContentWell({
                       {counts.blocked > 0 ? (
                         <BigStat label="Waiting" value={counts.blocked} />
                       ) : null}
+                      {/* Tier 3 derived attention signal — owner-only. A
+                          stakeholder reading the public plan should never see
+                          a "Needs attention" number; it would alarm without
+                          giving them agency. The owner sees it because they
+                          can act on it. */}
+                      {isOwner && needsAttentionCount > 0 ? (
+                        <BigStat
+                          label="Needs attention"
+                          value={needsAttentionCount}
+                        />
+                      ) : null}
                       {counts.refused > 0 ? (
                         <BigStat label="Won't do" value={counts.refused} />
                       ) : null}
@@ -698,6 +719,12 @@ async function WorkspaceContentWell({
                     <BigStat label="Next" value={counts.next} />
                     {counts.blocked > 0 ? (
                       <BigStat label="Waiting" value={counts.blocked} />
+                    ) : null}
+                    {isOwner && needsAttentionCount > 0 ? (
+                      <BigStat
+                        label="Needs attention"
+                        value={needsAttentionCount}
+                      />
                     ) : null}
                     {counts.refused > 0 ? (
                       <BigStat label="Won't do" value={counts.refused} />

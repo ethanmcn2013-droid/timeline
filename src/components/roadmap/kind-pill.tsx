@@ -47,7 +47,7 @@ const KIND_META: Record<Kind, { label: string; bg: string; fg: string }> = {
     fg: "var(--ink-quiet)",
   },
   blocker: {
-    label: "Blocked",
+    label: "Blocker",
     bg: "var(--roadmap-red-bg)",
     fg: "var(--roadmap-red-fg)",
   },
