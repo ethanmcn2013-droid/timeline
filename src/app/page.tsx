@@ -3,6 +3,7 @@ import { SiteNav } from "@/components/marketing/site-nav";
 import { SiteFooter } from "@/components/marketing/site-footer";
 import { RoadmapHeroLoader } from "@/components/marketing/roadmap-hero-loader";
 import { Hero } from "@/components/marketing/hero";
+import { LongNowStrip } from "@/components/marketing/long-now-strip";
 import { ItemAnatomy } from "@/components/marketing/anatomy";
 import { SuiteArrows } from "@/components/suite-arrows";
 
@@ -21,6 +22,10 @@ export default function HomePage() {
       <main className="flex-1">
         <RoadmapHeroLoader />
         <Hero />
+
+        {/* Long Now Strip — names the planning horizon. The interstitial
+            answer to every public-roadmap reader's first question. */}
+        <LongNowStrip />
 
         {/* What an item is — the product's smallest unit, explained */}
         <ItemAnatomy />
