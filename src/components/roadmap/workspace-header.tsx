@@ -64,10 +64,18 @@ export function WorkspaceHeader({
           {refusedCount > 0 ? (
             <Link
               href={`/${workspace.slug}/refusals`}
-              className="hidden text-[12px] text-ink-quiet hover:text-ink sm:inline"
-              style={{ transition: "color var(--motion-fast) var(--ease-standard)" }}
+              aria-label={`Refusals — ${refusedCount} decision${refusedCount === 1 ? "" : "s"} we said no to`}
+              className="hidden items-center gap-1.5 rounded-full border border-line-soft/70 bg-bg-elevated/40 px-2.5 py-1 text-[11px] font-medium tracking-[-0.005em] text-ink-quiet transition-colors hover:border-line-soft hover:bg-bg-elevated hover:text-ink sm:inline-flex"
+              style={{ transition: "color var(--motion-fast) var(--ease-standard), background var(--motion-fast) var(--ease-standard), border-color var(--motion-fast) var(--ease-standard)" }}
             >
-              What didn&apos;t make it
+              <span>Refusals</span>
+              <span
+                aria-hidden
+                className="inline-flex h-[15px] min-w-[15px] items-center justify-center rounded-full px-1 text-[10px] font-semibold tabular-nums text-ink-faint"
+                style={{ background: "color-mix(in srgb, var(--ink-faint) 18%, transparent)" }}
+              >
+                {refusedCount}
+              </span>
             </Link>
           ) : null}
           {/* P2-4 fix: SuiteLauncher IS the product identity anchor — it shows
