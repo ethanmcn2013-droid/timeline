@@ -64,7 +64,7 @@ export default async function RefusalsPage({
       className="flex min-h-screen flex-col"
       style={{ background: "var(--bg-deep)" }}
     >
-      <WorkspaceHeader workspace={workspace} />
+      <WorkspaceHeader workspace={workspace} refusedCount={refused.length} />
 
       <main className="flex-1">
         {/* Hero — quieter than the main roadmap */}

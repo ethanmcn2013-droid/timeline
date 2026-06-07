@@ -117,7 +117,7 @@ export default async function ProjectDrillDownPage({
 
   return (
     <div className="flex min-h-screen flex-col" style={{ background: "var(--bg)" }}>
-      <WorkspaceHeader workspace={workspace} />
+      <WorkspaceHeader workspace={workspace} refusedCount={refusedCount} />
       <ShortcutsOverlay />
 
       <main className="flex-1">

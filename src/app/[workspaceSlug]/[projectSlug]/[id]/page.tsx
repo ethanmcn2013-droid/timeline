@@ -5,6 +5,7 @@ import {
   getProject,
   getTask,
   getActivityForTask,
+  getRefusedTasks,
 } from "@/server/db/queries";
 import { WorkspaceHeader } from "@/components/roadmap/workspace-header";
 import { StatusPill } from "@/components/roadmap/status-pill";
@@ -62,10 +63,11 @@ export default async function TaskDetailPage({
     redirect(`/${workspaceSlug}#${milestoneAnchorId(id)}`);
   }
 
-  const [workspace, project, task] = await Promise.all([
+  const [workspace, project, task, refused] = await Promise.all([
     getWorkspace(workspaceSlug),
     getProject(workspaceSlug, projectSlug),
     getTask(workspaceSlug, projectSlug, id),
+    getRefusedTasks(workspaceSlug),
   ]);
 
   if (!workspace) notFound();
@@ -78,7 +80,7 @@ export default async function TaskDetailPage({
 
   return (
     <div className="flex min-h-screen flex-col" style={{ background: "var(--bg)" }}>
-      <WorkspaceHeader workspace={workspace} />
+      <WorkspaceHeader workspace={workspace} refusedCount={refused.length} />
 
       <main className="flex-1">
         <div className="mx-auto w-full max-w-2xl px-6 py-12">

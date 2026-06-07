@@ -73,6 +73,7 @@ export default async function SharedUpdatePage({
   if (!dataset) notFound();
 
   const { workspace, projects, tasks, upcoming } = dataset;
+  const refusedCount = tasks.filter((t) => t.status === "refused").length;
 
   // For invited-by bar; safe with the demo-dataset fallback since
   // getLastUpdatedForWorkspace returns null when the workspace has no
@@ -96,7 +97,7 @@ export default async function SharedUpdatePage({
 
   return (
     <div className="flex min-h-screen flex-col" style={{ background: "var(--bg)" }}>
-      <WorkspaceHeader workspace={workspace} />
+      <WorkspaceHeader workspace={workspace} refusedCount={refusedCount} />
       <InvitedByBar workspace={workspace} lastUpdatedLabel={lastUpdatedLabel} />
 
       <main className="flex-1">
