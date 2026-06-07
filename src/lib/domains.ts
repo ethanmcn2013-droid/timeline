@@ -62,7 +62,7 @@ export const DOMAINS: Record<DomainId, DomainPack> = {
     label: "Wedding plan",
     description:
       "a planner sharing the build-up with the couple and the venue",
-    workspaceUrl: "roadmap.signalstudio.ie/wedding-spring-26",
+    workspaceUrl: "roadmap.signalstudio.ie/the-wedding",
     workspaceTitle: "The plan, in plain English.",
     workspaceEyebrow: "Spring wedding",
     timelineStart: 0, // Jan
