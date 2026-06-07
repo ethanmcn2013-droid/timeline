@@ -942,6 +942,54 @@ select,
   }
 }
 
+/* ────────────────────────────────────────────────────────────
+   Walkover row 5 (2026-06-07): Roadmap wordmark sweep gesture.
+   The brand gesture-vocab (2026-05-16) assigned "sweep" to
+   Roadmap. RW-5 removed an old loading-state sweep; this is
+   the editorial sweep — a faint highlight glances left-to-right
+   across the word every ~7s. Semantically: publish-and-pass.
+   Pure CSS, scoped to .roadmap-wordmark-text, reduced-motion
+   safe (no animation under reduce; static ink colour holds).
+   ──────────────────────────────────────────────────────────── */
+.roadmap-wordmark-text {
+  background-image: linear-gradient(
+    100deg,
+    var(--ink) 0%,
+    var(--ink) 35%,
+    color-mix(in srgb, var(--ink) 55%, var(--accent, #4f46e5)) 50%,
+    var(--ink) 65%,
+    var(--ink) 100%
+  );
+  background-size: 300% 100%;
+  background-position: 200% 0;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: var(--ink);
+}
+
+@keyframes roadmap-wordmark-sweep {
+  /* Long quiet dwell, fast glide. The sweep runs in 1.4s of the 7s
+     cycle; the rest is rest. Quiet at rest, named at the moment of
+     the gesture. */
+  0%, 80%   { background-position: 200% 0; }
+  100%      { background-position: -200% 0; }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .roadmap-wordmark-text {
+    -webkit-text-fill-color: transparent;
+    animation: roadmap-wordmark-sweep 7s linear infinite;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .roadmap-wordmark-text {
+    background: none;
+    -webkit-text-fill-color: currentColor;
+    animation: none;
+  }
+}
+
 /* ── .reveal — baseline-visible scroll entrance ─────────────────
    animation-fill-mode: both keeps the element at its end-state
    (opacity:1 / translate:0) before AND after the animation, so

@@ -14,12 +14,15 @@ import { cn } from "@/lib/utils";
  *   Notes     → caret    (ambient)
  *   Studio    → broadcast (ambient)
  *
- * RW-5 (2026-05-18): the `.roadmap-dot` class and `roadmap-dot-sweep`
- * keyframes have been removed. The sweep was a loading-state visual;
- * with the Layer-0 pre-paint primitive in place it is not needed.
- * The period is now a static indigo mark. The `.brand-mark .md` selector
- * used by `dot-land` in globals.css targets it on cross-product arrival.
- * See ARCH_SPEC §3 + CREATIVE_SPEC §3 for rationale.
+ * RW-5 (2026-05-18): the loading-state sweep was removed; with Layer-0
+ * pre-paint in place a loading sweep on the dot is not needed.
+ *
+ * Walkover row 5 (2026-06-07): the sweep returns — but as the brand
+ * gesture, not a loader. A faint highlight glances left-to-right
+ * across the word every ~7s (`.roadmap-wordmark-text`, scoped CSS,
+ * reduced-motion-safe). Semantically: publish-and-pass — a glance
+ * moving across the work. The dot's ambient opacity pulse continues.
+ * See globals.css for the keyframe + reduced-motion guard.
  */
 export function Wordmark({
   className,
@@ -49,7 +52,12 @@ export function Wordmark({
       )}
       style={{ letterSpacing: "-0.05em", textDecoration: "none" }}
     >
-      <span style={{ fontWeight: 600, color: "var(--ink)" }}>roadmap</span>
+      <span
+        className="roadmap-wordmark-text"
+        style={{ fontWeight: 600, color: "var(--ink)" }}
+      >
+        roadmap
+      </span>
       {/* `.md` is targeted by `dot-land` in globals.css on cross-product arrival.
           `.roadmap-dot` adds M5 ambient opacity pulse (0.85→1.0, 3s alternate)
           guarded by prefers-reduced-motion in globals.css. Does not conflict with
