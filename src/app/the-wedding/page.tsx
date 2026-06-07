@@ -4,6 +4,11 @@ import {
   DatePrecisionChip,
   type DatePrecision,
 } from "@/components/roadmap/date-precision";
+import {
+  ScheduleSpine,
+  type SpineItem,
+  type SpineLane,
+} from "@/components/roadmap/schedule-spine";
 
 /**
  * /the-wedding — the canonical public wedding-plan example.
@@ -135,6 +140,44 @@ const SECTIONS: Section[] = [
     ],
   },
 ];
+
+/**
+ * Map sectioned wedding items onto the schedule-spine lanes.
+ *
+ * Lane rules:
+ *   - state Done                                    → Done lane
+ *   - state Waiting on you / Underway in Now block  → Now  lane
+ *   - everything else in Soon block                 → Soon lane
+ *   - everything in Later block                     → Later lane
+ *
+ * Section labels are the primary signal — they already encode reader
+ * intent — but state lets a done-early item slip into the Done lane
+ * without needing a separate Done section.
+ */
+function buildSpineItems(sections: Section[]): SpineItem[] {
+  const items: SpineItem[] = [];
+  for (const section of sections) {
+    for (const item of section.items) {
+      let lane: SpineLane;
+      if (item.state === "Done") {
+        lane = "Done";
+      } else if (section.label === "Now") {
+        lane = "Now";
+      } else if (section.label === "Soon") {
+        lane = "Soon";
+      } else {
+        lane = "Later";
+      }
+      items.push({
+        id: `${section.label}-${item.title}`,
+        title: item.title,
+        lane,
+        when: item.when,
+      });
+    }
+  }
+  return items;
+}
 
 function StateChip({ state }: { state: State }) {
   // Only "Waiting on you" carries presence — it is the one state that
@@ -273,6 +316,15 @@ export default function TheWeddingExamplePage() {
             Kept up to date by{" "}
             <span className="text-ink-soft">{VENUE}</span>
           </p>
+
+          {/* Walkover row 3: true Schedule view — a horizontal time-spine
+              with Today as the seam. Rendered above the section list so
+              the whole plan is visible on one line before the reader
+              starts scrolling. SSR, no JS animation, reduced-motion safe
+              by construction. */}
+          <div className="mt-12">
+            <ScheduleSpine items={buildSpineItems(SECTIONS)} />
+          </div>
 
           {/* Sections — Now / Soon / Later */}
           <div className="mt-14 space-y-14">
