@@ -1,5 +1,9 @@
 import type { Metadata } from "next";
 import { Wordmark } from "@/components/brand/wordmark";
+import {
+  DatePrecisionChip,
+  type DatePrecision,
+} from "@/components/roadmap/date-precision";
 
 /**
  * /the-wedding — the canonical public wedding-plan example.
@@ -50,6 +54,9 @@ type Item = {
   title: string;
   state: State;
   body: string;
+  /** Walkover row 7 — typed date precision. Optional: not every item has
+   *  a date yet (the schedule axis distinguishes 'no date' from 'pending'). */
+  when?: DatePrecision;
 };
 
 type Section = {
@@ -68,16 +75,19 @@ const SECTIONS: Section[] = [
       {
         title: "Final numbers",
         state: "Waiting on you",
+        when: { kind: "window", value: "next 2 weeks" },
         body: `${VENUE} needs your final guest count in the next two weeks to lock catering. You're at 118 of an expected ~130. One short list to close.`,
       },
       {
         title: "Menu tasting",
         state: "Underway",
+        when: { kind: "exact", value: "Sat 2026-03-14" },
         body: `Booked for a Saturday-morning tasting at the house. Bring anyone helping you decide. ${VENUE} confirms the tasting menu the same day.`,
       },
       {
         title: "Arrival and access times",
         state: "Done",
+        when: { kind: "exact", value: "settled 2026-02-20" },
         body: "Settled. You and the wedding party have the house from 2pm the day before. Suppliers from 8am on the day. This is the question that used to take five emails — it is answered here now.",
       },
     ],
@@ -89,16 +99,19 @@ const SECTIONS: Section[] = [
       {
         title: "Music and sound",
         state: "Waiting on you",
+        when: { kind: "window", value: "early May" },
         body: `${VENUE}'s only ask is a final song list and the band's arrival time, about three weeks before the day. Nothing needed yet — this is here so you know it's coming, not so you act today.`,
       },
       {
         title: "Florist walkthrough",
         state: "Coming up",
+        when: { kind: "pending", value: "after tasting" },
         body: `${VENUE} will host your florist for a walkthrough of the room. Date set once the tasting is done. No action from you until then.`,
       },
       {
         title: "Transport and timings",
         state: "Coming up",
+        when: { kind: "pending" },
         body: "The arrival and ceremony timings get firmed up after final numbers. We'll draft it; you confirm it reads right.",
       },
     ],
@@ -110,11 +123,13 @@ const SECTIONS: Section[] = [
       {
         title: "The week-of plan",
         state: "Coming up",
+        when: { kind: "window", value: "late May" },
         body: `A single page everyone can read: who arrives when, where setup happens, who ${VENUE}'s coordinator is, what happens if it rains. We write it. You forward it. No one asks you the same question twice.`,
       },
       {
         title: "Final walkthrough",
         state: "Coming up",
+        when: { kind: "exact", value: "Sat 2026-06-06" },
         body: `Two weeks before, you and ${VENUE}'s coordinator walk the whole day start to finish. Anything unclear gets cleared then. That is the last thing you have to do.`,
       },
     ],
@@ -288,6 +303,11 @@ export default function TheWeddingExamplePage() {
                         </h3>
                         <StateChip state={item.state} />
                       </div>
+                      {item.when ? (
+                        <div className="mt-2">
+                          <DatePrecisionChip precision={item.when} tone="quiet" />
+                        </div>
+                      ) : null}
                       <p className="mt-2 max-w-[58ch] text-[15px] leading-[1.6] text-ink-soft">
                         {item.body}
                       </p>
