@@ -1,4 +1,5 @@
 import { RoadmapDemo } from "@/components/showcase/roadmap-demo";
+import { AddressBarChip } from "@/components/marketing/address-bar-chip";
 
 /**
  * Roadmap homepage hero.
@@ -9,12 +10,17 @@ export function Hero() {
   return (
     <section className="relative isolate overflow-hidden pt-8 md:pt-14">
       <div className="mx-auto w-full max-w-[1240px] px-5 md:px-6">
+        {/* Walkover row 2: public-by-default proof on first paint. The
+            address-bar chip is the first readable element on the page —
+            the URL IS the product. */}
+        <AddressBarChip />
+
         <p
-          className="rise font-mono text-[11px] font-semibold uppercase"
+          className="rise mt-5 font-mono text-[11px] font-semibold uppercase"
           style={{
             color: "var(--ink-quiet)",
             letterSpacing: "0.14em",
-            animationDelay: "0ms",
+            animationDelay: "40ms",
           }}
         >
           Signal Roadmap &middot; Direction clarity
@@ -52,7 +58,7 @@ export function Hero() {
           style={{ color: "var(--ink-quiet)", animationDelay: "240ms" }}
         >
           <span className="block h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-500" />
-          Demo is live
+          Reading-room is live &middot; Publishing reopens soon
         </p>
 
         <div id="demo" className="rise mt-8 scroll-mt-24 md:mt-10" style={{ animationDelay: "320ms" }}>
