@@ -46,13 +46,34 @@ the work:
 The default surface is public. A roadmap that cannot be shared without a login
 has missed the point.
 
-Core vocabulary:
+### Lane Vocabulary (locked 2026-06-07 — Dalí walkover row 4)
 
-- `Shipped` for work that is done.
-- `Doing` for work in motion.
-- `Next` for work that is queued.
-- `Held up` or `Blocked` only when the public-roadmap meaning is useful.
-- `Refused` for work that will not happen.
+Signal Roadmap uses **one ladder**: time-buckets, not project-management
+states. The primary lanes are when, not what.
+
+Time-buckets (the primary ladder, one ladder only):
+
+- `Now` — what is moving this week.
+- `Soon` — what is coming up, no action required yet.
+- `Later` — the last things, written down so no one has to ask.
+- `Done` — what has happened.
+- `Refused` — what will not be picked up. Dated. No apology.
+
+Status verbs are **secondary chips only** and should be used sparingly,
+inside a lane card, to call out the one item that needs presence:
+
+- `Waiting on you` — the only chip that carries colour.
+- `Underway` — work in motion (quiet dot).
+- `Coming up` — queued (hollow ring).
+- `Done` — settled (check glyph).
+
+The legacy vocabulary `Shipped / Doing / Next / Held up / Blocked` is
+deprecated as a primary ladder. It may appear inside a workspace owner's
+editor as legacy terminology but must not surface in public copy, demo
+data, or marketing.
+
+All public roadmap surfaces (hero, demo, /the-wedding, [workspace], marketing
+copy) align to the `Now / Soon / Later / Done / Refused` ladder.
 
 ## Locked Refusals
 
