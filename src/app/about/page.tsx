@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { SiteNav } from "@/components/marketing/site-nav";
 import { SiteFooter } from "@/components/marketing/site-footer";
+import { RoadmapDemo } from "@/components/showcase/roadmap-demo";
 import Link from "next/link";
 import { STUDIO_URL, TASKS_URL } from "@/lib/product-urls";
 
@@ -100,6 +101,20 @@ export default function AboutPage() {
               Not a screenshot of a board. Not a waterfall chart. A living document, in plain
               English, that your users can actually read and hold you to.
             </p>
+          </div>
+
+          {/* Live preview — Da Vinci walkover row 13. The about page
+              tells the reader the product is a living document; here it
+              is, running, the same loop the homepage hero shows. No
+              screenshot, no PDF — the product proves itself in place. */}
+          <div className="mb-16 -mx-2 sm:-mx-4 md:-mx-6">
+            <p
+              className="mb-3 px-2 text-[11px] font-semibold uppercase tracking-[0.16em] sm:px-4 md:px-6"
+              style={{ color: "var(--ink-quiet)" }}
+            >
+              The plan, live
+            </p>
+            <RoadmapDemo domain="wedding" />
           </div>
 
           {/* What this isn't */}
