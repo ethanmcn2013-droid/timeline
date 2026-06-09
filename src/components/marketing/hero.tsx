@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { RoadmapDemo } from "@/components/showcase/roadmap-demo";
 import { AddressBarChip } from "@/components/marketing/address-bar-chip";
 
@@ -59,6 +60,26 @@ export function Hero() {
         >
           <span className="block h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-500" />
           Reading-room is live &middot; Publishing reopens soon
+        </p>
+
+        {/* Recipient path — quiet secondary route for the visitor who arrived
+            from someone's shared plan. The hero copy above is written to the
+            prospect considering publishing; this line catches the other
+            audience the mandate names — the one who got a link and is asking
+            "what is this?". /about is the recipient-oriented explainer.
+            (REVIEW Gap 5, L2.) */}
+        <p
+          className="rise mt-3 text-[12.5px]"
+          style={{ color: "var(--ink-quiet)", animationDelay: "300ms" }}
+        >
+          Were you sent this?{" "}
+          <Link
+            href="/about"
+            className="underline underline-offset-2 transition-colors hover:text-ink"
+          >
+            What Signal Roadmap is
+          </Link>
+          .
         </p>
 
         <div id="demo" className="rise mt-8 scroll-mt-24 md:mt-10" style={{ animationDelay: "320ms" }}>
