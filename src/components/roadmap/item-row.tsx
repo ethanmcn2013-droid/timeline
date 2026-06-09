@@ -18,6 +18,7 @@ export function ItemRow({
   showProject = true,
   milestoneLabel,
   attentionReason,
+  isOwner = false,
 }: {
   task: Task;
   workspaceSlug: string;
@@ -32,6 +33,11 @@ export function ItemRow({
    *  only when the current user is the workspace owner — public
    *  stakeholders never receive it, so the indicator can never leak. */
   attentionReason?: AttentionReason | null;
+  /** Threaded from the page so the KIND pill (PAID/POST/KPI/etc.) only
+   *  renders for the workspace owner. The eleven-kind taxonomy is
+   *  internal vocabulary — a stakeholder reading the public plan should
+   *  see the work, not the marketing-team categories it lives under. */
+  isOwner?: boolean;
 }) {
   const isDone = task.status === "shipped";
   const isDoing = task.status === "in-flight";
@@ -70,10 +76,17 @@ export function ItemRow({
         )}
       </div>
 
-      {/* Kind badge — desktop only */}
-      <div className="hidden flex-wrap gap-1 sm:flex">
-        <KindPill kind={task.kind} size="sm" />
-      </div>
+      {/* Kind badge — desktop only. Owner-only: the eleven-kind taxonomy
+          (POST / ASSET / PRESS / PAID / KPI / etc.) reads as marketing-team
+          vocabulary on the public surface — a stakeholder seeing "PAID" next
+          to a deposit item reads it as "paid for". Hidden for non-owners. */}
+      {isOwner ? (
+        <div className="hidden flex-wrap gap-1 sm:flex">
+          <KindPill kind={task.kind} size="sm" />
+        </div>
+      ) : (
+        <div className="hidden sm:block" aria-hidden />
+      )}
 
       {/* Title + meta */}
       <div className="min-w-0">
@@ -162,9 +175,11 @@ export function ItemRow({
         <span className="sm:hidden tabular-nums">
           {task.targetDate ? task.targetDate.slice(5) : "—"}
         </span>
-        <span className="sm:hidden">
-          <KindPill kind={task.kind} size="sm" />
-        </span>
+        {isOwner ? (
+          <span className="sm:hidden">
+            <KindPill kind={task.kind} size="sm" />
+          </span>
+        ) : null}
         <Link
           href={`/${workspaceSlug}/${task.projectSlug}/${task.id}`}
           className="ml-auto hover:text-ink sm:ml-0"

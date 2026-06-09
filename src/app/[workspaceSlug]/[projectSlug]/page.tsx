@@ -241,6 +241,7 @@ export default async function ProjectDrillDownPage({
                             ? computeAttentionReason(t, Date.now())
                             : null
                         }
+                        isOwner={isOwner}
                       />
                     ))}
                   </ul>
