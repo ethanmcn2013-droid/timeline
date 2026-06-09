@@ -578,7 +578,11 @@ async function WorkspaceContentWell({
 
   return (
     <>
-      {isDemoWorkspace && (
+      {/* Demo banner — gated to the owner. A non-owner who follows a shared
+          link to the demo workspace did not arrive looking for "what your
+          roadmap could look like"; they arrived to read the work. The banner
+          is the operator's framing, not the recipient's. (REVIEW Gap 1, L2.) */}
+      {isDemoWorkspace && isOwner && (
         <div
           className="w-full border-b px-6 py-2 text-center text-[12px] text-ink-soft"
           style={{ background: "var(--bg-deep)", borderColor: "var(--line-soft)" }}
@@ -591,18 +595,26 @@ async function WorkspaceContentWell({
         {/* Hero — typographic title + meta strip + progress dial + view switcher */}
         <section className="border-b border-line-soft/60 px-6 pb-10 pt-12">
           <div className="mx-auto w-full max-w-[1240px]">
-            <MetaStrip
-              anchor={workspace.name}
-              items={[
-                dateRange ? `${formatShortDate(dateRange.from)} → ${formatShortDate(dateRange.to)}` : null,
-                dateRange
-                  ? `${weeksBetween(dateRange.from, dateRange.to)} weeks`
-                  : null,
-                milestones.length > 0
-                  ? `${milestones.length} milestone${milestones.length === 1 ? "" : "s"}`
-                  : null,
-              ]}
-            />
+            {/* MetaStrip — owner-only. The uppercase mono row of name ·
+                date-range · weeks · milestone-count is decoration that costs
+                the recipient a full visual sweep before the H1 lands. The
+                title + "Shared by … Last updated …" already carry identity,
+                attribution, and recency for the non-logged-in reader.
+                (REVIEW Gap 1, L2.) */}
+            {isOwner ? (
+              <MetaStrip
+                anchor={workspace.name}
+                items={[
+                  dateRange ? `${formatShortDate(dateRange.from)} → ${formatShortDate(dateRange.to)}` : null,
+                  dateRange
+                    ? `${weeksBetween(dateRange.from, dateRange.to)} weeks`
+                    : null,
+                  milestones.length > 0
+                    ? `${milestones.length} milestone${milestones.length === 1 ? "" : "s"}`
+                    : null,
+                ]}
+              />
+            ) : null}
 
             {/* Title + dial row */}
             <div className="flex items-start justify-between gap-8">
@@ -671,10 +683,15 @@ async function WorkspaceContentWell({
               ) : null}
             </div>
 
-            {/* Stats row — semantic counts — Overview only. The three map
-                views (Roadmap board / Milestones / Schedule) each carry their
-                own counts in-surface; the band there is redundant. */}
-            {hasItems ? (
+            {/* Stats row — semantic counts — owner-only, Overview only.
+                Total · Done · Doing · Next · Waiting · Won't do is the
+                language of a project manager auditing their own grid; the
+                recipient was sent a link to read the work, not to audit lane
+                balances. The brand refuses to reassemble dashboard energy in
+                the hero (BRAND §2.2). The three map views (Roadmap board /
+                Milestones / Schedule) each carry their own counts in-surface;
+                the band there is redundant. (REVIEW Gap 1, L2.) */}
+            {hasItems && isOwner ? (
               <Suspense
                 fallback={
                   // Wrap in data-view-panel="overview" so the pre-paint CSS
@@ -1221,6 +1238,7 @@ function ItemListByProject({
                         attentionReason={
                           isOwner ? computeAttentionReason(t, Date.now()) : null
                         }
+                        isOwner={isOwner}
                       />
                     );
                   })}
