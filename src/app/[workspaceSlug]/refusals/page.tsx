@@ -9,7 +9,6 @@ import {
 import { getCurrentUser } from "@/server/auth";
 import type { Project, Task } from "@/server/db/schema";
 import { WorkspaceHeader } from "@/components/roadmap/workspace-header";
-import { MetaStrip } from "@/components/roadmap/meta-strip";
 import { SiteFooter } from "@/components/marketing/site-footer";
 import Link from "next/link";
 
@@ -26,8 +25,8 @@ export async function generateMetadata({
   const workspace = await getWorkspace(workspaceSlug);
   if (!workspace) return { title: "Not Found" };
   return {
-    title: `Refusals · ${workspace.name} — Roadmap`,
-    description: `Decisions are only legible if you can see the no's — ${workspace.name}.`,
+    title: `What didn't make it · ${workspace.name} — Roadmap`,
+    description: `What ${workspace.name} said no to.`,
   };
 }
 
@@ -73,7 +72,11 @@ export default async function RefusalsPage({
           style={{ borderColor: "color-mix(in srgb, var(--border) 50%, transparent)" }}
         >
           <div className="mx-auto w-full max-w-[1240px]">
-            {/* Breadcrumb */}
+            {/* Breadcrumb — reader vocabulary. "Refusals" is the operator's
+                word; "What didn't make it" is the phrase the recipient
+                already meets in the workspace right rail. One word, one
+                source of truth across nav chip, breadcrumb, and title.
+                (REVIEW Gap 4, L2.) */}
             <nav className="mb-4 flex items-center gap-1.5 text-[11.5px] text-ink-quiet">
               <Link
                 href={`/${workspaceSlug}`}
@@ -82,25 +85,16 @@ export default async function RefusalsPage({
                 {workspace.name}
               </Link>
               <span aria-hidden>/</span>
-              <span className="text-ink">Refusals</span>
+              <span className="text-ink">What didn&rsquo;t make it</span>
             </nav>
 
-            <MetaStrip
-              anchor={workspace.name}
-              items={[
-                "Refusals",
-                refused.length > 0
-                  ? `${refused.length} decision${refused.length === 1 ? "" : "s"}`
-                  : null,
-              ]}
-            />
+            {/* MetaStrip cut — this surface has no timeline or count rhythm
+                to anchor, so the uppercase mono row was pure decoration. The
+                H1 carries the meaning on its own. (REVIEW Gap 4, L2.) */}
 
             <h1 className="text-[clamp(1.75rem,1.5rem+2vw,3rem)] font-semibold tracking-[-0.03em] text-ink-soft">
-              What we said no to.
+              What didn&rsquo;t make it.
             </h1>
-            <p className="mt-3 max-w-lg text-[14px] leading-[1.6] text-ink-quiet">
-              Decisions are only legible if you can see the no&rsquo;s.
-            </p>
           </div>
         </section>
 
