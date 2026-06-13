@@ -1,6 +1,6 @@
-# Signal Roadmap · Product
+# Signal Timeline · Product
 
-Signal Roadmap delivers **direction clarity**.
+Signal Timeline delivers **direction clarity**.
 
 It gives a person one public place to explain what is happening, what changed,
 what is waiting, and what will not be picked up. It is for people who need the
@@ -32,7 +32,7 @@ contains the route, dependency, and preview proof.
 
 ## Audience
 
-Signal Roadmap is for the person who has to explain direction to people outside
+Signal Timeline is for the person who has to explain direction to people outside
 the work:
 
 - Service operators sharing a plan with clients.
@@ -48,7 +48,7 @@ has missed the point.
 
 ### Lane Vocabulary (locked 2026-06-07 — Dalí walkover row 4)
 
-Signal Roadmap uses **one ladder**: time-buckets, not project-management
+Signal Timeline uses **one ladder**: time-buckets, not project-management
 states. The primary lanes are when, not what.
 
 Time-buckets (the primary ladder, one ladder only):
@@ -88,12 +88,12 @@ copy) align to the `Now / Soon / Later / Done / Refused` ladder.
 
 ## Copy Rules
 
-Use full product names in marketing and suite surfaces: Signal Roadmap, Signal
-Tasks, Signal Analytics, Signal Notes.
+Use full product names in marketing and suite surfaces: Signal Timeline, Signal
+Tasks, Signal, Signal Notes.
 
 Do not use "stakeholder", "sprint", "velocity", "backlog export", "project
 management tool", or "engineering team" as positive product language. If a
-forbidden word appears, it should be clearly framed as something Signal Roadmap
+forbidden word appears, it should be clearly framed as something Signal Timeline
 refuses.
 
 Use `hello@signalstudio.ie` for contact. Never use a personal email address in

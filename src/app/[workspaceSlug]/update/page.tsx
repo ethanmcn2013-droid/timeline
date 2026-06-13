@@ -41,7 +41,7 @@ export async function generateMetadata({
   if (!workspace) return { title: "Not Found" };
 
   return {
-    title: `${workspace.name} update — Roadmap`,
+    title: `${workspace.name} update — Timeline`,
     description: `A plain-English update for ${workspace.name}.`,
     openGraph: {
       title: `${workspace.name} update`,

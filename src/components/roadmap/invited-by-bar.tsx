@@ -9,7 +9,7 @@ import type { Workspace } from "@/server/db/schema";
  *
  * Sprint 2 locked refusal: no comment-thread infrastructure. The
  * reply gesture is a mailto link, not a feedback form. Conversations
- * belong in email — Roadmap stays a clarity artefact, not a
+ * belong in email — Timeline stays a clarity artefact, not a
  * collaboration tool.
  *
  * Conditional rendering:

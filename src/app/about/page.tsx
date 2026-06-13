@@ -6,11 +6,11 @@ import Link from "next/link";
 import { STUDIO_URL, TASKS_URL } from "@/lib/product-urls";
 
 export const metadata: Metadata = {
-  title: "About — Signal Roadmap",
+  title: "About — Signal Timeline",
   description:
     "Direction clarity from Signal Studio. Built for people who need the plan without a glossary.",
   openGraph: {
-    title: "About — Signal Roadmap",
+    title: "About — Signal Timeline",
     description:
       "Direction clarity from Signal Studio. Built for people who need the plan without a glossary.",
     type: "website",
@@ -21,7 +21,7 @@ const ANTI_FEATURES = [
   {
     index: "01",
     label: "Not a project management tool",
-    note: "Signal Roadmap is for communicating direction, not managing the work.",
+    note: "Signal Timeline is for communicating direction, not managing the work.",
   },
   {
     index: "02",
@@ -62,7 +62,7 @@ export default function AboutPage() {
             className="mb-8 text-[clamp(2rem,1.5rem+2vw,3rem)] font-semibold leading-[1.05]"
             style={{ letterSpacing: "-0.035em", color: "var(--ink)" }}
           >
-            A roadmap is a promise,<br />not a backlog export.
+            A timeline is a promise,<br />not a backlog export.
           </h1>
 
           <div
@@ -70,7 +70,7 @@ export default function AboutPage() {
             style={{ color: "var(--ink-soft)" }}
           >
             <p>
-              Signal Roadmap is one of four products from{" "}
+              Signal Timeline is one of four products from{" "}
               <a
                 href={STUDIO_URL}
                 target="_blank"
@@ -97,7 +97,7 @@ export default function AboutPage() {
               students, and operators.
             </p>
             <p>
-              We believe your roadmap should be something you&apos;re proud to share publicly.
+              We believe your timeline should be something you&apos;re proud to share publicly.
               Not a screenshot of a board. Not a waterfall chart. A living document, in plain
               English, that your users can actually read and hold you to.
             </p>
@@ -197,7 +197,7 @@ export default function AboutPage() {
               href="/sign-up"
               className="inline-flex items-center gap-1.5 rounded-full bg-ink px-5 py-2.5 text-[14px] font-medium text-white shadow-sm transition-transform hover:-translate-y-px hover:shadow-md"
             >
-              Create your roadmap →
+              Create your timeline →
             </Link>
             <Link
               href="/demo"

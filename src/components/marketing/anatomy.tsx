@@ -10,11 +10,11 @@ import {
 import { useEffect, useRef, useState } from "react";
 
 /**
- * Anatomy of a roadmap item — narrative one-shot.
+ * Anatomy of a timeline item — narrative one-shot.
  *
  * Unlike Tasks (continuous loop, live presence), Notes (~11s loop with
  * settle), and Analytics (~11s tour loop), Roadmap's anatomy is a
- * fundamentally forward-moving sequence — a roadmap item moves through
+ * fundamentally forward-moving sequence — a timeline item moves through
  * states, gathers detail, and culminates in a published link. It does
  * not loop back to blank. The choreography plays once when the section
  * enters view, then holds permanently. `useInView` with `once: true`
@@ -182,20 +182,20 @@ export function ItemAnatomy() {
       <section
         id="anatomy"
         className="scroll-mt-24 px-6 py-20"
-        aria-label="Anatomy of a roadmap item"
+        aria-label="Anatomy of a timeline item"
       >
         <div className="mx-auto w-full max-w-[1240px]">
           <p
             className="mb-4 text-[11px] font-semibold uppercase tracking-[0.16em]"
             style={{ color: "var(--ink-quiet)" }}
           >
-            Anatomy of a roadmap item
+            Anatomy of a timeline item
           </p>
           <h2
             className="mb-4 max-w-xl text-[clamp(1.5rem,1.2rem+1.5vw,2.25rem)] font-semibold leading-[1.1]"
             style={{ letterSpacing: "-0.03em", color: "var(--ink)" }}
           >
-            A roadmap item should explain itself.
+            A timeline item should explain itself.
           </h2>
           <p
             className="mb-10 max-w-[58ch] text-[13.5px] leading-[1.55]"
@@ -452,7 +452,7 @@ function DemoItem({
               letterSpacing: "-0.005em",
             }}
           >
-            roadmap.signalstudio.ie/<span style={{ color: "var(--brand, #4f46e5)", fontWeight: 600 }}>may-client-plan</span>
+            timeline.signalstudio.ie/<span style={{ color: "var(--brand, #4f46e5)", fontWeight: 600 }}>may-client-plan</span>
           </span>
         </motion.div>
       </motion.div>

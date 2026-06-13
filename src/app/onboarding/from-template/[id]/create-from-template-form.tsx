@@ -190,7 +190,7 @@ export function CreateFromTemplateForm({
                 borderRight: "1px solid var(--border)",
               }}
             >
-              roadmap.signalstudio.ie/
+              timeline.signalstudio.ie/
             </span>
             <input
               id="ws-slug"

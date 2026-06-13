@@ -171,7 +171,7 @@ export function RoadmapHeroLoader() {
   }, []);
 
   return (
-    <section className="rml-hero-section" aria-label="Signal Roadmap">
+    <section className="rml-hero-section" aria-label="Signal Timeline">
 
       {/* Layer 0: real Limerick city map — MapLibre GL */}
       <div ref={mapDivRef} className="rml-map-bg" aria-hidden />

@@ -6,9 +6,9 @@ import { TIER_LABEL } from "@/lib/entitlements-shared/tiers";
 import { CreateWorkspaceForm } from "./_components/create-workspace-form";
 import { CreateProjectForm } from "./_components/create-project-form";
 import { PublishControl } from "./_components/publish-control";
-import { ROADMAP_URL } from "@/lib/product-urls";
+import { TIMELINE_URL } from "@/lib/product-urls";
 
-export const metadata = { title: "Dashboard — Roadmap" };
+export const metadata = { title: "Dashboard — Timeline" };
 export const dynamic = "force-dynamic";
 
 export default async function AppPage() {
@@ -33,7 +33,7 @@ export default async function AppPage() {
     isWorkspacePublished(workspace.slug),
     resolveEntitlement(userId),
   ]);
-  const publicBase = process.env.NEXT_PUBLIC_SITE_URL ?? ROADMAP_URL;
+  const publicBase = process.env.NEXT_PUBLIC_SITE_URL ?? TIMELINE_URL;
 
   return (
     <div className="mx-auto w-full max-w-4xl px-6 py-12">

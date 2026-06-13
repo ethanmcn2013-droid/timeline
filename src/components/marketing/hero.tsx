@@ -24,7 +24,7 @@ export function Hero() {
             animationDelay: "40ms",
           }}
         >
-          Signal Roadmap &middot; Direction clarity
+          Signal Timeline &middot; Direction clarity
         </p>
 
         <h1
@@ -77,7 +77,7 @@ export function Hero() {
             href="/about"
             className="underline underline-offset-2 transition-colors hover:text-ink"
           >
-            What Signal Roadmap is
+            What Signal Timeline is
           </Link>
           .
         </p>

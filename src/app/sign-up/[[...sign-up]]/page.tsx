@@ -1,7 +1,7 @@
 import { SignUp } from "@clerk/nextjs";
 import { Wordmark } from "@/components/brand/wordmark";
 
-export const metadata = { title: "Reserve a workspace name — Roadmap" };
+export const metadata = { title: "Reserve a workspace name — Timeline" };
 
 /**
  * Walkover row 8 (Dalí, 2026-06-07): read-only state honesty.

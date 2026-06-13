@@ -34,8 +34,8 @@ export async function generateMetadata({
   ]);
   if (!workspace || !project) return { title: "Not Found" };
   return {
-    title: `${project.name} · ${workspace.name} — Roadmap`,
-    description: project.oneLiner || `Roadmap for ${project.name}.`,
+    title: `${project.name} · ${workspace.name} — Timeline`,
+    description: project.oneLiner || `Timeline for ${project.name}.`,
   };
 }
 

@@ -4,7 +4,7 @@ export const size = { width: 180, height: 180 };
 export const contentType = "image/png";
 
 /**
- * Apple touch icon for Signal Roadmap. Full "roadmap" wordmark
+ * Apple touch icon for Signal Timeline. Full "roadmap" wordmark
  * with the suite-locked indigo dot. Brand-soft tile, ink wordmark,
  * indigo dot — same grammar as tasks/analytics/studio apple-icons.
  * No transparency — Apple draws a tile under transparent icons
@@ -37,7 +37,7 @@ export default function AppleIcon() {
             letterSpacing: "-0.05em",
           }}
         >
-          <span style={{ display: "flex" }}>roadmap</span>
+          <span style={{ display: "flex" }}>timeline</span>
           <span
             style={{
               display: "flex",

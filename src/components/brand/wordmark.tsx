@@ -2,7 +2,7 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 
 /**
- * Signal Roadmap wordmark: "roadmap" + indigo period.
+ * Signal Timeline wordmark: "roadmap" + indigo period.
  *
  * Same typographic family across the suite — lowercase word +
  * indigo dot. Each product carries a distinct gesture inside
@@ -44,7 +44,7 @@ export function Wordmark({
   return (
     <Link
       href={href}
-      aria-label="Signal Roadmap"
+      aria-label="Signal Timeline"
       className={cn(
         "brand-mark relative inline-flex select-none items-baseline font-semibold",
         sizeClass,
@@ -56,7 +56,7 @@ export function Wordmark({
         className="roadmap-wordmark-text"
         style={{ fontWeight: 600, color: "var(--ink)" }}
       >
-        roadmap
+        timeline
       </span>
       {/* `.md` is targeted by `dot-land` in globals.css on cross-product arrival.
           `.roadmap-dot` adds M5 ambient opacity pulse (0.85→1.0, 3s alternate)

@@ -43,7 +43,7 @@ export function LongNowStrip() {
           ))}
         </ol>
         <p className="long-now-foot">
-          A roadmap that stops at the quarter has stopped asking the question.
+          A timeline that stops at the quarter has stopped asking the question.
           We borrow the five-digit year from the Long Now Foundation — older
           than any calendar a piece of software ships with.
         </p>

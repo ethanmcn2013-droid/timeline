@@ -4,7 +4,7 @@ export const size = { width: 32, height: 32 };
 export const contentType = "image/png";
 
 /**
- * Browser tab icon for Signal Roadmap. Compact mark — wordmark
+ * Browser tab icon for Signal Timeline. Compact mark — wordmark
  * "r" on the suite's brand-soft tile, indigo-600 dot bottom-right.
  * Mirrors the pattern used across the suite (tasks/analytics/
  * studio/notes). Reads at 16x16 because the mark is just a glyph
@@ -30,7 +30,7 @@ export default function Icon() {
           borderRadius: 6,
         }}
       >
-        <span style={{ display: "flex", marginLeft: 1 }}>r</span>
+        <span style={{ display: "flex", marginLeft: 1 }}>t</span>
         <span
           style={{
             display: "flex",

@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og";
 
 export const runtime = "nodejs";
-export const alt = "Signal Roadmap — direction clarity for public plans";
+export const alt = "Signal Timeline — direction clarity for public plans";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -60,7 +60,7 @@ export default async function OG() {
               lineHeight: 1,
             }}
           >
-            roadmap
+            timeline
           </div>
         </div>
       </div>

@@ -34,12 +34,12 @@ export async function generateMetadata({
   // signal the overview as the canonical destination via noindex so robots
   // don't waste a crawl on the about-to-redirect URL.
   if (isManualMilestoneId(id)) {
-    return { title: "Roadmap", robots: { index: false, follow: true } };
+    return { title: "Timeline", robots: { index: false, follow: true } };
   }
   const task = await getTask(workspaceSlug, projectSlug, id);
   if (!task) return { title: "Not Found" };
   return {
-    title: `${task.title} — Roadmap`,
+    title: `${task.title} — Timeline`,
     description: task.description || undefined,
   };
 }

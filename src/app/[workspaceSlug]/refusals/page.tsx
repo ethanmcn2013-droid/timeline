@@ -25,7 +25,7 @@ export async function generateMetadata({
   const workspace = await getWorkspace(workspaceSlug);
   if (!workspace) return { title: "Not Found" };
   return {
-    title: `What didn't make it · ${workspace.name} — Roadmap`,
+    title: `What didn't make it · ${workspace.name} — Timeline`,
     description: `What ${workspace.name} said no to.`,
   };
 }

@@ -8,14 +8,14 @@ This version has breaking changes — APIs, conventions, and file structure may 
 
 ## Suite contract
 
-This repo is **Signal Roadmap**, the direction-clarity product in the
+This repo is **Signal Timeline**, the direction-clarity product in the
 Signal Studio suite.
 
 Before copy or product changes, read `docs/PRODUCT.md`. The short version:
 
-- Use the full name `Signal Roadmap` in marketing and cross-product surfaces.
+- Use the full name `Signal Timeline` in marketing and cross-product surfaces.
 - The category is operational clarity, not project management.
-- The canonical public URL is `roadmap.signalstudio.ie`.
+- The canonical public URL is `timeline.signalstudio.ie`.
 - The canonical contact address is `hello@signalstudio.ie`.
 - Public copy must avoid PM vocabulary unless naming a refusal. Prefer plain
   language such as "plan", "decision", "held up", "public link", and

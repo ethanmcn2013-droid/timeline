@@ -3,9 +3,9 @@
 import { useEffect, useRef, useState } from "react";
 import { useUser } from "@clerk/nextjs";
 import {
-  ANALYTICS_URL,
+  SIGNAL_URL,
   NOTES_URL,
-  ROADMAP_URL,
+  TIMELINE_URL,
   STUDIO_URL,
   TASKS_URL,
 } from "@/lib/product-urls";
@@ -21,8 +21,8 @@ const PRODUCTS_MARKETING: {
 }[] = [
   { slug: "notes",     word: "notes",     tagline: "Capture clarity",    url: NOTES_URL },
   { slug: "tasks",     word: "tasks",     tagline: "Execution clarity",  url: TASKS_URL },
-  { slug: "roadmap",   word: "roadmap",   tagline: "Direction clarity",  url: ROADMAP_URL },
-  { slug: "analytics", word: "analytics", tagline: "Attention clarity",  url: ANALYTICS_URL },
+  { slug: "roadmap",   word: "timeline",   tagline: "Direction clarity",  url: TIMELINE_URL },
+  { slug: "analytics", word: "signal", tagline: "Attention clarity",  url: SIGNAL_URL },
 ];
 
 /** App deep-link URLs (shown when authed). §1C labels. Product order (operator-directed 2026-05-18): notes → tasks → roadmap → analytics. */
@@ -34,20 +34,20 @@ const PRODUCTS_APP: {
 }[] = [
   { slug: "notes",     word: "notes",     label: "Open notes",     url: `${NOTES_URL}/app` },
   { slug: "tasks",     word: "tasks",     label: "Open tasks",     url: `${TASKS_URL}/app` },
-  { slug: "roadmap",   word: "roadmap",   label: "Open roadmap",   url: `${ROADMAP_URL}/app` },
-  { slug: "analytics", word: "analytics", label: "Open analytics", url: `${ANALYTICS_URL}/app` },
+  { slug: "roadmap",   word: "timeline",   label: "Open timeline",   url: `${TIMELINE_URL}/app` },
+  { slug: "analytics", word: "signal", label: "Open signal", url: `${SIGNAL_URL}/app` },
 ];
 
 const INDIGO = "#4f46e5";
 
-const PRODUCT_ORIGINS = [NOTES_URL, TASKS_URL, ROADMAP_URL, ANALYTICS_URL];
+const PRODUCT_ORIGINS = [NOTES_URL, TASKS_URL, TIMELINE_URL, SIGNAL_URL];
 
 // App entries per product — prefetch destination for auth state
 const APP_ENTRIES = [
   `${NOTES_URL}/app`,
   `${TASKS_URL}/app`,
-  `${ROADMAP_URL}/app`,
-  `${ANALYTICS_URL}/app`,
+  `${TIMELINE_URL}/app`,
+  `${SIGNAL_URL}/app`,
 ];
 
 /**

@@ -2,7 +2,7 @@
  * Roadmap /app loading boundary — wordmark identity loader.
  *
  * Paints during the cross-origin window when a sibling product hops to
- * /app on roadmap.signalstudio.ie — replaces the bare indigo dot that
+ * /app on timeline.signalstudio.ie — replaces the bare indigo dot that
  * the pre-CSS first-paint would otherwise show. The deeper
  * `(app)/loading.tsx` skeleton continues to handle in-app sub-route
  * Suspense (e.g. /app → /app/plan/[slug]) where the persistent shell

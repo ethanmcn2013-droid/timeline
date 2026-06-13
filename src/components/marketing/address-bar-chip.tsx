@@ -7,14 +7,14 @@ import { useState } from "react";
  * address bar at the top of the page — copy icon included. The point is
  * not navigation; the point is that the URL is the product.
  *
- * Walkover row 2 (Dalí, 2026-06-07): "roadmap.signalstudio.ie/your-plan
+ * Walkover row 2 (Dalí, 2026-06-07): "timeline.signalstudio.ie/your-plan
  * — no login" must be the first thing readable on the homepage above the
  * headline, before any marketing copy explains it.
  */
 export function AddressBarChip() {
   const [copied, setCopied] = useState(false);
 
-  const url = "roadmap.signalstudio.ie/your-plan";
+  const url = "timeline.signalstudio.ie/your-plan";
 
   function onCopy() {
     if (typeof navigator === "undefined" || !navigator.clipboard) return;
@@ -38,7 +38,7 @@ export function AddressBarChip() {
         background: "var(--bg-deep)",
       }}
       role="group"
-      aria-label="Public roadmap URL — no login required"
+      aria-label="Public timeline URL — no login required"
     >
       {/* Lock — the calm signal that this is a normal public URL */}
       <svg

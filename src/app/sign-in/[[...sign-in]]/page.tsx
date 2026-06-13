@@ -2,7 +2,7 @@ import { SignIn } from "@clerk/nextjs";
 import { Wordmark } from "@/components/brand/wordmark";
 import Link from "next/link";
 
-export const metadata = { title: "Sign in — Roadmap" };
+export const metadata = { title: "Sign in — Timeline" };
 
 export default function SignInPage() {
   return (
@@ -15,7 +15,7 @@ export default function SignInPage() {
           className="mb-5 text-[13px]"
           style={{ color: "var(--ink-soft)" }}
         >
-          Sign in to your Roadmap workspace.
+          Sign in to your Timeline workspace.
         </p>
         <SignIn />
         <p className="mt-5 text-[13px]" style={{ color: "var(--ink-quiet)" }}>

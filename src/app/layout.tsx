@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
 import { clerkAppearance } from "@/lib/clerk-appearance";
-import { ROADMAP_URL } from "@/lib/product-urls";
+import { TIMELINE_URL } from "@/lib/product-urls";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -26,13 +26,13 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "Signal Roadmap — direction clarity",
+  title: "Signal Timeline — direction clarity",
   description:
     "Public plans, decisions, and changes written in plain English.",
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? ROADMAP_URL),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? TIMELINE_URL),
   manifest: "/manifest.webmanifest",
   openGraph: {
-    title: "Signal Roadmap — direction clarity",
+    title: "Signal Timeline — direction clarity",
     description:
       "Public plans, decisions, and changes written in plain English.",
     type: "website",

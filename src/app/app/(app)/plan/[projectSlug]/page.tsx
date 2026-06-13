@@ -8,7 +8,7 @@ import {
   isWorkspacePublished,
 } from "@/server/db/queries";
 import { CurationSurface } from "./_components/curation-surface";
-import { ROADMAP_URL } from "@/lib/product-urls";
+import { TIMELINE_URL } from "@/lib/product-urls";
 
 export async function generateMetadata({
   params,
@@ -16,7 +16,7 @@ export async function generateMetadata({
   params: Promise<{ projectSlug: string }>;
 }) {
   const { projectSlug } = await params;
-  return { title: `Plan — ${projectSlug} — Roadmap` };
+  return { title: `Plan — ${projectSlug} — Timeline` };
 }
 
 export default async function PlanPage({
@@ -37,7 +37,7 @@ export default async function PlanPage({
   const project = projects.find((p) => p.slug === projectSlug);
   if (!project) notFound();
 
-  const publicBase = process.env.NEXT_PUBLIC_SITE_URL ?? ROADMAP_URL;
+  const publicBase = process.env.NEXT_PUBLIC_SITE_URL ?? TIMELINE_URL;
   const publicUrl = `${publicBase}/${workspace.slug}`;
 
   return (

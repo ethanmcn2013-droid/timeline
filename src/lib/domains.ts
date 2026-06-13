@@ -62,7 +62,7 @@ export const DOMAINS: Record<DomainId, DomainPack> = {
     label: "Wedding plan",
     description:
       "a planner sharing the build-up with the couple and the venue",
-    workspaceUrl: "roadmap.signalstudio.ie/the-wedding",
+    workspaceUrl: "timeline.signalstudio.ie/the-wedding",
     workspaceTitle: "The plan, in plain English.",
     workspaceEyebrow: "Spring wedding",
     timelineStart: 0, // Jan
@@ -87,7 +87,7 @@ export const DOMAINS: Record<DomainId, DomainPack> = {
     id: "construction",
     label: "Building project",
     description: "a contractor keeping the owner and the trades on the same page",
-    workspaceUrl: "roadmap.signalstudio.ie/oak-house-build",
+    workspaceUrl: "timeline.signalstudio.ie/oak-house-build",
     workspaceTitle: "Where the build is.",
     workspaceEyebrow: "Oak House extension",
     timelineStart: 0,
@@ -113,7 +113,7 @@ export const DOMAINS: Record<DomainId, DomainPack> = {
     label: "Product launch",
     description:
       "a founder or maker telling customers what shipped, what's next, what's held up",
-    workspaceUrl: "roadmap.signalstudio.ie/april-release",
+    workspaceUrl: "timeline.signalstudio.ie/april-release",
     workspaceTitle: "What's shipping this quarter.",
     workspaceEyebrow: "April release",
     timelineStart: 2, // Mar
@@ -138,7 +138,7 @@ export const DOMAINS: Record<DomainId, DomainPack> = {
     id: "startup",
     label: "Startup plan",
     description: "a founder telling investors and collaborators what's actually being built",
-    workspaceUrl: "roadmap.signalstudio.ie/q2-plan",
+    workspaceUrl: "timeline.signalstudio.ie/q2-plan",
     workspaceTitle: "Where we're going.",
     workspaceEyebrow: "Q2 plan",
     timelineStart: 0,

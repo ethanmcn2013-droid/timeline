@@ -65,7 +65,7 @@ export async function generateMetadata({
   const workspace = await getWorkspace(workspaceSlug);
   if (!workspace) return { title: "Not Found" };
   return {
-    title: `${workspace.name} — Roadmap`,
+    title: `${workspace.name} — Timeline`,
     description: `Public roadmap for ${workspace.name}.`,
   };
 }

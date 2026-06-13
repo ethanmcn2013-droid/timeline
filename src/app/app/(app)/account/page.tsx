@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { DangerZone } from "@/components/account/danger-zone";
 
 export const metadata: Metadata = {
-  title: "Account — Signal Roadmap",
+  title: "Account — Signal Timeline",
   description: "Account management.",
 };
 
@@ -12,7 +12,7 @@ export const metadata: Metadata = {
  * /app/account
  *
  * The Account surface in Roadmap. The only thing here today is the
- * irreversible delete — Roadmap doesn't carry profile fields or
+ * irreversible delete — Timeline doesn't carry profile fields or
  * notification preferences of its own (Clerk owns identity; the
  * Analytics product owns email cadence). When future cycles add
  * per-product preferences, they land in additional sections above
@@ -39,7 +39,7 @@ export default async function AccountPage() {
       <p className="mb-8 max-w-[560px] text-[15px] leading-[1.6] text-zinc-700">
         Signed in as <span className="font-medium text-ink">{email}</span>.
         Profile, password, and sign-in methods live in your Clerk account —
-        the destructive action below is the only thing Roadmap controls
+        the destructive action below is the only thing Timeline controls
         directly.
       </p>
 

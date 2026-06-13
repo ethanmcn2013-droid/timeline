@@ -117,7 +117,7 @@ export function CreateWorkspaceForm({ writesPaused = false }: { writesPaused?: b
               className="px-3 py-2.5 text-sm select-none"
               style={{ color: "var(--ink-quiet)", borderRight: "1px solid var(--border)" }}
             >
-              roadmap.signalstudio.ie/
+              timeline.signalstudio.ie/
             </span>
             <input
               id="ws-slug"

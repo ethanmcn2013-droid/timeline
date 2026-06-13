@@ -1,6 +1,6 @@
-# Signal Roadmap Collaboration Loop
+# Signal Timeline Collaboration Loop
 
-Signal Roadmap owns the direction and shareable-output layer of the Signal Studio collaboration loop.
+Signal Timeline owns the direction and shareable-output layer of the Signal Studio collaboration loop.
 
 Core question:
 

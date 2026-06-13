@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
 
 /**
- * PWA manifest — Signal Roadmap.
+ * PWA manifest — Signal Timeline.
  *
  * Direction-clarity product. start_url goes to /app (the authed
  * workspace surface) — a home-screen tap should land where the
@@ -23,8 +23,8 @@ import type { MetadataRoute } from "next";
 export default function manifest(): MetadataRoute.Manifest {
   return {
     id: "/signal-roadmap",
-    name: "Signal Roadmap",
-    short_name: "Roadmap",
+    name: "Signal Timeline",
+    short_name: "Timeline",
     description:
       "Public plans, decisions, and changes written in plain English.",
     start_url: "/app",
@@ -58,8 +58,8 @@ export default function manifest(): MetadataRoute.Manifest {
     ],
     shortcuts: [
       {
-        name: "Your roadmap",
-        short_name: "Roadmap",
+        name: "Your timeline",
+        short_name: "Timeline",
         url: "/app",
         description: "Your workspace.",
       },

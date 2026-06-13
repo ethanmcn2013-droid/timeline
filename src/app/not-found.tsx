@@ -19,7 +19,7 @@ export default function NotFound() {
             className="mb-4 text-[clamp(1.75rem,1.4rem+1.5vw,2.5rem)] font-semibold leading-[1.1]"
             style={{ letterSpacing: "-0.035em", color: "var(--ink)" }}
           >
-            This roadmap doesn&apos;t exist yet.
+            This timeline doesn&apos;t exist yet.
           </h1>
           <p
             className="mb-10 text-[15px] leading-[1.55]"
