@@ -17,10 +17,13 @@ export async function getTasksWorkspacePrefsForEmail(
   const url = process.env.TASKS_DATABASE_URL;
   const authToken = process.env.TASKS_AUTH_TOKEN;
   if (!url || !authToken) return null;
+  // Capture narrowed (non-undefined) values so the closure below keeps the type.
+  const dbUrl: string = url;
+  const dbToken: string = authToken;
 
   let client: Client | null = null;
   function getClient(): Client {
-    if (!client) client = createClient({ url, authToken });
+    if (!client) client = createClient({ url: dbUrl, authToken: dbToken });
     return client;
   }
 
