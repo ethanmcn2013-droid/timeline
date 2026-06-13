@@ -6,8 +6,10 @@ import type { WorkspaceView } from "@/components/showcase/types";
 
 // The four public views. Order here is the tab order.
 const VIEWS: { id: WorkspaceView; label: string }[] = [
+  // `id` is the ?view= URL param + WorkspaceView type (kept stable for deep
+  // links); only the visible label follows the 2026-06-13 product rename.
   { id: "overview", label: "Overview" },
-  { id: "roadmap", label: "Roadmap" },
+  { id: "roadmap", label: "Timeline" },
   { id: "milestones", label: "Milestones" },
   { id: "schedule", label: "Schedule" },
 ];
