@@ -233,6 +233,49 @@ export const demoUpcomingTasks = demoTasks.filter(
   (task) => task.status !== "shipped" && task.status !== "refused",
 );
 
+/**
+ * Synthetic user id used by access-mode demo/review (see lib/access-mode.ts).
+ * In that mode the auth layer resolves to this id and the data layer serves
+ * the in-memory demo workspace above — the real DB is never queried.
+ */
+export const DEMO_USER_ID = "seed-demo-user";
+
+/**
+ * Demo plan nodes for the /app curation surface. Maps the demo tasks to the
+ * EffectiveNode shape the plan editor expects, so the authenticated dashboard
+ * and plan page render fully in demo mode without touching the DB. Lane logic
+ * mirrors `statusToLane` in queries.ts (kept inline to avoid an import cycle).
+ */
+function demoLane(
+  status: string,
+  targetDate: string | null,
+): "Next" | "In flight" | "Shipped" | "Later" {
+  if (status === "shipped") return "Shipped";
+  if (status === "in-flight") return "In flight";
+  if (!targetDate) return "Later";
+  return "Next";
+}
+
+export function demoEffectiveNodes() {
+  return demoTasks.map((t, i) => ({
+    id: t.id,
+    projectSlug: t.projectSlug,
+    workspaceSlug: t.workspaceSlug,
+    title: t.title,
+    status: t.status,
+    targetDate: t.targetDate ?? null,
+    sortOrder: t.sortOrder ?? i,
+    lane: demoLane(t.status, t.targetDate ?? null),
+    hidden: false,
+    laneOverride: null,
+    labelOverride: null,
+    dateOverride: null,
+    source: "synced" as const,
+    driftDetected: false,
+    updatedAt: t.updatedAt,
+  }));
+}
+
 export const weddingDemoWorkspace: Workspace = {
   slug: "wedding-planning",
   name: "Harbour House wedding",

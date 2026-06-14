@@ -21,6 +21,11 @@ import {
 } from "./schema";
 import type { Workspace, Project, ProjectSource, Task, Activity, NodeOverlay } from "./schema";
 import type { Status } from "./schema";
+import { isDemoMode } from "@/lib/access-mode";
+import {
+  demoProjects,
+  demoEffectiveNodes,
+} from "@/lib/roadmap/demo-data";
 
 // Re-export for callers (workspaces.ts action layer)
 export type { NodeOverlay };
@@ -192,6 +197,7 @@ export async function seedWorkspaceFromTemplate({
 export async function getProjectsForWorkspace(
   workspaceSlug: string,
 ): Promise<Project[]> {
+  if (isDemoMode()) return demoProjects;
   return db
     .select()
     .from(projects)
@@ -228,6 +234,8 @@ export async function getProjectsForWorkspace(
 export async function isWorkspacePublished(
   workspaceSlug: string,
 ): Promise<boolean> {
+  // Demo/Review: the seeded workspace is always publishable.
+  if (isDemoMode()) return true;
   // Step 1+2: require ≥1 project, all published.
   const projectRows = await db
     .select({ publishedAt: projects.publishedAt })
@@ -658,6 +666,7 @@ export type EffectiveNode = {
 export const getEffectiveNodesForWorkspace = cache(async (
   workspaceSlug: string,
 ): Promise<EffectiveNode[]> => {
+  if (isDemoMode()) return demoEffectiveNodes();
   const [allMilestoneTasks, allOverlays] = await Promise.all([
     db
       .select()

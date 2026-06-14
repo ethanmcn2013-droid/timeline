@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
 import { clerkAppearance } from "@/lib/clerk-appearance";
+import { DevBanner } from "@/components/dev-banner";
 import { TIMELINE_URL } from "@/lib/product-urls";
 import "./globals.css";
 
@@ -82,6 +83,7 @@ export default function RootLayout({
         <ClerkProvider appearance={clerkAppearance}>
           {children}
         </ClerkProvider>
+        <DevBanner />
       </body>
     </html>
   );

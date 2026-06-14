@@ -3,6 +3,8 @@ import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { getWorkspacesForUser } from "@/server/db/queries";
 import type { Workspace } from "@/server/db/schema";
+import { isDemoMode } from "@/lib/access-mode";
+import { DEMO_USER_ID, demoWorkspace } from "@/lib/roadmap/demo-data";
 
 /**
  * Auth resolution for the Roadmap product.
@@ -29,6 +31,7 @@ function clerkConfigured(): boolean {
  * Clerk not configured.
  */
 export async function getCurrentUser(): Promise<{ userId: string } | null> {
+  if (isDemoMode()) return { userId: DEMO_USER_ID };
   if (!clerkConfigured()) return null;
 
   try {
@@ -48,6 +51,7 @@ export async function getCurrentUser(): Promise<{ userId: string } | null> {
 export async function getCurrentWorkspace(
   userId: string,
 ): Promise<Workspace | null> {
+  if (isDemoMode()) return demoWorkspace;
   const workspaces = await getWorkspacesForUser(userId);
   return workspaces[0] ?? null;
 }
@@ -58,6 +62,10 @@ export async function getCurrentWorkspace(
  * Use at the top of any /app/* server component loader.
  */
 export async function requireUser(): Promise<string> {
+  // Demo/Review: resolve to the synthetic demo user; the data layer serves
+  // the in-memory demo workspace, so no real DB read occurs.
+  if (isDemoMode()) return DEMO_USER_ID;
+
   if (!clerkConfigured()) {
     if (process.env.NODE_ENV === "production") {
       // Clerk env vars dropped in prod — fail closed. Never serve /app/*

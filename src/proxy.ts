@@ -29,6 +29,7 @@ import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
  */
 
 import { NextResponse } from "next/server";
+import { isDemoMode } from "@/lib/access-mode";
 
 // Exact M-route list. Only these routes redirect authed users to /app.
 // /{workspaceSlug}/... is intentionally NOT here (it's category C).
@@ -59,6 +60,11 @@ const clerkConfigured = Boolean(
 );
 
 export default clerkMiddleware(async (auth, req) => {
+  // Demo/Review: /app/* is publicly reachable; the data layer serves the
+  // in-memory demo workspace. Production path below is unchanged. Flip
+  // SIGNAL_ACCESS_MODE back to production to restore the gate.
+  if (isDemoMode()) return;
+
   if (!clerkConfigured) return;
 
   const { userId } = await auth();
