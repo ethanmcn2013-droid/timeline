@@ -35,8 +35,9 @@ dashboard + plan editor.
 cp .env.example .env.local   # set both vars to demo (or review)
 npm run dev
 ```
-Preview deploy: set both env vars to `demo`/`review`. No Clerk/Turso/Upstash
-keys required to render `/app`. Restore production auth by setting both back to
+Preview deploy: set both env vars to `demo`/`review`. Keep the Clerk keys
+present (Clerk's middleware needs them); demo requires no valid session and no
+Turso/Upstash DB to render `/app`. Restore production auth by setting both back to
 `production` (or unsetting — production is the default in a prod build).
 
 ## Review routes

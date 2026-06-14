@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
 import { clerkAppearance } from "@/lib/clerk-appearance";
 import { DevBanner } from "@/components/dev-banner";
+import { clerkPublishableKey } from "@/lib/access-mode";
 import { TIMELINE_URL } from "@/lib/product-urls";
 import "./globals.css";
 
@@ -80,7 +81,10 @@ export default function RootLayout({
           Layer 3/4 (seamless-ecosystem-2026-05-18): SuiteLauncher and
           WorkspaceAuthControls need useUser in the public route tree.
         */}
-        <ClerkProvider appearance={clerkAppearance}>
+        <ClerkProvider
+          publishableKey={clerkPublishableKey()}
+          appearance={clerkAppearance}
+        >
           {children}
         </ClerkProvider>
         <DevBanner />
