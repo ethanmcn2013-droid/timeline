@@ -1,7 +1,7 @@
 import Link from "next/link";
 import type { Task } from "@/server/db/schema";
 import { KindPill } from "./kind-pill";
-import { StatusCircle } from "./milestone-card";
+import { StatusCircle, MilestoneGlyph, isMilestoneItem } from "./milestone-card";
 import type { AttentionReason } from "@/lib/roadmap/needs-attention";
 
 /**
@@ -42,6 +42,7 @@ export function ItemRow({
   const isDone = task.status === "shipped";
   const isDoing = task.status === "in-flight";
   const isStuck = task.status === "waiting";
+  const isMilestone = isMilestoneItem(task);
 
   const rowBg =
     task.isLaunch && !isDone
@@ -59,12 +60,20 @@ export function ItemRow({
         transition: "background var(--motion-fast) var(--ease-standard)",
       }}
     >
-      {/* Status indicator — §1.2 outlined grammar, no status-palette colours */}
+      {/* Status indicator — §1.2 outlined grammar, no status-palette colours.
+          Milestones swap the round circle for the indigo diamond so a dated
+          moment is legible at a glance without a second accent colour. */}
       <span
-        aria-label={`Status: ${task.status}`}
+        aria-label={
+          isMilestone ? `Milestone · ${task.status}` : `Status: ${task.status}`
+        }
         className="row-start-1 inline-flex flex-shrink-0 items-start pt-[3px]"
       >
-        <StatusCircle status={task.status} isMilestone={false} />
+        {isMilestone ? (
+          <MilestoneGlyph status={task.status} />
+        ) : (
+          <StatusCircle status={task.status} isMilestone={false} />
+        )}
       </span>
 
       {/* Date — desktop only */}
@@ -105,15 +114,24 @@ export function ItemRow({
               {projectName}
             </Link>
           ) : null}
-          {task.isLaunch ? (
+          {isMilestone ? (
             <span
-              className="rounded px-1 py-px text-[9.5px] font-semibold uppercase tracking-[0.08em]"
+              className="inline-flex items-center gap-1 rounded px-1.5 py-px text-[9.5px] font-semibold uppercase tracking-[0.08em]"
               style={{
-                background: "var(--roadmap-violet-bg)",
-                color: "var(--roadmap-violet-fg)",
+                background: "var(--accent-soft, #eef2ff)",
+                color: "var(--accent-deep, #4338ca)",
               }}
             >
-              Launch
+              <span
+                aria-hidden
+                className="inline-block h-1.5 w-1.5"
+                style={{
+                  transform: "rotate(45deg)",
+                  borderRadius: 1,
+                  border: "1.25px solid currentColor",
+                }}
+              />
+              Milestone
             </span>
           ) : null}
           {attentionReason ? (

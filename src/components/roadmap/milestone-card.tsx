@@ -17,6 +17,54 @@ export function isManualMilestoneId(id: string): boolean {
 }
 
 /**
+ * True when an item is a milestone — a dated moment the rest of the plan is
+ * building toward, not a routine line item.
+ *
+ * This reuses the flags the model already carries (`kind === "milestone"` set
+ * by the Tasks-side milestone flag, plus the `isLaunch` launch-beat boolean)
+ * rather than introducing a new column. The schema here is DERIVED from Tasks
+ * (see schema.ts header) and must not gain a Roadmap-only field; deriving the
+ * flag keeps the single source of truth in Tasks while letting the public
+ * surface render milestones with a distinct glyph wherever items appear.
+ *
+ * It is NOT a new lane and NOT a drag-bar — a milestone still lives in its
+ * Now / Soon / Later / Done lane and reads as one item with a diamond.
+ */
+export function isMilestoneItem(task: Pick<Task, "kind" | "isLaunch">): boolean {
+  return task.kind === "milestone" || task.isLaunch;
+}
+
+/**
+ * MilestoneGlyph — an 8px outlined indigo diamond, the distinct dated mark
+ * for a milestone item on the public ladder. It stands in for the round
+ * StatusCircle so a reader can pick milestones out of a list at a glance
+ * without a colour key or a second accent (single-indigo lock, DESIGN.md §2).
+ *
+ * Shipped milestones fill solid (paired with the row's strikethrough title);
+ * everything else is a hollow outline. Same 8px footprint and 3px top margin
+ * as StatusCircle so rows stay aligned whether or not an item is a milestone.
+ */
+export function MilestoneGlyph({ status }: { status: Task["status"] }) {
+  const isShipped = status === "shipped";
+  return (
+    <span
+      aria-hidden
+      style={{
+        width: 8,
+        height: 8,
+        flexShrink: 0,
+        display: "inline-block",
+        marginTop: 3,
+        transform: "rotate(45deg)",
+        borderRadius: 1.5,
+        background: isShipped ? "var(--accent, #4f46e5)" : "transparent",
+        border: "1.5px solid var(--accent, #4f46e5)",
+      }}
+    />
+  );
+}
+
+/**
  * Format an ISO date string as "Jun 12" (month abbrev + day).
  * Year appended only when it differs from the current calendar year.
  * CREATIVE_SPEC §1.3 — "always ISO-derived but displayed human."
