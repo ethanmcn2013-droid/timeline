@@ -180,8 +180,21 @@ export function ItemRow({
           </p>
         ) : null}
         {milestoneLabel ? (
-          <p className="mt-1 truncate text-[10.5px] leading-[1.4] text-ink-quiet">
-            <span aria-hidden>→ </span>
+          <p className="mt-1 flex items-center gap-1 truncate text-[10.5px] leading-[1.4] text-ink-quiet">
+            <svg
+              className="shrink-0"
+              width="11"
+              height="11"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden
+            >
+              <path d="M9 6l6 6-6 6" />
+            </svg>
             for{" "}
             <span className="font-medium text-ink-soft">{milestoneLabel}</span>
           </p>

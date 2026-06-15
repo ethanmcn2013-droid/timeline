@@ -22,9 +22,23 @@ export default function SignInPage() {
           New here?{" "}
           <Link
             href="/demo"
-            className="underline underline-offset-2 transition-colors hover:text-ink-soft"
+            className="group inline-flex items-center gap-1 underline underline-offset-2 transition-colors hover:text-ink-soft"
           >
-            See a live demo first →
+            See a live demo first
+            <svg
+              className="transition-transform group-hover:translate-x-0.5 motion-reduce:transition-none"
+              width="12"
+              height="12"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden
+            >
+              <path d="M9 6l6 6-6 6" />
+            </svg>
           </Link>
         </p>
       </main>
