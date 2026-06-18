@@ -51,6 +51,9 @@ export async function deleteAccountForUser(clerkId: string): Promise<void> {
 
   if (taskIds.length > 0) {
     const ids = taskIds.map((t) => t.id);
+    // isolation-ok: owner-scoped cascade. ids derive only from tasks in
+    // this user's owned workspaces (selected above by ownerUserId), so the
+    // taskId filter is tenant-bounded transitively.
     await db.delete(subtasks).where(inArray(subtasks.taskId, ids));
   }
 
@@ -59,5 +62,7 @@ export async function deleteAccountForUser(clerkId: string): Promise<void> {
   await db.delete(projectSources).where(inArray(projectSources.workspaceSlug, slugs));
   await db.delete(tasks).where(inArray(tasks.workspaceSlug, slugs));
   await db.delete(projects).where(inArray(projects.workspaceSlug, slugs));
+  // isolation-ok: owner-scoped cascade. slugs are exactly this user's owned
+  // workspaces (selected above by ownerUserId). Final step of account delete.
   await db.delete(workspaces).where(inArray(workspaces.slug, slugs));
 }

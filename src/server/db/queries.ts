@@ -66,6 +66,10 @@ export type NodeOverlayInput = {
 export const getWorkspace = cache(async (
   slug: string,
 ): Promise<Workspace | null> => {
+  // isolation-ok: public read by design. Signal Timeline has NO private
+  // workspaces (locked product refusal, AGENTS.md) — every timeline is
+  // public-by-default, so resolving one by its public slug is the intended
+  // entry point. There is no private workspace to leak.
   const [row] = await db
     .select()
     .from(workspaces)
