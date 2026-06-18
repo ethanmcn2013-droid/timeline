@@ -187,7 +187,7 @@ export function RoadmapHeroLoader() {
       <div className="rml-chrome rml-chrome-tl">
         <span className="rml-wm">
           signal studio<span className="rml-dot-static" />
-          <span className="rml-sep">/</span>roadmap
+          <span className="rml-sep">/</span>timeline
         </span>
       </div>
       <div className="rml-chrome rml-chrome-tr">
@@ -199,7 +199,7 @@ export function RoadmapHeroLoader() {
       <div className="rml-stage" ref={stageRef} aria-hidden>
         <div className="rml-composer">
           <span className="rml-word">
-            {"roadmap".split("").map((ch, i) => (
+            {"timeline".split("").map((ch, i) => (
               <span key={i} className="rml-letter">{ch}</span>
             ))}
           </span>
@@ -541,6 +541,51 @@ const CSS = `
   100% { transform: scale(1, 1);       opacity: 1; }
 }
 
+/* ─── Timeline track — the dot lays a line, drops a milestone ───────
+   The fitting Signal Timeline gesture: "the line extends." Once the dot
+   has rolled in, each pulse cycle it extrudes a thin track to the right
+   and drops a milestone node at its end — a timeline being laid, in step
+   with the map opening from the same origin. The whole gesture lives in
+   the dot's REST window (>8%, after the impact squish settles) so the
+   dot's scale never distorts the line. --rml-track is the line length.
+   Pseudo-element em = composer size, so it scales with the wordmark. */
+.rml-dot { --rml-track: 0.92em; }
+.rml-dot::before,
+.rml-dot::after { content: ''; position: absolute; pointer-events: none; z-index: 4; }
+.rml-dot::before {
+  left: 100%; top: 50%;
+  height: 1px; width: 0;
+  background: var(--rml-indigo);
+  transform: translateY(-50%);
+  opacity: 0;
+  animation: rml-track var(--rml-pulse-cycle) cubic-bezier(.22,.7,.2,1) var(--rml-pulse-delay) infinite;
+}
+.rml-dot::after {
+  left: calc(100% + var(--rml-track));
+  top: 50%;
+  width: .16em; height: .16em;
+  border-radius: 50%;
+  background: var(--rml-indigo);
+  transform: translate(-50%, -50%) scale(0);
+  opacity: 0;
+  animation: rml-milestone var(--rml-pulse-cycle) cubic-bezier(.34,1.56,.64,1) var(--rml-pulse-delay) infinite;
+}
+@keyframes rml-track {
+  0%, 8%   { width: 0;             opacity: 0; }
+  10%      { width: 0;             opacity: 1; }
+  22%      { width: var(--rml-track); opacity: 1; }
+  33%      { width: var(--rml-track); opacity: 1; }
+  39%      { width: var(--rml-track); opacity: 0; }
+  40%,100% { width: 0;             opacity: 0; }
+}
+@keyframes rml-milestone {
+  0%, 17%  { transform: translate(-50%,-50%) scale(0); opacity: 0; }
+  25%      { transform: translate(-50%,-50%) scale(1); opacity: 1; }
+  33%      { transform: translate(-50%,-50%) scale(1); opacity: 1; }
+  39%      { transform: translate(-50%,-50%) scale(0); opacity: 0; }
+  40%,100% { transform: translate(-50%,-50%) scale(0); opacity: 0; }
+}
+
 /* ─── Intro trails ─────────────────────────────────────────── */
 .rml-trail {
   position: absolute;
@@ -614,8 +659,10 @@ const CSS = `
 @media (prefers-reduced-motion: reduce) {
   .rml-dot, .rml-trail, .rml-ripple, .rml-ripple-slow,
   .rml-caption, .rml-pip, .rml-pulse-ring,
+  .rml-dot::before, .rml-dot::after,
   .rml-map-bg.rml-map-ready { animation: none !important; }
   .rml-dot   { opacity: 1; transform: none; }
+  .rml-dot::before, .rml-dot::after { display: none; }
   .rml-trail, .rml-ripple, .rml-ripple-slow, .rml-pulse-ring { display: none; }
   .rml-map-bg.rml-map-ready {
     opacity: 0.25;
