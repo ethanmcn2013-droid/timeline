@@ -1,7 +1,17 @@
+-- ╔══════════════════════════════════════════════════════════════════════╗
+-- ║  ALREADY APPLIED — DO NOT RUN.  Historical record only.               ║
+-- ║                                                                      ║
+-- ║  This one-time Cycle-7 migration has been applied to production: the  ║
+-- ║  live schema already has workspace_slug NOT NULL + the composite PKs  ║
+-- ║  below, and the repo is many cycles past Cycle 7. Re-running it would ║
+-- ║  DROP and rebuild tables (create-copy-drop-rename). See               ║
+-- ║  drizzle/MIGRATIONS.md and studio/docs/RECOVERY.md §5.                ║
+-- ╚══════════════════════════════════════════════════════════════════════╝
+--
 -- Production migration for Cycle 7 (Roadmap)
 --
 -- Applies to an existing Turso DB that was created via drizzle-kit push
--- (no prior migration history). Run this ONCE manually before deploying.
+-- (no prior migration history). [historical] Run this ONCE manually before deploying.
 --
 -- BEFORE running:
 --   1. Check for legacy null-workspace rows:
