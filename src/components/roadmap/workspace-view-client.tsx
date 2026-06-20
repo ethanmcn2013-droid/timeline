@@ -24,86 +24,49 @@ import type { WorkspaceView } from "@/components/showcase/types";
 // They exist solely as Suspense fallbacks so SSR / JS-disabled visitors
 // see the overview content and nav without waiting for client hydration.
 
-/** Renders children unconditionally — the no-JS baseline for the stats band. */
-export function OverviewOnlyStatic({ children }: { children: ReactNode }) {
-  return <>{children}</>;
-}
-
 /**
- * Renders all four view panels in SSR HTML.
+ * Renders both view panels in SSR HTML.
  *
- * Each panel carries a `data-view-panel` attribute. An inline script
- * (injected early in the page, before first paint) reads `location.search`,
- * sets `data-view="<active>"` on the nearest ancestor wrapper, and a paired
- * CSS rule hides every panel whose `data-view-panel` does not match. This
- * means a deep-linked `?view=schedule` URL shows the schedule panel
- * immediately — no flash, no hydration dependency.
- *
- * When JS is absent (or no `view` param is present) there is no
- * `data-view` attribute, so no CSS rule fires and the overview panel
- * renders normally — the safe, correct default.
+ * Each panel carries a `data-view-panel` attribute. A paired CSS rule
+ * (in [workspaceSlug]/page.tsx) hides the timeline panel by default and
+ * shows the gantt panel, so the bare URL renders the Gantt view even with
+ * no JS. An inline pre-paint script reads `location.search`; when it sees
+ * `?view=timeline` it sets `data-view="timeline"` on the root wrapper, and
+ * the CSS flips which panel shows — no flash, no hydration dependency.
  *
  * Once the client hydrates, `WorkspaceViewBody` takes over and handles
  * subsequent in-page switching.
  */
 export function WorkspaceViewBodyStatic({
-  overview,
-  roadmap,
-  milestones,
-  schedule,
+  gantt,
+  timeline,
 }: {
-  overview: ReactNode;
-  roadmap?: ReactNode;
-  milestones?: ReactNode;
-  schedule?: ReactNode;
+  gantt: ReactNode;
+  timeline: ReactNode;
 }) {
   return (
     <>
-      <div data-view-panel="overview">{overview}</div>
-      {roadmap !== undefined && (
-        <div data-view-panel="roadmap">{roadmap}</div>
-      )}
-      {milestones !== undefined && (
-        <div data-view-panel="milestones">{milestones}</div>
-      )}
-      {schedule !== undefined && (
-        <div data-view-panel="schedule">{schedule}</div>
-      )}
+      <div data-view-panel="gantt">{gantt}</div>
+      <div data-view-panel="timeline">{timeline}</div>
     </>
   );
 }
 
 function activeViewFrom(raw: string | null): WorkspaceView {
-  return raw === "roadmap" || raw === "milestones" || raw === "schedule"
-    ? raw
-    : "overview";
+  return raw === "timeline" ? "timeline" : "gantt";
 }
 
-/** Renders children only when the active view is "overview". Used for the
- *  hero stats band, which the three map views carry in-surface instead. */
-export function OverviewOnly({ children }: { children: ReactNode }) {
-  const view = activeViewFrom(useSearchParams().get("view"));
-  if (view !== "overview") return null;
-  return <>{children}</>;
-}
-
-/** Picks which pre-rendered view body to show. All four are
- *  server-rendered from the same single data fetch and passed in as
- *  already-built nodes; this only toggles visibility. */
+/** Picks which pre-rendered view body to show. Both are server-rendered from
+ *  the same single data fetch and passed in as already-built nodes; this only
+ *  toggles visibility. */
 export function WorkspaceViewBody({
-  overview,
-  roadmap,
-  milestones,
-  schedule,
+  gantt,
+  timeline,
 }: {
-  overview: ReactNode;
-  roadmap: ReactNode;
-  milestones: ReactNode;
-  schedule: ReactNode;
+  gantt: ReactNode;
+  timeline: ReactNode;
 }) {
   const view = activeViewFrom(useSearchParams().get("view"));
-  if (view === "milestones") return <>{milestones}</>;
-  if (view === "schedule") return <>{schedule}</>;
-  if (view === "roadmap") return <>{roadmap}</>;
-  return <>{overview}</>;
+  if (view === "timeline") return <>{timeline}</>;
+  return <>{gantt}</>;
 }

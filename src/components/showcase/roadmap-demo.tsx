@@ -28,7 +28,7 @@ function buildInitialState(domain: DomainId): DemoState {
     cursors: [],
     viewCount: 0,
     scene: "boot",
-    view: "list",
+    view: "gantt",
     domain,
     toast: null,
     followers: 0,
@@ -126,14 +126,14 @@ export function RoadmapDemo({ domain = "wedding" }: Props = {}) {
       setToast(null);
       await wait(300);
 
-      // View morph — demonstrates the two views.
+      // View morph — demonstrates the two views (Gantt ↔ Timeline).
       setScene("view-morph-timeline");
       setView("timeline");
       await wait(2400);
       if (!isCurrent()) return;
 
-      setScene("view-morph-list");
-      setView("list");
+      setScene("view-morph-gantt");
+      setView("gantt");
       await wait(1200);
       if (!isCurrent()) return;
 

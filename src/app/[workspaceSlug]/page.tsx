@@ -7,27 +7,12 @@ import {
   getProjectsForWorkspace,
   getTasksForWorkspace,
   getEffectiveNodesForWorkspace,
-  getUpcomingTasks,
   getLastUpdatedForWorkspace,
   isWorkspacePublished,
 } from "@/server/db/queries";
 import { getCurrentUser } from "@/server/auth";
 import type { Task, Project } from "@/server/db/schema";
 import { WorkspaceHeader } from "@/components/roadmap/workspace-header";
-import { ProjectCard } from "@/components/roadmap/project-card";
-import type { ProjectWithCounts } from "@/components/roadmap/project-card";
-import { ItemRow } from "@/components/roadmap/item-row";
-import { BigStat } from "@/components/roadmap/big-stat";
-import { BlockerCard } from "@/components/roadmap/blocker-card";
-import {
-  attentionReason as computeAttentionReason,
-  countNeedsAttention,
-} from "@/lib/roadmap/needs-attention";
-import {
-  MilestoneCard,
-  isManualMilestoneId,
-  milestoneAnchorId,
-} from "@/components/roadmap/milestone-card";
 import { MetaStrip } from "@/components/roadmap/meta-strip";
 import { ShortcutsOverlay } from "@/components/roadmap/shortcuts-overlay";
 import {
@@ -37,14 +22,10 @@ import {
 import {
   WorkspaceViewBody,
   WorkspaceViewBodyStatic,
-  OverviewOnly,
-  OverviewOnlyStatic,
 } from "@/components/roadmap/workspace-view-client";
-import { ScheduleView } from "@/components/roadmap/schedule-view";
-import { RoadmapFlow } from "@/components/roadmap/roadmap-flow";
-import { MilestoneMap } from "@/components/roadmap/milestone-map";
+import { GanttView } from "@/components/roadmap/gantt-view";
+import { WorkspaceTimeline } from "@/components/roadmap/workspace-timeline";
 import { SiteFooter } from "@/components/marketing/site-footer";
-import Link from "next/link";
 
 // Public roadmap is read-only, ISR with a 5-min window. The page reads
 // NO dynamic APIs (no searchParams/cookies/headers) so this revalidate
@@ -126,11 +107,12 @@ export default async function WorkspaceRoadmapPage({
         // eslint-disable-next-line react/no-danger
         dangerouslySetInnerHTML={{
           __html: `
-[data-workspace-view-root][data-view] [data-view-panel] { display: none; }
-[data-workspace-view-root][data-view="overview"] [data-view-panel="overview"],
-[data-workspace-view-root][data-view="roadmap"] [data-view-panel="roadmap"],
-[data-workspace-view-root][data-view="milestones"] [data-view-panel="milestones"],
-[data-workspace-view-root][data-view="schedule"] [data-view-panel="schedule"] { display: revert; }
+/* Gantt is the default: the timeline panel is hidden until ?view=timeline is
+   deep-linked (set on the root by the pre-paint script below). This default
+   hiding works with no JS at all — the bare URL renders the Gantt view. */
+[data-view-panel="timeline"] { display: none; }
+[data-workspace-view-root][data-view="timeline"] [data-view-panel="timeline"] { display: revert; }
+[data-workspace-view-root][data-view="timeline"] [data-view-panel="gantt"] { display: none; }
 `.trim(),
         }}
       />
@@ -138,7 +120,7 @@ export default async function WorkspaceRoadmapPage({
         // eslint-disable-next-line react/no-danger
         dangerouslySetInnerHTML={{
           __html: `(function(){try{
-var m=location.search.match(/[?&]view=(roadmap|milestones|schedule)(?:&|$)/);
+var m=location.search.match(/[?&]view=(timeline)(?:&|$)/);
 if(!m)return;
 var v=m[1];
 var root=document.querySelector('[data-workspace-view-root]');
@@ -186,7 +168,7 @@ for(var i=0;i<tabs.length;i++){
 // "roadmap" rise with stagger; indigo dot lands with overshoot; canonical
 // Roadmap sweep gesture continues during the wait. Server Component, zero JS.
 function ContentWellFallback() {
-  const word = "roadmap";
+  const word = "timeline";
   return (
     <div
       aria-hidden
@@ -320,17 +302,16 @@ async function WorkspaceContentWell({
     );
   }
 
-  // Single data fetch — all four views share this payload.
+  // Single data fetch — both views share this payload.
   // No per-view branching in the data layer; ISR remains intact.
   // effectiveNodes is included to support manual-only workspaces (D1 fix):
   // milestones created via "+ Add a milestone" live only in node_overlays,
   // not in the tasks table. getEffectiveNodesForWorkspace is React-cached so
   // this call deduplicates with any prior call in the same request.
-  const [projects, allTasks, effectiveNodes, upcoming, lastUpdated] = await Promise.all([
+  const [projects, allTasks, effectiveNodes, lastUpdated] = await Promise.all([
     getProjectsForWorkspace(workspaceSlug),
     getTasksForWorkspace(workspaceSlug),
     getEffectiveNodesForWorkspace(workspaceSlug),
-    getUpcomingTasks(workspaceSlug, 14),
     getLastUpdatedForWorkspace(workspaceSlug),
   ]);
 
@@ -352,58 +333,12 @@ async function WorkspaceContentWell({
     else if (t.status === "refused") counts.refused++;
   }
 
-  // Tier 3 derived attention signal. Computed once per request on the
-  // server; consumed by the owner-only "Needs attention" BigStat below.
-  // Refused tasks are excluded — a dropped item is not drift, and counting
-  // them here would inflate the signal with intentional removals.
-  const needsAttentionCount = countNeedsAttention(
-    allTasks.filter((t) => t.status !== "refused"),
-    Date.now(),
-  );
-
   const projectMap = new Map<string, Project>(projects.map((p) => [p.slug, p]));
 
-  const projectCounts = new Map<
-    string,
-    ProjectWithCounts["counts"] & { total: number }
-  >();
-  for (const p of projects) {
-    projectCounts.set(p.slug, {
-      shipped: 0,
-      "in-flight": 0,
-      waiting: 0,
-      next: 0,
-      refused: 0,
-      total: 0,
-    });
-  }
-  for (const t of allTasks) {
-    const c = projectCounts.get(t.projectSlug);
-    if (!c) continue;
-    c.total++;
-    if (t.status === "shipped") c.shipped++;
-    else if (t.status === "in-flight") c["in-flight"]++;
-    else if (t.status === "waiting") c.waiting++;
-    else if (t.status === "next") c.next++;
-    else if (t.status === "refused") c.refused++;
-  }
-
-  const projectsWithCounts: ProjectWithCounts[] = projects.map((p) => {
-    const c = projectCounts.get(p.slug)!;
-    return { ...p, total: c.total, counts: c };
-  });
-
-  // Non-refused, non-milestone tasks render in the main list. Milestones
-  // and blockers get their own sections above.
+  // Non-refused, non-milestone tasks — the items the Gantt plots.
   const visibleTasks = allTasks.filter(
     (t) => t.status !== "refused" && t.kind !== "milestone",
   );
-  const tasksByProject = new Map<string, Task[]>();
-  for (const t of visibleTasks) {
-    const arr = tasksByProject.get(t.projectSlug) ?? [];
-    arr.push(t);
-    tasksByProject.set(t.projectSlug, arr);
-  }
 
   // Milestones (kind=milestone OR isLaunch), sorted by targetDate asc,
   // un-dated last. Refused milestones drop out.
@@ -420,7 +355,7 @@ async function WorkspaceContentWell({
   // an effective node whose backing task row is already in syncedMilestones.
   const syncedMilestoneIds = new Set(syncedMilestones.map((t) => t.id));
   // Fabricate Task-shaped objects for manual nodes so all downstream consumers
-  // (MilestoneCard, MilestoneMap, ScheduleView, right rail) work unchanged.
+  // (the Gantt + Timeline views, milestone nodes) work unchanged.
   // Only fields actually read by those consumers are populated; the rest get
   // safe zero-values. The first project slug is used as projectSlug because
   // manual nodes are workspace-scoped, not project-scoped at the DB level.
@@ -467,32 +402,6 @@ async function WorkspaceContentWell({
     if (b.targetDate) return 1;
     return a.sortOrder - b.sortOrder;
   });
-
-  // Un-shipped milestones with a date, in chronological order. The
-  // page renders each item with a soft "→ for <milestone>" line pointing at
-  // the earliest such milestone the item falls under (item.targetDate ≤
-  // milestone.targetDate). Refused items skip the line entirely.
-  const pendingMilestones = milestones.filter(
-    (m) => m.status !== "shipped" && m.targetDate,
-  );
-
-  function milestoneFor(t: Task): string | null {
-    if (!t.targetDate) return null;
-    if (t.status === "refused") return null;
-    if (t.kind === "milestone" || t.isLaunch) return null;
-    for (const m of pendingMilestones) {
-      if (t.targetDate <= m.targetDate!) return m.title;
-    }
-    return null;
-  }
-
-  // Blockers: status=waiting items. Surfaced as a card grid above the list.
-  const blockers = allTasks
-    .filter((t) => t.status === "waiting")
-    .sort((a, b) => {
-      if (a.targetDate && b.targetDate) return a.targetDate.localeCompare(b.targetDate);
-      return a.sortOrder - b.sortOrder;
-    });
 
   // Date range across all targetDates for the meta strip.
   const datedTasks = allTasks
@@ -548,12 +457,8 @@ async function WorkspaceContentWell({
     return { inScope, shipped };
   });
 
-  // Serialisable inputs for the client visualisations:
-  // Roadmap flow map: precompute milestoneFor() per task (fn can't cross RSC boundary).
-  // Milestone map: precompute scope + feeding-item statuses per milestone.
-  const milestoneLabels: Record<string, string | null> = {};
-  for (const t of visibleTasks) milestoneLabels[t.id] = milestoneFor(t);
-
+  // Serialisable milestone nodes for the Timeline view: scope + feeding-item
+  // statuses precomputed server-side (functions can't cross the RSC boundary).
   const milestoneNodes = milestones.map((m, i) => {
     const feeding = allTasks
       .filter((t) => {
@@ -682,77 +587,6 @@ async function WorkspaceContentWell({
                 )
               ) : null}
             </div>
-
-            {/* Stats row — semantic counts — owner-only, Overview only.
-                Total · Done · Doing · Next · Waiting · Won't do is the
-                language of a project manager auditing their own grid; the
-                recipient was sent a link to read the work, not to audit lane
-                balances. The brand refuses to reassemble dashboard energy in
-                the hero (BRAND §2.2). The three map views (Roadmap board /
-                Milestones / Schedule) each carry their own counts in-surface;
-                the band there is redundant. (REVIEW Gap 1, L2.) */}
-            {hasItems && isOwner ? (
-              <Suspense
-                fallback={
-                  // Wrap in data-view-panel="overview" so the pre-paint CSS
-                  // rule hides the stats band when a non-overview view is
-                  // deep-linked — consistent with OverviewOnly on the client.
-                  <OverviewOnlyStatic>
-                    <div
-                      data-view-panel="overview"
-                      className="mt-8 flex flex-wrap items-end gap-x-8 gap-y-3"
-                    >
-                      {/* CREATIVE_SPEC §1.6: public view — all var(--ink), no tones.
-                          "Waiting" reads calm to a recipient who doesn't know
-                          the internal language; "Blocked" in red was alarming. */}
-                      <BigStat label="Total" value={counts.total} />
-                      <BigStat label="Done" value={counts.shipped} />
-                      <BigStat label="Doing" value={counts.inFlight} />
-                      <BigStat label="Next" value={counts.next} />
-                      {counts.waiting > 0 ? (
-                        <BigStat label="Waiting" value={counts.waiting} />
-                      ) : null}
-                      {/* Tier 3 derived attention signal — owner-only. A
-                          stakeholder reading the public plan should never see
-                          a "Needs attention" number; it would alarm without
-                          giving them agency. The owner sees it because they
-                          can act on it. */}
-                      {isOwner && needsAttentionCount > 0 ? (
-                        <BigStat
-                          label="Needs attention"
-                          value={needsAttentionCount}
-                        />
-                      ) : null}
-                      {counts.refused > 0 ? (
-                        <BigStat label="Won't do" value={counts.refused} />
-                      ) : null}
-                    </div>
-                  </OverviewOnlyStatic>
-                }
-              >
-                <OverviewOnly>
-                  <div className="mt-8 flex flex-wrap items-end gap-x-8 gap-y-3">
-                    {/* CREATIVE_SPEC §1.6: public view — all var(--ink), no tones. */}
-                    <BigStat label="Total" value={counts.total} />
-                    <BigStat label="Done" value={counts.shipped} />
-                    <BigStat label="Doing" value={counts.inFlight} />
-                    <BigStat label="Next" value={counts.next} />
-                    {counts.waiting > 0 ? (
-                      <BigStat label="Waiting" value={counts.waiting} />
-                    ) : null}
-                    {isOwner && needsAttentionCount > 0 ? (
-                      <BigStat
-                        label="Needs attention"
-                        value={needsAttentionCount}
-                      />
-                    ) : null}
-                    {counts.refused > 0 ? (
-                      <BigStat label="Won't do" value={counts.refused} />
-                    ) : null}
-                  </div>
-                </OverviewOnly>
-              </Suspense>
-            ) : null}
           </div>
         </section>
 
@@ -773,127 +607,37 @@ async function WorkspaceContentWell({
             </div>
           </section>
         ) : (
-          /* All four views are server-rendered once from the single data fetch;
+          /* Both views are server-rendered once from the single data fetch;
              WorkspaceViewBody (client) shows the one matching ?view=.
              Suspense is required by useSearchParams. The static fallback
-             renders the overview in SSR HTML so no-JS visitors see the full
-             roadmap content immediately. */
-          <Suspense
-            fallback={
-              // All four view panels are pre-rendered in the SSR HTML.
-              // The pre-paint inline script + CSS selectively shows only the
-              // panel that matches ?view=, so deep-linked views render
-              // immediately without a flash or hydration wait.
-              // No-JS visitors get the overview (safe default).
-              <WorkspaceViewBodyStatic
-                overview={
-                  <OverviewView
-                    blockers={blockers}
-                    milestones={milestones}
-                    milestoneScopes={milestoneScopes}
-                    projects={projects}
-                    projectsWithCounts={projectsWithCounts}
-                    projectMap={projectMap}
-                    tasksByProject={tasksByProject}
-                    milestoneFor={milestoneFor}
-                    workspaceSlug={workspaceSlug}
-                    upcoming={upcoming}
-                    counts={counts}
-                    isOwner={isOwner}
-                  />
-                }
-                roadmap={
-                  <RoadmapFlow
-                    tasks={visibleTasks}
-                    projects={projects}
-                    milestoneLabels={milestoneLabels}
-                  />
-                }
-                schedule={
-                  <ScheduleView
-                    tasks={visibleTasks}
-                    milestones={milestones}
-                    projects={projects}
-                    projectMap={projectMap}
-                  />
-                }
-                milestones={
-                  milestones.length === 0 ? (
-                    <section className="px-6 py-24 text-center">
-                      <div className="mx-auto max-w-md space-y-2">
-                        <p className="text-[15px] text-ink-soft">
-                          No milestones yet.
-                        </p>
-                        <p className="text-[13px] text-ink-quiet">
-                          This page updates as the plan moves — check back, or
-                          bookmark it.
-                        </p>
-                      </div>
-                    </section>
-                  ) : (
-                    <MilestoneMap
-                      milestones={milestoneNodes}
-                      projects={projects}
-                    />
-                  )
-                }
+             pre-renders both panels in SSR HTML; the pre-paint CSS shows the
+             Gantt by default and the pre-paint script flips to Timeline for a
+             deep-linked ?view=timeline — so no-JS visitors get the Gantt. */
+          (() => {
+            const gantt = (
+              <GanttView
+                tasks={visibleTasks}
+                milestones={milestones}
+                projects={projects}
+                projectMap={projectMap}
               />
-            }
-          >
-            <WorkspaceViewBody
-              overview={
-                <OverviewView
-                  blockers={blockers}
-                  milestones={milestones}
-                  milestoneScopes={milestoneScopes}
-                  projects={projects}
-                  projectsWithCounts={projectsWithCounts}
-                  projectMap={projectMap}
-                  tasksByProject={tasksByProject}
-                  milestoneFor={milestoneFor}
-                  workspaceSlug={workspaceSlug}
-                  upcoming={upcoming}
-                  counts={counts}
-                  isOwner={isOwner}
-                />
-              }
-              roadmap={
-                <RoadmapFlow
-                  tasks={visibleTasks}
-                  projects={projects}
-                  milestoneLabels={milestoneLabels}
-                />
-              }
-              schedule={
-                <ScheduleView
-                  tasks={visibleTasks}
-                  milestones={milestones}
-                  projects={projects}
-                  projectMap={projectMap}
-                />
-              }
-              milestones={
-                milestones.length === 0 ? (
-                  <section className="px-6 py-24 text-center">
-                    <div className="mx-auto max-w-md space-y-2">
-                      <p className="text-[15px] text-ink-soft">
-                        No milestones yet.
-                      </p>
-                      <p className="text-[13px] text-ink-quiet">
-                        This page updates as the plan moves — check back, or
-                        bookmark it.
-                      </p>
-                    </div>
-                  </section>
-                ) : (
-                  <MilestoneMap
-                    milestones={milestoneNodes}
-                    projects={projects}
-                  />
-                )
-              }
-            />
-          </Suspense>
+            );
+            const timeline = (
+              <WorkspaceTimeline
+                milestones={milestoneNodes}
+                projects={projects}
+              />
+            );
+            return (
+              <Suspense
+                fallback={
+                  <WorkspaceViewBodyStatic gantt={gantt} timeline={timeline} />
+                }
+              >
+                <WorkspaceViewBody gantt={gantt} timeline={timeline} />
+              </Suspense>
+            );
+          })()
         )}
       </main>
 
@@ -902,375 +646,7 @@ async function WorkspaceContentWell({
   );
 }
 
-// ── View: Overview ────────────────────────────────────────────────────────────
-// The full layout: blockers, milestones, project cards, item list, right rail.
-// Default when ?view= is absent.
-
-function OverviewView({
-  blockers,
-  milestones,
-  milestoneScopes,
-  projects,
-  projectsWithCounts,
-  projectMap,
-  tasksByProject,
-  milestoneFor,
-  workspaceSlug,
-  upcoming,
-  counts,
-  isOwner,
-}: {
-  blockers: Task[];
-  milestones: Task[];
-  milestoneScopes: { inScope: number; shipped: number }[];
-  projects: Project[];
-  projectsWithCounts: ProjectWithCounts[];
-  projectMap: Map<string, Project>;
-  tasksByProject: Map<string, Task[]>;
-  milestoneFor: (t: Task) => string | null;
-  workspaceSlug: string;
-  upcoming: Task[];
-  counts: {
-    total: number;
-    shipped: number;
-    inFlight: number;
-    waiting: number;
-    next: number;
-    refused: number;
-  };
-  isOwner: boolean;
-}) {
-  return (
-    <div className="mx-auto w-full max-w-[1240px] px-6 py-10">
-      <div className="flex gap-12 lg:gap-16">
-        <div className="min-w-0 flex-1">
-          {/* Blockers card grid */}
-          {blockers.length > 0 ? (
-            <section className="mb-12">
-              <div className="mb-4 flex items-baseline gap-2">
-                <h2 className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-quiet">
-                  Blockers
-                </h2>
-                <span className="text-[11px] text-ink-faint">
-                  · {blockers.length} held up
-                </span>
-              </div>
-              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                {blockers.map((b) => {
-                  const proj = projectMap.get(b.projectSlug);
-                  return (
-                    <BlockerCard
-                      key={b.id}
-                      blocker={b}
-                      workspaceSlug={workspaceSlug}
-                      projectAccent={proj?.accent ?? "var(--brand)"}
-                    />
-                  );
-                })}
-              </div>
-            </section>
-          ) : null}
-
-          {/* Milestones */}
-          {milestones.length > 0 ? (
-            <section className="mb-12">
-              <div className="mb-4 flex items-baseline justify-between gap-3">
-                <div className="flex items-baseline gap-2">
-                  <h2 className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-quiet">
-                    Milestones
-                  </h2>
-                  <span className="text-[11px] text-ink-faint">
-                    · the moments the rest of this is building toward
-                  </span>
-                </div>
-              </div>
-              <div className="grid gap-3 sm:grid-cols-2">
-                {milestones.map((m, i) => {
-                  const scope = milestoneScopes[i];
-                  return (
-                    <MilestoneCard
-                      key={m.id}
-                      milestone={m}
-                      workspaceSlug={workspaceSlug}
-                      progress={
-                        scope.inScope > 0 ? scope.shipped / scope.inScope : 0
-                      }
-                      itemsInScope={scope.inScope}
-                      itemsShipped={scope.shipped}
-                      isManual={isManualMilestoneId(m.id)}
-                    />
-                  );
-                })}
-              </div>
-            </section>
-          ) : null}
-
-          {/* Project cards */}
-          {projects.length > 1 ? (
-            <section className="mb-10">
-              <h2 className="mb-5 text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-quiet">
-                Projects
-              </h2>
-              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {projectsWithCounts.map((p) => (
-                  <ProjectCard
-                    key={p.slug}
-                    project={p}
-                    workspaceSlug={workspaceSlug}
-                  />
-                ))}
-              </div>
-            </section>
-          ) : null}
-
-          {/* All items, grouped by project then week heading */}
-          <ItemListByProject
-            projects={projects}
-            tasksByProject={tasksByProject}
-            milestoneFor={milestoneFor}
-            workspaceSlug={workspaceSlug}
-            isOwner={isOwner}
-          />
-        </div>
-
-        {/* Right rail */}
-        <aside className="hidden w-60 shrink-0 lg:block xl:w-64">
-          <div className="sticky top-20 space-y-8">
-            {/* Coming up — next 14 days */}
-            {upcoming.length > 0 ? (
-              <section>
-                <h3 className="mb-3 text-[10.5px] font-semibold uppercase tracking-[0.14em] text-ink-quiet">
-                  Next 14 days
-                </h3>
-                <ul className="space-y-3">
-                  {upcoming.map((t) => {
-                    const proj = projectMap.get(t.projectSlug);
-                    return (
-                      <li key={t.id}>
-                        <Link
-                          href={`/${workspaceSlug}/${t.projectSlug}/${t.id}`}
-                          className="group flex flex-col gap-0.5"
-                        >
-                          <span
-                            className={
-                              "line-clamp-2 text-[12px] leading-[1.4] transition-colors group-hover:text-ink-soft " +
-                              (t.isLaunch
-                                ? "font-semibold text-ink"
-                                : "text-ink")
-                            }
-                          >
-                            {t.title}
-                          </span>
-                          <span className="text-[10.5px] tabular-nums text-ink-quiet">
-                            {t.targetDate ? formatShortDate(t.targetDate) : null}
-                            {proj ? ` · ${proj.name}` : null}
-                          </span>
-                        </Link>
-                      </li>
-                    );
-                  })}
-                </ul>
-              </section>
-            ) : null}
-
-            {/* Milestones list — T-N treatment */}
-            {milestones.length > 0 ? (
-              <section>
-                <h3 className="mb-3 text-[10.5px] font-semibold uppercase tracking-[0.14em] text-ink-quiet">
-                  Milestones
-                </h3>
-                <ul className="space-y-2.5">
-                  {milestones.slice(0, 5).map((m) => {
-                    const days = m.targetDate
-                      ? daysUntilSimple(m.targetDate)
-                      : null;
-                    const isShipped = m.status === "shipped";
-                    return (
-                      <li
-                        key={m.id}
-                        className="flex items-baseline justify-between gap-2"
-                      >
-                        {isManualMilestoneId(m.id) ? (
-                          <a
-                            href={`#${milestoneAnchorId(m.id)}`}
-                            className={
-                              "min-w-0 truncate text-[12px] transition-colors hover:text-ink-soft " +
-                              (isShipped
-                                ? "text-ink-quiet line-through"
-                                : "font-medium text-ink")
-                            }
-                          >
-                            {m.title}
-                          </a>
-                        ) : (
-                          <Link
-                            href={`/${workspaceSlug}/${m.projectSlug}/${m.id}`}
-                            className={
-                              "min-w-0 truncate text-[12px] transition-colors hover:text-ink-soft " +
-                              (isShipped
-                                ? "text-ink-quiet line-through"
-                                : "font-medium text-ink")
-                            }
-                          >
-                            {m.title}
-                          </Link>
-                        )}
-                        <span className="flex-shrink-0 text-[10.5px] tabular-nums text-ink-quiet">
-                          {isShipped
-                            ? "done"
-                            : days === null
-                              ? "—"
-                              : days === 0
-                                ? "today"
-                                : days < 0
-                                  ? `−${Math.abs(days)}d`
-                                  : `T-${days}`}
-                        </span>
-                      </li>
-                    );
-                  })}
-                </ul>
-              </section>
-            ) : null}
-
-            {/* Shared update */}
-            <section>
-              <h3 className="mb-2 text-[10.5px] font-semibold uppercase tracking-[0.14em] text-ink-quiet">
-                Shared update
-              </h3>
-              <p className="mb-2 text-[12px] leading-[1.45] text-ink-quiet">
-                The short version for anyone who just needs the state of the work.
-              </p>
-              <Link
-                href={`/${workspaceSlug}/update?source=roadmap_share&segment=general&role=viewer&campaign=collaboration_proof&artefact=shared_update`}
-                className="text-[12px] text-ink-quiet underline underline-offset-2 transition-colors hover:text-ink"
-              >
-                Open shared update
-              </Link>
-            </section>
-
-            {/* Refusals link */}
-            {counts.refused > 0 ? (
-              <section>
-                <h3 className="mb-2 text-[10.5px] font-semibold uppercase tracking-[0.14em] text-ink-quiet">
-                  What didn&apos;t make it
-                </h3>
-                <Link
-                  href={`/${workspaceSlug}/refusals`}
-                  className="text-[12px] text-ink-quiet underline underline-offset-2 transition-colors hover:text-ink"
-                >
-                  {counts.refused} refused item{counts.refused !== 1 ? "s" : ""}
-                </Link>
-              </section>
-            ) : null}
-
-          </div>
-        </aside>
-      </div>
-    </div>
-  );
-}
-
-// ── Shared sub-component ──────────────────────────────────────────────────────
-// Item list grouped by project then week heading.
-
-function ItemListByProject({
-  projects,
-  tasksByProject,
-  milestoneFor,
-  workspaceSlug,
-  isOwner,
-}: {
-  projects: Project[];
-  tasksByProject: Map<string, Task[]>;
-  milestoneFor: (t: Task) => string | null;
-  workspaceSlug: string;
-  /** Threaded down so per-row attention indicators only render for the
-   *  owner — public stakeholders never see them. */
-  isOwner: boolean;
-}) {
-  return (
-    <>
-      {projects.map((project) => {
-        const projectTasks = tasksByProject.get(project.slug) ?? [];
-        if (projectTasks.length === 0) return null;
-
-        const groups = groupByWeek(projectTasks);
-
-        return (
-          <section key={project.slug} className="mb-10">
-            {projects.length > 1 ? (
-              <div className="mb-4 flex items-center gap-2">
-                <span
-                  aria-hidden
-                  className="inline-block h-2 w-2 rounded-full"
-                  style={{ background: project.accent }}
-                />
-                <h2 className="text-[13px] font-semibold text-ink">
-                  {project.name}
-                </h2>
-              </div>
-            ) : null}
-
-            {groups.map(({ heading, tasks: groupTasks }) => (
-              <div key={heading ?? "__none__"} className="mb-6">
-                {heading ? (
-                  <div className="mb-2 text-[10.5px] font-semibold uppercase tracking-[0.14em] text-ink-quiet">
-                    {heading}
-                  </div>
-                ) : null}
-                <ul className="overflow-hidden rounded-xl border border-line-soft">
-                  {groupTasks.map((t, i) => {
-                    const label = milestoneFor(t);
-                    const prevLabel =
-                      i > 0 ? milestoneFor(groupTasks[i - 1]) : null;
-                    const showLabel =
-                      label && label !== prevLabel ? label : null;
-                    return (
-                      <ItemRow
-                        key={t.id}
-                        task={t}
-                        workspaceSlug={workspaceSlug}
-                        projectAccent={project.accent}
-                        projectName={project.name}
-                        showProject={projects.length > 1}
-                        milestoneLabel={showLabel}
-                        attentionReason={
-                          isOwner ? computeAttentionReason(t, Date.now()) : null
-                        }
-                        isOwner={isOwner}
-                      />
-                    );
-                  })}
-                </ul>
-              </div>
-            ))}
-          </section>
-        );
-      })}
-    </>
-  );
-}
-
 // ── Helpers ───────────────────────────────────────────────────────────────────
-
-function groupByWeek(
-  tasks: Task[],
-): { heading: string | null; tasks: Task[] }[] {
-  const groups: { heading: string | null; tasks: Task[] }[] = [];
-  let current: { heading: string | null; tasks: Task[] } | null = null;
-
-  for (const t of tasks) {
-    const h = t.weekHeading ?? null;
-    if (!current || current.heading !== h) {
-      current = { heading: h, tasks: [] };
-      groups.push(current);
-    }
-    current.tasks.push(t);
-  }
-
-  return groups;
-}
 
 function weeksBetween(fromIso: string, toIso: string): number {
   const from = new Date(fromIso + "T00:00:00Z").getTime();

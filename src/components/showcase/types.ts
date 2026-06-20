@@ -1,18 +1,20 @@
 import type { DemoRowStatus, DomainId } from "@/lib/domains";
 
 export type RowStatus = DemoRowStatus;
-export type ViewMode = "list" | "timeline";
+// Demo view modes (showcase). "gantt" = duration bars on a month axis;
+// "timeline" = a straight line with milestone points. (2026-06-20: the demo
+// dropped its old "list" mode to mirror the product's two views.)
+export type ViewMode = "gantt" | "timeline";
 
 // ── Public workspace view switcher ──────────────────────────────────────────
-// Four public views. Overview/Roadmap/Milestones shipped in phase 1;
-// "schedule" is the gated fast-follow (P5) — items plotted on a real month
-// axis by targetDate. Keep this union in sync with the VIEWS array in
-// workspace-view-switcher.tsx and the rawView guard in [workspaceSlug]/page.tsx.
-export type WorkspaceView =
-  | "overview"
-  | "roadmap"
-  | "milestones"
-  | "schedule";
+// Two public views (2026-06-20 — replaced Overview/Roadmap/Milestones/Schedule):
+//   · "gantt"    — one bar per item across a month axis, grouped by project.
+//                  The default view (bare URL, no ?view= param).
+//   · "timeline" — a straight line with milestones plotted as points by date.
+// Keep this union in sync with the VIEWS array in workspace-view-switcher.tsx,
+// the rawView guards in workspace-view-client.tsx, and the pre-paint script +
+// CSS in [workspaceSlug]/page.tsx.
+export type WorkspaceView = "gantt" | "timeline";
 
 export type Row = {
   id: string;
@@ -56,7 +58,7 @@ export type Scene =
   | "view-morph-timeline"
   | "timeline-hold"
   | "rss-arrival"
-  | "view-morph-list"
+  | "view-morph-gantt"
   | "cursor-lingers"
   | "cursors-leave"
   | "reset";

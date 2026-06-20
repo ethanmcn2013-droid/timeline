@@ -10,30 +10,9 @@ type Props = {
 
 const ITEMS: { id: ViewMode; label: string; icon: React.ReactNode }[] = [
   {
-    id: "list",
-    label: "List",
-    icon: (
-      <svg
-        width="11"
-        height="11"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2.2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        aria-hidden
-      >
-        <path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01" />
-      </svg>
-    ),
-  },
-  {
-    // Locked vocab: this view is "Schedule" — never "Timeline"/"Gantt"
-    // (unification decision). Internal id stays `timeline` to avoid churning
-    // the showcase ViewMode union; only the user-visible word matters.
-    id: "timeline",
-    label: "Schedule",
+    // Gantt — stacked duration bars.
+    id: "gantt",
+    label: "Gantt",
     icon: (
       <svg
         width="11"
@@ -49,6 +28,29 @@ const ITEMS: { id: ViewMode; label: string; icon: React.ReactNode }[] = [
         <rect x="3" y="6" width="12" height="3" rx="1" />
         <rect x="6" y="11" width="14" height="3" rx="1" />
         <rect x="2" y="16" width="9" height="3" rx="1" />
+      </svg>
+    ),
+  },
+  {
+    // Timeline — a straight line with milestone points.
+    id: "timeline",
+    label: "Timeline",
+    icon: (
+      <svg
+        width="11"
+        height="11"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2.2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        aria-hidden
+      >
+        <path d="M3 12h18" />
+        <circle cx="7" cy="12" r="1.6" fill="currentColor" />
+        <circle cx="13" cy="12" r="1.6" fill="currentColor" />
+        <circle cx="19" cy="12" r="1.6" fill="currentColor" />
       </svg>
     ),
   },

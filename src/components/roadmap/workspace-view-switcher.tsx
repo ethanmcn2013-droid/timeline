@@ -4,14 +4,11 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import type { WorkspaceView } from "@/components/showcase/types";
 
-// The four public views. Order here is the tab order.
+// The two public views. Order here is the tab order. "gantt" is the default
+// (bare URL); "timeline" is the single deep-linkable ?view= value.
 const VIEWS: { id: WorkspaceView; label: string }[] = [
-  // `id` is the ?view= URL param + WorkspaceView type (kept stable for deep
-  // links); only the visible label follows the 2026-06-13 product rename.
-  { id: "overview", label: "Overview" },
-  { id: "roadmap", label: "Timeline" },
-  { id: "milestones", label: "Milestones" },
-  { id: "schedule", label: "Schedule" },
+  { id: "gantt", label: "Gantt" },
+  { id: "timeline", label: "Timeline" },
 ];
 
 /**
@@ -34,7 +31,7 @@ export function WorkspaceViewSwitcherStatic({
   workspaceSlug: string;
 }) {
   function hrefFor(view: WorkspaceView): string {
-    if (view === "overview") return `/${workspaceSlug}`;
+    if (view === "gantt") return `/${workspaceSlug}`;
     return `/${workspaceSlug}?view=${view}`;
   }
 
@@ -48,10 +45,10 @@ export function WorkspaceViewSwitcherStatic({
         }}
       >
         {VIEWS.map((item) => {
-          // SSR default: overview is active. The inline pre-paint script
-          // corrects aria-current + visual state for other deep-linked views
-          // before the browser renders the first frame.
-          const isActive = item.id === "overview";
+          // SSR default: gantt is active. The inline pre-paint script corrects
+          // aria-current + visual state for a deep-linked ?view=timeline before
+          // the browser renders the first frame.
+          const isActive = item.id === "gantt";
           return (
             <a
               key={item.id}
@@ -96,15 +93,10 @@ type Props = {
 export function WorkspaceViewSwitcher({ workspaceSlug }: Props) {
   const searchParams = useSearchParams();
   const rawView = searchParams.get("view");
-  const activeView: WorkspaceView =
-    rawView === "roadmap" ||
-    rawView === "milestones" ||
-    rawView === "schedule"
-      ? rawView
-      : "overview";
+  const activeView: WorkspaceView = rawView === "timeline" ? "timeline" : "gantt";
 
   function hrefFor(view: WorkspaceView): string {
-    if (view === "overview") return `/${workspaceSlug}`;
+    if (view === "gantt") return `/${workspaceSlug}`;
     return `/${workspaceSlug}?view=${view}`;
   }
 

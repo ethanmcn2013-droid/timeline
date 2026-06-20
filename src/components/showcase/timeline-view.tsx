@@ -15,14 +15,15 @@ type Props = {
 };
 
 /**
- * Timeline view — horizontal bars positioned across a month axis.
- * Each row's bar spans from its startMonth to its endMonth, colored by status.
- * A vertical "Today" line marks the current month.
- *
- * Cards (bars) use motion's layoutId so they FLIP smoothly when the parent
- * view morphs between List ↔ Timeline.
+ * Gantt view (showcase) — horizontal duration bars across a month axis. Each
+ * row's bar spans its real startMonth→endMonth from the demo domain pack
+ * (honest here: the demo data carries spans, unlike the live product, which
+ * only has single target dates — see roadmap/gantt-view.tsx). A vertical
+ * "Today" line marks the current month. Bars cross-fade when the demo morphs
+ * between Gantt ↔ Timeline. (2026-06-20: the demo's two views became Gantt +
+ * Timeline; this is the Gantt.)
  */
-export function TimelineView({ rows, domain }: Props) {
+export function DemoGanttView({ rows, domain }: Props) {
   const pack = DOMAINS[domain];
   const windowStart = pack.timelineStart;
   const windowEnd = pack.timelineEnd;

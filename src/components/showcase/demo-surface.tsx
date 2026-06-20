@@ -7,45 +7,36 @@ import {
   type Row,
   type ViewMode,
 } from "./types";
-import { ListView } from "./list-view";
-import { TimelineView } from "./timeline-view";
+import { DemoGanttView } from "./timeline-view";
+import { DemoTimelineView } from "./timeline-points";
 
 type Props = {
   view: ViewMode;
   rows: Row[];
   domain: DomainId;
+  // Retained as optional for call-site compatibility; the Gantt/Timeline views
+  // don't use per-row registration or highlights (those were List-view affordances).
   onRegister?: (id: string, el: HTMLDivElement | null) => void;
   highlights?: Set<string>;
 };
 
 /**
- * The view-switching surface. Cards (rows) have stable layoutIds so motion
- * FLIPs them between List and Timeline geometry. Chrome cross-fades on the
- * trailing tail of the geometry tween.
+ * The view-switching surface: cross-fades between the Gantt (duration bars) and
+ * the Timeline (line of points) on the demo's morph beat.
  */
-export function DemoSurface({
-  view,
-  rows,
-  domain,
-  onRegister,
-  highlights,
-}: Props) {
+export function DemoSurface({ view, rows, domain }: Props) {
   return (
     <div className="relative w-full">
       <AnimatePresence mode="wait" initial={false}>
-        {view === "list" ? (
+        {view === "gantt" ? (
           <motion.div
-            key="list"
+            key="gantt"
             initial={{ opacity: 0, y: 6 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -4 }}
             transition={{ duration: 0.34, ease: EASE_OUT_EXPO }}
           >
-            <ListView
-              rows={rows}
-              onRegister={onRegister}
-              highlights={highlights}
-            />
+            <DemoGanttView rows={rows} domain={domain} />
           </motion.div>
         ) : (
           <motion.div
@@ -55,7 +46,7 @@ export function DemoSurface({
             exit={{ opacity: 0, y: -4 }}
             transition={{ duration: 0.34, ease: EASE_OUT_EXPO }}
           >
-            <TimelineView rows={rows} domain={domain} />
+            <DemoTimelineView rows={rows} domain={domain} />
           </motion.div>
         )}
       </AnimatePresence>
