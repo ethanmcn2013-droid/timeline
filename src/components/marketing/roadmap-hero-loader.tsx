@@ -1,34 +1,33 @@
 "use client";
 
 /**
- * Roadmap hero loader — "the map unfolds."
+ * Timeline hero loader — "the line extends."
  *
- * Real Limerick city map (MapLibre GL + OpenFreeMap vector tiles).
- * Dot rolls in assembling "roadmap." then every 20s pulses —
- * the map radial-reveals from the dot via clip-path, holds, retreats.
+ * Dot rolls in assembling "timeline." then every 20s pulses: it fires
+ * concentric rings and lays a thin timeline track with a milestone node
+ * at its end — the Timeline gesture, on a clean white field. (The earlier
+ * MapLibre Limerick-map background was removed 2026-06-22, review issue 05:
+ * a heavy raster background is off the white-lock register.)
  *
  * SAFETY CONTRACT:
  *   · Fully scoped — every class and @keyframes prefixed `rml-`.
  *   · In-flow only — no position:fixed, no inset:0 globally.
  *   · rAF loop runs only during the intro roll then cancels.
- *   · MapLibre loaded from CDN only on client; script/link cleaned up on unmount.
- *   · prefers-reduced-motion → assembled state, map shown statically.
+ *   · prefers-reduced-motion → assembled state, no animation.
  */
 
 import { useEffect, useRef } from "react";
 
 export function RoadmapHeroLoader() {
   const stageRef  = useRef<HTMLDivElement>(null);
-  const mapDivRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const stage  = stageRef.current;
-    const mapDiv = mapDivRef.current;
-    if (!stage || !mapDiv) return;
+    if (!stage) return;
 
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-    // ── Anchor pulse rings + vignette + map clip to the dot's resting place ──
+    // ── Anchor the pulse rings + track gesture to the dot's resting place ──
     const composerEl = stage.querySelector<HTMLElement>(".rml-composer");
     const dotEl      = stage.querySelector<HTMLElement>(".rml-dot");
     const sectionEl  = stage.closest(".rml-hero-section") as HTMLElement | null;
@@ -49,7 +48,6 @@ export function RoadmapHeroLoader() {
         el.style.opacity   = "1";
         el.style.transform = "translateY(0)";
       });
-      mapDiv.classList.add("rml-map-ready");
       anchorPulse();
       return;
     }
@@ -110,74 +108,14 @@ export function RoadmapHeroLoader() {
     raf = requestAnimationFrame(() => { measure(); raf = requestAnimationFrame(frame); });
     window.addEventListener("resize", measure);
 
-    // ── MapLibre GL — load from CDN, init ghost map ──────────────────────────
-    const cssLink = document.createElement("link");
-    cssLink.rel   = "stylesheet";
-    cssLink.href  = "https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css";
-    document.head.appendChild(cssLink);
-
-    let mapInstance: unknown = null;
-
-    const script   = document.createElement("script");
-    script.src     = "https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js";
-    script.onload  = () => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const ml = (window as any).maplibregl;
-      if (!ml || !mapDiv) return;
-
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const map: any = new ml.Map({
-        container:            mapDiv,
-        interactive:          false,
-        attributionControl:   false,
-        preserveDrawingBuffer: false,
-        style: {
-          version: 8,
-          glyphs:  "https://tiles.openfreemap.org/fonts/{fontstack}/{range}.pbf",
-          sprite:  "https://tiles.openfreemap.org/sprites/ofm_f384/ofm",
-          sources: {
-            openmaptiles: {
-              type:        "vector",
-              url:         "https://tiles.openfreemap.org/planet",
-              attribution: "© OpenStreetMap contributors",
-            },
-          },
-          layers: buildMapStyle(),
-        },
-        center:  [-8.627, 52.674],
-        zoom:    12.4,
-        bearing: 0,
-        pitch:   0,
-      });
-
-      mapInstance = map;
-
-      // Only start animation once tiles have fully rendered
-      map.once("idle", () => {
-        mapDiv.classList.add("rml-map-ready");
-        anchorPulse(); // re-anchor after map renders (layout may have shifted)
-      });
-    };
-    document.head.appendChild(script);
-
     return () => {
       cancelAnimationFrame(raf);
       window.removeEventListener("resize", measure);
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      if (mapInstance) (mapInstance as any).remove?.();
-      script.remove();
-      cssLink.remove();
     };
   }, []);
 
   return (
     <section className="rml-hero-section" aria-label="Signal Timeline">
-
-      {/* Layer 0: real Limerick city map — MapLibre GL */}
-      <div ref={mapDivRef} className="rml-map-bg" aria-hidden />
-
-      {/* Layer 1: vignette — pulls focus to dot origin */}
-      <div className="rml-map-vignette" aria-hidden />
 
       {/* Pulse rings */}
       <span className="rml-pulse-ring rml-pulse-soft" aria-hidden />
@@ -213,94 +151,11 @@ export function RoadmapHeroLoader() {
       </div>
 
       {/* Caption */}
-      <p className="rml-caption">the map unfolds</p>
+      <p className="rml-caption">the long view</p>
 
       <style>{CSS}</style>
     </section>
   );
-}
-
-// ─── MapLibre style — Limerick ghost palette (matches loader.html exactly) ───
-function buildMapStyle() {
-  function z(...pairs: number[]) {
-    const stops: number[] = [];
-    for (let i = 0; i < pairs.length; i += 2) stops.push(pairs[i], pairs[i + 1]);
-    return ["interpolate", ["linear"], ["zoom"], ...stops];
-  }
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  function fill(id: string, sourceLayer: string, color: string, opacity: number, filter?: any[]) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const l: any = {
-      id, type: "fill",
-      source: "openmaptiles",
-      "source-layer": sourceLayer,
-      paint: { "fill-color": color, "fill-opacity": opacity },
-    };
-    if (filter) l.filter = filter;
-    return l;
-  }
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  function casing(id: string, filter: any[], color: string, width: unknown) {
-    return {
-      id, type: "line",
-      source: "openmaptiles",
-      "source-layer": "transportation",
-      filter,
-      layout: { "line-cap": "round", "line-join": "round" },
-      paint: { "line-color": color, "line-width": width },
-    };
-  }
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  function road(id: string, filter: any[], color: string, width: unknown, cap = "round", extra: Record<string, unknown> = {}) {
-    return {
-      id, type: "line",
-      source: "openmaptiles",
-      "source-layer": "transportation",
-      filter,
-      layout: { "line-cap": cap, "line-join": "round" },
-      paint: { "line-color": color, "line-width": width, ...extra },
-    };
-  }
-
-  return [
-    // Canvas
-    { id: "background", type: "background", paint: { "background-color": "#ffffff" } },
-
-    // Landuse — warm stone fills, no green
-    fill("lu-residential", "landuse", "#F5F4F1", 0.55, ["in", "class", "residential", "suburbs"]),
-    fill("lu-commercial",  "landuse", "#F2F0EC", 0.50, ["in", "class", "commercial",  "retail"]),
-    fill("lu-industrial",  "landuse", "#EDEAE6", 0.45, ["in", "class", "industrial",  "garages", "railway"]),
-
-    // Water — Shannon in soft lavender, fill only, no lines
-    { id: "water-fill", type: "fill", source: "openmaptiles", "source-layer": "water",
-      paint: { "fill-color": "#DDD8FC", "fill-opacity": 0.85 } },
-
-    // Buildings — ghost texture only
-    { id: "bldg", type: "fill", source: "openmaptiles", "source-layer": "building",
-      minzoom: 13,
-      paint: { "fill-color": "#EDEAE7",
-               "fill-opacity": ["interpolate", ["linear"], ["zoom"], 13, 0.15, 15, 0.45] } },
-
-    // Road casings — paper-white gap lines only
-    casing("rc-tertiary",  ["==", "class", "tertiary"],  "#ffffff", z(12, 1.5, 17, 5)),
-    casing("rc-secondary", ["==", "class", "secondary"], "#ffffff", z(11, 2,   17, 7)),
-    casing("rc-primary",   ["==", "class", "primary"],   "#ffffff", z(11, 2.5, 17, 9)),
-    casing("rc-trunk",     ["==", "class", "trunk"],     "#ffffff", z(10, 3,   17, 10)),
-    casing("rc-motorway",  ["==", "class", "motorway"],  "#ffffff", z(9,  4,   17, 12)),
-
-    // Road fills — all warm stone, narrow tone range, no bright indigo
-    road("r-living",   ["==", "class", "living_street"],             "#DCDAD5", z(13, 0.5, 17, 2)),
-    road("r-res",      ["==", "class", "residential"],               "#D8D6D2", z(12, 0.5, 17, 2.5)),
-    road("r-service",  ["==", "class", "service"],                   "#D4D2CE", z(13, 0.5, 17, 2)),
-    road("r-minor",    ["in",  "class", "minor", "unclassified"],    "#D0CECC", z(12, 0.6, 17, 2.5)),
-    road("r-tertiary", ["==", "class", "tertiary"],                  "#C8C6C2", z(11, 0.8, 17, 3.5)),
-    road("r-secondary",["==", "class", "secondary"],                 "#BFBDB9", z(10, 1,   17, 5)),
-    road("r-primary",  ["==", "class", "primary"],                   "#B4B2AE", z(10, 1.2, 17, 6)),
-    road("r-trunk",    ["==", "class", "trunk"],                     "#BCBACE", z(10, 1.5, 17, 7), "butt"),
-    road("r-motorway", ["==", "class", "motorway"],                  "#AEACBF", z(9,  1.8, 17, 8), "butt"),
-
-    // NO labels
-  ];
 }
 
 // ─── Scoped CSS ───────────────────────────────────────────────────────────────
@@ -331,65 +186,6 @@ const CSS = `
   --rml-font: var(--font-geist-sans, 'Geist', system-ui, sans-serif);
   --rml-mono: var(--font-geist-mono, 'Geist Mono', ui-monospace, monospace);
 }
-
-/* ─── MapLibre map container ───────────────────────────────── */
-.rml-map-bg {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  z-index: 0;
-  opacity: 0;
-  clip-path: circle(0% at var(--rml-origin-x) var(--rml-origin-y));
-}
-/* Fires once MapLibre tiles are idle */
-.rml-map-bg.rml-map-ready {
-  animation: rml-map-pulse var(--rml-pulse-cycle) linear var(--rml-pulse-delay) infinite;
-}
-
-/* ── Map pulse choreography (20s cycle, mirrors loader.html exactly) ──
-   Physics: dot squishes at 0% → ring fires at 0.5% → map seeds at 0.5%
-   Timeline:
-     0.00s  dot impact + squish
-     0.10s  ring fires, map seeds (shockwave)
-     1.80s  map 65% open
-     2.00s  map fully open, peak opacity 0.34
-     2–5s   3s exact hold, completely still
-     5–7s   stage 1: slow graceful retreat
-     7–8s   stage 2: decisive snap back
-     8–20s  12s rest
-*/
-@keyframes rml-map-pulse {
-  0%   { clip-path: circle(0%  at var(--rml-origin-x) var(--rml-origin-y)); opacity: 0;    }
-  0.5% { clip-path: circle(4%  at var(--rml-origin-x) var(--rml-origin-y)); opacity: 0.06; }
-  9%   { clip-path: circle(65% at var(--rml-origin-x) var(--rml-origin-y)); opacity: 0.33; }
-  10%  { clip-path: circle(80% at var(--rml-origin-x) var(--rml-origin-y)); opacity: 0.34; }
-  25%  { clip-path: circle(80% at var(--rml-origin-x) var(--rml-origin-y)); opacity: 0.34; }
-  35%  { clip-path: circle(45% at var(--rml-origin-x) var(--rml-origin-y)); opacity: 0.12; }
-  40%  { clip-path: circle(0%  at var(--rml-origin-x) var(--rml-origin-y)); opacity: 0;    }
-  100% { clip-path: circle(0%  at var(--rml-origin-x) var(--rml-origin-y)); opacity: 0;    }
-}
-
-/* ─── Vignette — pulls focus to dot origin ─────────────────── */
-.rml-map-vignette {
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  pointer-events: none;
-  background: radial-gradient(
-    ellipse 75% 70% at var(--rml-origin-x) var(--rml-origin-y),
-    transparent 30%,
-    rgba(255,255,255,0.40) 55%,
-    rgba(255,255,255,0.80) 78%,
-    rgba(255,255,255,0.97) 100%
-  );
-}
-
-/* ─── Strip MapLibre chrome ────────────────────────────────── */
-.rml-map-bg .maplibregl-ctrl-attrib,
-.rml-map-bg .maplibregl-ctrl-bottom-left,
-.rml-map-bg .maplibregl-ctrl-bottom-right,
-.rml-map-bg .maplibregl-ctrl-top-left,
-.rml-map-bg .maplibregl-ctrl-top-right { display: none !important; }
 
 /* ─── Pulse rings ──────────────────────────────────────────── */
 .rml-pulse-ring {
@@ -659,15 +455,10 @@ const CSS = `
 @media (prefers-reduced-motion: reduce) {
   .rml-dot, .rml-trail, .rml-ripple, .rml-ripple-slow,
   .rml-caption, .rml-pip, .rml-pulse-ring,
-  .rml-dot::before, .rml-dot::after,
-  .rml-map-bg.rml-map-ready { animation: none !important; }
+  .rml-dot::before, .rml-dot::after { animation: none !important; }
   .rml-dot   { opacity: 1; transform: none; }
   .rml-dot::before, .rml-dot::after { display: none; }
   .rml-trail, .rml-ripple, .rml-ripple-slow, .rml-pulse-ring { display: none; }
-  .rml-map-bg.rml-map-ready {
-    opacity: 0.25;
-    clip-path: circle(80% at var(--rml-origin-x) var(--rml-origin-y));
-  }
   .rml-caption { opacity: 1; }
   .rml-letter  { opacity: 1; transform: none; }
 }

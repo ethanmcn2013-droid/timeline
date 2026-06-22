@@ -127,18 +127,21 @@ export function RoadmapDemo({ domain = "wedding" }: Props = {}) {
       await wait(300);
 
       // View morph — demonstrates the two views (Gantt ↔ Timeline).
+      // The Timeline view is the payoff of the loop, so it dwells: long
+      // enough to actually read the plain-English plan before it flips back
+      // (review issue 04 — the previous 2.4s was too quick to land).
       setScene("view-morph-timeline");
       setView("timeline");
-      await wait(2400);
+      await wait(5200);
       if (!isCurrent()) return;
 
       setScene("view-morph-gantt");
       setView("gantt");
-      await wait(1200);
+      await wait(2200);
       if (!isCurrent()) return;
 
       setScene("reset");
-      await wait(800);
+      await wait(1000);
     }
 
     let cancelled = false;
