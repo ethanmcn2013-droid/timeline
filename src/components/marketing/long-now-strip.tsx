@@ -1,11 +1,11 @@
 /**
  * Long Now Strip — Da Vinci row 9.
  *
- * A thin editorial band that names the planning horizon. Most roadmap
- * tools die at the quarter; this one says the horizon stretches. The
+ * A thin editorial band that names the planning horizon. Most tools
+ * stop at the quarter; this one says the horizon stretches further. The
  * strip lists six time anchors — this week → 02030 — quietly, in the
- * mono register. The five-digit year is a borrow from the Long Now
- * Foundation: the convention is older than software calendars.
+ * mono register. The five-digit year is a deliberate signal that the
+ * work outlasts any single calendar.
  *
  * Server-rendered, zero JS, reduced-motion-safe by construction.
  * Sits between Hero and ItemAnatomy as the "and how long does it
@@ -14,7 +14,7 @@
  */
 
 const HORIZON: { label: string; sense: string }[] = [
-  { label: "this week",   sense: "shipped" },
+  { label: "this week",   sense: "done" },
   { label: "this month",  sense: "in flight" },
   { label: "this quarter", sense: "named" },
   { label: "this year",   sense: "earned" },
@@ -44,8 +44,8 @@ export function LongNowStrip() {
         </ol>
         <p className="long-now-foot">
           A timeline that stops at the quarter has stopped asking the question.
-          We borrow the five-digit year from the Long Now Foundation — older
-          than any calendar a piece of software ships with.
+          The five-digit year is a quiet reminder that the work outlasts any
+          single calendar.
         </p>
       </div>
       <style>{LONG_NOW_CSS}</style>
