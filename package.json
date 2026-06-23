@@ -10,7 +10,7 @@
     "typecheck": "tsc --noEmit",
     "db:push": "drizzle-kit push --force",
     "db:generate": "drizzle-kit generate",
-    "test": "bash scripts/check-suiteloader-identity.sh && node --test src/server/cross-tenant-isolation.test.mjs && node --experimental-vm-modules --test src/server/db/queries.test.ts && tsx --test src/server/sync/tasks-milestone-source.test.ts src/components/roadmap/milestone-card.test.ts src/lib/roadmap/needs-attention.test.ts",
+    "test": "bash scripts/check-suiteloader-identity.sh && node --test src/server/cross-tenant-isolation.test.mjs && node --experimental-vm-modules --test src/server/db/queries.test.ts && tsx --test src/server/sync/tasks-milestone-source.test.ts src/components/roadmap/milestone-card.test.ts src/lib/roadmap/needs-attention.test.ts src/server/account-erasure.test.ts",
     "seed:demo": "tsx scripts/seed-demo.ts",
     "sync:templates": "tsx scripts/sync-templates.ts"
   },
