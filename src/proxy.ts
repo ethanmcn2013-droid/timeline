@@ -65,7 +65,18 @@ export default clerkMiddleware(async (auth, req) => {
   // SIGNAL_ACCESS_MODE back to production to restore the gate.
   if (isDemoMode()) return;
 
-  if (!clerkConfigured) return;
+  if (!clerkConfigured) {
+    // Fail CLOSED in production. A prod deploy missing Clerk keys must
+    // not silently serve /app unauthenticated — the proxy is the edge
+    // backstop. Locally we still pass through so dev runs before keys
+    // are provisioned.
+    if (process.env.NODE_ENV === "production") {
+      return new NextResponse("Authentication is not configured.", {
+        status: 503,
+      });
+    }
+    return;
+  }
 
   const { userId } = await auth();
 
