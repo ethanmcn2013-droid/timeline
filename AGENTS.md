@@ -1,15 +1,15 @@
 <!-- BEGIN:nextjs-agent-rules -->
 # This is NOT the Next.js you know
 
-This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` before writing any code. Heed deprecation notices.
+This version has breaking changes. APIs, conventions, and file structure may all
+differ from your training data. Read the relevant guide in
+`node_modules/next/dist/docs/` before writing code. Heed deprecation notices.
 <!-- END:nextjs-agent-rules -->
 
-# End-of-cycle ritual
+# AGENTS.md - Signal Timeline
 
-## Suite contract
-
-This repo is **Signal Timeline**, the direction-clarity product in the
-Signal Studio suite.
+This repo is Signal Timeline, the direction-clarity product in the Signal Studio
+suite.
 
 Before copy or product changes, read `docs/PRODUCT.md`. The short version:
 
@@ -25,24 +25,38 @@ Before copy or product changes, read `docs/PRODUCT.md`. The short version:
 
 If the repo does not contain a capability, do not market it as shipped.
 
-## Signal HQ sync
+## Signal HQ Sync
 
-Signal HQ lives in the Studio repo at `ethanmcn2013-droid/studio` and is the internal source of truth for product, launch, growth, decisions, risks, metrics, and next actions.
+Signal HQ lives in the Studio repo and is the internal source of truth for
+product, launch, growth, decisions, risks, metrics, and next actions.
 
-When a change in Roadmap affects product state, roadmap, launch readiness, GTM, messaging, campaigns, demos, templates, outreach, pilots, metrics, decisions, risks, or strategic learning, update Signal HQ before the task is complete.
+When a change in Timeline affects product state, launch readiness, GTM,
+messaging, campaigns, demos, templates, outreach, pilots, metrics, decisions,
+risks, or strategic learning, update Signal HQ before the task is complete.
 
-Before invite, sharing, guest access, public roadmap, stakeholder update, or source-tracking work, read `docs/COLLABORATION_LOOP.md`. Roadmap owns the direction and shareable-output moment in the collaboration loop.
+Before invite, sharing, guest access, public Timeline, collaborator update, or
+source-tracking work, read `docs/COLLABORATION_LOOP.md`. Timeline owns the
+direction and shareable-output moment in the collaboration loop.
 
-In practice, open or update a Studio PR that changes:
+Open or update a Studio PR that changes the canonical source file:
 
-- `src/lib/hq/data.ts`
-- `src/lib/hq/signals.ts` if derived signal logic changes
-- relevant files under `signal-growth/`
-- `CHANGELOG.md` for meaningful operator-visible changes — write entries in the dispatch shape (Studio BRAND.md §6.5): `## YYYY-MM-DD · R·NN · verb · headline`, then a bold impact-lead sentence, then prose. Verbs are `ships / tightens / cuts / holds / reads`.
+- feature scope, status, or impact: `content/hq/features/<id>.md`
+- risk surfaced or mitigation changed: `content/hq/risks/<id>.md`
+- decision affecting pricing, brand, GTM, or product: `content/hq/decisions/<id>.md`
+- campaign goal, blocker, or progress: `content/hq/campaigns/<id>.md`
+- cross-product flow, data shape, or cron schedule: `content/atlas/<slug>.md`
+- growth learning: relevant files under `signal-growth/`
+- shipped operator-visible change: `CHANGELOG.md`
 
-Also bump `seedHqData.updatedAt` so `/hq` can detect newer repo-backed data.
+Do not update `src/lib/hq/data.ts` unless the live Studio code path still reads
+from it. The markdown and typed source files above are canonical for migrated HQ
+sections.
 
-After a cycle ships in Roadmap (Vercel deploy succeeded, dispatch entry written in CHANGELOG.md per Studio BRAND.md §6.5, phase.md bumped), log the cycle from the Tasks repo:
+## End-Of-Cycle Ritual
+
+After a cycle ships in Timeline, meaning Vercel deploy succeeded, dispatch entry
+was written in `CHANGELOG.md`, and `phase.md` was bumped, log the cycle from the
+Tasks repo:
 
 ```bash
 cd ~/Projects/personal/tasks && npx tsx scripts/log-cycle.ts \
@@ -53,8 +67,11 @@ cd ~/Projects/personal/tasks && npx tsx scripts/log-cycle.ts \
   --description "<one-paragraph what-and-why>"
 ```
 
-This pushes a row into the shared Turso DB so `ethanmcnamara.com/roadmap` stays accurate across all products.
+This pushes a row into the shared Turso DB so `ethanmcnamara.com/roadmap` stays
+accurate across all products.
 
-`npx tsx scripts/check-cycles.ts` (from Tasks) prints max-cycle-per-project — run it any time you suspect drift between phase.md and the live DB.
+`npx tsx scripts/check-cycles.ts` from Tasks prints max-cycle-per-project. Run it
+when you suspect drift between `phase.md` and the live DB.
 
-The Turso URL + token come from `.env.local` in the Tasks repo. The script writes straight to prod; there is no staging.
+The Turso URL and token come from `.env.local` in the Tasks repo. The script
+writes straight to prod; there is no staging.
