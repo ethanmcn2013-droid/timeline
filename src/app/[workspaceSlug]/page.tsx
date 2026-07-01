@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { formatRelative } from "@/lib/format";
+import { currentState, type CurrentState } from "@/lib/roadmap/current-state";
 import {
   getWorkspace,
   getProjectsForWorkspace,
@@ -435,6 +436,15 @@ async function WorkspaceContentWell({
     ? workspace.name
     : `${workspace.name}.`;
 
+  // Single-glance verdict — "where does this stand?" answered before
+  // the title lands. Derived entirely from data already fetched; no
+  // extra query, ISR intact. Renders on every breakpoint (the
+  // milestone emphasis block is desktop-only; this line is the
+  // mobile reader's only date read).
+  const verdict = hasItems
+    ? currentState(allTasks, milestones, Date.now())
+    : null;
+
   // Per-milestone progress: share of non-refused dated items due on or
   // before the milestone date that have shipped. Cheap O(n·m).
   const milestoneScopes = milestones.map((m) => {
@@ -524,6 +534,7 @@ async function WorkspaceContentWell({
             {/* Title + dial row */}
             <div className="flex items-start justify-between gap-8">
               <div className="min-w-0 flex-1">
+                {verdict ? <CurrentStateLine state={verdict} /> : null}
                 <h1 className="text-[clamp(1.85rem,1.25rem+2.8vw,3.75rem)] font-semibold leading-[1.02] tracking-[-0.035em] text-ink text-balance">
                   {heroTitle}
                 </h1>
@@ -680,6 +691,41 @@ function daysUntilSimple(iso: string): number {
     today.getUTCDate(),
   );
   return Math.round((target - todayUTC) / (1000 * 60 * 60 * 24));
+}
+
+/**
+ * Single-glance current-state line — the first thing a recipient reads.
+ *
+ * One sentence in the product's voice, above the title:
+ *   "On track for Jun 14."          (dot: shipped-green)
+ *   "Aiming for Jun 14."            (dot: flight-amber — honest, unshaming)
+ *   "Everything here has shipped."  (dot: shipped-green)
+ *
+ * No counts, no percentages, no red. The verb carries the truth; the
+ * receipts stay on owner surfaces. Server-rendered, zero JS.
+ */
+function CurrentStateLine({ state }: { state: CurrentState }) {
+  const label =
+    state.kind === "shipped"
+      ? "Everything here has shipped."
+      : state.kind === "on-track"
+        ? `On track for ${formatShortDate(state.date)}.`
+        : `Aiming for ${formatShortDate(state.date)}.`;
+  const dot =
+    state.kind === "aiming"
+      ? "var(--status-flight, #f59e0b)"
+      : "var(--status-shipped, #10b981)";
+
+  return (
+    <p className="mb-3 flex items-center gap-2 text-[13.5px] font-medium text-ink">
+      <span
+        aria-hidden
+        className="inline-block h-1.5 w-1.5 flex-shrink-0 rounded-full"
+        style={{ background: dot }}
+      />
+      {label}
+    </p>
+  );
 }
 
 /**
