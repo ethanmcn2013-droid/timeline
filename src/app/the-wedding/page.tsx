@@ -3,12 +3,12 @@ import { Wordmark } from "@/components/brand/wordmark";
 import {
   DatePrecisionChip,
   type DatePrecision,
-} from "@/components/timeline/date-precision";
+} from "@/components/roadmap/date-precision";
 import {
   ScheduleSpine,
   type SpineItem,
   type SpineLane,
-} from "@/components/timeline/schedule-spine";
+} from "@/components/roadmap/schedule-spine";
 import { SiteFooter } from "@/components/marketing/site-footer";
 
 /**
