@@ -11,7 +11,7 @@ import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
  *   M (Marketing)  — authed user → 307 to /app. Explicit allowlist only.
  *   C (Content)    — NEVER redirected; reachable by everyone logged-in or not.
  *                    This is the no-auth promise that makes shared roadmap
- *                    links work. Getting this wrong detonates Roadmap's pitch.
+ *                    links work. Getting this wrong detonates Timeline's pitch.
  *   A (App)        — authed destination; never redirected.
  *   X (Excluded)   — infra; never touched.
  *
@@ -28,6 +28,7 @@ import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
  * suite-wide canonical — do NOT use repo-local names.
  */
 
+import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { isDemoMode } from "@/lib/access-mode";
 
@@ -59,7 +60,25 @@ const clerkConfigured = Boolean(
     process.env.CLERK_SECRET_KEY,
 );
 
-export default clerkMiddleware(async (auth, req) => {
+function proxyWithoutClerk(req: NextRequest) {
+  // Public Timeline routes must stay inspectable in preview environments where
+  // Clerk has not been provisioned. App/auth surfaces still fail closed.
+  if (isDemoMode()) return;
+
+  if (process.env.NODE_ENV === "production") {
+    const isApp = req.nextUrl.pathname.startsWith("/app");
+    const isAuth = isAuthRoute(req);
+
+    if (isApp || isAuth) {
+      return new NextResponse("Authentication is not configured.", {
+        status: 503,
+      });
+    }
+  }
+}
+
+function createProxyWithClerk() {
+  return clerkMiddleware(async (auth, req) => {
   // Demo/Review: /app/* is publicly reachable; the data layer serves the
   // in-memory demo workspace. Production path below is unchanged. Flip
   // SIGNAL_ACCESS_MODE back to production to restore the gate.
@@ -104,7 +123,10 @@ export default clerkMiddleware(async (auth, req) => {
   if (isApp && !userId) {
     return NextResponse.redirect(new URL("/sign-in", req.url));
   }
-});
+  });
+}
+
+export default clerkConfigured ? createProxyWithClerk() : proxyWithoutClerk;
 
 export const config = {
   matcher: [
