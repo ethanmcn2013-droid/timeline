@@ -21,14 +21,15 @@ export default function AppLayout({
     <div className="flex min-h-screen flex-col" style={{ background: "var(--bg)" }}>
       {/* App top bar — persists across all (app) routes */}
       <header
-        className="sticky top-0 z-50 border-b"
+        className="sticky top-0 z-40 border-b"
         style={{
-          background: "color-mix(in srgb, var(--bg) 85%, transparent)",
-          backdropFilter: "blur(12px)",
-          borderColor: "var(--border)",
+          background: "color-mix(in srgb, var(--bg) 88%, transparent)",
+          backdropFilter: "saturate(150%) blur(12px)",
+          WebkitBackdropFilter: "saturate(150%) blur(12px)",
+          borderColor: "var(--border-soft)",
         }}
       >
-        <div className="mx-auto flex h-14 w-full max-w-[80rem] items-center justify-between px-6">
+        <div className="mx-auto flex h-14 w-full max-w-[1240px] items-center justify-between px-6">
           <div className="flex min-w-0 items-center">
             <SuiteSwitcher current="roadmap" />
           </div>

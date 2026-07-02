@@ -9,6 +9,7 @@ import {
   type SpineItem,
   type SpineLane,
 } from "@/components/roadmap/schedule-spine";
+import { SiteFooter } from "@/components/marketing/site-footer";
 
 /**
  * /the-wedding — the canonical public wedding-plan example.
@@ -386,23 +387,7 @@ export default function TheWeddingExamplePage() {
         </article>
       </main>
 
-      {/* Minimal footer — this is a document forwarded to a couple, not a
-          marketing page. The wordmark is one quiet line of attribution. */}
-      <footer className="border-t border-line-soft/50 px-6 py-6">
-        <div className="mx-auto flex w-full max-w-[760px] items-center justify-between">
-          <span className="text-[11.5px] text-ink-faint">
-            Kept with{" "}
-            <a
-              href="https://signalstudio.ie"
-              className="underline underline-offset-2 hover:text-ink-quiet"
-              style={{ transition: "color var(--motion-fast) var(--ease-standard)" }}
-            >
-              Signal Studio
-            </a>
-          </span>
-          <Wordmark size="sm" href="/" />
-        </div>
-      </footer>
+      <SiteFooter />
     </div>
   );
 }

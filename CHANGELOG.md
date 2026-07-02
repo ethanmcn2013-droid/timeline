@@ -3,6 +3,10 @@
 Convention: BRAND.md §6.5. Entries before 2026-05-14 keep their
 original shape; the new shape starts at the next cycle.
 
+## 2026-07-02 · R·28 · tightens · Timeline keeps the shared shell
+
+**Timeline's accepted footer and product-header chrome now ride on current main.** The footer uses the shared Product, Company, Resources, Suite structure with the iOS status link, and the public/app headers keep the same sticky product shell as the rest of Signal Studio while preserving Timeline's own reading surface.
+
 ## 2026-07-01 · R·27 · ships · the public plan answers "where does this stand?" before the title lands
 
 **One plain-English line now opens the public workspace page: "On track for Jun 14." — or, honestly, "Aiming for Jun 14." when something is late or waiting, or "Everything here has shipped." when the work is done.** The verdict is derived entirely from data the page already fetches (zero new queries, ISR intact) and reuses the needs-attention overdue logic rather than re-deriving it. The taste call is in the degradation: the public share is the owner's face to their client, so the "aiming" state carries the truth in the verb without broadcasting counts of late items the owner didn't choose to publish — receipts stay on owner surfaces. Green and amber dots from the existing status palette; no red, no percentages. This is also the mobile reader's first date read — the milestone emphasis block is desktop-only, so phones previously rendered the plan with no target date anywhere. Milestone rows themselves don't flip the verdict; only the feeding items do. Eight unit tests lock the three-state contract. Branch-pending via PR.

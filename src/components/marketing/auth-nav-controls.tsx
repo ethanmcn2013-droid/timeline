@@ -21,6 +21,7 @@
 import { useUser } from "@clerk/nextjs";
 import { UserButton } from "@clerk/nextjs";
 import Link from "next/link";
+import { isUxAssuranceMode } from "@/lib/access-mode";
 
 function ArrowIcon() {
   return (
@@ -96,7 +97,10 @@ export function AuthNavControls({
 }: {
   nav: { href: string; label: string; external?: boolean }[];
 }) {
-  const { isSignedIn, isLoaded } = useUser();
+  const authState = isUxAssuranceMode()
+    ? { isSignedIn: false, isLoaded: true }
+    : useUser();
+  const { isSignedIn, isLoaded } = authState;
 
   // SSR / loading state: render the unauthed controls as default.
   // Once Clerk loads on the client, the correct branch renders.
@@ -105,7 +109,7 @@ export function AuthNavControls({
       <div className="flex items-center gap-2">
         <Link
           href="/sign-in"
-          className="hidden rounded-full px-3.5 py-1.5 text-[13px] font-medium text-ink-soft hover:text-ink md:inline-flex"
+          className="inline-flex min-h-8 items-center rounded-full px-3.5 text-[13px] font-medium text-ink-soft hover:text-ink"
           style={{ transition: "color var(--motion-fast) var(--ease-standard)" }}
         >
           Sign in
@@ -113,8 +117,8 @@ export function AuthNavControls({
         {/* Mobile menu — unauthed */}
         <details className="relative md:hidden">
           <summary
-            className="flex h-9 w-9 cursor-pointer list-none items-center justify-center rounded-full border text-ink-soft transition-colors hover:text-ink"
-            style={{ borderColor: "var(--border)" }}
+            className="flex h-9 w-9 cursor-pointer list-none items-center justify-center rounded-full text-ink-soft transition-colors hover:text-ink"
+            style={{ border: "1px solid var(--border)" }}
             aria-label="Open menu"
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden>
@@ -122,8 +126,8 @@ export function AuthNavControls({
             </svg>
           </summary>
           <div
-            className="absolute right-0 top-11 w-56 rounded-xl border p-3 shadow-lg"
-            style={{ background: "var(--bg)", borderColor: "var(--border)" }}
+            className="absolute right-0 top-11 w-56 rounded-xl p-3 shadow-lg"
+            style={{ background: "var(--bg)", border: "1px solid var(--border)" }}
           >
             <ul className="flex flex-col gap-1 text-[13px]">
               {nav.map((item) => (
@@ -147,15 +151,6 @@ export function AuthNavControls({
                   )}
                 </li>
               ))}
-              <li className="my-1 h-px" style={{ background: "var(--border)" }} aria-hidden />
-              <li>
-                <Link
-                  href="/sign-in"
-                  className="block rounded-lg px-3 py-2 text-ink-soft hover:bg-ink/5 hover:text-ink"
-                >
-                  Sign in
-                </Link>
-              </li>
             </ul>
           </div>
         </details>
