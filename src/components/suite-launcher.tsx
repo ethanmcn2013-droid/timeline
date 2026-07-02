@@ -61,19 +61,21 @@ const PRODUCTS: SuiteProduct[] = [
   },
 ];
 
-const INDIGO = "#4f46e5";
+const INDIGO = "var(--indigo-600, var(--brand))";
 const PRODUCT_ORIGINS = [NOTES_URL, TASKS_URL, TIMELINE_URL, SIGNAL_URL];
 
 const SUITE_LAUNCHER_CSS = `
 .suite-launcher-root {
-  --sl-indigo: #4f46e5;
-  --sl-ink: var(--color-ink, var(--ink, #111111));
-  --sl-ink-soft: var(--color-ink-soft, var(--ink-soft, #3f3f46));
-  --sl-ink-quiet: var(--color-ink-quiet, var(--color-ink-faint, var(--ink-quiet, #71717a)));
-  --sl-ink-faint: var(--color-ink-faint, var(--ink-faint, #a1a1aa));
-  --sl-paper: var(--color-paper, var(--bg, #ffffff));
-  --sl-paper-elevated: var(--color-paper, var(--bg-elevated, var(--bg, #ffffff)));
-  --sl-border: var(--color-line, var(--border, var(--line-soft, rgba(17,17,17,0.1))));
+  --sl-indigo: var(--color-indigo-600, var(--indigo-600, var(--brand)));
+  --sl-ink: var(--color-ink, var(--ink));
+  --sl-ink-soft: var(--color-ink-soft, var(--ink-soft));
+  --sl-ink-quiet: var(--color-ink-quiet, var(--color-ink-faint, var(--ink-quiet)));
+  --sl-ink-faint: var(--color-ink-faint, var(--ink-faint));
+  --sl-paper: var(--color-paper, var(--paper, var(--bg)));
+  --sl-paper-elevated: var(--color-paper, var(--paper, var(--bg-elevated, var(--bg))));
+  --sl-border: var(--color-line, var(--color-line-soft, var(--border, var(--line-soft))));
+  --sl-ease-out: var(--ease-out);
+  --sl-ease-in-out: var(--ease-in-out, var(--ease-out));
   position: relative;
   display: inline-flex;
 }
@@ -109,7 +111,7 @@ const SUITE_LAUNCHER_CSS = `
 .sl-brand-dot { color: var(--sl-indigo); }
 .sl-chevron {
   color: var(--sl-ink-faint);
-  transition: transform 180ms cubic-bezier(.22,.7,.2,1), color 160ms ease;
+  transition: transform 180ms var(--sl-ease-out), color 160ms var(--sl-ease-out);
 }
 .sl-trigger[data-open="true"] .sl-chevron {
   color: var(--sl-indigo);
@@ -130,7 +132,7 @@ const SUITE_LAUNCHER_CSS = `
     0 28px 70px -34px rgba(17, 17, 17, 0.38),
     0 1px 0 rgba(255, 255, 255, 0.8) inset;
   color: var(--sl-ink);
-  animation: sl-pop-in 170ms cubic-bezier(.22,.7,.2,1) both;
+  animation: sl-pop-in 170ms var(--sl-ease-out) both;
   transform-origin: top left;
 }
 @keyframes sl-pop-in {
@@ -231,7 +233,7 @@ const SUITE_LAUNCHER_CSS = `
   height: 36px;
   border: 1px solid color-mix(in srgb, var(--sl-border) 80%, transparent);
   border-radius: 9px;
-  background: color-mix(in srgb, var(--sl-paper-elevated) 82%, #ffffff);
+  background: color-mix(in srgb, var(--sl-paper-elevated) 82%, var(--sl-paper));
   color: var(--sl-indigo);
   transition: border-color 160ms ease, background 160ms ease;
 }
@@ -316,7 +318,7 @@ const SUITE_LAUNCHER_CSS = `
 .sl-sweep-dot {
   transform-box: fill-box;
   transform-origin: center;
-  animation: sl-sweep 4.8s cubic-bezier(.22,.7,.2,1) infinite;
+  animation: sl-sweep 4.8s var(--sl-ease-in-out) infinite;
 }
 @keyframes sl-sweep {
   0% { opacity: 1; transform: translateX(0); }
@@ -381,13 +383,13 @@ function suiteJump(url: string) {
   const overlay = document.createElement("div");
   overlay.setAttribute("aria-hidden", "true");
   overlay.style.cssText =
-    "position:fixed;inset:0;z-index:2147483647;background:#ffffff;opacity:0;" +
-    "transition:opacity 260ms cubic-bezier(.32,0,.67,1);display:flex;" +
+    "position:fixed;inset:0;z-index:2147483647;background:var(--paper,var(--bg));opacity:0;" +
+    "transition:opacity 260ms var(--ease-in-out,var(--ease-out));display:flex;" +
     "align-items:center;justify-content:center;pointer-events:none";
   const dot = document.createElement("div");
   dot.style.cssText =
     `width:9px;height:9px;border-radius:50%;background:${INDIGO};` +
-    "transform:scale(1);transition:transform 360ms cubic-bezier(.32,0,.67,1)";
+    "transform:scale(1);transition:transform 360ms var(--ease-in-out,var(--ease-out))";
   overlay.appendChild(dot);
   document.body.appendChild(overlay);
   requestAnimationFrame(() => {
