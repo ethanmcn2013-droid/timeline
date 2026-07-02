@@ -29,6 +29,7 @@ import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
  */
 
 import { NextResponse } from "next/server";
+import type { NextFetchEvent, NextRequest } from "next/server";
 import { isDemoMode } from "@/lib/access-mode";
 
 // Exact M-route list. Only these routes redirect authed users to /app.
@@ -59,7 +60,7 @@ const clerkConfigured = Boolean(
     process.env.CLERK_SECRET_KEY,
 );
 
-export default clerkMiddleware(async (auth, req) => {
+const productionProxy = clerkMiddleware(async (auth, req) => {
   // Demo/Review: /app/* is publicly reachable; the data layer serves the
   // in-memory demo workspace. Production path below is unchanged. Flip
   // SIGNAL_ACCESS_MODE back to production to restore the gate.
@@ -105,6 +106,11 @@ export default clerkMiddleware(async (auth, req) => {
     return NextResponse.redirect(new URL("/sign-in", req.url));
   }
 });
+
+export default function proxy(req: NextRequest, event: NextFetchEvent) {
+  if (isDemoMode()) return NextResponse.next();
+  return productionProxy(req, event);
+}
 
 export const config = {
   matcher: [

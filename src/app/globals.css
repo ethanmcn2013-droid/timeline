@@ -565,7 +565,7 @@ body::after { content: none; }
   100%    { opacity: 0; transform: scale(2.6); }
 }
 
-/* RW-5: .roadmap-dot and @keyframes roadmap-dot-sweep removed.
+/* RW-5: .timeline-dot and @keyframes timeline-dot-sweep removed.
    The ~250px balloon was an un-migrated Seamless residual (0.30em pre-font).
    All loader markup now routes through the canonical SuiteLoader/SuiteLoaderField
    (LOADING_SYSTEM.md §1). The wordmark's period gesture (sweep) was a
@@ -918,25 +918,25 @@ select,
 }
 
 /* ────────────────────────────────────────────────────────────
-   M5: Roadmap wordmark ambient gesture — .roadmap-dot opacity pulse.
+   M5: Roadmap wordmark ambient gesture — .timeline-dot opacity pulse.
    Low-key identity mark: 0.85 → 1.0 at 3s ease-in-out alternate.
-   Scoped to .roadmap-dot only — does NOT affect .signal-loading-dot
+   Scoped to .timeline-dot only — does NOT affect .signal-loading-dot
    (the SuiteLoader dot) or .skeleton-shimmer (the loading ghost).
    prefers-reduced-motion: static at full opacity, no animation.
    ──────────────────────────────────────────────────────────── */
-@keyframes roadmap-dot-ambient {
+@keyframes timeline-dot-ambient {
   from { opacity: 0.85; }
   to   { opacity: 1.0; }
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  .roadmap-dot {
-    animation: roadmap-dot-ambient 3s ease-in-out infinite alternate;
+  .timeline-dot {
+    animation: timeline-dot-ambient 3s ease-in-out infinite alternate;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .roadmap-dot {
+  .timeline-dot {
     animation: none;
     opacity: 1;
   }
@@ -948,10 +948,10 @@ select,
    Roadmap. RW-5 removed an old loading-state sweep; this is
    the editorial sweep — a faint highlight glances left-to-right
    across the word every ~7s. Semantically: publish-and-pass.
-   Pure CSS, scoped to .roadmap-wordmark-text, reduced-motion
+   Pure CSS, scoped to .timeline-wordmark-text, reduced-motion
    safe (no animation under reduce; static ink colour holds).
    ──────────────────────────────────────────────────────────── */
-.roadmap-wordmark-text {
+.timeline-wordmark-text {
   background-image: linear-gradient(
     100deg,
     var(--ink) 0%,
@@ -967,7 +967,7 @@ select,
   color: var(--ink);
 }
 
-@keyframes roadmap-wordmark-sweep {
+@keyframes timeline-wordmark-pass {
   /* Long quiet dwell, fast glide. The sweep runs in 1.4s of the 7s
      cycle; the rest is rest. Quiet at rest, named at the moment of
      the gesture. */
@@ -976,14 +976,14 @@ select,
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  .roadmap-wordmark-text {
+  .timeline-wordmark-text {
     -webkit-text-fill-color: transparent;
-    animation: roadmap-wordmark-sweep 7s linear infinite;
+    animation: timeline-wordmark-pass 7s linear infinite;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .roadmap-wordmark-text {
+  .timeline-wordmark-text {
     background: none;
     -webkit-text-fill-color: currentColor;
     animation: none;

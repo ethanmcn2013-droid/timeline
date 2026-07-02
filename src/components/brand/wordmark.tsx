@@ -19,7 +19,7 @@ import { cn } from "@/lib/utils";
  *
  * Walkover row 5 (2026-06-07): the sweep returns — but as the brand
  * gesture, not a loader. A faint highlight glances left-to-right
- * across the word every ~7s (`.roadmap-wordmark-text`, scoped CSS,
+ * across the word every ~7s (`.timeline-wordmark-text`, scoped CSS,
  * reduced-motion-safe). Semantically: publish-and-pass — a glance
  * moving across the work. The dot's ambient opacity pulse continues.
  * See globals.css for the keyframe + reduced-motion guard.
@@ -53,17 +53,17 @@ export function Wordmark({
       style={{ letterSpacing: "-0.05em", textDecoration: "none" }}
     >
       <span
-        className="roadmap-wordmark-text"
+        className="timeline-wordmark-text"
         style={{ fontWeight: 600, color: "var(--ink)" }}
       >
         timeline
       </span>
       {/* `.md` is targeted by `dot-land` in globals.css on cross-product arrival.
-          `.roadmap-dot` adds M5 ambient opacity pulse (0.85→1.0, 3s alternate)
+          `.timeline-dot` adds M5 ambient opacity pulse (0.85→1.0, 3s alternate)
           guarded by prefers-reduced-motion in globals.css. Does not conflict with
           SuiteLoader (.signal-loading-dot) or skeleton (.skeleton-shimmer). */}
       <span
-        className="md roadmap-dot"
+        className="md timeline-dot"
         aria-hidden
         style={{
           display: "inline-block",
