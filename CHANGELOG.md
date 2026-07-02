@@ -3,6 +3,10 @@
 Convention: BRAND.md §6.5. Entries before 2026-05-14 keep their
 original shape; the new shape starts at the next cycle.
 
+## 2026-07-02 · R·29 · tightens · product switching stays out of the old dropdown
+
+**Timeline keeps the signed-in switcher as visible pills and the public dropdown as the richer gesture-led launcher.** The suite-switcher guard now runs before tests, so `/app` chrome cannot quietly re-import the old hidden dropdown while the allowed public workspace/header exception remains intact.
+
 ## 2026-07-02 · R·28 · tightens · Timeline keeps the shared shell
 
 **Timeline's accepted footer and product-header chrome now ride on current main.** The footer uses the shared Product, Company, Resources, Suite structure with the iOS status link, and the public/app headers keep the same sticky product shell as the rest of Signal Studio while preserving Timeline's own reading surface.
