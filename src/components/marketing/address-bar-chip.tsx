@@ -31,10 +31,10 @@ export function AddressBarChip() {
 
   return (
     <div
-      className="rise inline-flex max-w-full items-center gap-2 rounded-full border px-2.5 py-1.5"
+      className="rise inline-flex max-w-full items-center gap-2 rounded-full px-2.5 py-1.5"
       style={{
         animationDelay: "0ms",
-        borderColor: "var(--border-soft)",
+        border: "1px solid var(--border-soft)",
         background: "var(--bg-deep)",
       }}
       role="group"
