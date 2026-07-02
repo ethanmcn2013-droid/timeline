@@ -24,13 +24,20 @@ const NAV: { href: string; label: string; external?: boolean }[] = [
  */
 export function SiteNav() {
   return (
-    <header className="sticky top-0 z-50 border-b border-line-soft/60 bg-bg/72 backdrop-blur-md backdrop-saturate-150">
+    <header
+      className="sticky top-0 z-40 border-b border-line-soft/75"
+      style={{
+        background: "color-mix(in srgb, var(--bg) 88%, transparent)",
+        backdropFilter: "saturate(150%) blur(12px)",
+        WebkitBackdropFilter: "saturate(150%) blur(12px)",
+      }}
+    >
       <div className="mx-auto flex h-14 w-full max-w-[1240px] items-center justify-between px-6">
-        <div className="flex items-center gap-3">
-          <div className="hidden sm:inline-flex">
+        <div className="flex min-w-0 items-center gap-3 whitespace-nowrap">
+          <div className="inline-flex">
             <SuiteLauncher current="roadmap" />
           </div>
-          <span aria-hidden className="hidden sm:inline" style={{ color: "var(--ink-faint)", fontSize: 12 }}>/</span>
+          <span aria-hidden style={{ color: "var(--ink-faint)", fontSize: 12 }}>/</span>
           <Wordmark size="md" />
         </div>
         <nav className="hidden items-center gap-7 text-[13px] text-ink-soft md:flex">

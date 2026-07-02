@@ -183,7 +183,9 @@ export function DemoGanttView({ rows, domain }: Props) {
                     width: `${widthPct}%`,
                     height: 18,
                     background: `color-mix(in srgb, ${STATUS_TOKEN[row.status]} 18%, transparent)`,
-                    border: `1px solid color-mix(in srgb, ${STATUS_TOKEN[row.status]} 60%, transparent)`,
+                    borderWidth: 1,
+                    borderStyle: "solid",
+                    borderColor: `color-mix(in srgb, ${STATUS_TOKEN[row.status]} 60%, transparent)`,
                   }}
                   animate={{
                     background: `color-mix(in srgb, ${STATUS_TOKEN[row.status]} 18%, transparent)`,

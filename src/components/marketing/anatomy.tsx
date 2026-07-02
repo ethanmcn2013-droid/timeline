@@ -13,7 +13,7 @@ import { useEffect, useRef, useState } from "react";
  * Anatomy of a timeline item — narrative one-shot.
  *
  * Unlike Tasks (continuous loop, live presence), Notes (~11s loop with
- * settle), and Analytics (~11s tour loop), Roadmap's anatomy is a
+ * settle), and Signal (~11s tour loop), Timeline's anatomy is a
  * fundamentally forward-moving sequence — a timeline item moves through
  * states, gathers detail, and culminates in a published link. It does
  * not loop back to blank. The choreography plays once when the section
@@ -25,7 +25,7 @@ import { useEffect, useRef, useState } from "react";
  * Status begins as "Drafting" and drifts to "Doing" mid-sequence — the
  * lesson is that planning happens IN PUBLIC, the state is part of the
  * story. The public-link affordance rises last because that is the
- * culminating moment Roadmap's product promise is built on.
+ * culminating moment Timeline's product promise is built on.
  *
  * SSR fallback / reduced-motion: every element renders at its final
  * state from the start (Doing pill, full content, refusal visible,
@@ -262,10 +262,10 @@ function DemoItem({
   return (
     <div
       ref={wrapRef}
-      className="border p-5"
+      className="p-5"
       style={{
         borderRadius: "var(--r-2)",
-        borderColor: "var(--border)",
+        border: "1px solid var(--border)",
         background: "var(--bg-elev)",
         boxShadow: "var(--shadow-1)",
       }}
@@ -385,8 +385,8 @@ function DemoItem({
           ease: EASE.glide,
           delay: showRefusal && phase === "refusal" ? 0.1 : 0,
         }}
-        className="mt-5 border-t pt-4"
-        style={{ borderColor: "var(--border-soft)" }}
+        className="mt-5 pt-4"
+        style={{ borderTop: "1px solid var(--border-soft)" }}
       >
         <motion.div
           {...hoverProps("refusal")}
