@@ -105,7 +105,7 @@ export const EASE_OUT_EXPO = [0.16, 1, 0.3, 1] as const;
 export const CURSOR_SEED: Cursor[] = [
   {
     id: "alpha",
-    color: "#4f46e5",
+    color: "var(--accent)",
     label: "Dublin · 14m ago",
     x: -30,
     y: 60,
@@ -115,7 +115,7 @@ export const CURSOR_SEED: Cursor[] = [
   },
   {
     id: "beta",
-    color: "#6366f1",
+    color: "var(--indigo-500)",
     label: "London · just now",
     x: -30,
     y: 180,
@@ -125,7 +125,7 @@ export const CURSOR_SEED: Cursor[] = [
   },
   {
     id: "gamma",
-    color: "#5b6cff",
+    color: "var(--indigo-400)",
     label: "Cork · 2h ago",
     x: -30,
     y: 320,

@@ -1,72 +1,61 @@
 @import "tailwindcss";
+@import "../ds/tokens.css";
+@import "../ds/tailwind.css";
 
 /* ────────────────────────────────────────────────────────────
-   Design tokens (v0.3 — aligned to tasks-design-system.html)
-   ────────────────────────────────────────────────────────────
-   Strategy: the v0.2 tokens (--brand, --ink, --line, --lane-*)
-   stay so existing components don't regress. The full design
-   system is added alongside — indigo / ink ramps, audience
-   accents, status tokens, springs, radii, shadow tiers,
-   highlight. New code reaches for the ramp tokens; legacy code
-   keeps working through the v0.2 names which now alias to ramp
-   stops. */
+   Signal Design System 2.0 (Wave 3, 2026-07-02)
+   System tokens live in the vendored src/ds/tokens.css — never
+   here. This :root is repo-local only: legacy v0.2 aliases on
+   the burn-down path + Timeline-specific palettes (roadmap
+   status vocabulary, lanes, pills, audiences under the --x-
+   extension prefix). ds-check enforces the split. */
 :root {
-  /* ── Indigo ramp ──────────────────────────────────────────── */
-  --indigo-50:  #eef2ff;
-  --indigo-100: #e0e7ff;
-  --indigo-200: #c7d2fe;
-  --indigo-300: #a5b4fc;
-  --indigo-400: #818cf8;
-  --indigo-500: #6366f1;
-  --indigo-600: #4f46e5; /* PRIMARY */
-  --indigo-700: #4338ca;
-  --indigo-800: #3730a3;
-  --indigo-900: #312e81;
-  --highlight:  var(--indigo-600); /* marker underline accent on display headlines */
+  /* Marker underline accent on display headlines — the earned indigo. */
+  --highlight:  var(--accent);
 
-  /* ── Ink ramp (neutrals) ──────────────────────────────────── */
+  /* Legacy ink numeric ramp → zinc primitives (burn-down: rename). */
   --ink-0:   #ffffff;
-  --ink-50:  #fafafa;
-  --ink-100: #f4f4f5;
-  --ink-200: #e4e4e7;
-  --ink-300: #d4d4d8;
-  --ink-400: #a1a1aa;
-  --ink-500: #71717a;
-  --ink-600: #52525b;
-  --ink-700: #3f3f46;
-  --ink-800: #27272a;
-  --ink-900: #18181b;
-  --ink-950: #09090b;
+  --ink-50:  var(--zinc-50);
+  --ink-100: var(--zinc-100);
+  --ink-200: var(--zinc-200);
+  --ink-300: var(--zinc-300);
+  --ink-400: var(--zinc-400);
+  --ink-500: var(--zinc-500);
+  --ink-600: var(--zinc-600);
+  --ink-700: var(--zinc-700);
+  --ink-800: var(--zinc-800);
+  --ink-900: var(--zinc-900);
+  --ink-950: var(--zinc-950);
 
-  /* ── Audience accents ─────────────────────────────────────── */
-  --aud-marketing: #4f46e5;
-  --aud-freelance: #16a34a;
-  --aud-student:   #eab308;
-  --aud-wedding:   #be185d;
+  /* ── Audience accents — product-local by design (--x- prefix).
+     Marketing IS the brand audience, so it rides the accent. */
+  --x-aud-marketing: var(--accent);
+  --x-aud-freelance: #16a34a;
+  --x-aud-student:   #eab308;
+  --x-aud-wedding:   #be185d;
+  /* Legacy names during burn-down. */
+  --aud-marketing: var(--x-aud-marketing);
+  --aud-freelance: var(--x-aud-freelance);
+  --aud-student:   var(--x-aud-student);
+  --aud-wedding:   var(--x-aud-wedding);
 
-  /* ── Status tokens (legacy aliases for lifted Tasks components) ── */
-  --status-todo:     #6366f1;
-  --status-progress: #f59e0b;
+  /* ── Status — legacy names → system states. Queued is neutral
+     now (SDS 2.0): the accent never means "todo"/"next". */
+  --status-todo:     var(--status-next);
+  --status-progress: var(--status-flight);
   --status-review:   #06b6d4;
-  --status-done:     #10b981;
 
-  /* ── Roadmap status tokens (canonical vocabulary: shipped/in-flight/next/waiting/refused)
-   *   Mirrors the Tasks design system so lifted components render correctly.
-   *   2026-06-06 (R·21): "blocked" renamed to "waiting" across the data layer.
-   *   The visual tone moved from alarm-red to calm sky to match the calmer word —
-   *   a "waiting" item is paused, not broken. The old alarm-red tone lives on as
-   *   --alarm below, for genuinely alarming surfaces (GTM blocker card, form
-   *   validation, error text). */
-  --status-shipped:    #10b981;
-  --status-shipped-bg: #d1fae5;
-  --status-flight:     #f59e0b;
-  --status-flight-bg:  #fef3c7;
-  --status-next:       #6366f1;
-  --status-next-bg:    #eef2ff;
+  /* ── Roadmap status vocabulary (shipped/in-flight/next/waiting/refused)
+   *   2026-06-06 (R·21): "blocked" renamed to "waiting"; alarm-red kept
+   *   only for genuinely alarming surfaces via --alarm below.
+   *   shipped/flight/next ride the system states; waiting/refused are
+   *   Timeline-local. */
+  --status-shipped:    var(--status-done);
+  --status-shipped-bg: var(--status-done-bg);
   --status-waiting:    #1d6fa3;
   --status-waiting-bg: #eff6fc;
-  --status-refused:    #71717a;
-  --status-refused-bg: #f4f4f5;
+  --status-refused:    var(--ink-faint);
+  --status-refused-bg: var(--paper-deep);
 
   /* ── Alarm semantic (the old --status-blocked red, kept for genuinely
    *   alarming non-status surfaces: GTM blocker card, form validation,
@@ -104,49 +93,19 @@
   --roadmap-red-border: #fecaca;
   --roadmap-red-deep:   #7f1d1d;
 
-  /* ── Semantic surfaces · design-system v1 (2026-05-13) ────── */
-  /* Paper is white now. The warm-stone era ended when the suite
-     design system locked. */
-  --paper:       #ffffff;
-  --paper-elev:  #ffffff;
-  --paper-soft:  #fafafa;
-  --paper-deep:  #f4f4f5;
+  /* Legacy surface + line + text aliases (system owns the values). */
+  --paper-elev:  var(--paper);
   --paper-bone:  #ebebec; /* skeleton bone trough — see SUITE-SKELETON-RECONCILE */
-
-  --bg:          var(--paper);
-  --bg-elev:     var(--paper-elev);
-  --bg-elevated: var(--paper-elev); /* alias for v0.2 callsites */
+  --bg-elev:     var(--paper);
+  --bg-elevated: var(--paper); /* alias for v0.2 callsites */
   --bg-deep:     var(--paper-deep);
-
-  /* Hairlines — stronger than the cream era; white needs definition. */
-  --hairline:    rgba(17, 17, 17, 0.10);
-  --hairline-2:  rgba(17, 17, 17, 0.06);
-
-  /* Indigo aliases per the design-system spec. */
-  --indigo:      var(--indigo-600);
-  --indigo-soft: rgba(79, 70, 229, 0.12);
-  --bg-sunken:   var(--bg-deep); /* alias */
-
-  --border:      var(--hairline);
-  --border-soft: var(--hairline-2);
-  --line:        var(--border);      /* alias */
-  --line-soft:   var(--border-soft); /* alias */
-
-  /* Ink — off-black per the design-system spec exactly. */
-  --ink:         #111111;
-  --ink-soft:    #3f3f46;
-  --ink-faint:   #71717a;
-  --ink-ghost:   #d4d4d8;
-  --ink-quiet:   var(--ink-faint);
-  --text:        var(--ink);
+  --bg-sunken:   var(--paper-deep); /* alias */
+  --hairline-2:  var(--hairline-soft);
+  --line:        var(--hairline);      /* alias */
+  --line-soft:   var(--hairline-soft); /* alias */
   --text-muted:  var(--ink-faint);
   --text-faint:  var(--ink-ghost);
-
-  /* ── Brand semantics (v0.2 names, refreshed values) ───────── */
-  --brand:       var(--indigo-600);
-  --brand-deep:  var(--indigo-800);
-  --brand-soft:  var(--indigo-50);
-  --brand-glow:  rgba(79, 70, 229, 0.42);
+  --brand-glow:  var(--accent-glow);
 
   /* ── Lane palette (v0.2 — refined to align with status tokens
    *   while keeping the soft pastel chrome the board has had
@@ -172,70 +131,43 @@
   /* ── User presence (cinematic demo + real users) ──────────── */
   --user-chloe: #e4356d;
   --user-david: #00a3b8;
-  --user-alex:  #6366f1;
+  --user-alex:  var(--indigo-500);
 
   /* ── Cinematic demo cursor colors ─────────────────────────── */
-  --cursor-author:   #4f46e5; /* brand indigo — the roadmap author */
+  --cursor-author:   var(--accent); /* brand indigo — the roadmap author */
   --cursor-customer: #e4356d; /* rose — the public viewer / commenter */
 
-  /* ── SIGNAL STUDIO MOTION CONTRACT v1 ───────────────────────
-   *   Single source of truth across all 5 repos.
-   *   UI cap: --motion-moderate (320ms). Reduced-motion block
-   *   at the bottom of this file collapses all durations to
-   *   0.01ms so the page is never frozen for screen-reader users.
-   *   ────────────────────────────────────────────────────────── */
-  --motion-instant:  80ms;
-  --motion-fast:    140ms;
-  --motion-base:    220ms;
-  --motion-moderate:320ms;
-  --motion-slow:    480ms;
-  --ease-standard:  cubic-bezier(0.2, 0, 0, 1);
-  --ease-out:       cubic-bezier(0, 0, 0.2, 1);
-  --ease-in:        cubic-bezier(0.4, 0, 1, 1);
+  /* Legacy motion — v1 contract had five steps; 2.0 has four.
+     moderate maps per-case to base/slow on the burn-down. */
+  --motion-moderate: 320ms;
+  --ease-in: cubic-bezier(0.4, 0, 1, 1); /* ds-allow — legacy exit easing, burn-down */
 
-  /* ── Motion · springs (product gestures, preserved) ─────── */
-  --spring-snap:  cubic-bezier(.2, .9, .2, 1.2);   /* overshoot — drops, lifts */
-  --spring-soft:  cubic-bezier(.32, .72, 0, 1);    /* settle — cards, panels */
-  --spring-glide: cubic-bezier(.16, 1, .3, 1);     /* ride — sweeps, fades */
-
-  /* v0.2 aliases (existing callsites) */
+  /* Product-gesture springs — licensed; UI uses contract easings. */
+  --spring-snap:  cubic-bezier(.2, .9, .2, 1.2);  /* ds-allow — product gestures */
+  --spring-soft:  cubic-bezier(.32, .72, 0, 1);   /* ds-allow — product gestures */
+  --spring-glide: cubic-bezier(.16, 1, .3, 1);    /* ds-allow — product gestures */
   --ease-out-expo: var(--spring-glide);
   --ease-spring:   var(--spring-snap);
-  --ease-cinema:   cubic-bezier(0.25, 1, 0.5, 1);
+  --ease-cinema:   cubic-bezier(0.25, 1, 0.5, 1); /* ds-allow — cinematic demo */
 
-  /* ── Type ─────────────────────────────────────────────────── */
-  --font-sans-stack: var(--font-geist-sans), 'Geist', -apple-system,
-    system-ui, sans-serif;
-  --font-mono-stack: var(--font-geist-mono), 'Geist Mono', ui-monospace,
-    'SF Mono', monospace;
-
-  /* Display scale (v0.2 — fluid clamps) */
-  --fs-display: clamp(2.75rem, 1.8rem + 4.2vw, 5.5rem);
-  --fs-title:   clamp(1.875rem, 1.4rem + 2.2vw, 3.25rem);
-  --fs-section: clamp(1.5rem, 1.2rem + 1.5vw, 2.25rem);
-
-  /* ── Radii ────────────────────────────────────────────────── */
-  --r-1:    4px;
-  --r-2:    6px;
-  --r-3:    10px;
-  --r-4:    14px;
-  --r-5:    20px;
-  --r-pill: 999px;
-
-  /* ── Shadows ──────────────────────────────────────────────── */
-  --shadow-1: 0 1px 2px rgba(24, 24, 27, .04),
-              0 1px 1px rgba(24, 24, 27, .03);
-  --shadow-2: 0 4px 12px rgba(24, 24, 27, .06),
-              0 1px 3px rgba(24, 24, 27, .04);
-  --shadow-3: 0 24px 60px -20px rgba(24, 24, 27, .18),
-              0 8px 24px -8px rgba(24, 24, 27, .08);
-  --shadow-indigo: 0 12px 32px -12px rgba(79, 70, 229, .45);
-
-  /* v0.2 aliases */
-  --shadow-sm:    var(--shadow-1);
+  /* Legacy type + radii + shadow names → system equivalents. */
+  --font-sans-stack: var(--font-sans);
+  --font-mono-stack: var(--font-mono);
+  --fs-display: var(--text-display);
+  --fs-title:   var(--text-title);
+  --fs-section: var(--text-section);
+  --r-1:    var(--radius-sm);
+  --r-2:    var(--radius-md);
+  --r-3:    var(--radius-lg);
+  --r-4:    14px;  /* off-system — burn-down to radius-lg */
+  --r-5:    20px;  /* off-system — burn-down to radius-lg */
+  --r-pill: var(--radius-pill);
+  --shadow-1: var(--shadow-float);
+  --shadow-2: var(--shadow-float);
+  --shadow-3: var(--shadow-modal);
+  --shadow-indigo: 0 12px 32px -12px var(--accent-glow);
   --shadow-card:  var(--shadow-1);
   --shadow-lift:  var(--shadow-2);
-  --shadow-float: var(--shadow-3);
 }
 
 /* ────────────────────────────────────────────────────────────
@@ -252,7 +184,7 @@
   --load-pulse-scale-min:  0.72;
   --load-pulse-scale-max:  1.0;
   --load-pulse-duration:   1.8s;   /* Calmer than tasks-dot (2.6s). Loading is suspended. */
-  --load-pulse-easing:     cubic-bezier(.4, 0, .6, 1); /* Symmetric ease-in-out */
+  --load-pulse-easing:     cubic-bezier(.4, 0, .6, 1); /* ds-allow — LOADING_SYSTEM.md frozen value */
   --load-z:                9999;
   --load-fade-out:         120ms;
   --load-fade-easing:      ease-out;
@@ -261,7 +193,7 @@
   --shell-fade-in:         160ms;
   --shell-fade-easing:     ease-out;
   --content-fade-in:       200ms;
-  --content-fade-easing:   cubic-bezier(.22, .61, .36, 1); /* --ease-out from DESIGN.md §5 */
+  --content-fade-easing:   cubic-bezier(.22, .61, .36, 1); /* ds-allow — LOADING_SYSTEM.md frozen value */
   --skeleton-max:          200ms;
   --stagger-content-item:  40ms;
 }
@@ -277,7 +209,7 @@
 @media (prefers-reduced-motion: no-preference) {
   .signal-loading-dot {
     animation: signal-load-pulse var(--load-pulse-duration, 1.8s)
-               var(--load-pulse-easing, cubic-bezier(.4, 0, .6, 1)) infinite;
+               var(--load-pulse-easing, cubic-bezier(.4, 0, .6, 1)) infinite; /* ds-allow — LOADING_SYSTEM.md frozen value */
   }
 }
 
@@ -328,7 +260,7 @@
 @media (prefers-reduced-motion: no-preference) {
   [data-dot-landing="1"] .brand-mark .md,
   [data-dot-landing="1"] .brand-mark .pd {
-    animation: dot-land 320ms cubic-bezier(.2, .9, .2, 1.2) forwards;
+    animation: dot-land 320ms cubic-bezier(.2, .9, .2, 1.2) forwards; /* ds-allow — RW-5 dot-morph canonical block */
   }
 }
 
@@ -337,28 +269,17 @@
    utility classes (e.g. `bg-indigo-600`, `text-ink-900`,
    `text-status-done`, `shadow-3`).
    ──────────────────────────────────────────────────────────── */
+/* System utility mappings (color-paper/ink/accent/status/indigo/zinc,
+   font, text, spacing, radius-sm/md/lg/pill, shadow-float/modal, ease)
+   come from the vendored src/ds/tailwind.css. This block carries only
+   legacy v0.2 names still used in TSX (burn-down path) and Timeline extras. */
 @theme inline {
-  /* Brand semantic + indigo ramp */
   --color-brand:      var(--brand);
   --color-brand-deep: var(--brand-deep);
   --color-brand-soft: var(--brand-soft);
   --color-highlight:  var(--highlight);
-  --color-indigo-50:  var(--indigo-50);
-  --color-indigo-100: var(--indigo-100);
-  --color-indigo-200: var(--indigo-200);
-  --color-indigo-300: var(--indigo-300);
-  --color-indigo-400: var(--indigo-400);
-  --color-indigo-500: var(--indigo-500);
-  --color-indigo-600: var(--indigo-600);
-  --color-indigo-700: var(--indigo-700);
-  --color-indigo-800: var(--indigo-800);
-  --color-indigo-900: var(--indigo-900);
 
-  /* Ink ramp (semantic + 12 stops) */
-  --color-ink:       var(--ink);
-  --color-ink-soft:  var(--ink-soft);
   --color-ink-quiet: var(--ink-quiet);
-  --color-ink-faint: var(--ink-faint);
   --color-ink-0:    var(--ink-0);
   --color-ink-50:   var(--ink-50);
   --color-ink-100:  var(--ink-100);
@@ -372,23 +293,18 @@
   --color-ink-900:  var(--ink-900);
   --color-ink-950:  var(--ink-950);
 
-  /* Audience accents */
-  --color-aud-marketing: var(--aud-marketing);
-  --color-aud-freelance: var(--aud-freelance);
-  --color-aud-student:   var(--aud-student);
-  --color-aud-wedding:   var(--aud-wedding);
+  /* Audience accents (product-local --x- tokens) */
+  --color-aud-marketing: var(--x-aud-marketing);
+  --color-aud-freelance: var(--x-aud-freelance);
+  --color-aud-student:   var(--x-aud-student);
+  --color-aud-wedding:   var(--x-aud-wedding);
 
-  /* Status tokens */
+  /* Legacy status names + Timeline-local states */
   --color-status-todo:        var(--status-todo);
   --color-status-progress:    var(--status-progress);
   --color-status-review:      var(--status-review);
-  --color-status-done:        var(--status-done);
   --color-status-shipped:     var(--status-shipped);
   --color-status-shipped-bg:  var(--status-shipped-bg);
-  --color-status-flight:      var(--status-flight);
-  --color-status-flight-bg:   var(--status-flight-bg);
-  --color-status-next:        var(--status-next);
-  --color-status-next-bg:     var(--status-next-bg);
   --color-status-waiting:     var(--status-waiting);
   --color-status-waiting-bg:  var(--status-waiting-bg);
   --color-status-refused:     var(--status-refused);
@@ -398,7 +314,6 @@
   --color-alarm:    var(--alarm);
   --color-alarm-bg: var(--alarm-bg);
 
-  /* Semantic surfaces */
   --color-bg:          var(--bg);
   --color-bg-elev:     var(--bg-elev);
   --color-bg-elevated: var(--bg-elev);
@@ -414,20 +329,14 @@
   --color-text-muted:  var(--text-muted);
   --color-text-faint:  var(--text-faint);
 
-  /* Type families */
-  --font-sans:    var(--font-geist-sans);
-  --font-mono:    var(--font-geist-mono);
-  --font-display: var(--font-geist-sans);
+  --font-display: var(--font-sans);
 
-  /* Radii */
   --radius-1:    var(--r-1);
   --radius-2:    var(--r-2);
   --radius-3:    var(--r-3);
   --radius-4:    var(--r-4);
   --radius-5:    var(--r-5);
-  --radius-pill: var(--r-pill);
 
-  /* Shadows */
   --shadow-1:      var(--shadow-1);
   --shadow-2:      var(--shadow-2);
   --shadow-3:      var(--shadow-3);
@@ -836,12 +745,10 @@ select,
    is also locked to its visible end-state so a no-JS or
    reduced-motion user never sees opacity:0. */
 @media (prefers-reduced-motion: reduce) {
+  /* System motion tokens are zeroed by src/ds/tokens.css; only the
+     repo-local legacy duration needs handling here. */
   :root {
-    --motion-instant:  0.01ms;
-    --motion-fast:     0.01ms;
-    --motion-base:     0.01ms;
     --motion-moderate: 0.01ms;
-    --motion-slow:     0.01ms;
   }
   .reveal {
     opacity: 1 !important;

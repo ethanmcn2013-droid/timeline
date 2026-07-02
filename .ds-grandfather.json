@@ -1,0 +1,150 @@
+{
+  "src/app/app/(app)/plan/[projectSlug]/_components/curation-surface.tsx": {
+    "hex": 15,
+    "ease": 0
+  },
+  "src/app/app/(app)/_components/create-project-form.tsx": {
+    "hex": 1,
+    "ease": 0
+  },
+  "src/app/app/(app)/_components/create-workspace-form.tsx": {
+    "hex": 1,
+    "ease": 0
+  },
+  "src/app/app/(app)/_components/publish-control.tsx": {
+    "hex": 18,
+    "ease": 1
+  },
+  "src/app/app/loading.tsx": {
+    "hex": 3,
+    "ease": 2
+  },
+  "src/app/globals.css": {
+    "hex": 47,
+    "ease": 0
+  },
+  "src/app/layout.tsx": {
+    "hex": 6,
+    "ease": 0
+  },
+  "src/app/manifest.ts": {
+    "hex": 2,
+    "ease": 0
+  },
+  "src/app/onboarding/from-template/[id]/create-from-template-form.tsx": {
+    "hex": 5,
+    "ease": 0
+  },
+  "src/app/opengraph-image.tsx": {
+    "hex": 4,
+    "ease": 0
+  },
+  "src/app/the-wedding/opengraph-image.tsx": {
+    "hex": 7,
+    "ease": 0
+  },
+  "src/app/[workspaceSlug]/page.tsx": {
+    "hex": 9,
+    "ease": 3
+  },
+  "src/components/brand/wordmark.tsx": {
+    "hex": 1,
+    "ease": 0
+  },
+  "src/components/dev-banner.tsx": {
+    "hex": 10,
+    "ease": 1
+  },
+  "src/components/marketing/anatomy.tsx": {
+    "hex": 7,
+    "ease": 0
+  },
+  "src/components/marketing/long-now-strip.tsx": {
+    "hex": 6,
+    "ease": 0
+  },
+  "src/components/marketing/roadmap-hero-loader.tsx": {
+    "hex": 6,
+    "ease": 12
+  },
+  "src/components/roadmap/item-row.tsx": {
+    "hex": 2,
+    "ease": 0
+  },
+  "src/components/roadmap/lane-node-list.tsx": {
+    "hex": 15,
+    "ease": 0
+  },
+  "src/components/roadmap/milestone-card.tsx": {
+    "hex": 12,
+    "ease": 1
+  },
+  "src/components/roadmap/progress-ring.tsx": {
+    "hex": 0,
+    "ease": 1
+  },
+  "src/components/roadmap/schedule-spine.tsx": {
+    "hex": 5,
+    "ease": 0
+  },
+  "src/components/roadmap/workspace-timeline.tsx": {
+    "hex": 1,
+    "ease": 0
+  },
+  "src/components/roadmap/workspace-view-switcher.tsx": {
+    "hex": 2,
+    "ease": 0
+  },
+  "src/components/showcase/timeline-points.tsx": {
+    "hex": 1,
+    "ease": 0
+  },
+  "src/components/showcase/url-bar.tsx": {
+    "hex": 1,
+    "ease": 0
+  },
+  "src/components/suite-arrows.tsx": {
+    "hex": 6,
+    "ease": 3
+  },
+  "src/components/suite-switcher-pills.tsx": {
+    "hex": 9,
+    "ease": 2
+  },
+  "src/components/system/long-wait-status.tsx": {
+    "hex": 1,
+    "ease": 1
+  },
+  "src/components/system/SuiteLoader.tsx": {
+    "hex": 6,
+    "ease": 1
+  },
+  "src/lib/brand/suite-mark.tsx": {
+    "hex": 2,
+    "ease": 0
+  },
+  "src/lib/clerk-appearance.ts": {
+    "hex": 3,
+    "ease": 0
+  },
+  "src/lib/roadmap/demo-data.ts": {
+    "hex": 2,
+    "ease": 0
+  },
+  "src/lib/templates.generated.ts": {
+    "hex": 2,
+    "ease": 0
+  },
+  "src/server/account-erasure.test.ts": {
+    "hex": 2,
+    "ease": 0
+  },
+  "src/server/account-export.test.ts": {
+    "hex": 2,
+    "ease": 0
+  },
+  "src/server/db/queries.ts": {
+    "hex": 2,
+    "ease": 0
+  }
+}

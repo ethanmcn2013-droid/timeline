@@ -61,7 +61,7 @@ export function CreateFromTemplateForm({
   const statusDot: Record<string, string> = {
     shipped: "var(--status-done, #10b981)",
     "in-flight": "var(--status-doing, #f59e0b)",
-    next: "var(--status-next, #6366f1)",
+    next: "var(--status-next, #71717a)",
     waiting: "var(--status-waiting, #1d6fa3)",
     refused: "var(--ink-quiet, #71717a)",
   };
