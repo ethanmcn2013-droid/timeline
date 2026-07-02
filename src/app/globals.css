@@ -1,1 +1,1020 @@
-@import "tailwindcss";  /* ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ    Design tokens (v0.3 ÔÇö aligned to tasks-design-system.html)    ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ    Strategy: the v0.2 tokens (--brand, --ink, --line, --lane-*)    stay so existing components don't regress. The full design    system is added alongside ÔÇö indigo / ink ramps, audience    accents, status tokens, springs, radii, shadow tiers,    highlight. New code reaches for the ramp tokens; legacy code    keeps working through the v0.2 names which now alias to ramp    stops. */ :root {   /* ÔöÇÔöÇ Indigo ramp ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ */   --indigo-50:  #eef2ff;   --indigo-100: #e0e7ff;   --indigo-200: #c7d2fe;   --indigo-300: #a5b4fc;   --indigo-400: #818cf8;   --indigo-500: #6366f1;   --indigo-600: #4f46e5; /* PRIMARY */   --indigo-700: #4338ca;   --indigo-800: #3730a3;   --indigo-900: #312e81;   --highlight:  var(--indigo-600); /* marker underline accent on display headlines */    /* ÔöÇÔöÇ Ink ramp (neutrals) ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ */   --ink-0:   #ffffff;   --ink-50:  #fafafa;   --ink-100: #f4f4f5;   --ink-200: #e4e4e7;   --ink-300: #d4d4d8;   --ink-400: #a1a1aa;   --ink-500: #71717a;   --ink-600: #52525b;   --ink-700: #3f3f46;   --ink-800: #27272a;   --ink-900: #18181b;   --ink-950: #09090b;    /* ÔöÇÔöÇ Audience accents ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ */   --aud-marketing: #4f46e5;   --aud-freelance: #16a34a;   --aud-student:   #eab308;   --aud-wedding:   #be185d;    /* ÔöÇÔöÇ Status tokens (legacy aliases for lifted Tasks components) ÔöÇÔöÇ */   --status-todo:     #6366f1;   --status-progress: #f59e0b;   --status-review:   #06b6d4;   --status-done:     #10b981;    /* ÔöÇÔöÇ Roadmap status tokens (canonical vocabulary: shipped/in-flight/next/waiting/refused)    *   Mirrors the Tasks design system so lifted components render correctly.    *   2026-06-06 (R┬À21): "blocked" renamed to "waiting" across the data layer.    *   The visual tone moved from alarm-red to calm sky to match the calmer word ÔÇö    *   a "waiting" item is paused, not broken. The old alarm-red tone lives on as    *   --alarm below, for genuinely alarming surfaces (GTM blocker card, form    *   validation, error text). */   --status-shipped:    #10b981;   --status-shipped-bg: #d1fae5;   --status-flight:     #f59e0b;   --status-flight-bg:  #fef3c7;   --status-next:       #6366f1;   --status-next-bg:    #eef2ff;   --status-waiting:    #1d6fa3;   --status-waiting-bg: #eff6fc;   --status-refused:    #71717a;   --status-refused-bg: #f4f4f5;    /* ÔöÇÔöÇ Alarm semantic (the old --status-blocked red, kept for genuinely    *   alarming non-status surfaces: GTM blocker card, form validation,    *   error text on the curation surface). NOT a STATUS-enum tone. */   --alarm:    #ef4444;   --alarm-bg: #fee2e2;    /* ÔöÇÔöÇ Additional background tokens used by lifted components ÔöÇÔöÇ */   --bg-tinted:  color-mix(in srgb, var(--brand) 6%, var(--bg));   --line-faint: color-mix(in srgb, var(--border) 50%, transparent);    /* ÔöÇÔöÇ Roadmap extra pill palette tokens ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ */   --roadmap-indigo-bg: #eef2ff;   --roadmap-indigo-fg: #3730a3;   --roadmap-stone-bg:  #f5f5f4;   --roadmap-stone-fg:  #57534e;    /* ÔöÇÔöÇ Roadmap pill palette ÔÇö categorical badges on /roadmap.    *   Tokenized so the surface stays in the design system; raw    *   hex strings in component files would drift if the palette    *   shifts (cycle-26 design review caught this). Values mirror    *   Tailwind rose/amber/violet/emerald 50/700 so the eye-feel    *   stays consistent with the rest of the marketing site. */   --roadmap-rose-bg:    #ffe4e6;   --roadmap-rose-fg:    #9f1239;   --roadmap-amber-bg:   #fef3c7;   --roadmap-amber-fg:   #92400e;   --roadmap-violet-bg:  #ede9fe;   --roadmap-violet-fg:  #5b21b6;   --roadmap-emerald-bg: #d1fae5;   --roadmap-emerald-fg: #065f46;   /* Stronger red used for P0 priority + unresolved-blocker state. */   --roadmap-red-bg:     #fee2e2;   --roadmap-red-fg:     #991b1b;   --roadmap-red-border: #fecaca;   --roadmap-red-deep:   #7f1d1d;    /* ÔöÇÔöÇ Semantic surfaces ┬À design-system v1 (2026-05-13) ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ */   /* Paper is white now. The warm-stone era ended when the suite      design system locked. */   --paper:       #ffffff;   --paper-elev:  #ffffff;   --paper-soft:  #fafafa;   --paper-deep:  #f4f4f5;   --paper-bone:  #ebebec; /* skeleton bone trough ÔÇö see SUITE-SKELETON-RECONCILE */    --bg:          var(--paper);   --bg-elev:     var(--paper-elev);   --bg-elevated: var(--paper-elev); /* alias for v0.2 callsites */   --bg-deep:     var(--paper-deep);    /* Hairlines ÔÇö stronger than the cream era; white needs definition. */   --hairline:    rgba(17, 17, 17, 0.10);   --hairline-2:  rgba(17, 17, 17, 0.06);    /* Indigo aliases per the design-system spec. */   --indigo:      var(--indigo-600);   --indigo-soft: rgba(79, 70, 229, 0.12);   --bg-sunken:   var(--bg-deep); /* alias */    --border:      var(--hairline);   --border-soft: var(--hairline-2);   --line:        var(--border);      /* alias */   --line-soft:   var(--border-soft); /* alias */    /* Ink ÔÇö off-black per the design-system spec exactly. */   --ink:         #111111;   --ink-soft:    #3f3f46;   --ink-faint:   #71717a;   --ink-ghost:   #d4d4d8;   --ink-quiet:   var(--ink-faint);   --text:        var(--ink);   --text-muted:  var(--ink-faint);   --text-faint:  var(--ink-ghost);    /* ÔöÇÔöÇ Brand semantics (v0.2 names, refreshed values) ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ */   --brand:       var(--indigo-600);   --brand-deep:  var(--indigo-800);   --brand-soft:  var(--indigo-50);   --brand-glow:  rgba(79, 70, 229, 0.42);    /* ÔöÇÔöÇ Lane palette (v0.2 ÔÇö refined to align with status tokens    *   while keeping the soft pastel chrome the board has had    *   since cycle 2. Lane backgrounds stay desaturated so the    *   priority dots and status colors do the talking, not the    *   surfaces themselves) ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ */   --lane-todo:      #f6f4fb;   --lane-todo-ink:  #6d4ea3;   --lane-todo-dot:  #c9b4f0;    --lane-doing:     #fbf6ee;   --lane-doing-ink: #b35a16;   --lane-doing-dot: #f3b878;    --lane-review:     #eff6fc;   --lane-review-ink: #1d6fa3;   --lane-review-dot: #91c8ec;    --lane-done:      #eef7f1;   --lane-done-ink:  #1f7a45;   --lane-done-dot:  #8fd5a8;    /* ÔöÇÔöÇ User presence (cinematic demo + real users) ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ */   --user-chloe: #e4356d;   --user-david: #00a3b8;   --user-alex:  #6366f1;    /* ÔöÇÔöÇ Cinematic demo cursor colors ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ */   --cursor-author:   #4f46e5; /* brand indigo ÔÇö the roadmap author */   --cursor-customer: #e4356d; /* rose ÔÇö the public viewer / commenter */    /* ÔöÇÔöÇ SIGNAL STUDIO MOTION CONTRACT v1 ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ    *   Single source of truth across all 5 repos.    *   UI cap: --motion-moderate (320ms). Reduced-motion block    *   at the bottom of this file collapses all durations to    *   0.01ms so the page is never frozen for screen-reader users.    *   ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ */   --motion-instant:  80ms;   --motion-fast:    140ms;   --motion-base:    220ms;   --motion-moderate:320ms;   --motion-slow:    480ms;   --ease-standard:  cubic-bezier(0.2, 0, 0, 1);   --ease-out:       cubic-bezier(0, 0, 0.2, 1);   --ease-in:        cubic-bezier(0.4, 0, 1, 1);    /* ÔöÇÔöÇ Motion ┬À springs (product gestures, preserved) ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ */   --spring-snap:  cubic-bezier(.2, .9, .2, 1.2);   /* overshoot ÔÇö drops, lifts */   --spring-soft:  cubic-bezier(.32, .72, 0, 1);    /* settle ÔÇö cards, panels */   --spring-glide: cubic-bezier(.16, 1, .3, 1);     /* ride ÔÇö sweeps, fades */    /* v0.2 aliases (existing callsites) */   --ease-out-expo: var(--spring-glide);   --ease-spring:   var(--spring-snap);   --ease-cinema:   cubic-bezier(0.25, 1, 0.5, 1);    /* ÔöÇÔöÇ Type ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ */   --font-sans-stack: var(--font-geist-sans), 'Geist', -apple-system,     system-ui, sans-serif;   --font-mono-stack: var(--font-geist-mono), 'Geist Mono', ui-monospace,     'SF Mono', monospace;    /* Display scale (v0.2 ÔÇö fluid clamps) */   --fs-display: clamp(2.75rem, 1.8rem + 4.2vw, 5.5rem);   --fs-title:   clamp(1.875rem, 1.4rem + 2.2vw, 3.25rem);   --fs-section: clamp(1.5rem, 1.2rem + 1.5vw, 2.25rem);    /* ÔöÇÔöÇ Radii ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ */   --r-1:    4px;   --r-2:    6px;   --r-3:    10px;   --r-4:    14px;   --r-5:    20px;   --r-pill: 999px;    /* ÔöÇÔöÇ Shadows ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ */   --shadow-1: 0 1px 2px rgba(24, 24, 27, .04),               0 1px 1px rgba(24, 24, 27, .03);   --shadow-2: 0 4px 12px rgba(24, 24, 27, .06),               0 1px 3px rgba(24, 24, 27, .04);   --shadow-3: 0 24px 60px -20px rgba(24, 24, 27, .18),               0 8px 24px -8px rgba(24, 24, 27, .08);   --shadow-indigo: 0 12px 32px -12px rgba(79, 70, 229, .45);    /* v0.2 aliases */   --shadow-sm:    var(--shadow-1);   --shadow-card:  var(--shadow-1);   --shadow-lift:  var(--shadow-2);   --shadow-float: var(--shadow-3); }  /* ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ    Loading system tokens ÔÇö LOADING_SYSTEM.md ┬º1 + ┬º4    Canonical values. Copy verbatim to all 5 repos.    These names and values are frozen ÔÇö no divergence across suite.    ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ */ :root {   /* Loading field */   --load-bg:               var(--paper, #ffffff);   --load-dot-color:        var(--indigo, #4f46e5);   --load-dot-size:         10px;   /* Hard px. DESIGN.md S13.3 authority; supersedes D8 12px (loading-review 2026-07-01: one boundary dot, 10px, matches wordmark ceiling min(0.16em, 10px)). */   --load-dot-radius:       50%;    /* Circle */   --load-pulse-scale-min:  0.72;   --load-pulse-scale-max:  1.0;   --load-pulse-duration:   1.8s;   /* Calmer than tasks-dot (2.6s). Loading is suspended. */   --load-pulse-easing:     cubic-bezier(.4, 0, .6, 1); /* Symmetric ease-in-out */   --load-z:                9999;   --load-fade-out:         120ms;   --load-fade-easing:      ease-out;    /* Shell + content reveal timing ÔÇö LOADING_SYSTEM.md ┬º4 */   --shell-fade-in:         160ms;   --shell-fade-easing:     ease-out;   --content-fade-in:       200ms;   --content-fade-easing:   cubic-bezier(.22, .61, .36, 1); /* --ease-out from DESIGN.md ┬º5 */   --skeleton-max:          200ms;   --stagger-content-item:  40ms; }  /* ÔöÇÔöÇ Loading dot pulse animation ÔÇö LOADING_SYSTEM.md ┬º1 ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ    Copy-exact into each repo's globals.css. Class name is frozen:    signal-loading-dot. Never use loading-dot, tasks-dot, etc. here. */ @keyframes signal-load-pulse {   0%, 100% { transform: scale(var(--load-pulse-scale-min, 0.72)); opacity: 0.7; }   50%       { transform: scale(var(--load-pulse-scale-max, 1.0));  opacity: 1; } }  @media (prefers-reduced-motion: no-preference) {   .signal-loading-dot {     animation: signal-load-pulse var(--load-pulse-duration, 1.8s)                var(--load-pulse-easing, cubic-bezier(.4, 0, .6, 1)) infinite;   } }  /* Reduced motion: static dot. Brand present. Motion absent. */ @media (prefers-reduced-motion: reduce) {   .signal-loading-dot {     animation: none;     opacity: 0.85;   } }  /* ÔöÇÔöÇ Content well arrive animation (SuiteLoader) ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ*/ @keyframes suite-content-arrive {   from { opacity: 0; transform: translateY(4px); }   to   { opacity: 1; transform: translateY(0); } }  /* ÔöÇÔöÇ RW-5 Dot-morph ÔÇö cross-origin pre-paint primitive ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ    CREATIVE_SPEC ┬º3 ┬À ARCH_SPEC ┬º3    Canonical block. Copy byte-identical into each repo's globals.css.    Never modify individually ÔÇö any change must propagate to all 5.     Source-side: word collapses toward its period, dot lifts.    Destination-side: dot-land fires if data-dot-landing="1" on <html>.    Reduced-motion: no animation (rules below are no-preference only).    ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ */  /* Source-side ÔÇö word collapses toward its period */ @keyframes word-collapse {   0%   { opacity: 1; letter-spacing: -0.025em; }   100% { opacity: 0; letter-spacing: -0.15em; } }  /* Source-side ÔÇö dot lifts after word collapses */ @keyframes dot-lift {   0%   { transform: scale(1);    opacity: 1; }   100% { transform: scale(1.25); opacity: 0.7; } }  /* Destination-side ÔÇö dot settles into the wordmark period */ @keyframes dot-land {   0%   { transform: scale(1.5); opacity: 0.6; }   100% { transform: scale(1);   opacity: 1; } }  /* Apply destination animation only when sessionStorage flag was detected.    Scoped to no-preference ÔÇö reduced-motion gets static dot, no jump. */ @media (prefers-reduced-motion: no-preference) {   [data-dot-landing="1"] .brand-mark .md,   [data-dot-landing="1"] .brand-mark .pd {     animation: dot-land 320ms cubic-bezier(.2, .9, .2, 1.2) forwards;   } }  /* ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ    Tailwind theme bindings ÔÇö exposes the tokens as Tailwind    utility classes (e.g. `bg-indigo-600`, `text-ink-900`,    `text-status-done`, `shadow-3`).    ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ */ @theme inline {   /* Brand semantic + indigo ramp */   --color-brand:      var(--brand);   --color-brand-deep: var(--brand-deep);   --color-brand-soft: var(--brand-soft);   --color-highlight:  var(--highlight);   --color-indigo-50:  var(--indigo-50);   --color-indigo-100: var(--indigo-100);   --color-indigo-200: var(--indigo-200);   --color-indigo-300: var(--indigo-300);   --color-indigo-400: var(--indigo-400);   --color-indigo-500: var(--indigo-500);   --color-indigo-600: var(--indigo-600);   --color-indigo-700: var(--indigo-700);   --color-indigo-800: var(--indigo-800);   --color-indigo-900: var(--indigo-900);    /* Ink ramp (semantic + 12 stops) */   --color-ink:       var(--ink);   --color-ink-soft:  var(--ink-soft);   --color-ink-quiet: var(--ink-quiet);   --color-ink-faint: var(--ink-faint);   --color-ink-0:    var(--ink-0);   --color-ink-50:   var(--ink-50);   --color-ink-100:  var(--ink-100);   --color-ink-200:  var(--ink-200);   --color-ink-300:  var(--ink-300);   --color-ink-400:  var(--ink-400);   --color-ink-500:  var(--ink-500);   --color-ink-600:  var(--ink-600);   --color-ink-700:  var(--ink-700);   --color-ink-800:  var(--ink-800);   --color-ink-900:  var(--ink-900);   --color-ink-950:  var(--ink-950);    /* Audience accents */   --color-aud-marketing: var(--aud-marketing);   --color-aud-freelance: var(--aud-freelance);   --color-aud-student:   var(--aud-student);   --color-aud-wedding:   var(--aud-wedding);    /* Status tokens */   --color-status-todo:        var(--status-todo);   --color-status-progress:    var(--status-progress);   --color-status-review:      var(--status-review);   --color-status-done:        var(--status-done);   --color-status-shipped:     var(--status-shipped);   --color-status-shipped-bg:  var(--status-shipped-bg);   --color-status-flight:      var(--status-flight);   --color-status-flight-bg:   var(--status-flight-bg);   --color-status-next:        var(--status-next);   --color-status-next-bg:     var(--status-next-bg);   --color-status-waiting:     var(--status-waiting);   --color-status-waiting-bg:  var(--status-waiting-bg);   --color-status-refused:     var(--status-refused);   --color-status-refused-bg:  var(--status-refused-bg);    /* Alarm semantic */   --color-alarm:    var(--alarm);   --color-alarm-bg: var(--alarm-bg);    /* Semantic surfaces */   --color-bg:          var(--bg);   --color-bg-elev:     var(--bg-elev);   --color-bg-elevated: var(--bg-elev);   --color-bg-deep:     var(--bg-deep);   --color-bg-sunken:   var(--bg-deep);   --color-bg-tinted:   var(--bg-tinted);   --color-line:        var(--line);   --color-line-soft:   var(--line-soft);   --color-line-faint:  var(--line-faint);   --color-border:      var(--border);   --color-border-soft: var(--border-soft);   --color-text:        var(--text);   --color-text-muted:  var(--text-muted);   --color-text-faint:  var(--text-faint);    /* Type families */   --font-sans:    var(--font-geist-sans);   --font-mono:    var(--font-geist-mono);   --font-display: var(--font-geist-sans);    /* Radii */   --radius-1:    var(--r-1);   --radius-2:    var(--r-2);   --radius-3:    var(--r-3);   --radius-4:    var(--r-4);   --radius-5:    var(--r-5);   --radius-pill: var(--r-pill);    /* Shadows */   --shadow-1:      var(--shadow-1);   --shadow-2:      var(--shadow-2);   --shadow-3:      var(--shadow-3);   --shadow-indigo: var(--shadow-indigo); }  /* ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ    Base    ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ */ html, body {   background: var(--bg);   color: var(--ink);   font-family: var(--font-sans-stack);   font-feature-settings: "ss01", "cv11";   -webkit-font-smoothing: antialiased;   text-rendering: optimizeLegibility;   /* Belt-and-braces guard against horizontal scroll on mobile.      overflow-x: clip preserves position: sticky on descendants      where overflow-x: hidden would break it. Mirrors studio S┬À26      and tasks T┬À47 mobile parity. */   overflow-x: clip; }  /* RW-5: neutralise the Layer-0 pre-paint pseudo-elements once globals.css    loads. The inline <style> in layout.tsx paints body::before (white field)    and body::after (indigo dot) for the brief pre-stylesheet window.    Once this stylesheet loads, the SuiteLoader div takes over. */ body::before, body::after { content: none; }  ::selection {   background: var(--indigo-200);   color: var(--ink-900); }  /* ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ    Display + utility    ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ */ .tight   { letter-spacing: -0.035em; } .tighter { letter-spacing: -0.05em; }  .font-display {   font-family: var(--font-display);   letter-spacing: -0.04em;   font-feature-settings: "ss01", "ss02", "cv11"; }  .h-display {   font-size: var(--fs-display);   line-height: 0.96;   letter-spacing: -0.045em;   font-weight: 600; } .h-title {   font-size: var(--fs-title);   line-height: 1.04;   letter-spacing: -0.035em;   font-weight: 600; } .h-section {   font-size: var(--fs-section);   line-height: 1.1;   letter-spacing: -0.03em;   font-weight: 600; }  /* Mobile leading correction ÔÇö display-tight desktop leading (0.96ÔÇô1.10)    lets descenders touch the next line's cap-height once clamp() shrinks    the font on phones. Loosen below 640px so wrapped headlines breathe.    Mirrors studio S┬À26 and tasks T┬À47. */ @media (max-width: 640px) {   /* !important required ÔÇö hero h1 elements carry inline      style={{ lineHeight: '0.96' }} that beats external rules. */   .h-display { line-height: 1.04 !important; }   .h-title   { line-height: 1.1  !important; }   .h-section { line-height: 1.18 !important; }   h1         { line-height: 1.08 !important; } }  /* Marker-underline accent for display headlines (matches the DS  * `.hero h1 .accent` treatment ÔÇö a 78%-tall gradient bar behind  * the highlighted span, not a literal text-decoration). Use as  * `<span className="marker">word</span>` inside a heading. */ .marker {   background: linear-gradient(     120deg,     transparent 0 6%,     color-mix(in srgb, var(--highlight) 32%, transparent) 6% 94%,     transparent 94%   );   background-size: 100% 0.78em;   background-position: 0 82%;   background-repeat: no-repeat;   padding: 0 0.05em; }  /* ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ    Wordmark dot ┬À the brand's signature animation    Per design system spec (tasks-design-system.html, sec 01):    - 2.6s cycle, spring-glide easing    - Pulse: rest at 1.0, brief beat to 1.25 at 70%, settle 1.0 at 80%    - Emit ring: invisible 0ÔÇô60%, fades in/out scaling 0.8 ÔåÆ 2.6 ÔåÆ fade    "It pulses, it emits, it says something is happening."    ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ */ .tasks-dot {   display: inline-block;   position: relative;   width: 0.32em;   height: 0.32em;   background-color: var(--brand);   border-radius: 50%;   margin-left: 0.12em;   transform: translateY(-0.38em);   box-shadow: 0 0 14px var(--brand-glow);   animation: tasks-dot-pulse 2.6s var(--spring-glide) infinite; } .tasks-dot::before {   content: "";   position: absolute;   inset: -1px;   border: 1.5px solid var(--brand);   border-radius: 50%;   opacity: 0;   animation: tasks-dot-emit 2.6s var(--spring-glide) infinite; } @keyframes tasks-dot-pulse {   0%, 60%, 100% { transform: translateY(-0.38em) scale(1); }   70%           { transform: translateY(-0.38em) scale(1.25); }   80%           { transform: translateY(-0.38em) scale(1); } } @keyframes tasks-dot-emit {   0%, 60% { opacity: 0; transform: scale(0.8); }   68%     { opacity: 1; transform: scale(1); }   100%    { opacity: 0; transform: scale(2.6); } }  /* RW-5: .roadmap-dot and @keyframes roadmap-dot-sweep removed.    The ~250px balloon was an un-migrated Seamless residual (0.30em pre-font).    All loader markup now routes through the canonical SuiteLoader/SuiteLoaderField    (LOADING_SYSTEM.md ┬º1). The wordmark's period gesture (sweep) was a    loading-state visual ÔÇö with the Layer-0 pre-paint primitive in place, it    is not needed. See ARCH_SPEC ┬º3 for rationale. */  /* ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ    View-switcher active pill ÔÇö tasteful CSS-only transition.    The [data-active] anchor gets a background that fades in with    --motion-base + --ease-standard. No JS required, no framer-    motion dep. Reduced-motion: the collapsed contract tokens make    the transition imperceptibly instant.    ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ */ .view-switcher-link {   transition:     background var(--motion-base) var(--ease-standard),     color       var(--motion-base) var(--ease-standard),     opacity     var(--motion-base) var(--ease-standard); }  /* ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ    Micro-craft utility tokens ÔÇö 60fps transform/opacity only.    ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ */ .transition-micro {   transition:     transform var(--motion-fast)     var(--ease-standard),     opacity   var(--motion-fast)     var(--ease-standard); } .transition-base {   transition:     transform var(--motion-base)     var(--ease-standard),     opacity   var(--motion-base)     var(--ease-standard),     box-shadow var(--motion-base)    var(--ease-standard); }  /* ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ    Texture + utilities    ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ */ .grain::after {   content: "";   position: absolute;   inset: 0;   pointer-events: none;   opacity: 0.04;   mix-blend-mode: multiply;   background-image: url("data:image/svg+xml;utf8,<svg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.92' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>"); }  .thin-scroll::-webkit-scrollbar {   height: 8px;   width: 8px; } .thin-scroll::-webkit-scrollbar-track {   background: transparent; } .thin-scroll::-webkit-scrollbar-thumb {   background: var(--ink-faint);   border-radius: 999px;   border: 2px solid transparent;   background-clip: padding-box; } .thin-scroll::-webkit-scrollbar-thumb:hover {   background: var(--ink-quiet);   background-clip: padding-box;   border: 2px solid transparent; }  /* ÔöÇÔöÇ Focus ring ÔÇö suite-wide single indigo ring ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ    Applies to every interactive element including anchor nav,    breadcrumbs, buttons, and form controls.    WCAG 2.4.11: scroll-margin-top on focusable elements inside    scrollable containers clears the sticky workspace header (48px)    + the workspace view-switcher bar (~48px). */ :focus:not(:focus-visible) {   outline: none; } :focus-visible {   outline: 2px solid var(--indigo-600);   outline-offset: 3px;   border-radius: 6px;   transition: outline-offset var(--motion-fast) var(--ease-out); }  /* Sticky header clearance ÔÇö WCAG 2.4.11.    The workspace header is 48px (h-12) + a possible view-switcher    row (~48px). A 112px margin ensures focused items scroll clear. */ [id], a, button, input, textarea, select, [tabindex] {   scroll-margin-top: 112px; }  .lift {   transition:     transform var(--motion-moderate) var(--spring-glide),     box-shadow var(--motion-moderate) var(--spring-glide); } .lift:hover {   transform: translateY(-2px);   box-shadow: var(--shadow-2); }  /* ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ    Form input / textarea ÔÇö CSS-native focus transition.    Replaces inline onFocus/onBlur style mutations so the border    change is hardware-accelerated and reduced-motion safe.    ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ */ .field {   border-color: var(--border);   transition: border-color var(--motion-fast) var(--ease-standard); } .field:focus {   border-color: var(--brand);   outline: none; } .field:focus-visible {   border-color: var(--brand);   outline: 2px solid var(--indigo-600);   outline-offset: 3px; }  /* ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ    Fix 4: ManualAddForm title input ÔÇö visible focus ring.    Matches the suite-wide :focus-visible pattern above.    outline:none was removed from the inline style; this class    provides the canonical 2px indigo ring on keyboard focus.    ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ */ .manual-add-title-input:focus {   outline: none; } .manual-add-title-input:focus-visible {   outline: 2px solid var(--indigo-600);   outline-offset: 3px;   border-radius: 6px; }  /* ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ    Fix 9: quiet link hover ÔÇö underline only on hover, color unchanged.    Used by "or add one manually" and "+ Add a milestone".    ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ */ .quiet-link-hover:hover {   text-decoration: underline;   text-underline-offset: 2px; }  /* ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ    Sync-from-Tasks button ÔÇö secondary ghost hover affordance.    Tokens: --paper-soft (#fafafa) bg, --ink-ghost (#d4d4d8) border.    transition mirrors the button's inline transition (120ms bg + border,    160ms opacity) and collapses to 0.01ms under reduced-motion via the    contract block at the bottom of this file.    ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ */ .sync-button:hover:not(:disabled) {   background: var(--paper-soft);   border-color: var(--ink-ghost); }  /* ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ    Animations    ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ */ @keyframes ticker-scroll {   0%   { transform: translateX(0); }   100% { transform: translateX(-50%); } } .ticker {   animation: ticker-scroll 40s linear infinite; }  @keyframes rise {   0%   { opacity: 0; transform: translateY(14px); }   100% { opacity: 1; transform: translateY(0); } } .rise {   animation: rise var(--motion-slow) var(--spring-glide) both; }  /* R6: spinner for pending button states */ @keyframes spin {   to { transform: rotate(360deg); } }  @keyframes shine {   0%   { background-position: 200% center; }   100% { background-position: -100% center; } } .wordmark {   background: linear-gradient(     110deg,     var(--ink-900) 30%,     var(--ink-600) 50%,     var(--ink-900) 70%   );   background-size: 300% auto;   -webkit-background-clip: text;   -webkit-text-fill-color: transparent;   background-clip: text; } .wordmark-hover:hover .wordmark {   animation: shine 3s linear infinite; }  /* Live-pulse green dot ÔÇö used by status indicators that need to  * say "this is live right now" without shouting. Matches the DS  * `.hero-meta .pill::before` and `.mark-stage::after` rule. */ @keyframes live-pulse {   50% { box-shadow: 0 0 0 6px rgba(74, 222, 128, 0); } } .live-dot {   width: 6px;   height: 6px;   border-radius: 50%;   background: #4ade80;   box-shadow: 0 0 0 3px rgba(74, 222, 128, 0.25);   animation: live-pulse 1.6s ease-in-out infinite;   display: inline-block; }  /* ÔöÇÔöÇ H1 (roadmap-elevation): Clerk UserButton avatar clamp ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ    Belt-and-braces companion to the clerkAppearance.elements config.    The JS config fixes avatar size post-hydration; this CSS guard    covers the pre-hydration window where Clerk paints its default    ~40px indigo circle before React takes over. Constrained to 32├ù32px    to match the header's h-14 proportions. Do NOT enlarge ÔÇö the 32px    value is a ceiling, not a floor; Clerk's own image may be smaller. */ .cl-userButtonAvatarBox, .cl-avatarBox {   width: 2rem !important;  /* 32px */   height: 2rem !important; /* 32px */   max-width: 2rem !important;   max-height: 2rem !important; }  /* ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ    Skeleton shimmer ÔÇö ghost-chrome loading / empty states    Used by: src/app/app/(app)/loading.tsx, src/app/[workspaceSlug]/[projectSlug]/loading.tsx    ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ */ @keyframes skeleton-sweep {   0%   { background-position: -400px 0; }   100% { background-position: 400px 0; } }  .skeleton-shimmer {   background: linear-gradient(     90deg,     var(--paper-bone) 0%,     var(--paper-deep) 40%,     var(--paper-deep) 60%,     var(--paper-bone) 100%   );   background-size: 800px 100%;   animation: skeleton-sweep 1.4s ease-in-out infinite; }  /* ÔöÇÔöÇ Reduced-motion: skeleton ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ */ @media (prefers-reduced-motion: reduce) {   .skeleton-shimmer {     animation: none;     background: var(--paper-bone);   } }  /* ÔöÇÔöÇ SIGNAL STUDIO MOTION CONTRACT v1 ┬À reduced-motion block ÔöÇÔöÇ    Collapses all contract durations to 0.01ms. The .reveal class    is also locked to its visible end-state so a no-JS or    reduced-motion user never sees opacity:0. */ @media (prefers-reduced-motion: reduce) {   :root {     --motion-instant:  0.01ms;     --motion-fast:     0.01ms;     --motion-base:     0.01ms;     --motion-moderate: 0.01ms;     --motion-slow:     0.01ms;   }   .reveal {     opacity: 1 !important;     transform: none !important;     translate: none !important;     animation: none !important;   }   *,   *::before,   *::after {     animation-duration: 0.01ms !important;     animation-iteration-count: 1 !important;     transition-duration: 0.01ms !important;   } }  /* ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ    M2/fix4: Date input ÔÇö custom calendar affordance. Cross-browser.    Suppresses the OS ::-webkit-calendar-picker-indicator ONLY on    .date-input-custom ÔÇö does NOT affect any other date input.    The .date-input-wrapper provides the position:relative context    for the absolutely-positioned .date-input-icon-btn button.    The button calls showPicker?.() on click ÔÇö works on Firefox where    the WebKit pseudo-element doesn't exist. WebKit indicator opacity:0    is kept as the click-through fallback where showPicker is unsupported.    SVG inside the button has pointer-events:none so the button receives    all clicks rather than the SVG element itself.    tabIndex={-1} on the button keeps the native <input> as the only tab stop.    ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ */ .date-input-wrapper {   position: relative;   display: inline-flex;   align-items: center; }  .date-input-custom::-webkit-calendar-picker-indicator {   opacity: 0;   position: absolute;   right: 0;   width: 28px;   height: 100%;   cursor: pointer; }  /* Button wrapper for the calendar icon. Not a tab stop (tabIndex=-1 on element).    Positioned absolutely inside .date-input-wrapper. */ .date-input-icon-btn {   position: absolute;   right: 6px;   display: inline-flex;   align-items: center;   justify-content: center;   background: none;   border: none;   padding: 0;   margin: 0;   cursor: pointer;   color: var(--ink-quiet);   /* Ensure it sits above the input's content but below any focus ring */   pointer-events: auto; }  .date-input-icon {   display: block;   flex-shrink: 0;   /* SVG itself doesn't need to be a pointer target ÔÇö the button wrapper catches it */   pointer-events: none; }  .date-input-custom:focus-visible {   outline: 2px solid var(--indigo-600);   outline-offset: 3px;   border-radius: 6px; }  /* ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ    M5: Roadmap wordmark ambient gesture ÔÇö .roadmap-dot opacity pulse.    Low-key identity mark: 0.85 ÔåÆ 1.0 at 3s ease-in-out alternate.    Scoped to .roadmap-dot only ÔÇö does NOT affect .signal-loading-dot    (the SuiteLoader dot) or .skeleton-shimmer (the loading ghost).    prefers-reduced-motion: static at full opacity, no animation.    ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ */ @keyframes roadmap-dot-ambient {   from { opacity: 0.85; }   to   { opacity: 1.0; } }  @media (prefers-reduced-motion: no-preference) {   .roadmap-dot {     animation: roadmap-dot-ambient 3s ease-in-out infinite alternate;   } }  @media (prefers-reduced-motion: reduce) {   .roadmap-dot {     animation: none;     opacity: 1;   } }  /* ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ    Walkover row 5 (2026-06-07): Roadmap wordmark sweep gesture.    The brand gesture-vocab (2026-05-16) assigned "sweep" to    Roadmap. RW-5 removed an old loading-state sweep; this is    the editorial sweep ÔÇö a faint highlight glances left-to-right    across the word every ~7s. Semantically: publish-and-pass.    Pure CSS, scoped to .roadmap-wordmark-text, reduced-motion    safe (no animation under reduce; static ink colour holds).    ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ */ .roadmap-wordmark-text {   background-image: linear-gradient(     100deg,     var(--ink) 0%,     var(--ink) 35%,     color-mix(in srgb, var(--ink) 55%, var(--accent, #4f46e5)) 50%,     var(--ink) 65%,     var(--ink) 100%   );   background-size: 300% 100%;   background-position: 200% 0;   -webkit-background-clip: text;   background-clip: text;   color: var(--ink); }  @keyframes roadmap-wordmark-sweep {   /* Long quiet dwell, fast glide. The sweep runs in 1.4s of the 7s      cycle; the rest is rest. Quiet at rest, named at the moment of      the gesture. */   0%, 80%   { background-position: 200% 0; }   100%      { background-position: -200% 0; } }  @media (prefers-reduced-motion: no-preference) {   .roadmap-wordmark-text {     -webkit-text-fill-color: transparent;     animation: roadmap-wordmark-sweep 7s linear infinite;   } }  @media (prefers-reduced-motion: reduce) {   .roadmap-wordmark-text {     background: none;     -webkit-text-fill-color: currentColor;     animation: none;   } }  /* ÔöÇÔöÇ .reveal ÔÇö baseline-visible scroll entrance ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ    animation-fill-mode: both keeps the element at its end-state    (opacity:1 / translate:0) before AND after the animation, so    the page is fully readable with JS disabled and before the    scroll threshold fires.     One-shot. Calm. 12px single-axis fade-up ÔÇö the contract value.    The animation-timeline path uses @supports so it degrades    cleanly on browsers that don't support scroll-driven animations    (they fall through to the static fill-mode both = visible). */ .reveal {   animation: reveal-fade var(--motion-slow) var(--ease-out) both; }  @media (prefers-reduced-motion: no-preference) {   @supports (animation-timeline: view()) {     .reveal {       animation: reveal-fade var(--motion-slow) var(--ease-out) both;       animation-timeline: view();       animation-range: entry 0% entry 35%;     }   } }  @keyframes reveal-fade {   from { opacity: 0; translate: 0 12px; }   to   { opacity: 1; translate: 0 0; } }
+@import "tailwindcss";
+
+/* ────────────────────────────────────────────────────────────
+   Design tokens (v0.3 — aligned to tasks-design-system.html)
+   ────────────────────────────────────────────────────────────
+   Strategy: the v0.2 tokens (--brand, --ink, --line, --lane-*)
+   stay so existing components don't regress. The full design
+   system is added alongside — indigo / ink ramps, audience
+   accents, status tokens, springs, radii, shadow tiers,
+   highlight. New code reaches for the ramp tokens; legacy code
+   keeps working through the v0.2 names which now alias to ramp
+   stops. */
+:root {
+  /* ── Indigo ramp ──────────────────────────────────────────── */
+  --indigo-50:  #eef2ff;
+  --indigo-100: #e0e7ff;
+  --indigo-200: #c7d2fe;
+  --indigo-300: #a5b4fc;
+  --indigo-400: #818cf8;
+  --indigo-500: #6366f1;
+  --indigo-600: #4f46e5; /* PRIMARY */
+  --indigo-700: #4338ca;
+  --indigo-800: #3730a3;
+  --indigo-900: #312e81;
+  --highlight:  var(--indigo-600); /* marker underline accent on display headlines */
+
+  /* ── Ink ramp (neutrals) ──────────────────────────────────── */
+  --ink-0:   #ffffff;
+  --ink-50:  #fafafa;
+  --ink-100: #f4f4f5;
+  --ink-200: #e4e4e7;
+  --ink-300: #d4d4d8;
+  --ink-400: #a1a1aa;
+  --ink-500: #71717a;
+  --ink-600: #52525b;
+  --ink-700: #3f3f46;
+  --ink-800: #27272a;
+  --ink-900: #18181b;
+  --ink-950: #09090b;
+
+  /* ── Audience accents ─────────────────────────────────────── */
+  --aud-marketing: #4f46e5;
+  --aud-freelance: #16a34a;
+  --aud-student:   #eab308;
+  --aud-wedding:   #be185d;
+
+  /* ── Status tokens (legacy aliases for lifted Tasks components) ── */
+  --status-todo:     #6366f1;
+  --status-progress: #f59e0b;
+  --status-review:   #06b6d4;
+  --status-done:     #10b981;
+
+  /* ── Roadmap status tokens (canonical vocabulary: shipped/in-flight/next/waiting/refused)
+   *   Mirrors the Tasks design system so lifted components render correctly.
+   *   2026-06-06 (R·21): "blocked" renamed to "waiting" across the data layer.
+   *   The visual tone moved from alarm-red to calm sky to match the calmer word —
+   *   a "waiting" item is paused, not broken. The old alarm-red tone lives on as
+   *   --alarm below, for genuinely alarming surfaces (GTM blocker card, form
+   *   validation, error text). */
+  --status-shipped:    #10b981;
+  --status-shipped-bg: #d1fae5;
+  --status-flight:     #f59e0b;
+  --status-flight-bg:  #fef3c7;
+  --status-next:       #6366f1;
+  --status-next-bg:    #eef2ff;
+  --status-waiting:    #1d6fa3;
+  --status-waiting-bg: #eff6fc;
+  --status-refused:    #71717a;
+  --status-refused-bg: #f4f4f5;
+
+  /* ── Alarm semantic (the old --status-blocked red, kept for genuinely
+   *   alarming non-status surfaces: GTM blocker card, form validation,
+   *   error text on the curation surface). NOT a STATUS-enum tone. */
+  --alarm:    #ef4444;
+  --alarm-bg: #fee2e2;
+
+  /* ── Additional background tokens used by lifted components ── */
+  --bg-tinted:  color-mix(in srgb, var(--brand) 6%, var(--bg));
+  --line-faint: color-mix(in srgb, var(--border) 50%, transparent);
+
+  /* ── Roadmap extra pill palette tokens ──────────────────────── */
+  --roadmap-indigo-bg: #eef2ff;
+  --roadmap-indigo-fg: #3730a3;
+  --roadmap-stone-bg:  #f5f5f4;
+  --roadmap-stone-fg:  #57534e;
+
+  /* ── Roadmap pill palette — categorical badges on /roadmap.
+   *   Tokenized so the surface stays in the design system; raw
+   *   hex strings in component files would drift if the palette
+   *   shifts (cycle-26 design review caught this). Values mirror
+   *   Tailwind rose/amber/violet/emerald 50/700 so the eye-feel
+   *   stays consistent with the rest of the marketing site. */
+  --roadmap-rose-bg:    #ffe4e6;
+  --roadmap-rose-fg:    #9f1239;
+  --roadmap-amber-bg:   #fef3c7;
+  --roadmap-amber-fg:   #92400e;
+  --roadmap-violet-bg:  #ede9fe;
+  --roadmap-violet-fg:  #5b21b6;
+  --roadmap-emerald-bg: #d1fae5;
+  --roadmap-emerald-fg: #065f46;
+  /* Stronger red used for P0 priority + unresolved-blocker state. */
+  --roadmap-red-bg:     #fee2e2;
+  --roadmap-red-fg:     #991b1b;
+  --roadmap-red-border: #fecaca;
+  --roadmap-red-deep:   #7f1d1d;
+
+  /* ── Semantic surfaces · design-system v1 (2026-05-13) ────── */
+  /* Paper is white now. The warm-stone era ended when the suite
+     design system locked. */
+  --paper:       #ffffff;
+  --paper-elev:  #ffffff;
+  --paper-soft:  #fafafa;
+  --paper-deep:  #f4f4f5;
+  --paper-bone:  #ebebec; /* skeleton bone trough — see SUITE-SKELETON-RECONCILE */
+
+  --bg:          var(--paper);
+  --bg-elev:     var(--paper-elev);
+  --bg-elevated: var(--paper-elev); /* alias for v0.2 callsites */
+  --bg-deep:     var(--paper-deep);
+
+  /* Hairlines — stronger than the cream era; white needs definition. */
+  --hairline:    rgba(17, 17, 17, 0.10);
+  --hairline-2:  rgba(17, 17, 17, 0.06);
+
+  /* Indigo aliases per the design-system spec. */
+  --indigo:      var(--indigo-600);
+  --indigo-soft: rgba(79, 70, 229, 0.12);
+  --bg-sunken:   var(--bg-deep); /* alias */
+
+  --border:      var(--hairline);
+  --border-soft: var(--hairline-2);
+  --line:        var(--border);      /* alias */
+  --line-soft:   var(--border-soft); /* alias */
+
+  /* Ink — off-black per the design-system spec exactly. */
+  --ink:         #111111;
+  --ink-soft:    #3f3f46;
+  --ink-faint:   #71717a;
+  --ink-ghost:   #d4d4d8;
+  --ink-quiet:   var(--ink-faint);
+  --text:        var(--ink);
+  --text-muted:  var(--ink-faint);
+  --text-faint:  var(--ink-ghost);
+
+  /* ── Brand semantics (v0.2 names, refreshed values) ───────── */
+  --brand:       var(--indigo-600);
+  --brand-deep:  var(--indigo-800);
+  --brand-soft:  var(--indigo-50);
+  --brand-glow:  rgba(79, 70, 229, 0.42);
+
+  /* ── Lane palette (v0.2 — refined to align with status tokens
+   *   while keeping the soft pastel chrome the board has had
+   *   since cycle 2. Lane backgrounds stay desaturated so the
+   *   priority dots and status colors do the talking, not the
+   *   surfaces themselves) ──────────────────────────────────── */
+  --lane-todo:      #f6f4fb;
+  --lane-todo-ink:  #6d4ea3;
+  --lane-todo-dot:  #c9b4f0;
+
+  --lane-doing:     #fbf6ee;
+  --lane-doing-ink: #b35a16;
+  --lane-doing-dot: #f3b878;
+
+  --lane-review:     #eff6fc;
+  --lane-review-ink: #1d6fa3;
+  --lane-review-dot: #91c8ec;
+
+  --lane-done:      #eef7f1;
+  --lane-done-ink:  #1f7a45;
+  --lane-done-dot:  #8fd5a8;
+
+  /* ── User presence (cinematic demo + real users) ──────────── */
+  --user-chloe: #e4356d;
+  --user-david: #00a3b8;
+  --user-alex:  #6366f1;
+
+  /* ── Cinematic demo cursor colors ─────────────────────────── */
+  --cursor-author:   #4f46e5; /* brand indigo — the roadmap author */
+  --cursor-customer: #e4356d; /* rose — the public viewer / commenter */
+
+  /* ── SIGNAL STUDIO MOTION CONTRACT v1 ───────────────────────
+   *   Single source of truth across all 5 repos.
+   *   UI cap: --motion-moderate (320ms). Reduced-motion block
+   *   at the bottom of this file collapses all durations to
+   *   0.01ms so the page is never frozen for screen-reader users.
+   *   ────────────────────────────────────────────────────────── */
+  --motion-instant:  80ms;
+  --motion-fast:    140ms;
+  --motion-base:    220ms;
+  --motion-moderate:320ms;
+  --motion-slow:    480ms;
+  --ease-standard:  cubic-bezier(0.2, 0, 0, 1);
+  --ease-out:       cubic-bezier(0, 0, 0.2, 1);
+  --ease-in:        cubic-bezier(0.4, 0, 1, 1);
+
+  /* ── Motion · springs (product gestures, preserved) ─────── */
+  --spring-snap:  cubic-bezier(.2, .9, .2, 1.2);   /* overshoot — drops, lifts */
+  --spring-soft:  cubic-bezier(.32, .72, 0, 1);    /* settle — cards, panels */
+  --spring-glide: cubic-bezier(.16, 1, .3, 1);     /* ride — sweeps, fades */
+
+  /* v0.2 aliases (existing callsites) */
+  --ease-out-expo: var(--spring-glide);
+  --ease-spring:   var(--spring-snap);
+  --ease-cinema:   cubic-bezier(0.25, 1, 0.5, 1);
+
+  /* ── Type ─────────────────────────────────────────────────── */
+  --font-sans-stack: var(--font-geist-sans), 'Geist', -apple-system,
+    system-ui, sans-serif;
+  --font-mono-stack: var(--font-geist-mono), 'Geist Mono', ui-monospace,
+    'SF Mono', monospace;
+
+  /* Display scale (v0.2 — fluid clamps) */
+  --fs-display: clamp(2.75rem, 1.8rem + 4.2vw, 5.5rem);
+  --fs-title:   clamp(1.875rem, 1.4rem + 2.2vw, 3.25rem);
+  --fs-section: clamp(1.5rem, 1.2rem + 1.5vw, 2.25rem);
+
+  /* ── Radii ────────────────────────────────────────────────── */
+  --r-1:    4px;
+  --r-2:    6px;
+  --r-3:    10px;
+  --r-4:    14px;
+  --r-5:    20px;
+  --r-pill: 999px;
+
+  /* ── Shadows ──────────────────────────────────────────────── */
+  --shadow-1: 0 1px 2px rgba(24, 24, 27, .04),
+              0 1px 1px rgba(24, 24, 27, .03);
+  --shadow-2: 0 4px 12px rgba(24, 24, 27, .06),
+              0 1px 3px rgba(24, 24, 27, .04);
+  --shadow-3: 0 24px 60px -20px rgba(24, 24, 27, .18),
+              0 8px 24px -8px rgba(24, 24, 27, .08);
+  --shadow-indigo: 0 12px 32px -12px rgba(79, 70, 229, .45);
+
+  /* v0.2 aliases */
+  --shadow-sm:    var(--shadow-1);
+  --shadow-card:  var(--shadow-1);
+  --shadow-lift:  var(--shadow-2);
+  --shadow-float: var(--shadow-3);
+}
+
+/* ────────────────────────────────────────────────────────────
+   Loading system tokens — LOADING_SYSTEM.md §1 + §4
+   Canonical values. Copy verbatim to all 5 repos.
+   These names and values are frozen — no divergence across suite.
+   ──────────────────────────────────────────────────────────── */
+:root {
+  /* Loading field */
+  --load-bg:               var(--paper, #ffffff);
+  --load-dot-color:        var(--indigo, #4f46e5);
+  --load-dot-size:         10px;   /* Hard px. DESIGN.md S13.3 authority; supersedes D8 12px (loading-review 2026-07-01: one boundary dot, 10px, matches wordmark ceiling min(0.16em, 10px)). */
+  --load-dot-radius:       50%;    /* Circle */
+  --load-pulse-scale-min:  0.72;
+  --load-pulse-scale-max:  1.0;
+  --load-pulse-duration:   1.8s;   /* Calmer than tasks-dot (2.6s). Loading is suspended. */
+  --load-pulse-easing:     cubic-bezier(.4, 0, .6, 1); /* Symmetric ease-in-out */
+  --load-z:                9999;
+  --load-fade-out:         120ms;
+  --load-fade-easing:      ease-out;
+
+  /* Shell + content reveal timing — LOADING_SYSTEM.md §4 */
+  --shell-fade-in:         160ms;
+  --shell-fade-easing:     ease-out;
+  --content-fade-in:       200ms;
+  --content-fade-easing:   cubic-bezier(.22, .61, .36, 1); /* --ease-out from DESIGN.md §5 */
+  --skeleton-max:          200ms;
+  --stagger-content-item:  40ms;
+}
+
+/* ── Loading dot pulse animation — LOADING_SYSTEM.md §1 ──────────
+   Copy-exact into each repo's globals.css. Class name is frozen:
+   signal-loading-dot. Never use loading-dot, tasks-dot, etc. here. */
+@keyframes signal-load-pulse {
+  0%, 100% { transform: scale(var(--load-pulse-scale-min, 0.72)); opacity: 0.7; }
+  50%       { transform: scale(var(--load-pulse-scale-max, 1.0));  opacity: 1; }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .signal-loading-dot {
+    animation: signal-load-pulse var(--load-pulse-duration, 1.8s)
+               var(--load-pulse-easing, cubic-bezier(.4, 0, .6, 1)) infinite;
+  }
+}
+
+/* Reduced motion: static dot. Brand present. Motion absent. */
+@media (prefers-reduced-motion: reduce) {
+  .signal-loading-dot {
+    animation: none;
+    opacity: 0.85;
+  }
+}
+
+/* ── Content well arrive animation (SuiteLoader) ─────────────────*/
+@keyframes suite-content-arrive {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── RW-5 Dot-morph — cross-origin pre-paint primitive ───────────
+   CREATIVE_SPEC §3 · ARCH_SPEC §3
+   Canonical block. Copy byte-identical into each repo's globals.css.
+   Never modify individually — any change must propagate to all 5.
+
+   Source-side: word collapses toward its period, dot lifts.
+   Destination-side: dot-land fires if data-dot-landing="1" on <html>.
+   Reduced-motion: no animation (rules below are no-preference only).
+   ──────────────────────────────────────────────────────────────── */
+
+/* Source-side — word collapses toward its period */
+@keyframes word-collapse {
+  0%   { opacity: 1; letter-spacing: -0.025em; }
+  100% { opacity: 0; letter-spacing: -0.15em; }
+}
+
+/* Source-side — dot lifts after word collapses */
+@keyframes dot-lift {
+  0%   { transform: scale(1);    opacity: 1; }
+  100% { transform: scale(1.25); opacity: 0.7; }
+}
+
+/* Destination-side — dot settles into the wordmark period */
+@keyframes dot-land {
+  0%   { transform: scale(1.5); opacity: 0.6; }
+  100% { transform: scale(1);   opacity: 1; }
+}
+
+/* Apply destination animation only when sessionStorage flag was detected.
+   Scoped to no-preference — reduced-motion gets static dot, no jump. */
+@media (prefers-reduced-motion: no-preference) {
+  [data-dot-landing="1"] .brand-mark .md,
+  [data-dot-landing="1"] .brand-mark .pd {
+    animation: dot-land 320ms cubic-bezier(.2, .9, .2, 1.2) forwards;
+  }
+}
+
+/* ────────────────────────────────────────────────────────────
+   Tailwind theme bindings — exposes the tokens as Tailwind
+   utility classes (e.g. `bg-indigo-600`, `text-ink-900`,
+   `text-status-done`, `shadow-3`).
+   ──────────────────────────────────────────────────────────── */
+@theme inline {
+  /* Brand semantic + indigo ramp */
+  --color-brand:      var(--brand);
+  --color-brand-deep: var(--brand-deep);
+  --color-brand-soft: var(--brand-soft);
+  --color-highlight:  var(--highlight);
+  --color-indigo-50:  var(--indigo-50);
+  --color-indigo-100: var(--indigo-100);
+  --color-indigo-200: var(--indigo-200);
+  --color-indigo-300: var(--indigo-300);
+  --color-indigo-400: var(--indigo-400);
+  --color-indigo-500: var(--indigo-500);
+  --color-indigo-600: var(--indigo-600);
+  --color-indigo-700: var(--indigo-700);
+  --color-indigo-800: var(--indigo-800);
+  --color-indigo-900: var(--indigo-900);
+
+  /* Ink ramp (semantic + 12 stops) */
+  --color-ink:       var(--ink);
+  --color-ink-soft:  var(--ink-soft);
+  --color-ink-quiet: var(--ink-quiet);
+  --color-ink-faint: var(--ink-faint);
+  --color-ink-0:    var(--ink-0);
+  --color-ink-50:   var(--ink-50);
+  --color-ink-100:  var(--ink-100);
+  --color-ink-200:  var(--ink-200);
+  --color-ink-300:  var(--ink-300);
+  --color-ink-400:  var(--ink-400);
+  --color-ink-500:  var(--ink-500);
+  --color-ink-600:  var(--ink-600);
+  --color-ink-700:  var(--ink-700);
+  --color-ink-800:  var(--ink-800);
+  --color-ink-900:  var(--ink-900);
+  --color-ink-950:  var(--ink-950);
+
+  /* Audience accents */
+  --color-aud-marketing: var(--aud-marketing);
+  --color-aud-freelance: var(--aud-freelance);
+  --color-aud-student:   var(--aud-student);
+  --color-aud-wedding:   var(--aud-wedding);
+
+  /* Status tokens */
+  --color-status-todo:        var(--status-todo);
+  --color-status-progress:    var(--status-progress);
+  --color-status-review:      var(--status-review);
+  --color-status-done:        var(--status-done);
+  --color-status-shipped:     var(--status-shipped);
+  --color-status-shipped-bg:  var(--status-shipped-bg);
+  --color-status-flight:      var(--status-flight);
+  --color-status-flight-bg:   var(--status-flight-bg);
+  --color-status-next:        var(--status-next);
+  --color-status-next-bg:     var(--status-next-bg);
+  --color-status-waiting:     var(--status-waiting);
+  --color-status-waiting-bg:  var(--status-waiting-bg);
+  --color-status-refused:     var(--status-refused);
+  --color-status-refused-bg:  var(--status-refused-bg);
+
+  /* Alarm semantic */
+  --color-alarm:    var(--alarm);
+  --color-alarm-bg: var(--alarm-bg);
+
+  /* Semantic surfaces */
+  --color-bg:          var(--bg);
+  --color-bg-elev:     var(--bg-elev);
+  --color-bg-elevated: var(--bg-elev);
+  --color-bg-deep:     var(--bg-deep);
+  --color-bg-sunken:   var(--bg-deep);
+  --color-bg-tinted:   var(--bg-tinted);
+  --color-line:        var(--line);
+  --color-line-soft:   var(--line-soft);
+  --color-line-faint:  var(--line-faint);
+  --color-border:      var(--border);
+  --color-border-soft: var(--border-soft);
+  --color-text:        var(--text);
+  --color-text-muted:  var(--text-muted);
+  --color-text-faint:  var(--text-faint);
+
+  /* Type families */
+  --font-sans:    var(--font-geist-sans);
+  --font-mono:    var(--font-geist-mono);
+  --font-display: var(--font-geist-sans);
+
+  /* Radii */
+  --radius-1:    var(--r-1);
+  --radius-2:    var(--r-2);
+  --radius-3:    var(--r-3);
+  --radius-4:    var(--r-4);
+  --radius-5:    var(--r-5);
+  --radius-pill: var(--r-pill);
+
+  /* Shadows */
+  --shadow-1:      var(--shadow-1);
+  --shadow-2:      var(--shadow-2);
+  --shadow-3:      var(--shadow-3);
+  --shadow-indigo: var(--shadow-indigo);
+}
+
+/* ────────────────────────────────────────────────────────────
+   Base
+   ──────────────────────────────────────────────────────────── */
+html,
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-sans-stack);
+  font-feature-settings: "ss01", "cv11";
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  /* Belt-and-braces guard against horizontal scroll on mobile.
+     overflow-x: clip preserves position: sticky on descendants
+     where overflow-x: hidden would break it. Mirrors studio S·26
+     and tasks T·47 mobile parity. */
+  overflow-x: clip;
+}
+
+/* RW-5: neutralise the Layer-0 pre-paint pseudo-elements once globals.css
+   loads. The inline <style> in layout.tsx paints body::before (white field)
+   and body::after (indigo dot) for the brief pre-stylesheet window.
+   Once this stylesheet loads, the SuiteLoader div takes over. */
+body::before,
+body::after { content: none; }
+
+::selection {
+  background: var(--indigo-200);
+  color: var(--ink-900);
+}
+
+/* ────────────────────────────────────────────────────────────
+   Display + utility
+   ──────────────────────────────────────────────────────────── */
+.tight   { letter-spacing: -0.035em; }
+.tighter { letter-spacing: -0.05em; }
+
+.font-display {
+  font-family: var(--font-display);
+  letter-spacing: -0.04em;
+  font-feature-settings: "ss01", "ss02", "cv11";
+}
+
+.h-display {
+  font-size: var(--fs-display);
+  line-height: 0.96;
+  letter-spacing: -0.045em;
+  font-weight: 600;
+}
+.h-title {
+  font-size: var(--fs-title);
+  line-height: 1.04;
+  letter-spacing: -0.035em;
+  font-weight: 600;
+}
+.h-section {
+  font-size: var(--fs-section);
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  font-weight: 600;
+}
+
+/* Mobile leading correction — display-tight desktop leading (0.96–1.10)
+   lets descenders touch the next line's cap-height once clamp() shrinks
+   the font on phones. Loosen below 640px so wrapped headlines breathe.
+   Mirrors studio S·26 and tasks T·47. */
+@media (max-width: 640px) {
+  /* !important required — hero h1 elements carry inline
+     style={{ lineHeight: '0.96' }} that beats external rules. */
+  .h-display { line-height: 1.04 !important; }
+  .h-title   { line-height: 1.1  !important; }
+  .h-section { line-height: 1.18 !important; }
+  h1         { line-height: 1.08 !important; }
+}
+
+/* Marker-underline accent for display headlines (matches the DS
+ * `.hero h1 .accent` treatment — a 78%-tall gradient bar behind
+ * the highlighted span, not a literal text-decoration). Use as
+ * `<span className="marker">word</span>` inside a heading. */
+.marker {
+  background: linear-gradient(
+    120deg,
+    transparent 0 6%,
+    color-mix(in srgb, var(--highlight) 32%, transparent) 6% 94%,
+    transparent 94%
+  );
+  background-size: 100% 0.78em;
+  background-position: 0 82%;
+  background-repeat: no-repeat;
+  padding: 0 0.05em;
+}
+
+/* ────────────────────────────────────────────────────────────
+   Wordmark dot · the brand's signature animation
+   Per design system spec (tasks-design-system.html, sec 01):
+   - 2.6s cycle, spring-glide easing
+   - Pulse: rest at 1.0, brief beat to 1.25 at 70%, settle 1.0 at 80%
+   - Emit ring: invisible 0–60%, fades in/out scaling 0.8 → 2.6 → fade
+   "It pulses, it emits, it says something is happening."
+   ──────────────────────────────────────────────────────────── */
+.tasks-dot {
+  display: inline-block;
+  position: relative;
+  width: 0.32em;
+  height: 0.32em;
+  background-color: var(--brand);
+  border-radius: 50%;
+  margin-left: 0.12em;
+  transform: translateY(-0.38em);
+  box-shadow: 0 0 14px var(--brand-glow);
+  animation: tasks-dot-pulse 2.6s var(--spring-glide) infinite;
+}
+.tasks-dot::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border: 1.5px solid var(--brand);
+  border-radius: 50%;
+  opacity: 0;
+  animation: tasks-dot-emit 2.6s var(--spring-glide) infinite;
+}
+@keyframes tasks-dot-pulse {
+  0%, 60%, 100% { transform: translateY(-0.38em) scale(1); }
+  70%           { transform: translateY(-0.38em) scale(1.25); }
+  80%           { transform: translateY(-0.38em) scale(1); }
+}
+@keyframes tasks-dot-emit {
+  0%, 60% { opacity: 0; transform: scale(0.8); }
+  68%     { opacity: 1; transform: scale(1); }
+  100%    { opacity: 0; transform: scale(2.6); }
+}
+
+/* RW-5: .roadmap-dot and @keyframes roadmap-dot-sweep removed.
+   The ~250px balloon was an un-migrated Seamless residual (0.30em pre-font).
+   All loader markup now routes through the canonical SuiteLoader/SuiteLoaderField
+   (LOADING_SYSTEM.md §1). The wordmark's period gesture (sweep) was a
+   loading-state visual — with the Layer-0 pre-paint primitive in place, it
+   is not needed. See ARCH_SPEC §3 for rationale. */
+
+/* ────────────────────────────────────────────────────────────
+   View-switcher active pill — tasteful CSS-only transition.
+   The [data-active] anchor gets a background that fades in with
+   --motion-base + --ease-standard. No JS required, no framer-
+   motion dep. Reduced-motion: the collapsed contract tokens make
+   the transition imperceptibly instant.
+   ──────────────────────────────────────────────────────────── */
+.view-switcher-link {
+  transition:
+    background var(--motion-base) var(--ease-standard),
+    color       var(--motion-base) var(--ease-standard),
+    opacity     var(--motion-base) var(--ease-standard);
+}
+
+/* ────────────────────────────────────────────────────────────
+   Micro-craft utility tokens — 60fps transform/opacity only.
+   ──────────────────────────────────────────────────────────── */
+.transition-micro {
+  transition:
+    transform var(--motion-fast)     var(--ease-standard),
+    opacity   var(--motion-fast)     var(--ease-standard);
+}
+.transition-base {
+  transition:
+    transform var(--motion-base)     var(--ease-standard),
+    opacity   var(--motion-base)     var(--ease-standard),
+    box-shadow var(--motion-base)    var(--ease-standard);
+}
+
+/* ────────────────────────────────────────────────────────────
+   Texture + utilities
+   ──────────────────────────────────────────────────────────── */
+.grain::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.04;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml;utf8,<svg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.92' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+}
+
+.thin-scroll::-webkit-scrollbar {
+  height: 8px;
+  width: 8px;
+}
+.thin-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.thin-scroll::-webkit-scrollbar-thumb {
+  background: var(--ink-faint);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+.thin-scroll::-webkit-scrollbar-thumb:hover {
+  background: var(--ink-quiet);
+  background-clip: padding-box;
+  border: 2px solid transparent;
+}
+
+/* ── Focus ring — suite-wide single indigo ring ─────────────────
+   Applies to every interactive element including anchor nav,
+   breadcrumbs, buttons, and form controls.
+   WCAG 2.4.11: scroll-margin-top on focusable elements inside
+   scrollable containers clears the sticky workspace header (48px)
+   + the workspace view-switcher bar (~48px). */
+:focus:not(:focus-visible) {
+  outline: none;
+}
+:focus-visible {
+  outline: 2px solid var(--indigo-600);
+  outline-offset: 3px;
+  border-radius: 6px;
+  transition: outline-offset var(--motion-fast) var(--ease-out);
+}
+
+/* Sticky header clearance — WCAG 2.4.11.
+   The workspace header is 48px (h-12) + a possible view-switcher
+   row (~48px). A 112px margin ensures focused items scroll clear. */
+[id],
+a,
+button,
+input,
+textarea,
+select,
+[tabindex] {
+  scroll-margin-top: 112px;
+}
+
+.lift {
+  transition:
+    transform var(--motion-moderate) var(--spring-glide),
+    box-shadow var(--motion-moderate) var(--spring-glide);
+}
+.lift:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-2);
+}
+
+/* ────────────────────────────────────────────────────────────
+   Form input / textarea — CSS-native focus transition.
+   Replaces inline onFocus/onBlur style mutations so the border
+   change is hardware-accelerated and reduced-motion safe.
+   ──────────────────────────────────────────────────────────── */
+.field {
+  border-color: var(--border);
+  transition: border-color var(--motion-fast) var(--ease-standard);
+}
+.field:focus {
+  border-color: var(--brand);
+  outline: none;
+}
+.field:focus-visible {
+  border-color: var(--brand);
+  outline: 2px solid var(--indigo-600);
+  outline-offset: 3px;
+}
+
+/* ────────────────────────────────────────────────────────────
+   Fix 4: ManualAddForm title input — visible focus ring.
+   Matches the suite-wide :focus-visible pattern above.
+   outline:none was removed from the inline style; this class
+   provides the canonical 2px indigo ring on keyboard focus.
+   ──────────────────────────────────────────────────────────── */
+.manual-add-title-input:focus {
+  outline: none;
+}
+.manual-add-title-input:focus-visible {
+  outline: 2px solid var(--indigo-600);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+/* ────────────────────────────────────────────────────────────
+   Fix 9: quiet link hover — underline only on hover, color unchanged.
+   Used by "or add one manually" and "+ Add a milestone".
+   ──────────────────────────────────────────────────────────── */
+.quiet-link-hover:hover {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* ────────────────────────────────────────────────────────────
+   Sync-from-Tasks button — secondary ghost hover affordance.
+   Tokens: --paper-soft (#fafafa) bg, --ink-ghost (#d4d4d8) border.
+   transition mirrors the button's inline transition (120ms bg + border,
+   160ms opacity) and collapses to 0.01ms under reduced-motion via the
+   contract block at the bottom of this file.
+   ──────────────────────────────────────────────────────────── */
+.sync-button:hover:not(:disabled) {
+  background: var(--paper-soft);
+  border-color: var(--ink-ghost);
+}
+
+/* ────────────────────────────────────────────────────────────
+   Animations
+   ──────────────────────────────────────────────────────────── */
+@keyframes ticker-scroll {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+.ticker {
+  animation: ticker-scroll 40s linear infinite;
+}
+
+@keyframes rise {
+  0%   { opacity: 0; transform: translateY(14px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+.rise {
+  animation: rise var(--motion-slow) var(--spring-glide) both;
+}
+
+/* R6: spinner for pending button states */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes shine {
+  0%   { background-position: 200% center; }
+  100% { background-position: -100% center; }
+}
+.wordmark {
+  background: linear-gradient(
+    110deg,
+    var(--ink-900) 30%,
+    var(--ink-600) 50%,
+    var(--ink-900) 70%
+  );
+  background-size: 300% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.wordmark-hover:hover .wordmark {
+  animation: shine 3s linear infinite;
+}
+
+/* Live-pulse green dot — used by status indicators that need to
+ * say "this is live right now" without shouting. Matches the DS
+ * `.hero-meta .pill::before` and `.mark-stage::after` rule. */
+@keyframes live-pulse {
+  50% { box-shadow: 0 0 0 6px rgba(74, 222, 128, 0); }
+}
+.live-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #4ade80;
+  box-shadow: 0 0 0 3px rgba(74, 222, 128, 0.25);
+  animation: live-pulse 1.6s ease-in-out infinite;
+  display: inline-block;
+}
+
+/* ── H1 (roadmap-elevation): Clerk UserButton avatar clamp ──────────
+   Belt-and-braces companion to the clerkAppearance.elements config.
+   The JS config fixes avatar size post-hydration; this CSS guard
+   covers the pre-hydration window where Clerk paints its default
+   ~40px indigo circle before React takes over. Constrained to 32×32px
+   to match the header's h-14 proportions. Do NOT enlarge — the 32px
+   value is a ceiling, not a floor; Clerk's own image may be smaller. */
+.cl-userButtonAvatarBox,
+.cl-avatarBox {
+  width: 2rem !important;  /* 32px */
+  height: 2rem !important; /* 32px */
+  max-width: 2rem !important;
+  max-height: 2rem !important;
+}
+
+/* ────────────────────────────────────────────────────────────
+   Skeleton shimmer — ghost-chrome loading / empty states
+   Used by: src/app/app/(app)/loading.tsx, src/app/[workspaceSlug]/[projectSlug]/loading.tsx
+   ──────────────────────────────────────────────────────────── */
+@keyframes skeleton-sweep {
+  0%   { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+
+.skeleton-shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--paper-bone) 0%,
+    var(--paper-deep) 40%,
+    var(--paper-deep) 60%,
+    var(--paper-bone) 100%
+  );
+  background-size: 800px 100%;
+  animation: skeleton-sweep 1.4s ease-in-out infinite;
+}
+
+/* ── Reduced-motion: skeleton ───────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .skeleton-shimmer {
+    animation: none;
+    background: var(--paper-bone);
+  }
+}
+
+/* ── SIGNAL STUDIO MOTION CONTRACT v1 · reduced-motion block ──
+   Collapses all contract durations to 0.01ms. The .reveal class
+   is also locked to its visible end-state so a no-JS or
+   reduced-motion user never sees opacity:0. */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --motion-instant:  0.01ms;
+    --motion-fast:     0.01ms;
+    --motion-base:     0.01ms;
+    --motion-moderate: 0.01ms;
+    --motion-slow:     0.01ms;
+  }
+  .reveal {
+    opacity: 1 !important;
+    transform: none !important;
+    translate: none !important;
+    animation: none !important;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ────────────────────────────────────────────────────────────
+   M2/fix4: Date input — custom calendar affordance. Cross-browser.
+   Suppresses the OS ::-webkit-calendar-picker-indicator ONLY on
+   .date-input-custom — does NOT affect any other date input.
+   The .date-input-wrapper provides the position:relative context
+   for the absolutely-positioned .date-input-icon-btn button.
+   The button calls showPicker?.() on click — works on Firefox where
+   the WebKit pseudo-element doesn't exist. WebKit indicator opacity:0
+   is kept as the click-through fallback where showPicker is unsupported.
+   SVG inside the button has pointer-events:none so the button receives
+   all clicks rather than the SVG element itself.
+   tabIndex={-1} on the button keeps the native <input> as the only tab stop.
+   ──────────────────────────────────────────────────────────── */
+.date-input-wrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.date-input-custom::-webkit-calendar-picker-indicator {
+  opacity: 0;
+  position: absolute;
+  right: 0;
+  width: 28px;
+  height: 100%;
+  cursor: pointer;
+}
+
+/* Button wrapper for the calendar icon. Not a tab stop (tabIndex=-1 on element).
+   Positioned absolutely inside .date-input-wrapper. */
+.date-input-icon-btn {
+  position: absolute;
+  right: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  color: var(--ink-quiet);
+  /* Ensure it sits above the input's content but below any focus ring */
+  pointer-events: auto;
+}
+
+.date-input-icon {
+  display: block;
+  flex-shrink: 0;
+  /* SVG itself doesn't need to be a pointer target — the button wrapper catches it */
+  pointer-events: none;
+}
+
+.date-input-custom:focus-visible {
+  outline: 2px solid var(--indigo-600);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+/* ────────────────────────────────────────────────────────────
+   M5: Roadmap wordmark ambient gesture — .roadmap-dot opacity pulse.
+   Low-key identity mark: 0.85 → 1.0 at 3s ease-in-out alternate.
+   Scoped to .roadmap-dot only — does NOT affect .signal-loading-dot
+   (the SuiteLoader dot) or .skeleton-shimmer (the loading ghost).
+   prefers-reduced-motion: static at full opacity, no animation.
+   ──────────────────────────────────────────────────────────── */
+@keyframes roadmap-dot-ambient {
+  from { opacity: 0.85; }
+  to   { opacity: 1.0; }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .roadmap-dot {
+    animation: roadmap-dot-ambient 3s ease-in-out infinite alternate;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .roadmap-dot {
+    animation: none;
+    opacity: 1;
+  }
+}
+
+/* ────────────────────────────────────────────────────────────
+   Walkover row 5 (2026-06-07): Roadmap wordmark sweep gesture.
+   The brand gesture-vocab (2026-05-16) assigned "sweep" to
+   Roadmap. RW-5 removed an old loading-state sweep; this is
+   the editorial sweep — a faint highlight glances left-to-right
+   across the word every ~7s. Semantically: publish-and-pass.
+   Pure CSS, scoped to .roadmap-wordmark-text, reduced-motion
+   safe (no animation under reduce; static ink colour holds).
+   ──────────────────────────────────────────────────────────── */
+.roadmap-wordmark-text {
+  background-image: linear-gradient(
+    100deg,
+    var(--ink) 0%,
+    var(--ink) 35%,
+    color-mix(in srgb, var(--ink) 55%, var(--accent, #4f46e5)) 50%,
+    var(--ink) 65%,
+    var(--ink) 100%
+  );
+  background-size: 300% 100%;
+  background-position: 200% 0;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: var(--ink);
+}
+
+@keyframes roadmap-wordmark-sweep {
+  /* Long quiet dwell, fast glide. The sweep runs in 1.4s of the 7s
+     cycle; the rest is rest. Quiet at rest, named at the moment of
+     the gesture. */
+  0%, 80%   { background-position: 200% 0; }
+  100%      { background-position: -200% 0; }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .roadmap-wordmark-text {
+    -webkit-text-fill-color: transparent;
+    animation: roadmap-wordmark-sweep 7s linear infinite;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .roadmap-wordmark-text {
+    background: none;
+    -webkit-text-fill-color: currentColor;
+    animation: none;
+  }
+}
+
+/* ── .reveal — baseline-visible scroll entrance ─────────────────
+   animation-fill-mode: both keeps the element at its end-state
+   (opacity:1 / translate:0) before AND after the animation, so
+   the page is fully readable with JS disabled and before the
+   scroll threshold fires.
+
+   One-shot. Calm. 12px single-axis fade-up — the contract value.
+   The animation-timeline path uses @supports so it degrades
+   cleanly on browsers that don't support scroll-driven animations
+   (they fall through to the static fill-mode both = visible). */
+.reveal {
+  animation: reveal-fade var(--motion-slow) var(--ease-out) both;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    .reveal {
+      animation: reveal-fade var(--motion-slow) var(--ease-out) both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 35%;
+    }
+  }
+}
+
+@keyframes reveal-fade {
+  from { opacity: 0; translate: 0 12px; }
+  to   { opacity: 1; translate: 0 0; }
+}
