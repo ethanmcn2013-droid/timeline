@@ -168,8 +168,9 @@ const CSS = `
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: min(88vh, 900px);
-  padding: clamp(80px,12vh,160px) 24px clamp(64px,10vh,128px);
+  min-height: clamp(520px, 62svh, 720px);
+  padding: clamp(72px,10svh,112px) 24px clamp(44px,7svh,72px);
+  border-bottom: 1px solid var(--rml-hairline);
   --rml-origin-x: 56%;
   --rml-origin-y: 50%;
   --rml-ink: #111111;
@@ -178,7 +179,7 @@ const CSS = `
   --rml-indigo: #4f46e5;
   --rml-indigo-300: #a5b4fc;
   --rml-hairline: rgba(17,17,17,0.06);
-  --rml-wm-size: clamp(56px, 12vw, 168px);
+  --rml-wm-size: clamp(56px, 10.8vw, 148px);
   --rml-roll: calc(var(--rml-wm-size) * 8);
   --rml-intro: 2.6s;
   --rml-pulse-cycle: 20s;
@@ -268,6 +269,7 @@ const CSS = `
   justify-content: center;
   width: 100%;
   z-index: 4;
+  transform: translateY(-8px);
 }
 .rml-composer {
   position: relative;
@@ -443,7 +445,7 @@ const CSS = `
   color: var(--rml-stone-500);
   z-index: 5;
   opacity: 0;
-  margin-top: 48px;
+  margin-top: 36px;
   animation: rml-caption-in .7s cubic-bezier(.22,.7,.2,1) calc(var(--rml-intro) - 0.1s) 1 forwards;
 }
 @keyframes rml-caption-in {
@@ -467,6 +469,13 @@ const CSS = `
 @media (max-width: 600px) {
   .rml-chrome-tl { top: 18px; left: 20px; }
   .rml-chrome-tr { top: 18px; right: 20px; font-size: 10px; }
+  .rml-hero-section {
+    min-height: 58svh;
+    padding: 58px 20px 44px;
+    --rml-wm-size: clamp(52px, 15vw, 82px);
+  }
+  .rml-stage { transform: translateY(-4px); }
+  .rml-caption { margin-top: 30px; }
 }
 @media (max-width: 420px) { .rml-chrome-tr { display: none; } }
 `;

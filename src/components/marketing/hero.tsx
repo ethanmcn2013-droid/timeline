@@ -9,7 +9,7 @@ import { AddressBarChip } from "@/components/marketing/address-bar-chip";
  */
 export function Hero() {
   return (
-    <section className="relative isolate overflow-hidden pt-8 md:pt-14">
+    <section className="relative isolate overflow-hidden pt-2 md:pt-6">
       <div className="mx-auto w-full max-w-[1240px] px-5 md:px-6">
         {/* Walkover row 2: public-by-default proof on first paint. The
             address-bar chip is the first readable element on the page —
