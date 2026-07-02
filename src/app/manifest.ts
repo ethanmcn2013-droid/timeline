@@ -22,7 +22,7 @@ import type { MetadataRoute } from "next";
  */
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    id: "/signal-roadmap",
+    id: "/signal-timeline",
     name: "Signal Timeline",
     short_name: "Timeline",
     description:

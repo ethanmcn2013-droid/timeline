@@ -14,8 +14,8 @@
  * lands as the period with overshoot bounce, then the canonical Roadmap
  * sweep gesture continues — same as the live product surface.
  */
-export default function RoadmapLoading() {
-  const word = "roadmap";
+export default function TimelineLoading() {
+  const word = "timeline";
   return (
     <div
       aria-hidden
@@ -66,7 +66,7 @@ export default function RoadmapLoading() {
             marginLeft: 6,
             transform: "translateY(-2px)",
             flexShrink: 0,
-            animation: `signal-dot-land 360ms cubic-bezier(0.34,1.56,0.64,1) ${word.length * 55 + 80}ms both, signal-roadmap-sweep 5.4s cubic-bezier(.22,.7,.2,1) ${word.length * 55 + 600}ms infinite`,
+            animation: `signal-dot-land 360ms cubic-bezier(0.34,1.56,0.64,1) ${word.length * 55 + 80}ms both, signal-timeline-pass 5.4s cubic-bezier(.22,.7,.2,1) ${word.length * 55 + 600}ms infinite`,
           }}
         />
       </span>
@@ -80,7 +80,7 @@ export default function RoadmapLoading() {
           60%  { opacity: 1; transform: translateY(-2px) scale(1.18); }
           100% { opacity: 1; transform: translateY(-2px) scale(1); }
         }
-        @keyframes signal-roadmap-sweep {
+        @keyframes signal-timeline-pass {
           0%   { transform: translateY(-2px) translateX(0); opacity: 1; }
           60%  { transform: translateY(-2px) translateX(4px); opacity: 1; }
           62%  { transform: translateY(-2px) translateX(4px); opacity: 0; }
@@ -96,7 +96,7 @@ export default function RoadmapLoading() {
           @keyframes signal-dot-land {
             from, to { opacity: 1; transform: translateY(-2px) scale(1); }
           }
-          @keyframes signal-roadmap-sweep {
+          @keyframes signal-timeline-pass {
             from, to { transform: translateY(-2px); opacity: 1; }
           }
         }

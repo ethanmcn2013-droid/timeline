@@ -220,7 +220,7 @@ function ContentWellFallback() {
             marginLeft: 6,
             transform: "translateY(-2px)",
             flexShrink: 0,
-            animation: `signal-dot-land 360ms cubic-bezier(0.34,1.56,0.64,1) ${word.length * 55 + 80}ms both, signal-roadmap-sweep 5.4s cubic-bezier(.22,.7,.2,1) ${word.length * 55 + 600}ms infinite`,
+            animation: `signal-dot-land 360ms cubic-bezier(0.34,1.56,0.64,1) ${word.length * 55 + 80}ms both, signal-timeline-pass 5.4s cubic-bezier(.22,.7,.2,1) ${word.length * 55 + 600}ms infinite`,
           }}
         />
       </span>
@@ -234,7 +234,7 @@ function ContentWellFallback() {
           60%  { opacity: 1; transform: translateY(-2px) scale(1.18); }
           100% { opacity: 1; transform: translateY(-2px) scale(1); }
         }
-        @keyframes signal-roadmap-sweep {
+        @keyframes signal-timeline-pass {
           0%   { transform: translateY(-2px) translateX(0); opacity: 1; }
           60%  { transform: translateY(-2px) translateX(4px); opacity: 1; }
           62%  { transform: translateY(-2px) translateX(4px); opacity: 0; }
@@ -250,7 +250,7 @@ function ContentWellFallback() {
           @keyframes signal-dot-land {
             from, to { opacity: 1; transform: translateY(-2px) scale(1); }
           }
-          @keyframes signal-roadmap-sweep {
+          @keyframes signal-timeline-pass {
             from, to { transform: translateY(-2px); opacity: 1; }
           }
         }
