@@ -67,6 +67,8 @@ export function RoadmapHeroLoader() {
             <span className="rml-url-chip">
               <span className="rml-url-dot" aria-hidden="true" />
               timeline.signalstudio.ie/venue-week
+              <span className="rml-url-track" aria-hidden="true" />
+              <span className="rml-url-milestone" aria-hidden="true" />
             </span>
           </div>
         </article>
@@ -251,12 +253,42 @@ const CSS = `
   font-size: 13px;
   line-height: 1;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  overflow: visible;
 }
 
 .rml-url-dot {
   width: 9px;
   height: 9px;
   animation: rml-url-dot-pass 2.2s cubic-bezier(0.22, 0.7, 0.2, 1) 0.18s both;
+}
+
+.rml-url-track,
+.rml-url-milestone {
+  position: absolute;
+  pointer-events: none;
+  background: var(--rml-indigo);
+}
+
+.rml-url-track {
+  left: 18px;
+  bottom: -10px;
+  width: min(11rem, calc(100% - 36px));
+  height: 1px;
+  transform-origin: left center;
+  transform: scaleX(0);
+  opacity: 0;
+  animation: rml-track-lay 760ms cubic-bezier(0.22, 0.7, 0.2, 1) 2.18s 1 forwards;
+}
+
+.rml-url-milestone {
+  left: min(calc(18px + 11rem), calc(100% - 18px));
+  bottom: -14px;
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  opacity: 0;
+  transform: translateX(-50%) scale(0.3);
+  animation: rml-milestone-drop 520ms cubic-bezier(0.34, 1.56, 0.64, 1) 2.82s 1 forwards;
 }
 
 @keyframes rml-source-dot {
@@ -290,6 +322,35 @@ const CSS = `
   100% {
     opacity: 1;
     transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+@keyframes rml-track-lay {
+  0% {
+    opacity: 0;
+    transform: scaleX(0);
+  }
+  16% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 1;
+    transform: scaleX(1);
+  }
+}
+
+@keyframes rml-milestone-drop {
+  0% {
+    opacity: 0;
+    transform: translateX(-50%) scale(0.3);
+  }
+  62% {
+    opacity: 1;
+    transform: translateX(-50%) scale(1.2);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(-50%) scale(1);
   }
 }
 
@@ -364,7 +425,9 @@ const CSS = `
 
 @media (prefers-reduced-motion: reduce) {
   .rml-word-dot,
-  .rml-url-dot {
+  .rml-url-dot,
+  .rml-url-track,
+  .rml-url-milestone {
     animation: none !important;
   }
 
@@ -375,6 +438,16 @@ const CSS = `
   .rml-url-dot {
     opacity: 1;
     transform: none;
+  }
+
+  .rml-url-track {
+    opacity: 1;
+    transform: scaleX(1);
+  }
+
+  .rml-url-milestone {
+    opacity: 1;
+    transform: translateX(-50%) scale(1);
   }
 }
 `;
