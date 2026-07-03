@@ -72,7 +72,7 @@ export function AddressBarChip() {
         className="hidden text-[11px] sm:inline"
         style={{ color: "var(--ink-faint)" }}
       >
-        &mdash; no login
+&middot; no login
       </span>
 
       <button
