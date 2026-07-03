@@ -29,8 +29,8 @@ export function WorkspaceHeader({
   refusedCount?: number;
 }) {
   return (
-    <header className="sticky top-0 z-50 border-b border-line-soft/60 bg-bg/85 backdrop-blur-md backdrop-saturate-150">
-      <div className="mx-auto flex h-12 w-full max-w-[1240px] items-center justify-between px-6">
+    <header className="sticky top-0 z-40 border-b border-line-soft/60 bg-bg/85 backdrop-blur-md backdrop-saturate-150">
+      <div className="mx-auto flex h-14 w-full max-w-[1240px] items-center justify-between px-6">
         {/* Left: workspace identity */}
         <div className="flex items-center gap-3">
           <Link

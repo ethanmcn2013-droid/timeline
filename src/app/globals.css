@@ -546,8 +546,8 @@ body::after { content: none; }
    Applies to every interactive element including anchor nav,
    breadcrumbs, buttons, and form controls.
    WCAG 2.4.11: scroll-margin-top on focusable elements inside
-   scrollable containers clears the sticky workspace header (48px)
-   + the workspace view-switcher bar (~48px). */
+   scrollable containers clears the sticky workspace header (56px,
+   product-header contract) + the workspace view-switcher bar (~48px). */
 :focus:not(:focus-visible) {
   outline: none;
 }
@@ -559,8 +559,9 @@ body::after { content: none; }
 }
 
 /* Sticky header clearance — WCAG 2.4.11.
-   The workspace header is 48px (h-12) + a possible view-switcher
-   row (~48px). A 112px margin ensures focused items scroll clear. */
+   The workspace header is 56px (h-14, product-header contract) + a
+   possible view-switcher row (~48px). A 120px margin ensures focused
+   items scroll clear. */
 [id],
 a,
 button,
@@ -568,7 +569,7 @@ input,
 textarea,
 select,
 [tabindex] {
-  scroll-margin-top: 112px;
+  scroll-margin-top: 120px;
 }
 
 .lift {
