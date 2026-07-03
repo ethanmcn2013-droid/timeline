@@ -8,11 +8,11 @@ type Props = {
   /** Pixel y relative to surface. */
   y: number;
   visible: boolean;
-  /** Cursor's accent color — different reader, different hue. */
+  /** Cursor's accent color, different reader, different hue. */
   color: string;
   /** Small chip rendered next to the cursor when reading. */
   label?: string;
-  /** When true, cursor is paused on an item — render the label chip. */
+  /** When true, cursor is paused on an item, render the label chip. */
   reading?: boolean;
 };
 

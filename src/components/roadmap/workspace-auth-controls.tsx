@@ -7,10 +7,10 @@
  *   - "Edit" link to /app (owner shortcut)
  *   - Account button (UserButton from Clerk)
  *
- * When logged out (normal visitor), render nothing — the workspace header
+ * When logged out (normal visitor), render nothing, the workspace header
  * is intentionally minimal for guests; no "Sign in" CTA here.
  *
- * This is a thin client island — the WorkspaceHeader server component
+ * This is a thin client island, the WorkspaceHeader server component
  * stays static, this island hydrates independently.
  */
 
@@ -60,7 +60,7 @@ export function WorkspaceAuthControls({
 }) {
   const { isSignedIn, user } = useUser();
 
-  // Not signed in — render nothing (guest experience is minimal by design).
+  // Not signed in, render nothing (guest experience is minimal by design).
   if (!isSignedIn || !user) return null;
 
   const isOwner = user.id === ownerUserId;

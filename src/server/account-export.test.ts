@@ -1,5 +1,5 @@
 /**
- * Account-export integration test — Signal Timeline (roadmap). GDPR Art. 20.
+ * Account-export integration test · Signal Timeline (roadmap). GDPR Art. 20.
  *
  * In-memory libSQL with an owner + a bystander workspace; asserts the export
  * contains exactly the caller's workspaces and their content, never the

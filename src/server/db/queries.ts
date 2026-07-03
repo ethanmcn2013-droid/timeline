@@ -4,8 +4,8 @@
  * INVARIANT: every query that touches tenant data MUST filter by workspaceSlug.
  * No exceptions. Leaking rows across tenants is the worst possible failure mode.
  *
- * Cycle 3 — initial query surface: workspace CRUD + workspace-scoped
- * projects/tasks/counts. Foundational queries only — build on this in Cycle 4+.
+ * Cycle 3, initial query surface: workspace CRUD + workspace-scoped
+ * projects/tasks/counts. Foundational queries only, build on this in Cycle 4+.
  */
 
 import { cache } from "react";
@@ -30,7 +30,7 @@ import {
 // Re-export for callers (workspaces.ts action layer)
 export type { NodeOverlay };
 
-/** Input shape for writeRoadmapNodes — one synced milestone from Tasks DB. */
+/** Input shape for writeRoadmapNodes, one synced milestone from Tasks DB. */
 export type SyncedMilestone = {
   /** Deterministic id: `ms-{tasksWorkspaceId}-{tasksTaskId}` */
   id: string;
@@ -67,7 +67,7 @@ export const getWorkspace = cache(async (
   slug: string,
 ): Promise<Workspace | null> => {
   // isolation-ok: public read by design. Signal Timeline has NO private
-  // workspaces (locked product refusal, AGENTS.md) — every timeline is
+  // workspaces (locked product refusal, AGENTS.md), every timeline is
   // public-by-default, so resolving one by its public slug is the intended
   // entry point. There is no private workspace to leak.
   const [row] = await db
@@ -155,7 +155,7 @@ export async function seedWorkspaceFromTemplate({
   // Wrap in a transaction so a partial failure leaves the workspace
   // un-seeded for a clean retry rather than half-populated.
   await db.transaction(async (tx) => {
-    // Single batched INSERT per table — avoids one Turso WAN round trip
+    // Single batched INSERT per table, avoids one Turso WAN round trip
     // per row. Template sizes are bounded (5 anchor templates, O(10–50)
     // items each), so a single VALUES(...),(...)  statement is safe.
     if (template.roadmap.projects.length > 0) {
@@ -194,7 +194,7 @@ export async function seedWorkspaceFromTemplate({
 }
 
 // ---------------------------------------------------------------------------
-// Project queries — always workspace-scoped
+// Project queries, always workspace-scoped
 // ---------------------------------------------------------------------------
 
 /** All projects belonging to a workspace, sorted by sortOrder. */
@@ -213,7 +213,7 @@ export async function getProjectsForWorkspace(
  * Returns true iff the workspace is genuinely ready for public viewing:
  *   1. At least one project exists.
  *   2. Every project has published_at set (non-null).
- *   3. At least one visible item exists — either a task in the tasks table
+ *   3. At least one visible item exists, either a task in the tasks table
  *      OR a non-hidden manual node in node_overlays (source='manual').
  *
  * Condition 3 prevents the P0-2 defect: a workspace with projects but
@@ -249,7 +249,7 @@ export async function isWorkspacePublished(
   if (!projectRows.every((r) => r.publishedAt !== null)) return false;
 
   // Step 3: require at least one visible item.
-  // Check tasks first (the common case for synced workspaces — fast exit).
+  // Check tasks first (the common case for synced workspaces, fast exit).
   // Fall through to manual overlays for manual-only workspaces (D1 fix).
   const taskCountRows = await db
     .select({ id: tasks.id })
@@ -275,7 +275,7 @@ export async function isWorkspacePublished(
 
 /**
  * Publish all projects in a workspace. Sets published_at to now() on every
- * project row. Owner-only — callers must verify ownership before calling.
+ * project row. Owner-only, callers must verify ownership before calling.
  */
 export async function publishWorkspace(workspaceSlug: string): Promise<void> {
   await db
@@ -286,7 +286,7 @@ export async function publishWorkspace(workspaceSlug: string): Promise<void> {
 
 /**
  * Unpublish all projects in a workspace. Sets published_at to null.
- * Owner-only — callers must verify ownership before calling.
+ * Owner-only, callers must verify ownership before calling.
  */
 export async function unpublishWorkspace(workspaceSlug: string): Promise<void> {
   await db
@@ -332,13 +332,13 @@ export async function createProject({
 }
 
 // ---------------------------------------------------------------------------
-// ProjectSource queries — always workspace + project scoped
+// ProjectSource queries, always workspace + project scoped
 // ---------------------------------------------------------------------------
 
 /**
  * @deprecated RW-2 markdown excision. The projectSources table is retained for
  * one cycle per ARCH_SPEC §2 ("keep one cycle, stop writes now"). Nothing calls
- * upsertProjectSource anymore. This function is dead code — do NOT add new callers.
+ * upsertProjectSource anymore. This function is dead code, do NOT add new callers.
  * Remove both functions in the next cleanup cycle.
  *
  * Get the raw markdown source for a project. Returns null if none yet.
@@ -391,12 +391,12 @@ export async function upsertProjectSource({
 }
 
 // ---------------------------------------------------------------------------
-// Task queries — always workspace-scoped
+// Task queries, always workspace-scoped
 // ---------------------------------------------------------------------------
 
 /**
  * All tasks belonging to a workspace, sorted by project then sortOrder.
- * Ignores legacy null-workspace rows — those belong to the personal portfolio.
+ * Ignores legacy null-workspace rows, those belong to the personal portfolio.
  */
 export async function getTasksForWorkspace(
   workspaceSlug: string,
@@ -411,7 +411,7 @@ export async function getTasksForWorkspace(
 /**
  * Latest task.updatedAt across a workspace. Returns null when the
  * workspace has no items (no activity to surface). Cheap single-row
- * MAX query — used by the public guest view to render
+ * MAX query, used by the public guest view to render
  * "Last updated X" without sending the full task list (Sprint 2
  * cycle 10.2, 2026-05-12).
  */
@@ -428,7 +428,7 @@ export async function getLastUpdatedForWorkspace(
 }
 
 // ---------------------------------------------------------------------------
-// Roadmap node writes — sync-driven (replaces markdown saveSourceAndItems)
+// Roadmap node writes, sync-driven (replaces markdown saveSourceAndItems)
 //
 // RW-2: markdown was the only input path; structured sync is the new path.
 // The projectSources table write is STOPPED here (table def kept one cycle
@@ -440,7 +440,7 @@ export async function getLastUpdatedForWorkspace(
  * Batched upsert of synced milestone nodes into the tasks table,
  * followed by a G2 reconcile pass that deletes stale synced nodes.
  *
- * Reuses the tasks table (same schema, kind='milestone') — the
+ * Reuses the tasks table (same schema, kind='milestone'), the
  * nodes are identifiable by their deterministic ms-{…} id prefix.
  *
  * Tasks owns EXISTENCE. Roadmap never writes back to Tasks.
@@ -449,7 +449,7 @@ export async function getLastUpdatedForWorkspace(
  * G2 (STRATEGY_SPEC): un-promote is immediate and total.
  * Any synced node whose source milestone is no longer in the incoming
  * set is DELETED from the roadmap on this sync pass. Only synced nodes
- * (id LIKE 'ms-%') are eligible for deletion — manual nodes (id prefix
+ * (id LIKE 'ms-%') are eligible for deletion, manual nodes (id prefix
  * 'manual-' or any other non-ms prefix) are never touched here. The
  * nodeOverlays row for a deleted node is deliberately orphaned per
  * ARCH_SPEC §1.5: if the milestone is re-promoted, the overlay re-applies.
@@ -465,7 +465,7 @@ export async function writeRoadmapNodes(
   projectSlug: string,
   milestones: SyncedMilestone[],
 ): Promise<void> {
-  // Step 1 — upsert incoming synced nodes (skip when empty, but still run step 2).
+  // Step 1, upsert incoming synced nodes (skip when empty, but still run step 2).
   if (milestones.length > 0) {
     await db
       .insert(tasks)
@@ -496,14 +496,14 @@ export async function writeRoadmapNodes(
       });
   }
 
-  // Step 2 — G2 reconcile: delete synced nodes not in the incoming set.
+  // Step 2, G2 reconcile: delete synced nodes not in the incoming set.
   // Targets only rows with the deterministic 'ms-' prefix so manual nodes
   // (D5, any other non-ms prefix) are never deleted by this pass.
-  // The nodeOverlays row is intentionally NOT deleted — orphaned overlays
+  // The nodeOverlays row is intentionally NOT deleted, orphaned overlays
   // re-activate if the milestone is re-promoted (ARCH_SPEC §1.5).
   const incomingIds = milestones.map((m) => m.id);
   if (incomingIds.length === 0) {
-    // All milestones un-promoted — delete every synced node for this project.
+    // All milestones un-promoted, delete every synced node for this project.
     await db
       .delete(tasks)
       .where(
@@ -515,7 +515,7 @@ export async function writeRoadmapNodes(
         ),
       );
   } else {
-    // Some milestones remain — delete only those no longer in the incoming set.
+    // Some milestones remain, delete only those no longer in the incoming set.
     // sql.join builds a safely-parameterised NOT IN list without notInArray
     // (which is present in drizzle-orm internals but not the top-level export).
     const idList = sql.join(incomingIds.map((id) => sql`${id}`), sql`, `);
@@ -534,7 +534,7 @@ export async function writeRoadmapNodes(
 }
 
 // ---------------------------------------------------------------------------
-// Node overlay queries — curation layer
+// Node overlay queries, curation layer
 // ---------------------------------------------------------------------------
 
 /**
@@ -581,7 +581,7 @@ export async function upsertNodeOverlay(
 /**
  * Batch-update sortOverride for a list of nodes in one DB round-trip per node.
  * Called after drag-drop so ALL sibling sortOverride values are persisted,
- * not just the moved node — prevents non-deterministic reload order (BV-2).
+ * not just the moved node, prevents non-deterministic reload order (BV-2).
  *
  * Runs sequential upserts inside a transaction. Drizzle-libsql does not
  * expose a batch() API stable enough to use here; sequential awaits inside
@@ -631,7 +631,7 @@ export async function getNodeOverlaysForWorkspace(
 }
 
 /**
- * Effective node list for a workspace — generated tasks LEFT JOIN overlays.
+ * Effective node list for a workspace, generated tasks LEFT JOIN overlays.
  * COALESCE: overlay fields win when set; generated fields flow through when null.
  *
  * Used by the curation view (owner) and the public viewer's node list.
@@ -689,7 +689,7 @@ export const getEffectiveNodesForWorkspace = cache(async (
     allOverlays.map((o) => [o.nodeId, o]),
   );
 
-  // Manual nodes (source="manual") exist only in overlays — no tasks row
+  // Manual nodes (source="manual") exist only in overlays, no tasks row
   const manualNodes: EffectiveNode[] = allOverlays
     .filter((o) => o.source === "manual")
     .map((o) => {
@@ -726,7 +726,7 @@ export const getEffectiveNodesForWorkspace = cache(async (
     // Drift: Tasks changed a field the owner had ACTIVELY overridden.
     // labelOverride null/undefined = no override; dateOverride undefined = no
     // override (null = explicit clear). Only an active override that diverges
-    // from the current Tasks value is drift — a matching override is not.
+    // from the current Tasks value is drift, a matching override is not.
     const labelActive =
       o != null && o.labelOverride !== null && o.labelOverride !== undefined;
     const dateActive = o != null && o.dateOverride !== undefined;
@@ -770,7 +770,7 @@ export function statusToLane(
 }
 
 // ---------------------------------------------------------------------------
-// Public surface queries — workspace-scoped, Cycle 6
+// Public surface queries, workspace-scoped, Cycle 6
 // ---------------------------------------------------------------------------
 
 /**
@@ -863,7 +863,7 @@ export const getProject = cache(async (
   return row ?? null;
 });
 
-// getCommentsForTask + addComment removed 2026-05-12 — Suite Review T3
+// getCommentsForTask + addComment removed 2026-05-12, Suite Review T3
 // decision. Comment threading is a locked refusal; the helpers were the
 // last live consumers of the comments table. The schema column itself is
 // preserved against any pre-existing owner data, but no code path reads
@@ -923,6 +923,6 @@ export async function getTasksForProject(
 
 // Cross-tenant count aggregates (getTotalWorkspaceCount /
 // getTotalWorkspaceProjectCount / getTotalShippedCount) were removed
-// 2026-05-15 — no callers anywhere in the suite, and they did
+// 2026-05-15, no callers anywhere in the suite, and they did
 // full-table fetches to count rows in JS. Reintroduce with a SQL
 // count(*) if a public vital-sign surface ever needs them.

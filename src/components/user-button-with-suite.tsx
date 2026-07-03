@@ -11,7 +11,7 @@ import {
 type ProductSlug = "tasks" | "roadmap" | "notes" | "analytics";
 
 /**
- * Product entries — always deep-link to /app (authed surface only).
+ * Product entries, always deep-link to /app (authed surface only).
  * §1G canonical labels (lowercase product noun). Product order (operator-directed 2026-05-18): notes → tasks → roadmap → analytics.
  * roadmap is excluded at render time (current product filter).
  */
@@ -78,7 +78,7 @@ function CameraIcon() {
 /**
  * Roadmap-flavoured Clerk UserButton with:
  *   - Sibling product "Open X" deep-links to /app (not marketing).
- *   - "View public site" / "Exit preview" escape hatch — §14 canonical.
+ *   - "View public site" / "Exit preview" escape hatch, §14 canonical.
  *     Sets `signal_preview_public=1; max-age=86400; SameSite=Strict` (24h)
  *     so the M→app redirect is suppressed while the owner demos the
  *     marketing surface while logged in. "Exit preview" clears the cookie.

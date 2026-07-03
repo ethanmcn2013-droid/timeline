@@ -17,7 +17,7 @@ export function isManualMilestoneId(id: string): boolean {
 }
 
 /**
- * True when an item is a milestone — a dated moment the rest of the plan is
+ * True when an item is a milestone, a dated moment the rest of the plan is
  * building toward, not a routine line item.
  *
  * This reuses the flags the model already carries (`kind === "milestone"` set
@@ -27,7 +27,7 @@ export function isManualMilestoneId(id: string): boolean {
  * flag keeps the single source of truth in Tasks while letting the public
  * surface render milestones with a distinct glyph wherever items appear.
  *
- * It is NOT a new lane and NOT a drag-bar — a milestone still lives in its
+ * It is NOT a new lane and NOT a drag-bar, a milestone still lives in its
  * Now / Soon / Later / Done lane and reads as one item with a diamond.
  */
 export function isMilestoneItem(task: Pick<Task, "kind" | "isLaunch">): boolean {
@@ -35,7 +35,7 @@ export function isMilestoneItem(task: Pick<Task, "kind" | "isLaunch">): boolean 
 }
 
 /**
- * MilestoneGlyph — an 8px outlined indigo diamond, the distinct dated mark
+ * MilestoneGlyph, an 8px outlined indigo diamond, the distinct dated mark
  * for a milestone item on the public ladder. It stands in for the round
  * StatusCircle so a reader can pick milestones out of a list at a glance
  * without a colour key or a second accent (single-indigo lock, DESIGN.md §2).
@@ -67,7 +67,7 @@ export function MilestoneGlyph({ status }: { status: Task["status"] }) {
 /**
  * Format an ISO date string as "Jun 12" (month abbrev + day).
  * Year appended only when it differs from the current calendar year.
- * CREATIVE_SPEC §1.3 — "always ISO-derived but displayed human."
+ * CREATIVE_SPEC §1.3, "always ISO-derived but displayed human."
  */
 function formatShort(iso: string): string {
   const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(iso);
@@ -98,7 +98,7 @@ function daysUntil(iso: string): number {
 }
 
 /**
- * StatusCircle — 8px outlined status indicator.
+ * StatusCircle, 8px outlined status indicator.
  * CREATIVE_SPEC §1.2: milestones use indigo border; regular nodes use ghost border.
  * Mirrors the StatusCircle in curation-surface.tsx so the public card and the
  * authoring surface share the same visual grammar ("one artifact, two zoom levels").
@@ -129,7 +129,7 @@ export function StatusCircle({
   };
 
   if (status === "shipped") {
-    // Filled solid ghost — paired with the strikethrough title (§1.2).
+    // Filled solid ghost, paired with the strikethrough title (§1.2).
     return (
       <span
         aria-hidden
@@ -143,7 +143,7 @@ export function StatusCircle({
   }
 
   if (status === "in-flight") {
-    // Half-filled — 50% opacity ghost fill. Border is indigo for milestones.
+    // Half-filled, 50% opacity ghost fill. Border is indigo for milestones.
     return (
       <span
         aria-hidden
@@ -156,7 +156,7 @@ export function StatusCircle({
     );
   }
 
-  // Next (default) — empty outline. Indigo for milestones, ghost for regular.
+  // Next (default), empty outline. Indigo for milestones, ghost for regular.
   return (
     <span
       aria-hidden
@@ -176,7 +176,7 @@ export function StatusCircle({
  *   1. Indigo-bordered StatusCircle (outlined, not filled accent dot).
  *   2. Title font-weight: 600.
  *   3. Quiet accent-soft left border on the row container.
- *   No "Reached" / status-coloured label — typographic hierarchy, not colour.
+ *   No "Reached" / status-coloured label, typographic hierarchy, not colour.
  *
  * Progress is the share of eligible items (non-refused) due on or
  * before this milestone that have shipped. When no items are dated,
@@ -193,11 +193,11 @@ export function MilestoneCard({
 }: {
   milestone: Task;
   workspaceSlug: string;
-  /** projectAccent removed — §1.2 bans colour-coded status dots on public view */
+  /** projectAccent removed, §1.2 bans colour-coded status dots on public view */
   progress: number;
   itemsInScope: number;
   itemsShipped: number;
-  /** Manual milestones have no project drill-down — the title renders as an
+  /** Manual milestones have no project drill-down, the title renders as an
    *  in-page anchor jump instead of a Link to a project-scoped detail route
    *  that would 404 (no `tasks` row exists for manual node ids). */
   isManual?: boolean;
@@ -212,7 +212,7 @@ export function MilestoneCard({
       id={anchorId}
       style={{
         // CREATIVE_SPEC §1.2: milestone row gets a quiet accent-soft left border.
-        // No card shadow, no background colour — presence through weight and the
+        // No card shadow, no background colour, presence through weight and the
         // single indigo line, not decoration.
         borderLeft: "2px solid var(--accent-soft, rgba(79,70,229,0.12))",
         borderTop: "1px solid var(--hairline, #e4e4e7)",
@@ -313,7 +313,7 @@ export function MilestoneCard({
                   height: "100%",
                   borderRadius: 9999,
                   width: `${pct}%`,
-                  // CREATIVE_SPEC §1.7: indigo budget — accent NOT used on progress bars.
+                  // CREATIVE_SPEC §1.7: indigo budget, accent NOT used on progress bars.
                   // Shipped uses status-shipped token; active uses ink-quiet (typographic).
                   background: isShipped
                     ? "var(--status-shipped)"
@@ -335,7 +335,7 @@ export function MilestoneCard({
             </span>
           </div>
 
-          {/* Countdown — CREATIVE_SPEC §1.3: T-N relative indicator on milestone only */}
+          {/* Countdown, CREATIVE_SPEC §1.3: T-N relative indicator on milestone only */}
           {d !== null && !isShipped ? (
             <div style={{ marginTop: 8, display: "flex", alignItems: "center", gap: 8 }}>
               <CountdownChip days={d} />
@@ -363,7 +363,7 @@ export function MilestoneCard({
 /**
  * Compact countdown.
  * CREATIVE_SPEC §1.4: only T-N uses var(--accent) colour.
- * Overdue uses −Nd in var(--ink-quiet) — no status-red on a content surface.
+ * Overdue uses −Nd in var(--ink-quiet), no status-red on a content surface.
  */
 function CountdownChip({ days }: { days: number }) {
   if (days === 0) {
@@ -373,7 +373,7 @@ function CountdownChip({ days }: { days: number }) {
           fontFamily: "var(--font-mono-stack)",
           fontSize: 10.5,
           fontWeight: 600,
-          // CREATIVE_SPEC §1.7: T-N countdown uses var(--accent) — one of six named uses.
+          // CREATIVE_SPEC §1.7: T-N countdown uses var(--accent), one of six named uses.
           color: "var(--accent, #4f46e5)",
           letterSpacing: "0.08em",
           textTransform: "uppercase",

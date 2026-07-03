@@ -10,19 +10,19 @@ import {
 import { useEffect, useRef, useState } from "react";
 
 /**
- * Anatomy of a timeline item — narrative one-shot.
+ * Anatomy of a timeline item, narrative one-shot.
  *
  * Unlike Tasks (continuous loop, live presence), Notes (~11s loop with
  * settle), and Signal (~11s tour loop), Timeline's anatomy is a
- * fundamentally forward-moving sequence — a timeline item moves through
+ * fundamentally forward-moving sequence, a timeline item moves through
  * states, gathers detail, and culminates in a published link. It does
  * not loop back to blank. The choreography plays once when the section
  * enters view, then holds permanently. `useInView` with `once: true`
- * means no replay on re-entry — if interrupted mid-sequence, the card
+ * means no replay on re-entry, if interrupted mid-sequence, the card
  * holds the last visible state until the page reloads.
  *
- * Five honest slots — status, decision, reason, refusal, public link.
- * Status begins as "Drafting" and drifts to "Doing" mid-sequence — the
+ * Five honest slots, status, decision, reason, refusal, public link.
+ * Status begins as "Drafting" and drifts to "Doing" mid-sequence, the
  * lesson is that planning happens IN PUBLIC, the state is part of the
  * story. The public-link affordance rises last because that is the
  * culminating moment Timeline's product promise is built on.
@@ -38,7 +38,7 @@ const ANN: { slot: Slot; label: string; note: string }[] = [
   {
     slot: "status",
     label: "Status",
-    note: "Plain state, named in public. Drafting → Doing → Done — the state is part of the story.",
+    note: "Plain state, named in public. Drafting → Doing → Done, the state is part of the story.",
   },
   {
     slot: "decision",
@@ -48,7 +48,7 @@ const ANN: { slot: Slot; label: string; note: string }[] = [
   {
     slot: "reason",
     label: "Reason",
-    note: "Why this item matters — in language the client can read, not the language of whoever built it.",
+    note: "Why this item matters, in language the client can read, not the language of whoever built it.",
   },
   {
     slot: "refusal",
@@ -83,7 +83,7 @@ type Phase =
 
 function useNarrative(active: boolean, reduced: boolean) {
   // Phase drives both visibility and styling. `init` is the SSR/no-JS
-  // baseline — all content visible. The choreography progresses
+  // baseline, all content visible. The choreography progresses
   // through phases and lands on `settled`.
   const [phase, setPhase] = useState<Phase>("init");
 
@@ -156,7 +156,7 @@ function isShown(slot: Slot, phase: Phase): boolean {
     case "link":
       // NOTE: phase === "settled" is already handled by the short-circuit
       // at the top of this function. Don't remove that guard without
-      // also adding "settled" here — otherwise the link silently
+      // also adding "settled" here, otherwise the link silently
       // disappears once the narrative lands.
       return phase === "link";
   }
@@ -201,7 +201,7 @@ export function ItemAnatomy() {
             className="mb-10 max-w-[58ch] text-[13.5px] leading-[1.55]"
             style={{ color: "var(--ink-soft)" }}
           >
-            Watch a single item come together — state, decision, reason,
+            Watch a single item come together, state, decision, reason,
             refusal, public link. Or pick a number to see them up close.
           </p>
 
@@ -223,7 +223,7 @@ function DemoItem({
   setActive: (s: Slot | null) => void;
 }) {
   const wrapRef = useRef<HTMLDivElement>(null);
-  // once: true — the narrative plays the first time the section enters
+  // once: true, the narrative plays the first time the section enters
   // view and never replays. If the visitor scrolls past, they see the
   // final settled state. No reset to empty.
   const inView = useInView(wrapRef, { amount: 0.4, once: true });
@@ -271,7 +271,7 @@ function DemoItem({
       }}
       onMouseLeave={() => setActive(null)}
     >
-      {/* Slot 1 — Status pill (Drafting → Doing) */}
+      {/* Slot 1, Status pill (Drafting → Doing) */}
       <motion.div
         {...hoverProps("status")}
         animate={spotlightAnim("status", active)}
@@ -286,7 +286,7 @@ function DemoItem({
               ? "var(--status-flight)"
               : "var(--ink-faint, #838b7b)",
             // 180ms delay on the dot shift so the text swap reads
-            // first, then the dot follows — three-beat transition,
+            // first, then the dot follows, three-beat transition,
             // not a simultaneous flicker.
             transition: "background 320ms 180ms ease",
           }}
@@ -311,7 +311,7 @@ function DemoItem({
         </span>
       </motion.div>
 
-      {/* Slot 2 — Decision (title) with optional underline draw */}
+      {/* Slot 2, Decision (title) with optional underline draw */}
       <motion.div
         {...hoverProps("decision")}
         animate={spotlightAnim("decision", active)}
@@ -350,7 +350,7 @@ function DemoItem({
         </motion.h3>
       </motion.div>
 
-      {/* Slot 3 — Reason */}
+      {/* Slot 3, Reason */}
       <motion.div
         {...hoverProps("reason")}
         animate={spotlightAnim("reason", active)}
@@ -373,7 +373,7 @@ function DemoItem({
         </motion.p>
       </motion.div>
 
-      {/* Slot 4 — Refusal (with strike-through animation on a held promise) */}
+      {/* Slot 4, Refusal (with strike-through animation on a held promise) */}
       <motion.div
         initial={false}
         animate={{
@@ -413,7 +413,7 @@ function DemoItem({
         </motion.div>
       </motion.div>
 
-      {/* Slot 5 — Public link (rises last — culmination) */}
+      {/* Slot 5, Public link (rises last, culmination) */}
       <motion.div
         initial={false}
         animate={{

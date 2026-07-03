@@ -87,7 +87,7 @@ type Props = {
  *
  * aria-current="page" marks the active link. No role=tablist/tab: those
  * roles require a true in-place tabpanel contract (aria-controls, JS-only
- * panel swap) — this switcher changes the URL, not a panel, so nav links
+ * panel swap), this switcher changes the URL, not a panel, so nav links
  * are the correct semantic.
  */
 export function WorkspaceViewSwitcher({ workspaceSlug }: Props) {

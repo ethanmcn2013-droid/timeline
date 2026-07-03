@@ -1,27 +1,27 @@
 /**
- * DERIVED — schema mirrored from
+ * DERIVED, schema mirrored from
  * ~/Projects/personal/tasks/src/server/roadmap-db/schema.ts.
  * Source of truth lives in Tasks. Edit there, then sync here.
  *
- * Cycle 3 — schema gained workspaceSlug + workspaces + project_sources
+ * Cycle 3, schema gained workspaceSlug + workspaces + project_sources
  * for multi-tenant Roadmap product (Deliverable 3 of Roadmap brief).
  */
 
 /**
- * Canonical roadmap schema — SQLite via libSQL / Turso.
+ * Canonical roadmap schema, SQLite via libSQL / Turso.
  * Lifted from portfolio repo in Cycle 46 (Phase B).
- * Canonicalized here in Cycle 48 (Phase D) — Tasks is now
+ * Canonicalized here in Cycle 48 (Phase D), Tasks is now
  * the source of truth for this schema.
  *
- * Cycle 50 — gained workspace multi-tenancy:
+ * Cycle 50, gained workspace multi-tenancy:
  *   - nullable workspaceSlug column on projects/tasks/subtasks/comments
  *   - new workspaces table (slug PK, ownerUserId, plan)
  *   - new project_sources table (composite PK, raw markdown source storage)
- * Migration is additive — legacy rows keep workspaceSlug=null and remain
+ * Migration is additive, legacy rows keep workspaceSlug=null and remain
  * visible to the portfolio home page. Roadmap product queries scope by
  * workspaceSlug so legacy rows are invisible to multi-tenant surfaces.
  *
- * Cycle 7 (Roadmap) — composite PK + hardening:
+ * Cycle 7 (Roadmap), composite PK + hardening:
  *   - projects.slug promoted from sole PK → composite PK (workspaceSlug, slug)
  *   - workspaceSlug made NOT NULL on projects/tasks/subtasks/comments
  *   - workspaces gained nullable description column
@@ -39,12 +39,12 @@ import {
 } from "drizzle-orm/sqlite-core";
 
 /**
- * Roadmap PM schema — public-facing internal project management
+ * Roadmap PM schema, public-facing internal project management
  * surface for the personal portfolio. Mirrors the cycle vocabulary
  * the practice already uses: projects, tasks, subtasks, with
  * status/assignee/phase/tier as first-class fields.
  *
- * SQLite via libSQL — works locally as a file (libsql:./roadmap.db)
+ * SQLite via libSQL, works locally as a file (libsql:./roadmap.db)
  * and on Turso in production with the same client, no code changes.
  */
 
@@ -52,7 +52,7 @@ import {
  *  and the wrapper project ("portfolio"). Multi-tenant projects have
  *  workspaceSlug set; legacy global projects leave it null.
  *
- *  Composite PK on (workspaceSlug, slug) — two tenants can each have
+ *  Composite PK on (workspaceSlug, slug), two tenants can each have
  *  a project named "blog" without collision. workspaceSlug is NOT NULL
  *  for all new rows; legacy null rows from the personal-portfolio era
  *  were backfilled to workspace "legacy" or deleted (see runbook). */
@@ -66,11 +66,11 @@ export const projects = sqliteTable(
     oneLiner: text("one_liner").notNull(),
     accent: text("accent").notNull(),
     sortOrder: integer("sort_order").notNull().default(0),
-    // shareToken + isPublic removed 2026-05-12 — Phase 10.1.
+    // shareToken + isPublic removed 2026-05-12, Phase 10.1.
     // "No private workspaces in v1" is a locked product refusal at the time.
     // Migration: 0001_drop_isPublic_shareToken.sql
     //
-    // published_at reinstated 2026-05-18 — operator-confirmed reversal
+    // published_at reinstated 2026-05-18, operator-confirmed reversal
     // (SEAMLESS_ECOSYSTEM_PLAN.md). NULL = draft; set = published.
     // Existing rows backfilled to published in migration 0004.
     // Migration: 0004_add_published_at.sql
@@ -78,7 +78,7 @@ export const projects = sqliteTable(
     /** Immutable Tasks workspace id this project syncs milestones from.
      *  NULL = manual-only (D5 escape hatch, never auto-synced).
      *  Non-null = sync target; set on first milestone promote.
-     *  Stores Tasks `workspaces.id` (UUID), not a name/slug — rename-safe.
+     *  Stores Tasks `workspaces.id` (UUID), not a name/slug, rename-safe.
      *  Migration: 0005_add_source_tasks_workspace_id.sql (additive) */
     sourceTasksWorkspaceId: text("source_tasks_workspace_id"),
   },
@@ -108,16 +108,16 @@ export type Status =
 /** Phases anchor every task to the 12-month plan. */
 export type Phase = "A" | "B" | "C" | "D";
 
-/** Tiers within a phase — must / should / nice. */
+/** Tiers within a phase, must / should / nice. */
 export type Tier = "1" | "2" | "3";
 
 /**
  * Assignees. Two shapes:
- *   - "ethan" — human action required (purchasing, posting, outreach)
+ *   - "ethan", human action required (purchasing, posting, outreach)
  *   - role personas (creative-director, senior-engineer, qa, pm,
- *     architect, tech-writer, researcher, program-manager) — agent
+ *     architect, tech-writer, researcher, program-manager), agent
  *     shapes the work; Claude Code does the lifting under that role
- *   - "claude-code" — generic agent ownership when no specific
+ *   - "claude-code", generic agent ownership when no specific
  *     persona fits
  */
 export type AssigneeKind =
@@ -180,7 +180,7 @@ export const tasks = sqliteTable(
     targetDate: text("target_date"),
     sortOrder: integer("sort_order").notNull().default(0),
 
-    /** Roadmap surface kind — drives which UI section renders this row. */
+    /** Roadmap surface kind, drives which UI section renders this row. */
     kind: text("kind").$type<Kind>().notNull().default("cycle"),
     /** Display category (e.g. "Domain & DNS" for action items, "purchase"
      *  for blockers, "Week 1 · Foundation" for grouping). */
@@ -224,7 +224,7 @@ export const tasks = sqliteTable(
 );
 
 /**
- * Subtasks — checklist-style items under a parent task. Same shape
+ * Subtasks, checklist-style items under a parent task. Same shape
  * as tasks (status/assignee), but constrained to live under exactly
  * one parent task. One level of nesting only.
  */
@@ -255,7 +255,7 @@ export const subtasks = sqliteTable(
 );
 
 /**
- * Activity log — every status flip, assignee change, note addition,
+ * Activity log, every status flip, assignee change, note addition,
  * AND every cycle ship (written by ~/Projects/personal/tasks/scripts/log-cycle.ts
  * which is the cross-repo writer that the 2026-05-12 in-repo grep missed).
  *
@@ -268,7 +268,7 @@ export const activity = sqliteTable(
     id: text("id").primaryKey(),
     /** Multi-tenancy: workspace this activity belongs to. */
     workspaceSlug: text("workspace_slug").notNull(),
-    /** "task" or "subtask" — which entity changed. */
+    /** "task" or "subtask", which entity changed. */
     entityKind: text("entity_kind").notNull(),
     entityId: text("entity_id").notNull(),
     /** Free-form action verb: "status-change", "assignee-change",
@@ -287,12 +287,12 @@ export const activity = sqliteTable(
 export type Activity = typeof activity.$inferSelect;
 
 /**
- * Comments — flat thread per task. Anyone visiting the public site
- * can leave a comment (no auth, by design — the portfolio is fully
+ * Comments, flat thread per task. Anyone visiting the public site
+ * can leave a comment (no auth, by design, the portfolio is fully
  * public). Author field is whatever the visitor types; defaults to
  * "Ethan" when authored from the editor surface.
  *
- * Immutable in v1 — no delete, no edit. If a comment turns out to
+ * Immutable in v1, no delete, no edit. If a comment turns out to
  * be wrong, leave a follow-up. The brand voice is "decisions are
  * legible if you can see the no's"; the same applies to the
  * conversation history.
@@ -316,7 +316,7 @@ export const comments = sqliteTable(
 );
 
 /**
- * Workspaces — the multi-tenant unit of the Roadmap product.
+ * Workspaces, the multi-tenant unit of the Roadmap product.
  * Each workspace is owned by one Clerk user and contains N projects.
  * The portfolio's personal projects are NOT in workspaces (workspaceSlug=null
  * on their rows). New customer projects belong to a workspace.
@@ -332,7 +332,7 @@ export const workspaces = sqliteTable(
     ownerUserId: text("owner_user_id").notNull(), // Clerk userId
     /** Display name of the workspace owner, surfaced on public guest views
      *  as "Shared by ${ownerName}". Captured from Clerk at workspace-
-     *  creation time so the public render stays a single DB query — never
+     *  creation time so the public render stays a single DB query, never
      *  a Clerk API call. Nullable: pre-Sprint-2 workspaces don't have it
      *  until the owner sets one (via a future settings cycle) or runs a
      *  backfill. When null, the public render just shows the last-updated
@@ -340,7 +340,7 @@ export const workspaces = sqliteTable(
     ownerName: text("owner_name"),
     /** Owner's email, surfaced on the shared update page as the reply-
      *  to address. Captured from Clerk at workspace-creation time
-     *  alongside ownerName. The reply gesture is a mailto link — no
+     *  alongside ownerName. The reply gesture is a mailto link, no
      *  Resend, no comment-thread infrastructure (locked refusal in
      *  PRODUCT.md). Nullable for pre-Sprint-2 workspaces; when null
      *  the invited-by bar omits the reply gesture entirely rather than
@@ -375,11 +375,11 @@ export const workspaces = sqliteTable(
 );
 
 /**
- * ProjectSources — raw markdown source for each project within a workspace.
+ * ProjectSources, raw markdown source for each project within a workspace.
  * Supports the "paste your markdown" onboarding flow: user supplies a .md
  * file, we parse it to tasks, and store the raw source for re-parsing.
  *
- * Composite PK on (projectSlug, workspaceSlug) — one source per project
+ * Composite PK on (projectSlug, workspaceSlug), one source per project
  * per workspace. Parse errors are stored non-destructively so the user can
  * fix and re-submit.
  */
@@ -399,7 +399,7 @@ export const projectSources = sqliteTable(
 );
 
 /**
- * NodeOverlays — curation layer for synced milestone nodes.
+ * NodeOverlays, curation layer for synced milestone nodes.
  *
  * Tasks owns EXISTENCE (milestone flag + un-flag), Roadmap owns PRESENTATION.
  * This table stores per-node human-layer overrides: hidden, relabelled,
@@ -408,7 +408,7 @@ export const projectSources = sqliteTable(
  *
  * Conflict rules:
  *   (1) task un-flagged in Tasks → generated row removed on re-sync,
- *       overlay orphaned (not deleted — safe; query filters by existing nodes)
+ *       overlay orphaned (not deleted, safe; query filters by existing nodes)
  *   (2) Tasks changes an overridden field → overlay wins display,
  *       generated still stored, quiet "source changed" affordance shown
  *   (3) non-overridden fields → generated flows through
@@ -433,11 +433,11 @@ export const nodeOverlays = sqliteTable(
     dateOverride: text("date_override"),
     /** Float sort position (gap-list, e.g. 1.5 between 1 and 2). NULL = generated sortOrder. */
     sortOverride: integer("sort_override"),
-    /** "synced" | "manual" — manual nodes were created via the D5 structured form,
+    /** "synced" | "manual", manual nodes were created via the D5 structured form,
      *  not promoted from Tasks. Manual nodes have no generated counterpart. */
     source: text("source").$type<"synced" | "manual">().notNull().default("synced"),
     /** For manual nodes: title, status, targetDate are stored here (no generated row).
-     *  These are the "generated" values — they just happen to be authored here. */
+     *  These are the "generated" values, they just happen to be authored here. */
     manualTitle: text("manual_title"),
     manualStatus: text("manual_status").$type<Status>(),
     manualTargetDate: text("manual_target_date"),

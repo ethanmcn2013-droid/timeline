@@ -4,7 +4,7 @@
  * Fires on the /app → /app/plan/[projectSlug] transition (and cold-load of
  * the plan route) while the PlanPage RSC resolves its auth + DB queries.
  *
- * Renders in normal document flow — no fixed positioning, no z-index override,
+ * Renders in normal document flow, no fixed positioning, no z-index override,
  * no full-screen takeover. The (app) shell header from layout.tsx remains
  * visible and interactive above this content well.
  *
@@ -12,10 +12,10 @@
  *   mx-auto flex w-full max-w-4xl flex-1 flex-col px-6 py-10
  *
  * Reduced-motion: .skeleton-shimmer degrades to a static var(--bg-deep)
- * block via the prefers-reduced-motion media query in globals.css — no
+ * block via the prefers-reduced-motion media query in globals.css, no
  * additional guard needed here.
  *
- * Server Component — no "use client", zero client JS.
+ * Server Component, no "use client", zero client JS.
  */
 export default function PlanLoading() {
   return (

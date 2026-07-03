@@ -1,8 +1,8 @@
 /**
- * Timeline /app loading boundary — wordmark identity loader.
+ * Timeline /app loading boundary, wordmark identity loader.
  *
  * Paints during the cross-origin window when a sibling product hops to
- * /app on timeline.signalstudio.ie — replaces the bare indigo dot that
+ * /app on timeline.signalstudio.ie, replaces the bare indigo dot that
  * the pre-CSS first-paint would otherwise show. The deeper
  * `(app)/loading.tsx` skeleton continues to handle in-app sub-route
  * Suspense (e.g. /app → /app/plan/[slug]) where the persistent shell
@@ -11,10 +11,10 @@
  * Server Component + one small client child (LongWaitStatus timer).
  *
  * Loading canon (2026-07-01 review):
- * - Visible loader name is `timeline` — never `roadmap` (canon law 4).
+ * - Visible loader name is `timeline`, never `roadmap` (canon law 4).
  * - Dot is 10px hard px (DESIGN.md §13.3 boundary authority).
  * - Wait gesture is the Timeline slide: the dot slides toward its seat
- *   and settles — motion toward a destination (BRAND.md §4).
+ *   and settles, motion toward a destination (BRAND.md §4).
  * - After a real 5s wait, one calm line appears with role="status".
  *
  * Reduced motion: letters appear fully, dot sits settled, no gesture.
@@ -65,7 +65,7 @@ export default function TimelineLoading() {
         ))}
         <span
           style={{
-            // 10px hard px — boundary-dot authority (DESIGN.md §13.3).
+            // 10px hard px, boundary-dot authority (DESIGN.md §13.3).
             display: "inline-block",
             width: 10,
             height: 10,
@@ -91,7 +91,7 @@ export default function TimelineLoading() {
           60%  { opacity: 1; transform: translateY(-2px) scale(1.18); }
           100% { opacity: 1; transform: translateY(-2px) scale(1); }
         }
-        /* Timeline wait gesture — slide toward the seat, settle, hold.
+        /* Timeline wait gesture, slide toward the seat, settle, hold.
            Motion toward a destination (BRAND.md §4), not a blink. */
         @keyframes signal-timeline-slide {
           0%   { transform: translateY(-2px) translateX(-8px); opacity: 0.35; }

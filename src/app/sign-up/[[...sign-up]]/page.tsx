@@ -1,14 +1,14 @@
 import { SignUp } from "@clerk/nextjs";
 import { Wordmark } from "@/components/brand/wordmark";
 
-export const metadata = { title: "Reserve a workspace name — Timeline" };
+export const metadata = { title: "Reserve a workspace name, Timeline" };
 
 /**
  * Walkover row 8 (Dalí, 2026-06-07): read-only state honesty.
  *
  * Publishing is operator-blocked while Upstash is being provisioned.
  * Telling visitors "Free to start" and "you'll have a workspace live in
- * minutes" is a demo-vs-reality gap — a locked refusal in PRODUCT.md.
+ * minutes" is a demo-vs-reality gap, a locked refusal in PRODUCT.md.
  *
  * Until Upstash is live, this page is a reading-room: visitors can
  * reserve a workspace name. Clerk still creates the account so the
@@ -36,7 +36,7 @@ export default function SignUpPage() {
           <div className="text-[13px] leading-[1.55]" style={{ color: "var(--ink-soft)" }}>
             <p>
               <strong style={{ color: "var(--ink)" }}>Reading-room mode</strong>
-              {" — "}
+              {", "}
               publishing reopens soon. Reserve your workspace name now and
               we will hold it for you.
             </p>

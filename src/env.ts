@@ -5,7 +5,7 @@ import { isDemoMode } from "@/lib/access-mode";
  * Boot-time environment validation for Signal Timeline (roadmap).
  *
  * Same pattern as the rest of the suite. Note the public-by-default shape:
- * Timeline serves public timelines, which read from the database — so the
+ * Timeline serves public timelines, which read from the database, so the
  * Turso DB is REQUIRED. Clerk is only needed for workspace owners signing in
  * to edit, so it is RECOMMENDED (public reads work without it).
  *
@@ -13,7 +13,7 @@ import { isDemoMode } from "@/lib/access-mode";
  * called once from instrumentation.ts `register()`.
  */
 
-// Public timelines read from the DB — Timeline cannot serve without it.
+// Public timelines read from the DB, Timeline cannot serve without it.
 const REQUIRED_IN_PRODUCTION: ReadonlyArray<readonly [string, string]> = [
   ["TURSO_DATABASE_URL", "timeline database"],
   ["TURSO_AUTH_TOKEN", "timeline database auth token"],
@@ -42,7 +42,7 @@ export function validateEnv(): void {
   if (missingRecommended.length > 0) {
     console.warn(
       "[env] missing recommended production variables (features degraded):\n" +
-        missingRecommended.map(([k, why]) => `  - ${k} — ${why}`).join("\n"),
+        missingRecommended.map(([k, why]) => `  - ${k}, ${why}`).join("\n"),
     );
   }
 
@@ -51,12 +51,12 @@ export function validateEnv(): void {
   );
   if (missingRequired.length > 0) {
     const detail = missingRequired
-      .map(([k, why]) => `  - ${k} — ${why}`)
+      .map(([k, why]) => `  - ${k}, ${why}`)
       .join("\n");
     throw new Error(
       `[env] FATAL: missing required production environment variables:\n${detail}\n\n` +
         "Set them in the Vercel project (or run in demo/review mode). Refusing to " +
-        "boot a half-configured production environment — this would otherwise 500 " +
+        "boot a half-configured production environment, this would otherwise 500 " +
         "every request that touches the database instead of failing here, visibly.",
     );
   }

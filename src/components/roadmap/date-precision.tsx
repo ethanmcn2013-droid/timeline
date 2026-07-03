@@ -7,9 +7,9 @@
  *
  * Three glyphs, three meanings:
  *
- *   - `exact`   — solid dot.       The date is locked. e.g. 2026-03-18
- *   - `window`  — open bracket.   A range. e.g. ~mid-March
- *   - `pending` — hollow ring.    Awaiting confirmation. e.g. TBC
+ *   - `exact`  , solid dot.       The date is locked. e.g. 2026-03-18
+ *   - `window` , open bracket.   A range. e.g. ~mid-March
+ *   - `pending`, hollow ring.    Awaiting confirmation. e.g. TBC
  *
  * Render component is type-safe over a discriminated union so a caller
  * cannot pass `kind: "exact"` without a value, etc. The visual ramp
@@ -24,7 +24,7 @@ export type DatePrecision =
 
 type Props = {
   precision: DatePrecision;
-  /** Render-time tone — used for muted contexts like the schedule axis. */
+  /** Render-time tone, used for muted contexts like the schedule axis. */
   tone?: "default" | "quiet";
 };
 
@@ -56,7 +56,7 @@ export function DatePrecisionChip({ precision, tone = "default" }: Props) {
         style={{ color: colour, letterSpacing: "0.01em" }}
         aria-label={`Approximate window ${precision.value}`}
       >
-        {/* Bracket glyph — drawn so it does not collide with the digit
+        {/* Bracket glyph, drawn so it does not collide with the digit
             advance and reads as 'this is a range, not a point'. */}
         <svg
           width="9"

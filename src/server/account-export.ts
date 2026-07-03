@@ -15,7 +15,7 @@ import * as schema from "./db/schema";
 export type ExportDb = LibSQLDatabase<typeof schema>;
 
 /**
- * GDPR Art. 20 (data portability) — assemble everything Roadmap holds for a
+ * GDPR Art. 20 (data portability), assemble everything Roadmap holds for a
  * user. Ownership is keyed at the workspace layer (`workspaces.ownerUserId`),
  * so the export is the set of owned workspaces and all their content.
  * Counterpart to `account-erasure.ts`; same db-injection seam (testable).

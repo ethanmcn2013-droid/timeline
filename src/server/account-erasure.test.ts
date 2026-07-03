@@ -1,9 +1,9 @@
 /**
- * Account-erasure integration test — Signal Timeline (roadmap). GDPR
+ * Account-erasure integration test · Signal Timeline (roadmap). GDPR
  * right-to-erasure / App Store 5.1.1(v) guard.
  *
  * Runs the REAL `eraseAccountData` against a real in-memory libSQL DB with
- * `PRAGMA foreign_keys = OFF`, so only the EXPLICIT deletes can pass — a
+ * `PRAGMA foreign_keys = OFF`, so only the EXPLICIT deletes can pass, a
  * cascade can't hide a missing delete. Seeds an owner workspace plus a
  * bystander workspace owned by a different user. The load-bearing assertion
  * is that `comments` (previously left to an unreliable FK cascade) is

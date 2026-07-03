@@ -1,8 +1,8 @@
 /**
- * Roadmap audience packs — the same pattern as Tasks's `lib/domains.ts`.
+ * Roadmap audience packs, the same pattern as Tasks's `lib/domains.ts`.
  * Drives the AudienceToggle and reseeds the cinematic demo when switched.
  *
- * Order is positional priority per BRAND.md §2.1 — wedge first.
+ * Order is positional priority per BRAND.md §2.1, wedge first.
  */
 
 export type DomainId = "wedding" | "construction" | "launch" | "startup";
@@ -31,7 +31,7 @@ export type DomainPack = {
   workspaceTitle: string;
   /** Eyebrow shown above the workspace title. */
   workspaceEyebrow: string;
-  /** Timeline window — first and last month shown on the timeline axis. */
+  /** Timeline window, first and last month shown on the timeline axis. */
   timelineStart: number;
   timelineEnd: number;
   /** Month index that "today" sits on, used to draw the Today line. */
@@ -43,7 +43,7 @@ export type DomainPack = {
 };
 
 // Phase 1 unification: lead with the weddings/events wedge per BRAND.md §10.
-// "Startup plan" and "Product launch" presets removed — they read as
+// "Startup plan" and "Product launch" presets removed, they read as
 // generic-SaaS and undercut the 80%-non-tech positioning. Construction
 // (trades/contractor) is kept as the supporting example.
 export const DOMAIN_ORDER: DomainId[] = [

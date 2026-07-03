@@ -13,7 +13,7 @@ import {
  * paper.
  *
  * No JS animation. Pure SSR + CSS opacity. Reduced-motion respects the
- * static state by default — there is no motion to suppress.
+ * static state by default, there is no motion to suppress.
  */
 
 export type SpineLane = "Done" | "Now" | "Soon" | "Later";
@@ -104,7 +104,7 @@ export function ScheduleSpine({ items }: Props) {
           }}
         />
 
-        {/* Today hairline — the only piece of colour */}
+        {/* Today hairline, the only piece of colour */}
         <div
           aria-hidden
           className="absolute"
@@ -131,7 +131,7 @@ export function ScheduleSpine({ items }: Props) {
           Today
         </span>
 
-        {/* Lane labels — quiet, behind the items */}
+        {/* Lane labels, quiet, behind the items */}
         {(["Done", "Now", "Soon", "Later"] as const).map((lane) => (
           <span
             key={`label-${lane}`}
@@ -201,7 +201,7 @@ export function ScheduleSpine({ items }: Props) {
         })}
       </div>
 
-      {/* Below-spine legend for date precision — repurposes the row-7
+      {/* Below-spine legend for date precision, repurposes the row-7
           primitive so readers learn the glyph vocabulary in context. */}
       <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 text-[11.5px]">
         <span className="text-ink-quiet">When-glyphs:</span>

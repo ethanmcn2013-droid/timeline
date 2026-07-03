@@ -1,11 +1,11 @@
 /**
- * tasks-milestone-source.ts — read-only milestone pull from the Tasks DB.
+ * tasks-milestone-source.ts, read-only milestone pull from the Tasks DB.
  *
  * Structural copy of analytics/src/lib/briefing/tasks-db-source.ts.
  * Email is the only cross-product key (Tasks and Roadmap use separate
  * Clerk apps; clerk_id won't match). ARCH_SPEC §1.2.
  *
- * Read-only by design — TASKS_AUTH_TOKEN must be a Turso read-only token.
+ * Read-only by design, TASKS_AUTH_TOKEN must be a Turso read-only token.
  * Data flow: Roadmap ← Tasks. Never the other way.
  *
  * Null-return when env unset: callers handle the missing-config case gracefully.
@@ -83,7 +83,7 @@ export function makeMilestoneSyncSource(): MilestoneSyncSource | null {
 
   return {
     async getMilestonesForEmail(email: string): Promise<SyncedMilestone[]> {
-      // Step 1 — email → Tasks user id (cross-product key, ARCH_SPEC §1.2)
+      // Step 1, email → Tasks user id (cross-product key, ARCH_SPEC §1.2)
       let tasksUserId: string | null = null;
       try {
         const userRow = await getClient().execute({
@@ -98,11 +98,11 @@ export function makeMilestoneSyncSource(): MilestoneSyncSource | null {
         return [];
       }
       if (!tasksUserId) {
-        // Email not in Tasks DB — calm empty state, not an error
+        // Email not in Tasks DB, calm empty state, not an error
         return [];
       }
 
-      // Step 2 — fetch milestones (is_milestone=1, top-level, workspace-scoped)
+      // Step 2, fetch milestones (is_milestone=1, top-level, workspace-scoped)
       // Reads: flag, lane, due_at, title, workspace_id, workspace.name
       // Limit 200 per ARCH_SPEC §1.2 (defends engine if workspace is huge)
       let rows: Awaited<ReturnType<Client["execute"]>>["rows"];

@@ -58,7 +58,7 @@ export function CreateWorkspaceForm({ writesPaused = false }: { writesPaused?: b
       >
         A roadmap is one public link that shows what you&apos;re doing and
         what&apos;s next, in plain English. No login for the people you share it
-        with. Pick a name and a link to start — you can change both later.
+        with. Pick a name and a link to start, you can change both later.
       </p>
 
       {writesPaused && (

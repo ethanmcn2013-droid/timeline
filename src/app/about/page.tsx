@@ -6,11 +6,11 @@ import Link from "next/link";
 import { STUDIO_URL, TASKS_URL } from "@/lib/product-urls";
 
 export const metadata: Metadata = {
-  title: "About — Signal Timeline",
+  title: "About · Signal Timeline",
   description:
     "Direction clarity from Signal Studio. Built for people who need the plan without a glossary.",
   openGraph: {
-    title: "About — Signal Timeline",
+    title: "About · Signal Timeline",
     description:
       "Direction clarity from Signal Studio. Built for people who need the plan without a glossary.",
     type: "website",
@@ -103,10 +103,10 @@ export default function AboutPage() {
             </p>
           </div>
 
-          {/* Live preview — Da Vinci walkover row 13. The about page
+          {/* Live preview, Da Vinci walkover row 13. The about page
               tells the reader the product is a living document; here it
               is, running, the same loop the homepage hero shows. No
-              screenshot, no PDF — the product proves itself in place. */}
+              screenshot, no PDF, the product proves itself in place. */}
           <div className="mb-16 -mx-2 sm:-mx-4 md:-mx-6">
             <p
               className="mb-3 px-2 text-[11px] font-semibold uppercase tracking-[0.16em] sm:px-4 md:px-6"

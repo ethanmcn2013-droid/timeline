@@ -37,7 +37,7 @@ const BY_SEGMENT: Record<PrimaryUseCase, ProjectEmptyCopy> = {
   },
   wedding: {
     headline: "Add your first project",
-    body: "One roadmap for the day — vendors, timeline, and updates in a link anyone can read. Mark milestones in Tasks to fill it in.",
+    body: "One roadmap for the day, vendors, timeline, and updates in a link anyone can read. Mark milestones in Tasks to fill it in.",
   },
   student: {
     headline: "Add your society's first roadmap",
@@ -61,7 +61,7 @@ const BY_SEGMENT: Record<PrimaryUseCase, ProjectEmptyCopy> = {
   },
   other: {
     headline: "Add your first project",
-    body: "A project is one roadmap — one plan, one slice of work. Name it, mark tasks as milestones in Signal Tasks, and share the link.",
+    body: "A project is one roadmap, one plan, one slice of work. Name it, mark tasks as milestones in Signal Tasks, and share the link.",
   },
 };
 

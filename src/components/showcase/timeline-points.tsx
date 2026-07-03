@@ -10,7 +10,7 @@ type Props = {
 };
 
 /**
- * Timeline view (showcase) — a single straight line with each beat plotted as
+ * Timeline view (showcase), a single straight line with each beat plotted as
  * a point in date order, mirroring the live product's Timeline view
  * (roadmap/workspace-timeline.tsx). The companion to the Gantt: same data, read
  * as "the moments, in order" instead of "bars across months". Points sit at

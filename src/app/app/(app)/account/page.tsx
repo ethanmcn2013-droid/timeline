@@ -6,7 +6,7 @@ import { ManageIdentityButton } from "@/components/account/manage-identity-butto
 import { isDemoMode } from "@/lib/access-mode";
 
 export const metadata: Metadata = {
-  title: "Account — Signal Timeline",
+  title: "Account · Signal Timeline",
   description: "Account management.",
 };
 
@@ -14,13 +14,13 @@ export const metadata: Metadata = {
  * /app/account
  *
  * The Account surface in Roadmap. The only thing here today is the
- * irreversible delete — Timeline doesn't carry profile fields or
+ * irreversible delete, Timeline doesn't carry profile fields or
  * notification preferences of its own (Clerk owns identity; the
  * Analytics product owns email cadence). When future cycles add
  * per-product preferences, they land in additional sections above
  * the danger-zone.
  *
- * Auth-gated — unauthed users redirect to /sign-in.
+ * Auth-gated, unauthed users redirect to /sign-in.
  */
 export default async function AccountPage() {
   // Demo/Review: render the settings surface with a synthetic identity so it
@@ -45,7 +45,7 @@ export default async function AccountPage() {
         Your Signal account
       </h1>
       <p className="mb-7 max-w-[560px] text-[15px] leading-[1.6] text-ink-soft">
-        Signed in as <span className="font-medium text-ink">{email}</span> — one
+        Signed in as <span className="font-medium text-ink">{email}</span>, one
         account across Notes, Tasks, Timeline, and Signal. Your password and
         sign-in methods live in your Signal account.
       </p>

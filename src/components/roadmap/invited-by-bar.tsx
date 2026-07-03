@@ -1,7 +1,7 @@
 import type { Workspace } from "@/server/db/schema";
 
 /**
- * Invited-by bar — Sprint 2 cycle 10.3, 2026-05-12.
+ * Invited-by bar, Sprint 2 cycle 10.3, 2026-05-12.
  *
  * Sits at the top of shared views (currently the /update page) to
  * orient the invited person: who shared this, when, what it's about,
@@ -9,7 +9,7 @@ import type { Workspace } from "@/server/db/schema";
  *
  * Sprint 2 locked refusal: no comment-thread infrastructure. The
  * reply gesture is a mailto link, not a feedback form. Conversations
- * belong in email — Timeline stays a clarity artefact, not a
+ * belong in email, Timeline stays a clarity artefact, not a
  * collaboration tool.
  *
  * Conditional rendering:

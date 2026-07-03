@@ -1,15 +1,15 @@
 /**
- * Long Now Strip — Da Vinci row 9.
+ * Long Now Strip, Da Vinci row 9.
  *
  * A thin editorial band that names the planning horizon. Most tools
  * stop at the quarter; this one says the horizon stretches further. The
- * strip lists six time anchors — this week → 02030 — quietly, in the
+ * strip lists six time anchors, this week → 02030, quietly, in the
  * mono register. The five-digit year is a deliberate signal that the
  * work outlasts any single calendar.
  *
  * Server-rendered, zero JS, reduced-motion-safe by construction.
  * Sits between Hero and ItemAnatomy as the "and how long does it
- * think" interstitial — the question every public-roadmap reader
+ * think" interstitial, the question every public-roadmap reader
  * has, named on the page.
  */
 
@@ -25,7 +25,7 @@ const HORIZON: { label: string; sense: string }[] = [
 export function LongNowStrip() {
   return (
     <section
-      aria-label="Planning horizon — from this week to 02030"
+      aria-label="Planning horizon, from this week to 02030"
       className="long-now-strip"
     >
       <div className="long-now-inner">

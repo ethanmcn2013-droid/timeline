@@ -23,7 +23,7 @@ import {
 import { getCurrentUser } from "@/server/auth";
 import type { Project, Task, Workspace } from "@/server/db/schema";
 
-// Public shared-update page — read-only. ISR with a 5-min window matches
+// Public shared-update page, read-only. ISR with a 5-min window matches
 // the workspace and project pages; revalidatePath on source-save covers
 // fresh data immediately. The tracking searchParams do not branch the
 // data fetch so ISR is preserved.
@@ -41,7 +41,7 @@ export async function generateMetadata({
   if (!workspace) return { title: "Not Found" };
 
   return {
-    title: `${workspace.name} update — Timeline`,
+    title: `${workspace.name} update, Timeline`,
     description: `A plain-English update for ${workspace.name}.`,
     openGraph: {
       title: `${workspace.name} update`,
@@ -291,7 +291,7 @@ async function loadSharedUpdateDataset(
     const workspace = await getWorkspace(workspaceSlug);
     if (!workspace) return getDemoSharedUpdateDataset(workspaceSlug);
 
-    // Publish gate — mirrors WorkspaceContentWell in [workspaceSlug]/page.tsx.
+    // Publish gate, mirrors WorkspaceContentWell in [workspaceSlug]/page.tsx.
     // Draft workspaces are only visible to their owner; non-owners (including
     // logged-out visitors) receive null, which the caller converts to notFound().
     const [published, currentUser] = await Promise.all([
@@ -483,4 +483,4 @@ function StateDot({
   );
 }
 
-// formatRelative extracted to src/lib/format.ts — Phase 11.3
+// formatRelative extracted to src/lib/format.ts, Phase 11.3

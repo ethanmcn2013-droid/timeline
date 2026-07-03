@@ -15,10 +15,10 @@ type Props = {
 };
 
 /**
- * Gantt view (showcase) — horizontal duration bars across a month axis. Each
+ * Gantt view (showcase), horizontal duration bars across a month axis. Each
  * row's bar spans its real startMonth→endMonth from the demo domain pack
  * (honest here: the demo data carries spans, unlike the live product, which
- * only has single target dates — see roadmap/gantt-view.tsx). A vertical
+ * only has single target dates, see roadmap/gantt-view.tsx). A vertical
  * "Today" line marks the current month. Bars cross-fade when the demo morphs
  * between Gantt ↔ Timeline. (2026-06-20: the demo's two views became Gantt +
  * Timeline; this is the Gantt.)
@@ -34,7 +34,7 @@ export function DemoGanttView({ rows, domain }: Props) {
   // is geometric (FLIP). Bars are absolutely positioned within each row.
   return (
     <div className="relative w-full">
-      {/* Header — month axis */}
+      {/* Header, month axis */}
       <div
         className="mb-3 grid items-end"
         style={{
@@ -72,7 +72,7 @@ export function DemoGanttView({ rows, domain }: Props) {
         })}
       </div>
 
-      {/* Today line — drawn over the whole grid */}
+      {/* Today line, drawn over the whole grid */}
       <motion.div
         aria-hidden
         className="pointer-events-none absolute z-10"

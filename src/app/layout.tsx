@@ -54,12 +54,12 @@ export default function RootLayout({
       // stylesheet resolves. background:#fff kills the browser-default grey
       // on cross-origin first load. colorScheme:light prevents the UA from
       // painting a dark-mode void even when the OS is in dark mode.
-      // LOADING_SYSTEM.md §2 — "Frame 1 of every cross-origin destination
+      // LOADING_SYSTEM.md §2, "Frame 1 of every cross-origin destination
       // is paper white field, no content."
       style={{ background: "#fff", colorScheme: "light" }}
     >
       <head>
-        {/* D4 — belt-and-braces inline style: fires synchronously before the
+        {/* D4, belt-and-braces inline style: fires synchronously before the
             linked stylesheet resolves, preventing any grey flash on the
             document body. One-liner; only background is set here. */}
         {/* eslint-disable-next-line react/no-danger */}
@@ -67,7 +67,7 @@ export default function RootLayout({
       </head>
       <body
         className="min-h-full flex flex-col"
-        // D4 — inline style on body: same reason as html above.
+        // D4, inline style on body: same reason as html above.
         // background:#fff fires before the stylesheet link resolves,
         // removing the grey void on cross-origin first paint.
         style={{ background: "#fff" }}
@@ -76,7 +76,7 @@ export default function RootLayout({
           ClerkProvider at the root so every surface (marketing, public roadmap,
           and /app) can read auth state via useUser/useAuth hooks.
           The /app layout and WorkspaceHeader had their own ClerkProvider;
-          with it here those nested providers can be removed — nested providers
+          with it here those nested providers can be removed, nested providers
           are fine (Clerk dedupes), but moving it root is cleaner.
           Layer 3/4 (seamless-ecosystem-2026-05-18): SuiteLauncher and
           WorkspaceAuthControls need useUser in the public route tree.

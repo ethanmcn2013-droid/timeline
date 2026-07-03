@@ -34,7 +34,7 @@ export async function generateMetadata({
   ]);
   if (!workspace || !project) return { title: "Not Found" };
   return {
-    title: `${project.name} · ${workspace.name} — Timeline`,
+    title: `${project.name} · ${workspace.name}, Timeline`,
     description: project.oneLiner || `Timeline for ${project.name}.`,
   };
 }
@@ -56,12 +56,12 @@ export default async function ProjectDrillDownPage({
   if (!workspace) notFound();
   if (!project) notFound();
 
-  // Draft gate — same rule as the workspace index page.
+  // Draft gate, same rule as the workspace index page.
   const isOwner = currentUser?.userId === workspace.ownerUserId;
   if (!published && !isOwner) {
     // Return a minimal not-yet-published signal.
-    // Don't use notFound() — that gives a generic 404.
-    // Don't redirect to sign-in — that makes it look like an auth wall.
+    // Don't use notFound(), that gives a generic 404.
+    // Don't redirect to sign-in, that makes it look like an auth wall.
     return (
       <div className="flex min-h-screen flex-col items-center justify-center px-6 py-24 text-center" style={{ background: "var(--bg)" }}>
         <div className="mx-auto max-w-sm">
@@ -83,7 +83,7 @@ export default async function ProjectDrillDownPage({
   const visibleTasks = allTasks.filter((t) => t.status !== "refused");
   const refusedCount = allTasks.filter((t) => t.status === "refused").length;
 
-  // Tier 3 derived attention signal — owner-only. Computed once per
+  // Tier 3 derived attention signal, owner-only. Computed once per
   // request from the existing fetch; consumed by the owner-only BigStat
   // and the per-row Idle / Overdue pill on each ItemRow.
   const needsAttentionCount = isOwner
@@ -98,7 +98,7 @@ export default async function ProjectDrillDownPage({
   const blocked = allTasks.filter((t) => t.status === "waiting").length;
   const next = allTasks.filter((t) => t.status === "next").length;
 
-  // Meta-strip data — same shape as the workspace surface, scoped
+  // Meta-strip data, same shape as the workspace surface, scoped
   // to this project's slice of items. Carries the brand's steady
   // pulse-rhythm across surfaces (see docs/REVIEW_2026_05_12.md §5.2).
   const datedTasks = allTasks
@@ -172,7 +172,7 @@ export default async function ProjectDrillDownPage({
               </div>
             </div>
 
-            {/* Status row — BigStat tabular treatment, parity with the
+            {/* Status row, BigStat tabular treatment, parity with the
                 workspace surface so the visual register is consistent
                 across all workspace-scoped heroes. */}
             {allTasks.length > 0 ? (

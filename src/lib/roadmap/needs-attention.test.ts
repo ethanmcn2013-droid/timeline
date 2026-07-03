@@ -5,7 +5,7 @@
  *
  * The selector is the contract that owner surfaces use to render the
  * Tier 3 attention pill. Idle/overdue boundaries, settled-state exclusion,
- * and the overdue-over-idle precedence rule are all load-bearing — getting
+ * and the overdue-over-idle precedence rule are all load-bearing, getting
  * any of them wrong either silently swallows drift the owner needs to see
  * or floods them with false positives that make the signal noise.
  */
@@ -34,7 +34,7 @@ function task(over: Partial<{
   } as const;
 }
 
-test("idle — in-flight task untouched for 14+ days flags idle", () => {
+test("idle, in-flight task untouched for 14+ days flags idle", () => {
   const t = task({
     status: "in-flight",
     updatedAt: new Date(NOW - IDLE_DAYS_THRESHOLD * DAY),
@@ -43,7 +43,7 @@ test("idle — in-flight task untouched for 14+ days flags idle", () => {
   assert.equal(needsAttention(t, NOW), true);
 });
 
-test("idle — 13-day-old in-flight task is still calm", () => {
+test("idle, 13-day-old in-flight task is still calm", () => {
   const t = task({
     status: "in-flight",
     updatedAt: new Date(NOW - 13 * DAY),
@@ -51,7 +51,7 @@ test("idle — 13-day-old in-flight task is still calm", () => {
   assert.equal(attentionReason(t, NOW), null);
 });
 
-test("idle — waiting counts as active for idle (so a stale waiting task surfaces)", () => {
+test("idle, waiting counts as active for idle (so a stale waiting task surfaces)", () => {
   const t = task({
     status: "waiting",
     updatedAt: new Date(NOW - 20 * DAY),
@@ -59,7 +59,7 @@ test("idle — waiting counts as active for idle (so a stale waiting task surfac
   assert.equal(attentionReason(t, NOW), "idle");
 });
 
-test("idle — 'next' is not active state, so idle does not apply", () => {
+test("idle, 'next' is not active state, so idle does not apply", () => {
   const t = task({
     status: "next",
     updatedAt: new Date(NOW - 90 * DAY),
@@ -67,32 +67,32 @@ test("idle — 'next' is not active state, so idle does not apply", () => {
   assert.equal(attentionReason(t, NOW), null);
 });
 
-test("overdue — past targetDate with non-settled status flags overdue", () => {
+test("overdue, past targetDate with non-settled status flags overdue", () => {
   const t = task({ status: "in-flight", targetDate: "2026-06-01" });
   assert.equal(attentionReason(t, NOW), "overdue");
 });
 
-test("overdue — past targetDate with shipped status is settled (calm)", () => {
+test("overdue, past targetDate with shipped status is settled (calm)", () => {
   const t = task({ status: "shipped", targetDate: "2026-06-01" });
   assert.equal(attentionReason(t, NOW), null);
 });
 
-test("overdue — past targetDate with refused status is settled (calm)", () => {
+test("overdue, past targetDate with refused status is settled (calm)", () => {
   const t = task({ status: "refused", targetDate: "2026-06-01" });
   assert.equal(attentionReason(t, NOW), null);
 });
 
-test("overdue — same-day targetDate is not overdue (calendar-day anchor)", () => {
+test("overdue, same-day targetDate is not overdue (calendar-day anchor)", () => {
   const t = task({ status: "in-flight", targetDate: "2026-06-06" });
   assert.equal(attentionReason(t, NOW), null);
 });
 
-test("overdue — future targetDate is calm", () => {
+test("overdue, future targetDate is calm", () => {
   const t = task({ status: "in-flight", targetDate: "2026-06-30" });
   assert.equal(attentionReason(t, NOW), null);
 });
 
-test("precedence — overdue wins over idle when both apply", () => {
+test("precedence, overdue wins over idle when both apply", () => {
   const t = task({
     status: "in-flight",
     targetDate: "2026-05-01",
@@ -111,7 +111,7 @@ test("missing targetDate + recent updatedAt → null", () => {
   assert.equal(attentionReason(t, NOW), null);
 });
 
-test("countNeedsAttention — counts mixed list correctly", () => {
+test("countNeedsAttention, counts mixed list correctly", () => {
   const tasks = [
     task({ status: "in-flight", updatedAt: new Date(NOW - 20 * DAY) }), // idle
     task({ status: "in-flight", targetDate: "2026-06-01" }), // overdue
@@ -122,6 +122,6 @@ test("countNeedsAttention — counts mixed list correctly", () => {
   assert.equal(countNeedsAttention(tasks, NOW), 3);
 });
 
-test("countNeedsAttention — empty list returns 0", () => {
+test("countNeedsAttention, empty list returns 0", () => {
   assert.equal(countNeedsAttention([], NOW), 0);
 });

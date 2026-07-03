@@ -12,7 +12,7 @@ import {
 import { SiteFooter } from "@/components/marketing/site-footer";
 
 /**
- * /the-wedding — the canonical public wedding-plan example.
+ * /the-wedding, the canonical public wedding-plan example.
  *
  * This is the single artifact the whole venue motion points at
  * (BUSINESS_PARTNER_REVIEW §5 item 2; the Superhuman-3 seed shape).
@@ -22,13 +22,13 @@ import { SiteFooter } from "@/components/marketing/site-footer";
  *
  * It is deliberately NOT routed through the generic [workspaceSlug]
  * viewer. That surface is built for a software roadmap shown to
- * stakeholders — stat bands, blocker cards, a progress dial, T-N
+ * stakeholders, stat bands, blocker cards, a progress dial, T-N
  * countdowns, a refusals rail, a shortcuts hint. Correct there;
  * wrong for a couple. A static segment file takes route precedence
  * over [workspaceSlug] for this one path, so this renders instead.
  *
  * Content is verbatim-faithful to
- * studio/docs/strategy/VENUE_EXAMPLE_ROADMAP.md — panel-approved and
+ * studio/docs/strategy/VENUE_EXAMPLE_ROADMAP.md, panel-approved and
  * signal-brand-voice passed. The four states are the only ones; only
  * "Waiting on you" asks for action, and never more than two at once.
  * The venue is named once at the top and once at the foot, quietly —
@@ -37,18 +37,18 @@ import { SiteFooter } from "@/components/marketing/site-footer";
  */
 
 export const metadata: Metadata = {
-  title: "Your wedding plan — kept by Glenmara House",
+  title: "Your wedding plan, kept by Glenmara House",
   description:
     "Everything that matters, in one place. The plan a venue keeps for you, in plain English. No account, no login.",
   openGraph: {
-    title: "Your wedding plan — kept by Glenmara House",
+    title: "Your wedding plan, kept by Glenmara House",
     description:
       "Everything that matters, in one place. The plan a venue keeps for you, in plain English.",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Your wedding plan — kept by Glenmara House",
+    title: "Your wedding plan, kept by Glenmara House",
     description:
       "Everything that matters, in one place. The plan a venue keeps for you, in plain English.",
   },
@@ -60,7 +60,7 @@ type Item = {
   title: string;
   state: State;
   body: string;
-  /** Walkover row 7 — typed date precision. Optional: not every item has
+  /** Walkover row 7, typed date precision. Optional: not every item has
    *  a date yet (the schedule axis distinguishes 'no date' from 'pending'). */
   when?: DatePrecision;
 };
@@ -94,7 +94,7 @@ const SECTIONS: Section[] = [
         title: "Arrival and access times",
         state: "Done",
         when: { kind: "exact", value: "settled 2026-02-20" },
-        body: "Settled. You and the wedding party have the house from 2pm the day before. Suppliers from 8am on the day. This is the question that used to take five emails — it is answered here now.",
+        body: "Settled. You and the wedding party have the house from 2pm the day before. Suppliers from 8am on the day. This is the question that used to take five emails, it is answered here now.",
       },
     ],
   },
@@ -106,7 +106,7 @@ const SECTIONS: Section[] = [
         title: "Music and sound",
         state: "Waiting on you",
         when: { kind: "window", value: "early May" },
-        body: `${VENUE}'s only ask is a final song list and the band's arrival time, about three weeks before the day. Nothing needed yet — this is here so you know it's coming, not so you act today.`,
+        body: `${VENUE}'s only ask is a final song list and the band's arrival time, about three weeks before the day. Nothing needed yet, this is here so you know it's coming, not so you act today.`,
       },
       {
         title: "Florist walkthrough",
@@ -151,8 +151,8 @@ const SECTIONS: Section[] = [
  *   - everything else in Soon block                 → Soon lane
  *   - everything in Later block                     → Later lane
  *
- * Section labels are the primary signal — they already encode reader
- * intent — but state lets a done-early item slip into the Done lane
+ * Section labels are the primary signal, they already encode reader
+ * intent, but state lets a done-early item slip into the Done lane
  * without needing a separate Done section.
  */
 function buildSpineItems(sections: Section[]): SpineItem[] {
@@ -181,7 +181,7 @@ function buildSpineItems(sections: Section[]): SpineItem[] {
 }
 
 function StateChip({ state }: { state: State }) {
-  // Only "Waiting on you" carries presence — it is the one state that
+  // Only "Waiting on you" carries presence, it is the one state that
   // asks for action. The rest stay quiet on purpose. Restraint is the
   // product: if a plan seems to need a fifth state, the answer is
   // plainer language, not more colour.
@@ -258,7 +258,7 @@ export default function TheWeddingExamplePage() {
 
   return (
     <div className="flex min-h-screen flex-col" style={{ background: "var(--bg)" }}>
-      {/* Quiet header — identity, not chrome. No app affordances:
+      {/* Quiet header, identity, not chrome. No app affordances:
           this is a document to read and forward, not a tool. */}
       <header className="border-b border-line-soft/70">
         <div className="mx-auto flex h-14 w-full max-w-[760px] items-center justify-between px-6">
@@ -272,7 +272,7 @@ export default function TheWeddingExamplePage() {
 
       <main className="flex-1">
         <article className="mx-auto w-full max-w-[760px] px-6 pb-8 pt-16 md:pt-20">
-          {/* Eyebrow — the venue named once, quietly. A single
+          {/* Eyebrow, the venue named once, quietly. A single
               hairline of the wedding accent is the only colour the
               page spends here. */}
           <div
@@ -306,7 +306,7 @@ export default function TheWeddingExamplePage() {
             style={{ animationDelay: nextDelay() }}
           >
             Everything that matters, in one place. Forward this to anyone
-            who needs to see where things stand — they will not need an
+            who needs to see where things stand, they will not need an
             account or a login.
           </p>
 
@@ -318,7 +318,7 @@ export default function TheWeddingExamplePage() {
             <span className="text-ink-soft">{VENUE}</span>
           </p>
 
-          {/* Walkover row 3: true Schedule view — a horizontal time-spine
+          {/* Walkover row 3: true Schedule view, a horizontal time-spine
               with Today as the seam. Rendered above the section list so
               the whole plan is visible on one line before the reader
               starts scrolling. SSR, no JS animation, reduced-motion safe
@@ -327,7 +327,7 @@ export default function TheWeddingExamplePage() {
             <ScheduleSpine items={buildSpineItems(SECTIONS)} />
           </div>
 
-          {/* Sections — Now / Soon / Later */}
+          {/* Sections, Now / Soon / Later */}
           <div className="mt-14 space-y-14">
             {SECTIONS.map((section) => (
               <section key={section.label}>
@@ -374,13 +374,13 @@ export default function TheWeddingExamplePage() {
             ))}
           </div>
 
-          {/* Closing — the promise, restated calmly. No CTA: a
+          {/* Closing, the promise, restated calmly. No CTA: a
               couple is never sold to on their own plan. */}
           <p
             className="reveal mt-16 border-t border-line-soft/70 pt-8 text-[14px] leading-[1.65] text-ink-quiet"
             style={{ animationDelay: nextDelay() }}
           >
-            This plan is kept by {VENUE}. It updates on its own — you do
+            This plan is kept by {VENUE}. It updates on its own, you do
             not need to check back, and you will not be asked to log in.
             If something needs you, it will say so, in plain words, here.
           </p>

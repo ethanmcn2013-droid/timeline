@@ -4,19 +4,19 @@ import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
  * Next.js 16 renamed middleware → proxy. File lives at src/proxy.ts
  * and the exported function must be named `proxy` (or default export).
  *
- * Layer 2 — Seamless Ecosystem (2026-05-18)
+ * Layer 2, Seamless Ecosystem (2026-05-18)
  * ==========================================
  * Route categories per LAYER0_ROUTE_ALLOWLIST.md §roadmap:
  *
- *   M (Marketing)  — authed user → 307 to /app. Explicit allowlist only.
- *   C (Content)    — NEVER redirected; reachable by everyone logged-in or not.
+ *   M (Marketing) , authed user → 307 to /app. Explicit allowlist only.
+ *   C (Content)   , NEVER redirected; reachable by everyone logged-in or not.
  *                    This is the no-auth promise that makes shared roadmap
  *                    links work. Getting this wrong detonates Roadmap's pitch.
- *   A (App)        — authed destination; never redirected.
- *   X (Excluded)   — infra; never touched.
+ *   A (App)       , authed destination; never redirected.
+ *   X (Excluded)  , infra; never touched.
  *
  * The M-allowlist is EXACT. Anything not on it passes through untouched.
- * We NEVER use a "any route not in M is public" heuristic — that heuristic
+ * We NEVER use a "any route not in M is public" heuristic, that heuristic
  * eats /{workspaceSlug}/* routes (category C) and breaks the no-auth promise.
  *
  * Escape hatch (DESIGN.md §14 canonical): the owner can activate
@@ -25,7 +25,7 @@ import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
  * SameSite=Strict) set client-side, read here in the middleware.
  * A `?preview=public` query param is also accepted as an alternative entry
  * point (useful for screen-recording handoffs). Cookie name and param are
- * suite-wide canonical — do NOT use repo-local names.
+ * suite-wide canonical, do NOT use repo-local names.
  */
 
 import { NextResponse } from "next/server";
@@ -42,10 +42,10 @@ const isMarketingRoute = createRouteMatcher([
   "/changelog",
 ]);
 
-// A (App) routes — already the authed destination, never redirected.
+// A (App) routes, already the authed destination, never redirected.
 // Listed for documentation; the middleware default pass-through handles these.
 
-// X (Excluded infra) — never redirect:
+// X (Excluded infra), never redirect:
 //   /api/*, /og/*, /sign-in/*, /sign-up/*, /sitemap.xml, /robots.txt,
 //   /manifest.webmanifest, badge.svg, calendar.ics, /print/*
 // These are handled by the default pass-through below.
@@ -68,7 +68,7 @@ const productionProxy = clerkMiddleware(async (auth, req) => {
 
   if (!clerkConfigured) {
     // Fail CLOSED in production. A prod deploy missing Clerk keys must
-    // not silently serve /app unauthenticated — the proxy is the edge
+    // not silently serve /app unauthenticated, the proxy is the edge
     // backstop. Locally we still pass through so dev runs before keys
     // are provisioned.
     if (process.env.NODE_ENV === "production") {
@@ -99,7 +99,7 @@ const productionProxy = clerkMiddleware(async (auth, req) => {
     }
   }
 
-  // /app/* and everything else not in the M list — protect /app/* only.
+  // /app/* and everything else not in the M list, protect /app/* only.
   // All /{workspaceSlug}/* are C-category and pass through with no auth check.
   const isApp = req.nextUrl.pathname.startsWith("/app");
   if (isApp && !userId) {

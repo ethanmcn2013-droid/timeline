@@ -30,12 +30,12 @@ export function ItemRow({
    *  up to based on date; the row just renders the string. */
   milestoneLabel?: string | null;
   /** Owner-only Tier 3 attention indicator. The page passes the value
-   *  only when the current user is the workspace owner — public
+   *  only when the current user is the workspace owner, public
    *  stakeholders never receive it, so the indicator can never leak. */
   attentionReason?: AttentionReason | null;
   /** Threaded from the page so the KIND pill (PAID/POST/KPI/etc.) only
    *  renders for the workspace owner. The eleven-kind taxonomy is
-   *  internal vocabulary — a stakeholder reading the public plan should
+   *  internal vocabulary, a stakeholder reading the public plan should
    *  see the work, not the marketing-team categories it lives under. */
   isOwner?: boolean;
 }) {
@@ -60,7 +60,7 @@ export function ItemRow({
         transition: "background var(--motion-fast) var(--ease-standard)",
       }}
     >
-      {/* Status indicator — §1.2 outlined grammar, no status-palette colours.
+      {/* Status indicator, §1.2 outlined grammar, no status-palette colours.
           Milestones swap the round circle for the indigo diamond so a dated
           moment is legible at a glance without a second accent colour. */}
       <span
@@ -76,7 +76,7 @@ export function ItemRow({
         )}
       </span>
 
-      {/* Date — desktop only */}
+      {/* Date, desktop only */}
       <div className="hidden text-[10.5px] tabular-nums leading-[1.4] text-ink-quiet sm:block">
         {task.targetDate ? (
           <div>{task.targetDate.slice(5)}</div>
@@ -85,9 +85,9 @@ export function ItemRow({
         )}
       </div>
 
-      {/* Kind badge — desktop only. Owner-only: the eleven-kind taxonomy
+      {/* Kind badge, desktop only. Owner-only: the eleven-kind taxonomy
           (POST / ASSET / PRESS / PAID / KPI / etc.) reads as marketing-team
-          vocabulary on the public surface — a stakeholder seeing "PAID" next
+          vocabulary on the public surface, a stakeholder seeing "PAID" next
           to a deposit item reads it as "paid for". Hidden for non-owners. */}
       {isOwner ? (
         <div className="hidden flex-wrap gap-1 sm:flex">

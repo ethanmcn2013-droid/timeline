@@ -2,7 +2,7 @@
  * Unit tests for isWorkspacePublished (P0-2, seamless-roadmap).
  *
  * These tests exercise the logic in isolation using a mock DB client.
- * The module under test is not imported directly — we test the logic
+ * The module under test is not imported directly, we test the logic
  * extracted into a pure helper to keep the test boundary clean and
  * avoid needing a live Turso connection.
  *
@@ -64,35 +64,35 @@ function publishWorkspaceGuard(
 
 // ── Tests ─────────────────────────────────────────────────────────────────────
 
-test("isWorkspacePublished — project exists + published_at set + ZERO tasks → false", () => {
+test("isWorkspacePublished, project exists + published_at set + ZERO tasks → false", () => {
   const projectRows = [{ publishedAt: new Date() }];
   const taskCount = 0;
   const result = isWorkspacePublishedLogic(projectRows, taskCount);
   assert.equal(result, false, "Should return false when no tasks exist");
 });
 
-test("isWorkspacePublished — project exists + published_at set + ≥1 task → true", () => {
+test("isWorkspacePublished, project exists + published_at set + ≥1 task → true", () => {
   const projectRows = [{ publishedAt: new Date() }];
   const taskCount = 1;
   const result = isWorkspacePublishedLogic(projectRows, taskCount);
   assert.equal(result, true, "Should return true when tasks exist and all projects published");
 });
 
-test("isWorkspacePublished — project exists + published_at NULL → false (existing guard)", () => {
+test("isWorkspacePublished, project exists + published_at NULL → false (existing guard)", () => {
   const projectRows = [{ publishedAt: null }];
   const taskCount = 5;
   const result = isWorkspacePublishedLogic(projectRows, taskCount);
   assert.equal(result, false, "Should return false when project not published");
 });
 
-test("isWorkspacePublished — zero projects → false (existing guard)", () => {
+test("isWorkspacePublished, zero projects → false (existing guard)", () => {
   const projectRows: { publishedAt: Date | null }[] = [];
   const taskCount = 0;
   const result = isWorkspacePublishedLogic(projectRows, taskCount);
   assert.equal(result, false, "Should return false when no projects");
 });
 
-test("isWorkspacePublished — multiple projects, all published, tasks present → true", () => {
+test("isWorkspacePublished, multiple projects, all published, tasks present → true", () => {
   const projectRows = [
     { publishedAt: new Date() },
     { publishedAt: new Date() },
@@ -102,7 +102,7 @@ test("isWorkspacePublished — multiple projects, all published, tasks present �
   assert.equal(result, true, "Should return true for multi-project published workspace with tasks");
 });
 
-test("isWorkspacePublished — multiple projects, ONE unpublished, tasks present → false", () => {
+test("isWorkspacePublished, multiple projects, ONE unpublished, tasks present → false", () => {
   const projectRows = [
     { publishedAt: new Date() },
     { publishedAt: null },
@@ -112,7 +112,7 @@ test("isWorkspacePublished — multiple projects, ONE unpublished, tasks present
   assert.equal(result, false, "Should return false when any project is unpublished");
 });
 
-test("publishWorkspaceAction guard — zero projects → error, published_at unset", () => {
+test("publishWorkspaceAction guard, zero projects → error, published_at unset", () => {
   let publishCalled = false;
   // Simulate the guard logic; if it returns error, publishWorkspace is never reached.
   const result = publishWorkspaceGuard(0, 0);
@@ -126,7 +126,7 @@ test("publishWorkspaceAction guard — zero projects → error, published_at uns
   assert.equal(publishCalled, false, "publishWorkspace must not be called");
 });
 
-test("publishWorkspaceAction guard — project exists + zero visible nodes → error, published_at unset", () => {
+test("publishWorkspaceAction guard, project exists + zero visible nodes → error, published_at unset", () => {
   let publishCalled = false;
   // visibleNodeCount=0: no synced tasks AND no manual overlays visible.
   const result = publishWorkspaceGuard(1, 0);
@@ -139,15 +139,15 @@ test("publishWorkspaceAction guard — project exists + zero visible nodes → e
   assert.equal(publishCalled, false, "publishWorkspace must not be called");
 });
 
-test("publishWorkspaceAction guard — project + synced tasks visible → ok", () => {
+test("publishWorkspaceAction guard, project + synced tasks visible → ok", () => {
   // Standard path: synced milestones from Tasks with visibleNodeCount≥1.
   const result = publishWorkspaceGuard(1, 3);
   assert.ok("ok" in result && (result as { ok: true }).ok === true, "Should return ok");
 });
 
-test("publishWorkspaceAction guard — manual-only roadmap (visibleNodeCount≥1, taskCount 0) → ok", () => {
+test("publishWorkspaceAction guard, manual-only roadmap (visibleNodeCount≥1, taskCount 0) → ok", () => {
   // Manual milestone added directly via curation overlay (source="manual").
-  // Production uses getEffectiveNodesForWorkspace — manual overlays count.
+  // Production uses getEffectiveNodesForWorkspace, manual overlays count.
   // This test asserts the guard PASSES when visible nodes exist but raw task count is 0.
   const result = publishWorkspaceGuard(1, 1); // 1 visible manual node, 0 synced tasks
   assert.ok("ok" in result && (result as { ok: true }).ok === true, "Manual-only roadmap must pass publish guard");
@@ -172,7 +172,7 @@ function applyDragReorder(
   return ordered.map((n, i) => ({ ...n, sortOrder: i }));
 }
 
-test("drag-reorder — move first node to last position updates sortOrder", () => {
+test("drag-reorder, move first node to last position updates sortOrder", () => {
   const nodes = [
     { id: "a", sortOrder: 0 },
     { id: "b", sortOrder: 1 },
@@ -182,13 +182,13 @@ test("drag-reorder — move first node to last position updates sortOrder", () =
   const aNode = result.find((n) => n.id === "a")!;
   const bNode = result.find((n) => n.id === "b")!;
   const cNode = result.find((n) => n.id === "c")!;
-  // a moved to before c — order should be b(0), a(1), c(2)
+  // a moved to before c, order should be b(0), a(1), c(2)
   assert.equal(bNode.sortOrder, 0, "b should be first");
   assert.equal(aNode.sortOrder, 1, "a should be second (before c)");
   assert.equal(cNode.sortOrder, 2, "c should be last");
 });
 
-test("drag-reorder — move last node to first position updates sortOrder", () => {
+test("drag-reorder, move last node to first position updates sortOrder", () => {
   const nodes = [
     { id: "a", sortOrder: 0 },
     { id: "b", sortOrder: 1 },
@@ -204,7 +204,7 @@ test("drag-reorder — move last node to first position updates sortOrder", () =
   assert.equal(bNode.sortOrder, 2, "b should be last");
 });
 
-test("drag-reorder — same source and target is a no-op", () => {
+test("drag-reorder, same source and target is a no-op", () => {
   const nodes = [
     { id: "a", sortOrder: 0 },
     { id: "b", sortOrder: 1 },
@@ -225,7 +225,7 @@ test("drag-reorder — same source and target is a no-op", () => {
 
 // ── Auto-sync does NOT revalidate public URL (D6 two-gate) ────────────────────
 // syncMilestonesAction revalidates /app and /app/plan/[slug] only.
-// It NEVER revalidates /{workspaceSlug} — that path belongs to publishWorkspaceAction.
+// It NEVER revalidates /{workspaceSlug}, that path belongs to publishWorkspaceAction.
 // This test verifies the revalidation boundary using the path-check helper
 // extracted from the action (pure string logic).
 

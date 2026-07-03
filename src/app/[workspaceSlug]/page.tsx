@@ -30,11 +30,11 @@ import { SiteFooter } from "@/components/marketing/site-footer";
 
 // Public roadmap is read-only, ISR with a 5-min window. The page reads
 // NO dynamic APIs (no searchParams/cookies/headers) so this revalidate
-// genuinely engages — every shared-link hit is served from cache, not a
+// genuinely engages, every shared-link hit is served from cache, not a
 // fresh 4-query Turso round-trip. The source-save action calls
 // revalidatePath on edit so stakeholders see changes immediately rather
 // than waiting out the window. View selection (?view=) is resolved
-// client-side by WorkspaceViewBody — see that component for why reading
+// client-side by WorkspaceViewBody, see that component for why reading
 // it server-side here would silently break ISR.
 export const revalidate = 300;
 
@@ -47,16 +47,16 @@ export async function generateMetadata({
   const workspace = await getWorkspace(workspaceSlug);
   if (!workspace) return { title: "Not Found" };
   return {
-    title: `${workspace.name} — Timeline`,
+    title: `${workspace.name}, Timeline`,
     description: `Public roadmap for ${workspace.name}.`,
   };
 }
 
 // ── P1-3 shell / content split ────────────────────────────────────────────────
-// The outer page component resolves only getWorkspace (React-cached — the
+// The outer page component resolves only getWorkspace (React-cached, the
 // generateMetadata call above reuses the same request-deduped query).
-// Everything that requires data — the draft/publish gate plus the four heavy
-// reads — lives in WorkspaceContentWell behind a Suspense boundary scoped to
+// Everything that requires data, the draft/publish gate plus the four heavy
+// reads, lives in WorkspaceContentWell behind a Suspense boundary scoped to
 // the content well only. The WorkspaceHeader + ShortcutsOverlay paint
 // immediately from the cache; they never re-blank while the data resolves.
 //
@@ -72,7 +72,7 @@ export default async function WorkspaceRoadmapPage({
 }) {
   const { workspaceSlug } = await params;
 
-  // getWorkspace is React-cached — shared with generateMetadata above and
+  // getWorkspace is React-cached, shared with generateMetadata above and
   // with WorkspaceContentWell below (all three reuse one Turso round-trip).
   const workspace = await getWorkspace(workspaceSlug);
   if (!workspace) notFound();
@@ -92,10 +92,10 @@ export default async function WorkspaceRoadmapPage({
         before any pixels are drawn. Reads ?view= from the URL, sets
         data-view on the root wrapper, and corrects aria-current on the
         static switcher tabs so the correct panel and active tab are
-        visible on the very first frame — no flash, no hydration wait.
+        visible on the very first frame, no flash, no hydration wait.
 
         Paired <style> block: hides non-matching panels when data-view is
-        set (deep-linked non-overview views only — when there is no view
+        set (deep-linked non-overview views only, when there is no view
         param the attribute is absent and no CSS fires, so overview shows
         as the safe default).
 
@@ -110,7 +110,7 @@ export default async function WorkspaceRoadmapPage({
           __html: `
 /* Gantt is the default: the timeline panel is hidden until ?view=timeline is
    deep-linked (set on the root by the pre-paint script below). This default
-   hiding works with no JS at all — the bare URL renders the Gantt view. */
+   hiding works with no JS at all, the bare URL renders the Gantt view. */
 [data-view-panel="timeline"] { display: none; }
 [data-workspace-view-root][data-view="timeline"] [data-view-panel="timeline"] { display: revert; }
 [data-workspace-view-root][data-view="timeline"] [data-view-panel="gantt"] { display: none; }
@@ -145,7 +145,7 @@ for(var i=0;i<tabs.length;i++){
         }}
       />
 
-      {/* Chrome: renders from the React-cached getWorkspace — no Turso
+      {/* Chrome: renders from the React-cached getWorkspace, no Turso
           round-trip beyond what generateMetadata already consumed.
           refusedCount=0 here; WorkspaceHeader will update when content
           resolves via the content well (nice-to-have detail, not blocking). */}
@@ -163,7 +163,7 @@ for(var i=0;i<tabs.length;i++){
 }
 
 // ── Content-well fallback (RW-5) ─────────────────────────────────────────────
-// Wordmark identity loader — replaces the prior SuiteLoaderField bare 12px dot
+// Wordmark identity loader, replaces the prior SuiteLoaderField bare 12px dot
 // (whose `var(--load-dot-size, 12px)` was visually swallowed by the cross-origin
 // pre-CSS window, reading as a much larger circle to the visitor). Letters of
 // "roadmap" rise with stagger; indigo dot lands with overshoot; canonical
@@ -279,7 +279,7 @@ async function WorkspaceContentWell({
     ownerName: string | null;
   };
 }) {
-  // Draft/publish gate (Layer 1 — seamless-ecosystem-2026-05-18).
+  // Draft/publish gate (Layer 1, seamless-ecosystem-2026-05-18).
   // Run in parallel to keep the happy path fast.
   //
   // Rule:
@@ -288,7 +288,7 @@ async function WorkspaceContentWell({
   //   - Draft + non-owner (or logged out) → calm "Not published yet" content.
   //
   // This is NOT a login wall. Logged-out visitors to a draft workspace see
-  // the friendly not-published message — not a sign-in redirect.
+  // the friendly not-published message, not a sign-in redirect.
   const [published, currentUser] = await Promise.all([
     isWorkspacePublished(workspaceSlug),
     getCurrentUser(),
@@ -303,7 +303,7 @@ async function WorkspaceContentWell({
     );
   }
 
-  // Single data fetch — both views share this payload.
+  // Single data fetch, both views share this payload.
   // No per-view branching in the data layer; ISR remains intact.
   // effectiveNodes is included to support manual-only workspaces (D1 fix):
   // milestones created via "+ Add a milestone" live only in node_overlays,
@@ -336,7 +336,7 @@ async function WorkspaceContentWell({
 
   const projectMap = new Map<string, Project>(projects.map((p) => [p.slug, p]));
 
-  // Non-refused, non-milestone tasks — the items the Gantt plots.
+  // Non-refused, non-milestone tasks, the items the Gantt plots.
   const visibleTasks = allTasks.filter(
     (t) => t.status !== "refused" && t.kind !== "milestone",
   );
@@ -352,7 +352,7 @@ async function WorkspaceContentWell({
   const syncedMilestones = allTasks.filter(
     (t) => (t.kind === "milestone" || t.isLaunch) && t.status !== "refused",
   );
-  // Ids of synced milestones already accounted for — prevents double-rendering
+  // Ids of synced milestones already accounted for, prevents double-rendering
   // an effective node whose backing task row is already in syncedMilestones.
   const syncedMilestoneIds = new Set(syncedMilestones.map((t) => t.id));
   // Fabricate Task-shaped objects for manual nodes so all downstream consumers
@@ -427,16 +427,16 @@ async function WorkspaceContentWell({
   const isDemoWorkspace = workspace.isDemo;
 
   // The dial + Next-milestone lockup earn their hero placement only
-  // when the workspace tells a *story* — not when it's just rendering a count.
+  // when the workspace tells a *story*, not when it's just rendering a count.
   const hasMomentum = totalForProgress >= 5 || milestones.length > 0;
 
-  // H1 always ends in a period — the rhythmic signature of the brand —
+  // H1 always ends in a period, the rhythmic signature of the brand —
   // without doubling up when a workspace name already ends in one.
   const heroTitle = /[.!?]$/.test(workspace.name)
     ? workspace.name
     : `${workspace.name}.`;
 
-  // Single-glance verdict — "where does this stand?" answered before
+  // Single-glance verdict, "where does this stand?" answered before
   // the title lands. Derived entirely from data already fetched; no
   // extra query, ISR intact. Renders on every breakpoint (the
   // milestone emphasis block is desktop-only; this line is the
@@ -493,7 +493,7 @@ async function WorkspaceContentWell({
 
   return (
     <>
-      {/* Demo banner — gated to the owner. A non-owner who follows a shared
+      {/* Demo banner, gated to the owner. A non-owner who follows a shared
           link to the demo workspace did not arrive looking for "what your
           roadmap could look like"; they arrived to read the work. The banner
           is the operator's framing, not the recipient's. (REVIEW Gap 1, L2.) */}
@@ -502,15 +502,15 @@ async function WorkspaceContentWell({
           className="w-full border-b px-6 py-2 text-center text-[12px] text-ink-soft"
           style={{ background: "var(--bg-deep)", borderColor: "var(--line-soft)" }}
         >
-          You&apos;re viewing a public demo workspace — this is what your roadmap could look like.
+          You&apos;re viewing a public demo workspace, this is what your roadmap could look like.
         </div>
       )}
 
       <main className="flex-1">
-        {/* Hero — typographic title + meta strip + progress dial + view switcher */}
+        {/* Hero, typographic title + meta strip + progress dial + view switcher */}
         <section className="border-b border-line-soft/60 px-6 pb-10 pt-12">
           <div className="mx-auto w-full max-w-[1240px]">
-            {/* MetaStrip — owner-only. The uppercase mono row of name ·
+            {/* MetaStrip, owner-only. The uppercase mono row of name ·
                 date-range · weeks · milestone-count is decoration that costs
                 the recipient a full visual sweep before the H1 lands. The
                 title + "Shared by … Last updated …" already carry identity,
@@ -567,7 +567,7 @@ async function WorkspaceContentWell({
                       ) : null}
                     </p>
                   ) : null}
-                  {/* View switcher — client island. Suspense required because
+                  {/* View switcher, client island. Suspense required because
                       useSearchParams() suspends until params are known.
                       The static fallback renders the nav in SSR HTML so
                       no-JS visitors see the tabs immediately. */}
@@ -605,7 +605,7 @@ async function WorkspaceContentWell({
         {!hasItems ? (
           // Published workspace with projects but no items yet (can occur if
           // the owner publishes right after content is removed). The prior copy
-          // "Nothing yet. The owner is still drafting." is wrong here — the
+          // "Nothing yet. The owner is still drafting." is wrong here, the
           // owner is NOT drafting, the workspace is published. Calm, accurate.
           <section className="px-6 py-24 text-center">
             <div className="mx-auto max-w-md space-y-2">
@@ -613,7 +613,7 @@ async function WorkspaceContentWell({
                 Nothing here yet.
               </p>
               <p className="text-[13px] text-ink-quiet">
-                This page updates as the plan moves — check back, or bookmark it.
+                This page updates as the plan moves, check back, or bookmark it.
               </p>
             </div>
           </section>
@@ -623,7 +623,7 @@ async function WorkspaceContentWell({
              Suspense is required by useSearchParams. The static fallback
              pre-renders both panels in SSR HTML; the pre-paint CSS shows the
              Gantt by default and the pre-paint script flips to Timeline for a
-             deep-linked ?view=timeline — so no-JS visitors get the Gantt. */
+             deep-linked ?view=timeline, so no-JS visitors get the Gantt. */
           (() => {
             const gantt = (
               <GanttView
@@ -667,7 +667,7 @@ function weeksBetween(fromIso: string, toIso: string): number {
 }
 
 /**
- * Format ISO date as "Jun 12" — CREATIVE_SPEC §1.3.
+ * Format ISO date as "Jun 12", CREATIVE_SPEC §1.3.
  * Year shown only when it differs from the current calendar year.
  */
 function formatShortDate(iso: string): string {
@@ -694,11 +694,11 @@ function daysUntilSimple(iso: string): number {
 }
 
 /**
- * Single-glance current-state line — the first thing a recipient reads.
+ * Single-glance current-state line, the first thing a recipient reads.
  *
  * One sentence in the product's voice, above the title:
  *   "On track for Jun 14."          (dot: shipped-green)
- *   "Aiming for Jun 14."            (dot: flight-amber — honest, unshaming)
+ *   "Aiming for Jun 14."            (dot: flight-amber, honest, unshaming)
  *   "Everything here has shipped."  (dot: shipped-green)
  *
  * No counts, no percentages, no red. The verb carries the truth; the
@@ -729,7 +729,7 @@ function CurrentStateLine({ state }: { state: CurrentState }) {
 }
 
 /**
- * CREATIVE_SPEC §1.4 — milestone emphasis block.
+ * CREATIVE_SPEC §1.4, milestone emphasis block.
  * Collapses the prior NextMilestoneStrip + ProgressRing sibling pair into
  * one composed unit: eyebrow + title + date/count meta on the left,
  * 48px ProgressRing on the right. One block, not two widgets.
@@ -741,7 +741,7 @@ function CurrentStateLine({ state }: { state: CurrentState }) {
  *   background: var(--paper)
  *   min-width: 220px, max-width: 280px
  *
- * The T-N countdown number uses var(--accent) — one of six named indigo uses
+ * The T-N countdown number uses var(--accent), one of six named indigo uses
  * (CREATIVE_SPEC §1.7). Everything else stays ink / ink-quiet.
  */
 function MilestoneEmphasisBlock({
@@ -785,7 +785,7 @@ function MilestoneEmphasisBlock({
     >
       {/* Left: eyebrow + title + date meta */}
       <div style={{ flex: 1, minWidth: 0 }}>
-        {/* Eyebrow — §1.4 exact token */}
+        {/* Eyebrow, §1.4 exact token */}
         <div
           style={{
             fontFamily: "var(--font-mono-stack)",
@@ -799,7 +799,7 @@ function MilestoneEmphasisBlock({
           Next milestone
         </div>
 
-        {/* Title — §1.4: 15px / 600 / -0.02em */}
+        {/* Title, §1.4: 15px / 600 / -0.02em */}
         <div
           style={{
             fontSize: 15,
@@ -815,7 +815,7 @@ function MilestoneEmphasisBlock({
           {next?.title ?? "No upcoming milestone"}
         </div>
 
-        {/* Date + count meta — §1.4 mono 11px, marginTop 4px */}
+        {/* Date + count meta, §1.4 mono 11px, marginTop 4px */}
         <div
           style={{
             fontFamily: "var(--font-mono-stack)",
@@ -848,7 +848,7 @@ function MilestoneEmphasisBlock({
         </div>
       </div>
 
-      {/* Right: 48px ProgressRing — inside the block per §1.4 */}
+      {/* Right: 48px ProgressRing, inside the block per §1.4 */}
       <div
         role="img"
         aria-label={`Progress: ${pct}%`}

@@ -5,7 +5,7 @@
  * root provider so every surface inherits it.
  *
  * H1 (roadmap-elevation): `userButtonAvatarBox` + `avatarBox` are clamped
- * to 32px max to match the header's h-14 (56px) proportions — avatar sits
+ * to 32px max to match the header's h-14 (56px) proportions, avatar sits
  * at 57% of bar height. Without this, Clerk renders its default ~40px
  * indigo circle before hydration which reads as an oversized foreign element.
  */
@@ -28,7 +28,7 @@ export const clerkAppearance = {
     card: "shadow-[0_24px_60px_-24px_rgba(24,24,27,0.18)]",
     // H1: constrain UserButton avatar to 32×32px so the pre-hydration
     // indigo circle never oversizes. Clerk default is ~40px; 32px matches
-    // the header h-14 (56px) proportions — avatar sits at 57% of bar height.
+    // the header h-14 (56px) proportions, avatar sits at 57% of bar height.
     userButtonAvatarBox: "!w-8 !h-8",
     avatarBox: "!w-8 !h-8",
   },

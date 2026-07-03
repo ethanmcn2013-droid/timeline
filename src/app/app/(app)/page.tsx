@@ -8,7 +8,7 @@ import { CreateProjectForm } from "./_components/create-project-form";
 import { PublishControl } from "./_components/publish-control";
 import { TIMELINE_URL } from "@/lib/product-urls";
 
-export const metadata = { title: "Dashboard — Timeline" };
+export const metadata = { title: "Dashboard, Timeline" };
 export const dynamic = "force-dynamic";
 
 export default async function AppPage() {
@@ -17,7 +17,7 @@ export default async function AppPage() {
 
   // ── No workspace yet ────────────────────────────────────────────────────
   if (!workspace) {
-    // Server-side check only — never expose env state to client JS.
+    // Server-side check only, never expose env state to client JS.
     // When Upstash isn't configured in prod, checkRateLimit() fails closed
     // and would block every submit with a confusing message. Signal the
     // operator-side pause up front so the form reads honestly instead.
@@ -27,7 +27,7 @@ export default async function AppPage() {
     return <CreateWorkspaceForm writesPaused={writesPaused} />;
   }
 
-  // ── Workspace exists — show dashboard ───────────────────────────────────
+  // ── Workspace exists, show dashboard ───────────────────────────────────
   const [projects, workspacePublished, { tier }] = await Promise.all([
     getProjectsForWorkspace(workspace.slug),
     isWorkspacePublished(workspace.slug),
@@ -52,8 +52,8 @@ export default async function AppPage() {
           >
             {workspace.name}
           </h1>
-          {/* Publish control — Layer 1 (seamless-ecosystem-2026-05-18); includes URL chip */}
-          {/* id="publish": M4 nudge hash anchor — no smooth-scroll, native fragment jump */}
+          {/* Publish control, Layer 1 (seamless-ecosystem-2026-05-18); includes URL chip */}
+          {/* id="publish": M4 nudge hash anchor, no smooth-scroll, native fragment jump */}
           <div id="publish" className="mt-3">
             <PublishControl
               workspaceSlug={workspace.slug}
@@ -160,7 +160,7 @@ function EmptyProjects({ workspaceSlug }: { workspaceSlug: string }) {
         Add your first project
       </p>
       <p className="mb-6 text-sm leading-relaxed" style={{ color: "var(--ink-quiet)" }}>
-        A project is one roadmap — one plan, one slice of work. Name it, mark
+        A project is one roadmap, one plan, one slice of work. Name it, mark
         tasks as milestones in Signal Tasks, and you&apos;ll have a public link to share.
       </p>
       <CreateProjectForm workspaceSlug={workspaceSlug} />

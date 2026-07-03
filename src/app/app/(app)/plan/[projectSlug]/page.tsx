@@ -16,7 +16,7 @@ export async function generateMetadata({
   params: Promise<{ projectSlug: string }>;
 }) {
   const { projectSlug } = await params;
-  return { title: `Plan — ${projectSlug} — Timeline` };
+  return { title: `Plan, ${projectSlug}, Timeline` };
 }
 
 export default async function PlanPage({
@@ -31,7 +31,7 @@ export default async function PlanPage({
   if (!workspace) notFound();
 
   // Verify the project belongs to this workspace.
-  // getProjectsForWorkspace is a fast indexed read — resolves before
+  // getProjectsForWorkspace is a fast indexed read, resolves before
   // the heavier getEffectiveNodesForWorkspace call below.
   const projects = await getProjectsForWorkspace(workspace.slug);
   const project = projects.find((p) => p.slug === projectSlug);
@@ -42,7 +42,7 @@ export default async function PlanPage({
 
   return (
     <div className="mx-auto flex w-full max-w-4xl flex-1 flex-col px-6 py-10">
-      {/* Breadcrumb — renders immediately; no data-dependent await below this point */}
+      {/* Breadcrumb, renders immediately; no data-dependent await below this point */}
       <nav
         className="mb-6 flex items-center gap-1.5 text-xs"
         style={{ color: "var(--ink-quiet)" }}
@@ -58,7 +58,7 @@ export default async function PlanPage({
         <span style={{ color: "var(--ink)" }}>{project.name}</span>
       </nav>
 
-      {/* Heading — renders immediately */}
+      {/* Heading, renders immediately */}
       <div className="mb-8">
         <h1
           className="text-2xl font-semibold"
@@ -90,7 +90,7 @@ export default async function PlanPage({
   );
 }
 
-// ── Async data component — deferred behind Suspense ───────────────────────────
+// ── Async data component, deferred behind Suspense ───────────────────────────
 // Resolves getEffectiveNodesForWorkspace + isWorkspacePublished while the
 // breadcrumb and heading above are already visible.
 
@@ -121,7 +121,7 @@ async function PlanPageContent({
 
 // ── Skeleton fallback ─────────────────────────────────────────────────────────
 // Scoped to the curation surface area only. Matches the approximate shape
-// of the node list — a few shimmer rows — without taking over the full viewport.
+// of the node list, a few shimmer rows, without taking over the full viewport.
 
 function CurationSurfaceSkeleton() {
   return (

@@ -1,9 +1,9 @@
 /**
- * rate-limit.ts — IP-based rate limiting for public Server Actions.
+ * rate-limit.ts, IP-based rate limiting for public Server Actions.
  *
  * Strategy:
  *   - Production with UPSTASH_REDIS_REST_URL set: uses @upstash/redis
- *     sliding-window counter via plain HTTP (no SDK required — avoids
+ *     sliding-window counter via plain HTTP (no SDK required, avoids
  *     an optional install dependency).
  *   - Development / no Redis env: in-memory Map with TTL eviction.
  *     Resets on server restart; fine for local dev.
@@ -41,7 +41,7 @@ function memRateLimit(key: string, limit: number, windowSecs: number): boolean {
 
 // ---------------------------------------------------------------------------
 // Upstash HTTP rate-limit (production)
-// Avoids SDK install — atomic INCR + EXPIRE NX via Upstash REST pipeline.
+// Avoids SDK install, atomic INCR + EXPIRE NX via Upstash REST pipeline.
 // ---------------------------------------------------------------------------
 
 async function upstashRateLimit(
@@ -80,11 +80,11 @@ async function upstashRateLimit(
 
   if (!pipelineRes.ok) {
     if (process.env.NODE_ENV === "production") {
-      // Redis unavailable in prod — fail closed. Brute-force protection
+      // Redis unavailable in prod, fail closed. Brute-force protection
       // must hold even when Redis is down.
-      console.error("[rate-limit] Upstash pipeline failed in prod — denying request:", pipelineRes.status);
+      console.error("[rate-limit] Upstash pipeline failed in prod, denying request:", pipelineRes.status);
       // TODO(roadmap-02): Sentry capture once @sentry/nextjs is wired in
-      //   this repo — Sentry.captureException(new Error(...), {
+      //   this repo, Sentry.captureException(new Error(...), {
       //     tags: { component: 'rate-limit', reason: 'upstash-unreachable' }
       //   });
       //   See audit/roadmap-audit.md (P1). Not adding the dep just for this.
@@ -108,10 +108,10 @@ async function upstashRateLimit(
 /**
  * Outcome of a rate-limit check.
  *
- * - `allowed: true`  — request may proceed.
- * - `allowed: false, reason: "quota"`      — real rate-limit hit; surface
+ * - `allowed: true` , request may proceed.
+ * - `allowed: false, reason: "quota"`     , real rate-limit hit; surface
  *   "Too many requests" to the user (their fault).
- * - `allowed: false, reason: "config-miss"` — Upstash env vars absent in
+ * - `allowed: false, reason: "config-miss"`, Upstash env vars absent in
  *   production; request denied for safety but the user is blameless.
  *   Surface "This isn't available right now. Try again shortly." instead.
  */
@@ -123,7 +123,7 @@ export type RateLimitResult =
  * Check whether `ip` has exceeded `limit` calls for `action` within
  * a `windowSecs` sliding window.
  *
- * Returns a `RateLimitResult` — inspect `.allowed` and, when false, `.reason`
+ * Returns a `RateLimitResult`, inspect `.allowed` and, when false, `.reason`
  * to surface an honest message. Never lie to the user that they hit a quota
  * when the real cause is a missing operator configuration.
  *
@@ -154,10 +154,10 @@ export async function checkRateLimit(
   }
 
   if (process.env.NODE_ENV === "production") {
-    // No Redis in prod — fail closed, but signal the real cause so callers
+    // No Redis in prod, fail closed, but signal the real cause so callers
     // can show an honest "service unavailable" message rather than blaming
     // the user for hitting a quota they never hit.
-    console.error("[rate-limit] Upstash not configured in production — denying request for safety.");
+    console.error("[rate-limit] Upstash not configured in production, denying request for safety.");
     return { allowed: false, reason: "config-miss" };
   }
 
@@ -168,9 +168,9 @@ export async function checkRateLimit(
 
 /**
  * Extract the best-guess client IP from Next.js request headers.
- * Falls back to "unknown" — rate-limited as a single shared bucket.
+ * Falls back to "unknown", rate-limited as a single shared bucket.
  *
- * `headers()` is async in Next 16 — the sync require() pattern this
+ * `headers()` is async in Next 16, the sync require() pattern this
  * function had previously was throwing on every call and silently
  * collapsing every caller into the "unknown" bucket.
  */

@@ -1,4 +1,4 @@
-// AUTO-GENERATED — do not edit by hand.
+// AUTO-GENERATED, do not edit by hand.
 // Source: studio/src/lib/templates/ (canonical workspace templates).
 // Refresh: pnpm sync:templates
 // Strategy: studio/docs/TEMPLATES_STRATEGY.md (locked 2026-05-12)

@@ -1,10 +1,10 @@
 "use client";
 
 /**
- * Auth-aware nav controls (Layer 3 — seamless-ecosystem-2026-05-18).
+ * Auth-aware nav controls (Layer 3, seamless-ecosystem-2026-05-18).
  *
  * When authed:
- *   - No "Sign in" — replaced by UserButton (Clerk avatar).
+ *   - No "Sign in", replaced by UserButton (Clerk avatar).
  *   - Account menu carries "View public site" / "Exit preview" escape hatch
  *     per DESIGN.md §14. Sets `signal_preview_public=1` (24h, SameSite=Strict).
  *
@@ -55,7 +55,7 @@ function EscapeHatchButton() {
   }
 
   function exitPreview() {
-    // §14: deactivation — clear cookie and reload.
+    // §14: deactivation, clear cookie and reload.
     document.cookie =
       "signal_preview_public=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Strict";
     window.location.reload();
@@ -114,7 +114,7 @@ export function AuthNavControls({
         >
           Sign in
         </Link>
-        {/* Mobile menu — unauthed */}
+        {/* Mobile menu, unauthed */}
         <details className="relative md:hidden">
           <summary
             className="flex h-9 w-9 cursor-pointer list-none items-center justify-center rounded-full text-ink-soft transition-colors hover:text-ink"

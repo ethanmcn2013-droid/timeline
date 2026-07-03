@@ -2,7 +2,7 @@
  * H1 (roadmap-elevation): in-app loading boundary for the (app) route group.
  *
  * Replaces the SuiteLoaderField re-export. SuiteLoaderField is
- * position:fixed; inset:0; z-index:9999 — a full-screen takeover that
+ * position:fixed; inset:0; z-index:9999, a full-screen takeover that
  * covers the persistent (app) shell on every /app → /app/plan/[projectSlug]
  * transition, negating the route-group win.
  *
@@ -14,10 +14,10 @@
  *   mx-auto w-full max-w-4xl px-6 py-12
  *
  * Reduced-motion: .skeleton-shimmer degrades to a static var(--bg-deep)
- * block via the prefers-reduced-motion media query in globals.css — no
+ * block via the prefers-reduced-motion media query in globals.css, no
  * additional guard needed here.
  *
- * Server Component — no "use client", zero client JS.
+ * Server Component, no "use client", zero client JS.
  */
 export default function AppLoading() {
   return (

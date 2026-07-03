@@ -10,7 +10,7 @@ type Props = {
 
 const ITEMS: { id: ViewMode; label: string; icon: React.ReactNode }[] = [
   {
-    // Gantt — stacked duration bars.
+    // Gantt, stacked duration bars.
     id: "gantt",
     label: "Gantt",
     icon: (
@@ -32,7 +32,7 @@ const ITEMS: { id: ViewMode; label: string; icon: React.ReactNode }[] = [
     ),
   },
   {
-    // Timeline — a straight line with milestone points.
+    // Timeline, a straight line with milestone points.
     id: "timeline",
     label: "Timeline",
     icon: (

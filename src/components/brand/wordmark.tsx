@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 /**
  * Signal Timeline wordmark: "roadmap" + indigo period.
  *
- * Same typographic family across the suite — lowercase word +
+ * Same typographic family across the suite, lowercase word +
  * indigo dot. Each product carries a distinct gesture inside
  * one shared mark grammar (gesture-vocab ratified 2026-05-16):
  *
@@ -17,10 +17,10 @@ import { cn } from "@/lib/utils";
  * RW-5 (2026-05-18): the loading-state sweep was removed; with Layer-0
  * pre-paint in place a loading sweep on the dot is not needed.
  *
- * Walkover row 5 (2026-06-07): the sweep returns — but as the brand
+ * Walkover row 5 (2026-06-07): the sweep returns, but as the brand
  * gesture, not a loader. A faint highlight glances left-to-right
  * across the word every ~7s (`.timeline-wordmark-text`, scoped CSS,
- * reduced-motion-safe). Semantically: publish-and-pass — a glance
+ * reduced-motion-safe). Semantically: publish-and-pass, a glance
  * moving across the work. The dot's ambient opacity pulse continues.
  * See globals.css for the keyframe + reduced-motion guard.
  */

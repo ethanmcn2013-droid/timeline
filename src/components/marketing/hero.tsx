@@ -50,7 +50,7 @@ export function Hero() {
           }}
         >
           A public plan written in plain English, live the moment you publish,
-          shared with one link. The people who need it just read it — no
+          shared with one link. The people who need it just read it, no
           account, no app, no translation layer.
         </p>
 
@@ -62,10 +62,10 @@ export function Hero() {
           Reading-room is live &middot; Publishing reopens soon
         </p>
 
-        {/* Recipient path — quiet secondary route for the visitor who arrived
+        {/* Recipient path, quiet secondary route for the visitor who arrived
             from someone's shared plan. The hero copy above is written to the
             prospect considering publishing; this line catches the other
-            audience the mandate names — the one who got a link and is asking
+            audience the mandate names, the one who got a link and is asking
             "what is this?". /about is the recipient-oriented explainer.
             (REVIEW Gap 5, L2.) */}
         <p

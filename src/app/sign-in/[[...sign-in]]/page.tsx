@@ -2,7 +2,7 @@ import { SignIn } from "@clerk/nextjs";
 import { Wordmark } from "@/components/brand/wordmark";
 import Link from "next/link";
 
-export const metadata = { title: "Sign in — Timeline" };
+export const metadata = { title: "Sign in, Timeline" };
 
 export default function SignInPage() {
   return (

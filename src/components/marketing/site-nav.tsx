@@ -16,12 +16,12 @@ const NAV: { href: string; label: string; external?: boolean }[] = [
 ];
 
 /**
- * Marketing SiteNav — Layer 3 auth-aware update (seamless-ecosystem-2026-05-18).
+ * Marketing SiteNav, Layer 3 auth-aware update (seamless-ecosystem-2026-05-18).
  *
  * "Sign in" is replaced by the account menu when authed.
  * The escape hatch ("View public site") lives inside AuthNavControls.
  *
- * Kept as a server component — AuthNavControls handles the Clerk read
+ * Kept as a server component, AuthNavControls handles the Clerk read
  * via a thin client island, preserving SSR for the rest of the nav.
  */
 export function SiteNav() {

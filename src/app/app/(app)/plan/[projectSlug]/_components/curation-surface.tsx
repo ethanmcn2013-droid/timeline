@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * CurationSurface — owner-only authoring view for a roadmap project.
+ * CurationSurface, owner-only authoring view for a roadmap project.
  *
  * One artifact, two zoom levels (CREATIVE_SPEC §1 governing principle):
  * this view and the public viewer share the same visual DNA. Curation
@@ -155,11 +155,11 @@ function NodeCard({
   const inputRef = useRef<HTMLInputElement>(null);
   const dateInputRef = useRef<HTMLInputElement>(null);
 
-  // C2 helper — single result-handler shared by all four inline-edit sites.
+  // C2 helper, single result-handler shared by all four inline-edit sites.
   // The four sites are structurally identical (write → on success refresh, on
   // error surface a transient message). Extracting kills four copies and makes
   // the error path uniform. `onLocalRevert` is optional because most edits
-  // have no local optimistic state — they fire-and-refresh — except for the
+  // have no local optimistic state, they fire-and-refresh, except for the
   // title input which mirrors the value in local React state.
   function handleEditResult(
     result: UpsertOverlayResult,
@@ -249,7 +249,7 @@ function NodeCard({
 
   const isShipped = node.lane === "Shipped";
 
-  // Tier 3 attention signal — surface drift at edit time (R·22). Calendar-day
+  // Tier 3 attention signal, surface drift at edit time (R·22). Calendar-day
   // anchored, so server-render and client-hydration agree within a calendar
   // day; no hydration mismatch in practice. Owner-only surface (route gates
   // ownership) so no isOwner check needed here.
@@ -279,7 +279,7 @@ function NodeCard({
       }}
     >
       <div style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
-        {/* Drag handle — BV-1: Pointer Events for mouse+touch+pen (iOS Safari) */}
+        {/* Drag handle, BV-1: Pointer Events for mouse+touch+pen (iOS Safari) */}
         <span
           aria-hidden
           onPointerDown={(e) => {
@@ -301,7 +301,7 @@ function NodeCard({
             const card = target?.closest("[data-node-id]");
             const targetId = card?.getAttribute("data-node-id");
             if (targetId && targetId !== node.id) onPointerDrop(targetId);
-            else onPointerDrop(node.id); // dropped on self — no-op in handler
+            else onPointerDrop(node.id); // dropped on self, no-op in handler
           }}
           style={{
             flexShrink: 0,
@@ -409,10 +409,10 @@ function NodeCard({
             </p>
           )}
 
-          {/* Tier 3 attention pill (R·22) — matches ItemRow's calm amber
+          {/* Tier 3 attention pill (R·22), matches ItemRow's calm amber
               treatment from R·21. Owner-only surface by route, so no
               isOwner gate. Pure derived signal: never persists, never
-              fires a write — just shows the owner what to look at. */}
+              fires a write, just shows the owner what to look at. */}
           {attention && (
             <span
               style={{
@@ -506,7 +506,7 @@ function NodeCard({
               ))}
             </div>
 
-            {/* Date input — M2/fix3: same .date-input-wrapper/.date-input-custom treatment
+            {/* Date input, M2/fix3: same .date-input-wrapper/.date-input-custom treatment
                 as ManualAddForm. Button wraps the SVG and calls showPicker?.(). */}
             <div className="date-input-wrapper" style={{ display: "inline-flex" }}>
               <input
@@ -556,7 +556,7 @@ function NodeCard({
               </button>
             </div>
 
-            {/* Source indicator — chain-link icon per CREATIVE_SPEC (DRAG: replace ⇄ glyph) */}
+            {/* Source indicator, chain-link icon per CREATIVE_SPEC (DRAG: replace ⇄ glyph) */}
             {node.source === "synced" && (
               <span
                 style={{
@@ -621,7 +621,7 @@ function NodeCard({
 // ── D5 manual add form ────────────────────────────────────────────────────────
 
 /**
- * ManualAddForm — lifted open state (H2).
+ * ManualAddForm, lifted open state (H2).
  *
  * `open` and `onClose` are now owned by CurationSurface (single source of
  * truth). Draft fields (title, lane, date) are also hoisted to the parent so
@@ -684,7 +684,7 @@ function ManualAddForm({
         });
         if ("error" in result) {
           setError(result.error);
-          // C1d: keep form open with fields intact — do NOT call onClose or reset.
+          // C1d: keep form open with fields intact, do NOT call onClose or reset.
           // Draft lives in the parent so fields are preserved regardless of isEmpty swap.
           return;
         }
@@ -775,12 +775,12 @@ function ManualAddForm({
           </div>
         </div>
 
-        {/* Date — M2: native date input with custom calendar affordance.
+        {/* Date, M2: native date input with custom calendar affordance.
             OS calendar-picker-indicator is CSS-suppressed via .date-input-custom
-            (scoped — does NOT affect other date inputs). A custom SVG calendar
+            (scoped, does NOT affect other date inputs). A custom SVG calendar
             icon is rendered as a sibling inside a position:relative wrapper;
             pointer-events:none on the icon lets clicks fall through to the input.
-            Keyboard and screen-reader behavior unchanged — the native <input> is
+            Keyboard and screen-reader behavior unchanged, the native <input> is
             the real control. focus-visible ring applied via globals.css. */}
         <div>
           <label
@@ -868,7 +868,7 @@ function ManualAddForm({
           <button
             type="button"
             onClick={() => {
-              // Draft fields are hoisted — clear them on explicit cancel
+              // Draft fields are hoisted, clear them on explicit cancel
               setTitle("");
               setDate("");
               setLane("Next");
@@ -898,7 +898,7 @@ function ManualAddForm({
 /**
  * H3: when sync returns 0 milestones, replace the ghost "No milestones found
  * in Tasks." text with a weighted inline chip + actionable copy + Open Tasks
- * link. Uses paper surface + hairline border + ink-soft text — calm, on-voice.
+ * link. Uses paper surface + hairline border + ink-soft text, calm, on-voice.
  */
 function SyncButton({
   workspaceSlug,
@@ -923,11 +923,11 @@ function SyncButton({
       if ("error" in res) {
         setErrorMsg(res.error);
         setResult("error");
-        // Fix 2: error persists — NO auto-clear timer. User must re-trigger sync.
+        // Fix 2: error persists, NO auto-clear timer. User must re-trigger sync.
       } else if (res.count === 0) {
         setResult("zero");
         onSync();
-        // Fix 2: zero persists — NO auto-clear timer. User must re-trigger sync.
+        // Fix 2: zero persists, NO auto-clear timer. User must re-trigger sync.
       } else {
         setSyncCount(res.count);
         setResult("count");
@@ -968,8 +968,8 @@ function SyncButton({
         {isPending ? "Syncing…" : "Sync from Tasks"}
       </button>
 
-      {/* H3 — zero-result chip: paper surface, hairline border, ink-soft text.
-          Fix 5: copy names real Tasks affordance ("Milestone" button) — no em-dash.
+      {/* H3, zero-result chip: paper surface, hairline border, ink-soft text.
+          Fix 5: copy names real Tasks affordance ("Milestone" button), no em-dash.
           Fix 6: flex + maxWidth so chip wraps cleanly at 320px. */}
       {result === "zero" && (
         <span
@@ -1018,7 +1018,7 @@ function SyncButton({
         </span>
       )}
 
-      {/* Error — Fix 3: var(--alarm) = #ef4444 (confirmed in globals.css line 52) */}
+      {/* Error, Fix 3: var(--alarm) = #ef4444 (confirmed in globals.css line 52) */}
       {result === "error" && (
         <span style={{ fontSize: 11, color: "var(--alarm)" }}>{errorMsg}</span>
       )}
@@ -1043,12 +1043,12 @@ export function CurationSurface({
 }) {
   const router = useRouter();
   const [nodes, setNodes] = useState(initialNodes);
-  // H2: lifted open state — single source of truth for the manual add form.
+  // H2: lifted open state, single source of truth for the manual add form.
   // When isEmpty===true and manualAddOpen===true, ManualAddForm replaces the
   // empty-state container in situ. When nodes exist, the bottom affordance also
   // drives this state. ManualAddForm has no internal open gate.
   const [manualAddOpen, setManualAddOpen] = useState(false);
-  // Fix 1: hoisted draft state — survives isEmpty branch swap mid-typing.
+  // Fix 1: hoisted draft state, survives isEmpty branch swap mid-typing.
   const [draftTitle, setDraftTitle] = useState("");
   const [draftLane, setDraftLane] = useState<"Next" | "In flight" | "Shipped">("Next");
   const [draftDate, setDraftDate] = useState("");
@@ -1060,7 +1060,7 @@ export function CurationSurface({
   const didAutoSync = useRef(false);
   // "Saved" tick DRAG: shows for 1.5s after any successful overlay upsert
   const [savedAt, setSavedAt] = useState<number | null>(null);
-  // C2: error flash state — surfaces a transient `role="status"` message when
+  // C2: error flash state, surfaces a transient `role="status"` message when
   // a NodeCard inline edit or a reorder action returns `{ error: string }`.
   // Mutually exclusive with savedAt (see flashSaved / flashError below).
   const [errorFlash, setErrorFlash] = useState<{ message: string; ts: number } | null>(null);
@@ -1086,7 +1086,7 @@ export function CurationSurface({
     setSavedAt(Date.now());
     if (savedTimerRef.current) clearTimeout(savedTimerRef.current);
     savedTimerRef.current = setTimeout(() => setSavedAt(null), 1500);
-    // C2: clear any stale error flash — success supersedes the prior failure.
+    // C2: clear any stale error flash, success supersedes the prior failure.
     if (errorTimerRef.current) clearTimeout(errorTimerRef.current);
     setErrorFlash(null);
   }, []);
@@ -1098,7 +1098,7 @@ export function CurationSurface({
     setErrorFlash({ message, ts: Date.now() });
     if (errorTimerRef.current) clearTimeout(errorTimerRef.current);
     errorTimerRef.current = setTimeout(() => setErrorFlash(null), 4000);
-    // Mutual exclusivity — a fresh error supersedes a "Saved" tick.
+    // Mutual exclusivity, a fresh error supersedes a "Saved" tick.
     if (savedTimerRef.current) clearTimeout(savedTimerRef.current);
     setSavedAt(null);
   }, []);
@@ -1111,7 +1111,7 @@ export function CurationSurface({
     return () => { pendingWriteCount.current = 0; };
   }, [initialNodes]);
 
-  // C1c write-count helpers — passed into NodeCard and ManualAddForm
+  // C1c write-count helpers, passed into NodeCard and ManualAddForm
   const handleWriteStart = useCallback(() => {
     pendingWriteCount.current += 1;
   }, []);
@@ -1121,7 +1121,7 @@ export function CurationSurface({
   }, []);
 
   // D11 auto-sync on load: pulls Tasks milestones into the private draft.
-  // D6 two-gate is preserved — syncMilestonesAction only revalidates /app and
+  // D6 two-gate is preserved, syncMilestonesAction only revalidates /app and
   // /app/plan/[slug], never the public /{workspaceSlug} path.
   useEffect(() => {
     if (didAutoSync.current) return;
@@ -1129,7 +1129,7 @@ export function CurationSurface({
     setAutoSyncing(true);
     syncMilestonesAction(workspaceSlug).then(() => {
       setAutoSyncing(false);
-      // C1c: only refresh if no writes are in flight — avoids clobbering
+      // C1c: only refresh if no writes are in flight, avoids clobbering
       // optimistic state mid-write with stale RSC data.
       if (pendingWriteCount.current === 0) {
         router.refresh();
@@ -1239,9 +1239,9 @@ export function CurationSurface({
 
   return (
     <div>
-      {/* Plan-state banner — single element for both published and unpublished-with-nodes states.
+      {/* Plan-state banner, single element for both published and unpublished-with-nodes states.
           M4: when unpublished and ≥1 visible node exists, show a quiet nudge. Same element,
-          two states — no second competing banner. Kept quiet: no coloured bar, no loud CTA. */}
+          two states, no second competing banner. Kept quiet: no coloured bar, no loud CTA. */}
       {isPublished ? (
         <div
           style={{
@@ -1257,7 +1257,7 @@ export function CurationSurface({
           }}
         >
           <span style={{ fontSize: 12, color: "var(--ink-soft)" }}>
-            Published — anyone with the link can read this.
+            Published, anyone with the link can read this.
           </span>
           <a
             href={publicUrl}
@@ -1281,7 +1281,7 @@ export function CurationSurface({
           </a>
         </div>
       ) : nodes.filter((n) => !n.hidden).length > 0 ? (
-        /* M4 unpublished-with-nodes nudge — quiet, declarative, same visual register as published banner */
+        /* M4 unpublished-with-nodes nudge, quiet, declarative, same visual register as published banner */
         <div
           style={{
             marginBottom: 24,
@@ -1341,7 +1341,7 @@ export function CurationSurface({
             </span>
           )}
           {/* C2: transient advisory flash for silent-fail writes.
-              role="status" (not alert) — non-blocking, polite-announce.
+              role="status" (not alert), non-blocking, polite-announce.
               Mutually exclusive with the Saved tick. Auto-clears at 4s. */}
           {errorFlash && !isSaved && (
             <span
@@ -1372,7 +1372,7 @@ export function CurationSurface({
         <SyncButton workspaceSlug={workspaceSlug} onSync={refresh} />
       </div>
 
-      {/* Empty state — H2: single primary CTA + quiet inline manual-add link.
+      {/* Empty state, H2: single primary CTA + quiet inline manual-add link.
           When manualAddOpen, ManualAddForm replaces the container in situ.
           No scrollIntoView. No detached anchor div. */}
       {isEmpty ? (
@@ -1444,7 +1444,7 @@ export function CurationSurface({
                 Open Tasks
               </a>
             </div>
-            {/* Quiet inline manual-add link — no background, no border, no pill.
+            {/* Quiet inline manual-add link, no background, no border, no pill.
                 Fix 9: hover underline via className. */}
             <button
               type="button"
@@ -1538,7 +1538,7 @@ export function CurationSurface({
         </>
       )}
 
-      {/* D5 manual add — only shown when nodes exist (non-empty).
+      {/* D5 manual add, only shown when nodes exist (non-empty).
           H2: drives the same lifted manualAddOpen state; no second mechanism.
           When isEmpty, the form lives in the empty-state container above. */}
       {!isEmpty && (

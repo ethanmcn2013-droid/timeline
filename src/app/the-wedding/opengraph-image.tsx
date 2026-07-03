@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og";
 
 export const runtime = "nodejs";
-export const alt = "Your wedding plan — kept by Glenmara House";
+export const alt = "Your wedding plan, kept by Glenmara House";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -20,7 +20,7 @@ export default async function OG() {
           padding: "80px 96px",
         }}
       >
-        {/* Eyebrow — venue attribution */}
+        {/* Eyebrow, venue attribution */}
         <p
           style={{
             fontSize: 18,
@@ -64,7 +64,7 @@ export default async function OG() {
           who needs to see where things stand.
         </p>
 
-        {/* Signal wordmark — bottom right */}
+        {/* Signal wordmark, bottom right */}
         <div
           style={{
             display: "flex",

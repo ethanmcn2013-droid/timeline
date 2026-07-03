@@ -83,10 +83,10 @@ export async function resolveEntitlementOrThrow(
 }
 
 /**
- * Drizzle types `tier` as plain text — there is no DB-level enum. A bad
+ * Drizzle types `tier` as plain text, there is no DB-level enum. A bad
  * row (e.g. a legacy "pro" value from an old Tasks-era schema) would
  * otherwise flow through `as EntitlementTier` and resolve to undefined
- * in TIER_RANK / TIER_LABEL. Coerce any unknown value to "free" — the
+ * in TIER_RANK / TIER_LABEL. Coerce any unknown value to "free", the
  * safe default that never over-grants access (reviewer P1, 2026-05-15).
  */
 function coerceTier(value: string): EntitlementTier {

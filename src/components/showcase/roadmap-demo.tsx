@@ -91,7 +91,7 @@ export function RoadmapDemo({ domain = "wedding" }: Props = {}) {
       await wait(900);
       if (!isCurrent()) return;
 
-      // First status transition — show real product behaviour.
+      // First status transition, show real product behaviour.
       setScene("first-move");
       if (transitions[0]) {
         setRowStatus(transitions[0].id, transitions[0].to, transitions[0].movedAt);
@@ -115,7 +115,7 @@ export function RoadmapDemo({ domain = "wedding" }: Props = {}) {
       await wait(1600);
       if (!isCurrent()) return;
 
-      // Share beat — still honest: shows the share gesture exists.
+      // Share beat, still honest: shows the share gesture exists.
       setScene("share-copy");
       setState((s) => ({ ...s, sharePressed: true }));
       await wait(240);
@@ -126,10 +126,10 @@ export function RoadmapDemo({ domain = "wedding" }: Props = {}) {
       setToast(null);
       await wait(300);
 
-      // View morph — demonstrates the two views (Gantt ↔ Timeline).
+      // View morph, demonstrates the two views (Gantt ↔ Timeline).
       // The Timeline view is the payoff of the loop, so it dwells: long
       // enough to actually read the plain-English plan before it flips back
-      // (review issue 04 — the previous 2.4s was too quick to land).
+      // (review issue 04, the previous 2.4s was too quick to land).
       setScene("view-morph-timeline");
       setView("timeline");
       await wait(5200);
@@ -230,7 +230,7 @@ export function RoadmapDemo({ domain = "wedding" }: Props = {}) {
           letterSpacing: "0.01em",
         }}
       >
-        One URL. Two views. Same data — read it the way the audience needs it.
+        One URL. Two views. Same data, read it the way the audience needs it.
       </div>
     </div>
   );

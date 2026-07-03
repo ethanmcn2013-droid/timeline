@@ -7,10 +7,10 @@ export type RowStatus = DemoRowStatus;
 export type ViewMode = "gantt" | "timeline";
 
 // ── Public workspace view switcher ──────────────────────────────────────────
-// Two public views (2026-06-20 — replaced Overview/Roadmap/Milestones/Schedule):
-//   · "gantt"    — one bar per item across a month axis, grouped by project.
+// Two public views (2026-06-20, replaced Overview/Roadmap/Milestones/Schedule):
+//   · "gantt"   , one bar per item across a month axis, grouped by project.
 //                  The default view (bare URL, no ?view= param).
-//   · "timeline" — a straight line with milestones plotted as points by date.
+//   · "timeline", a straight line with milestones plotted as points by date.
 // Keep this union in sync with the VIEWS array in workspace-view-switcher.tsx,
 // the rawView guards in workspace-view-client.tsx, and the pre-paint script +
 // CSS in [workspaceSlug]/page.tsx.
@@ -40,7 +40,7 @@ export type Cursor = {
   /** Pixel y relative to surface. */
   y: number;
   visible: boolean;
-  /** True when paused on a row — drives the chip render. */
+  /** True when paused on a row, drives the chip render. */
   reading: boolean;
   /** Row id being targeted; null when in transit / idle. */
   targetRowId: string | null;
@@ -72,13 +72,13 @@ export type DemoState = {
   domain: DomainId;
   /** Toast variant currently visible, or null. */
   toast: "copied" | "subscribed" | null;
-  /** RSS follower count — folded into DemoState so buildInitialState resets it. */
+  /** RSS follower count, folded into DemoState so buildInitialState resets it. */
   followers: number;
   /** Whether the Share button is in its pressed animation state. */
   sharePressed: boolean;
 };
 
-// Canonical plain-English labels — must match the real product's Status type.
+// Canonical plain-English labels, must match the real product's Status type.
 // DB schema: next | in-flight | shipped | waiting | refused
 // Demo vocab: next | doing (=in-flight) | shipped | held (=waiting)
 // Map: doing→"Doing", held→"Waiting", retired aliases removed.
@@ -101,7 +101,7 @@ export const STATUS_TOKEN: Record<RowStatus, string> = {
 export const MORPH_DURATION_S = 0.72;
 export const EASE_OUT_EXPO = [0.16, 1, 0.3, 1] as const;
 
-// Cursor identities — public-visitor framing, anonymous indigo tones.
+// Cursor identities, public-visitor framing, anonymous indigo tones.
 export const CURSOR_SEED: Cursor[] = [
   {
     id: "alpha",

@@ -18,7 +18,7 @@ import type { WorkspaceView } from "@/components/showcase/types";
  */
 
 // ── Server-safe (no useSearchParams) fallbacks ───────────────────────────────
-// These are NOT "use client" — they are plain functions imported from a
+// These are NOT "use client", they are plain functions imported from a
 // "use client" module boundary, which Next.js allows: the file is the
 // client boundary, but these particular exports use no client-only APIs.
 // They exist solely as Suspense fallbacks so SSR / JS-disabled visitors
@@ -32,7 +32,7 @@ import type { WorkspaceView } from "@/components/showcase/types";
  * shows the gantt panel, so the bare URL renders the Gantt view even with
  * no JS. An inline pre-paint script reads `location.search`; when it sees
  * `?view=timeline` it sets `data-view="timeline"` on the root wrapper, and
- * the CSS flips which panel shows — no flash, no hydration dependency.
+ * the CSS flips which panel shows, no flash, no hydration dependency.
  *
  * Once the client hydrates, `WorkspaceViewBody` takes over and handles
  * subsequent in-page switching.

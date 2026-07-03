@@ -12,7 +12,7 @@ import { DEMO_USER_ID, demoWorkspace } from "@/lib/roadmap/demo-data";
  * Graceful dev bypass: when Clerk env keys are unset the layer
  * returns null so the app still renders (albeit ungated). Every
  * protected surface checks the return value and renders the
- * unauthenticated state — no hard crash.
+ * unauthenticated state, no hard crash.
  *
  * Production: Clerk userId is the tenant anchor. Every query
  * downstream MUST filter by workspaceSlug; this module supplies
@@ -68,7 +68,7 @@ export async function requireUser(): Promise<string> {
 
   if (!clerkConfigured()) {
     if (process.env.NODE_ENV === "production") {
-      // Clerk env vars dropped in prod — fail closed. Never serve /app/*
+      // Clerk env vars dropped in prod, fail closed. Never serve /app/*
       // as authenticated without real credentials.
       redirect("/sign-in");
     }

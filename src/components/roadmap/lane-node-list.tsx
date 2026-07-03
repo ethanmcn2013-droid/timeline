@@ -1,5 +1,5 @@
 /**
- * LaneNodeList — the RW-4 public roadmap artifact node view.
+ * LaneNodeList, the RW-4 public roadmap artifact node view.
  *
  * Renders synced milestone nodes grouped by lane (Next / In flight / Shipped / Later).
  * One artifact, two zoom levels: authoring and public views share the same
@@ -18,7 +18,7 @@
  *   - Left border on milestone rows (2px solid --accent-soft / indigo-soft)
  *   - Nothing else in this component touches indigo
  *
- * Public viewer: BigStat tones removed (CREATIVE_SPEC §1.6 — content surface,
+ * Public viewer: BigStat tones removed (CREATIVE_SPEC §1.6, content surface,
  * not functional UI).
  */
 
@@ -120,7 +120,7 @@ function NodeCircle({ lane }: { lane: string }) {
       />
     );
   }
-  // Next — indigo border, no fill
+  // Next, indigo border, no fill
   return (
     <span
       style={{

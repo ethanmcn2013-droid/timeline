@@ -37,7 +37,7 @@ function rateLimitError(result: RateLimitResult & { allowed: false }): string {
 /** Roadmap's tier policy (E-4, 2026-05-14; revised post-validation):
  *  - Free / Event / Wedding: max 1 workspace.
  *  - Workspace / Studio: unlimited.
- *  Matches signalstudio.ie/pricing — Event sells "One workspace,
+ *  Matches signalstudio.ie/pricing, Event sells "One workspace,
  *  event-shaped" and Wedding is for one wedding. Only Workspace+
  *  bypasses the cap. Tier is read from the shared signal-entitlements
  *  DB. Failures resolve to "free" so a transient DB blip can't unlock
@@ -259,7 +259,7 @@ export async function syncMilestonesAction(
   }));
   await writeRoadmapNodes(workspaceSlug, targetProject.slug, milestones);
 
-  // Revalidate private draft only — NOT the public URL (D6 two-gate)
+  // Revalidate private draft only, NOT the public URL (D6 two-gate)
   revalidatePath("/app");
   revalidatePath(`/app/plan/${targetProject.slug}`);
 
@@ -290,7 +290,7 @@ export async function upsertNodeOverlayAction(
     return { error: "Couldn't save that milestone. Check your connection and try again." };
   }
 
-  // Revalidate curation view only — public URL not touched until Publish
+  // Revalidate curation view only, public URL not touched until Publish
   revalidatePath(`/app/plan/${projectSlug}`);
 
   return { ok: true };
@@ -305,13 +305,13 @@ export type ReorderNodesResult = { ok: true } | { error: string };
 /**
  * Persist the full ordered node list after a drag-drop.
  *
- * Writes sortOverride for EVERY node in the lane — not just the moved node —
+ * Writes sortOverride for EVERY node in the lane, not just the moved node —
  * so reload order is deterministic regardless of the Tasks-side sortOrder
  * values. Fixes the BV-2 defect where sibling nodes reverted to Tasks DB
  * order on the next page load.
  *
  * D6 invariant: revalidates only /app (dashboard) and /app/plan/… (curation
- * view). Never touches /{workspaceSlug} — publish remains the only gate.
+ * view). Never touches /{workspaceSlug}, publish remains the only gate.
  */
 export async function reorderNodesAction(
   workspaceSlug: string,
@@ -329,13 +329,13 @@ export async function reorderNodesAction(
   try {
     await batchUpsertNodeSortOrders(workspaceSlug, entries);
   } catch {
-    // C2 symmetry with upsertNodeOverlayAction — return string error so the
+    // C2 symmetry with upsertNodeOverlayAction, return string error so the
     // caller's optimistic UI can revert + surface a transient role=status
     // message, instead of bubbling a rejected promise into the React tree.
     return { error: "Couldn't save that reorder. Check your connection and try again." };
   }
 
-  // Revalidate private curation view only — D6 invariant preserved
+  // Revalidate private curation view only, D6 invariant preserved
   revalidatePath("/app");
   revalidatePath(`/app/plan/${projectSlug}`);
 
@@ -377,7 +377,7 @@ export async function publishWorkspaceAction(
     };
   }
 
-  // Use effective nodes (synced tasks + manual overlays) — same source the
+  // Use effective nodes (synced tasks + manual overlays), same source the
   // curation surface renders. A manual-only roadmap (source="manual" rows,
   // no tasks rows) is valid content and must not be blocked by a tasks-only check.
   const effectiveNodes = await getEffectiveNodesForWorkspace(workspaceSlug);
@@ -419,7 +419,7 @@ export async function unpublishWorkspaceAction(
 // Tests import them directly from ./revalidation-contracts.
 
 // ---------------------------------------------------------------------------
-// Comments removed 2026-05-12 — Suite Review T3 decision. The locked
+// Comments removed 2026-05-12, Suite Review T3 decision. The locked
 // refusal on comment threading is now honored at the architecture layer,
 // not just at the render gate. Schema column `comments` is preserved
 // against any existing owner-side data; the query (getCommentsForTask)

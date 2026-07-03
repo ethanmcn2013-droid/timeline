@@ -1,8 +1,8 @@
 /**
- * Tier 3 "Quiet Intelligence" — derived attention signal.
+ * Tier 3 "Quiet Intelligence", derived attention signal.
  *
  * Surfaces tasks that have drifted: idle too long in an active state,
- * or overdue against their target date. Read-only computation — no
+ * or overdue against their target date. Read-only computation, no
  * DB write, no UI side-effect. Owner surfaces use the count to render
  * a calm "Needs attention" pill; public surfaces never see this signal.
  *
@@ -11,17 +11,17 @@
  * templates, exports, and CSVs across four repos for a state every
  * product can compute from the data it already stores.
  *
- * Pure module — no Date.now() default at the call site, callers pass a
+ * Pure module, no Date.now() default at the call site, callers pass a
  * deterministic `now` so unit tests and server-rendered timestamps are
  * stable. Render-tier consumers pass `Date.now()` explicitly.
  */
 import type { Task } from "@/server/db/schema";
 
-/** A day in milliseconds. Single constant — no repetition across files. */
+/** A day in milliseconds. Single constant, no repetition across files. */
 const DAY_MS = 1000 * 60 * 60 * 24;
 
 /** Idle threshold for active-state tasks. Matches the existing
- *  blocker-card "two weeks" dwell badge — same cadence across surfaces. */
+ *  blocker-card "two weeks" dwell badge, same cadence across surfaces. */
 export const IDLE_DAYS_THRESHOLD = 14;
 
 export type AttentionReason = "idle" | "overdue";
@@ -35,7 +35,7 @@ export type AttentionReason = "idle" | "overdue";
  *   IDLE_DAYS_THRESHOLD. A task sitting in "Doing" for two weeks without an
  *   update is the canonical drift signal.
  *
- * Overdue takes precedence over idle when both apply — the date miss is the
+ * Overdue takes precedence over idle when both apply, the date miss is the
  * more concrete signal and the one the owner needs to act on first.
  */
 export function attentionReason(
@@ -84,7 +84,7 @@ export function countNeedsAttention(
 }
 
 /** Parse an ISO YYYY-MM-DD targetDate at UTC start-of-day. Returns null on
- *  malformed input — drift signal should not crash the workspace render. */
+ *  malformed input, drift signal should not crash the workspace render. */
 function parseTargetDate(iso: string): number | null {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(iso)) return null;
   const ms = Date.parse(iso + "T00:00:00Z");
@@ -92,7 +92,7 @@ function parseTargetDate(iso: string): number | null {
 }
 
 /** UTC start of the day containing `now`. Anchors "overdue" to the calendar
- *  day, not the millisecond — a task due today is not overdue at noon. */
+ *  day, not the millisecond, a task due today is not overdue at noon. */
 function startOfDay(now: number): number {
   const d = new Date(now);
   return Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate());

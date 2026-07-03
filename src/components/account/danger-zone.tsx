@@ -16,7 +16,7 @@ function humaniseError(message: string | undefined, status: number): string {
  *
  * Inline reveal pattern: clicking "Delete account" reveals the
  * email-confirmation field in place. On reveal we auto-focus the
- * input and scroll it into view — without that, a phone-screen user
+ * input and scroll it into view, without that, a phone-screen user
  * who taps the button can have the new content appear below the fold
  * silently, and keyboard / assistive-tech users would have to tab
  * forward to reach it.
@@ -67,7 +67,7 @@ export function DangerZone({ email }: { email: string }) {
         Delete account
       </h2>
       <p className="mt-1.5 max-w-[560px] text-[12.5px] leading-[1.6] text-rose-800/80">
-        Closes your Signal account across every product — Tasks, Notes,
+        Closes your Signal account across every product, Tasks, Notes,
         Timeline, Signal. Workspaces you own are deleted with you, including
         anyone you've invited. There's no undo.
       </p>

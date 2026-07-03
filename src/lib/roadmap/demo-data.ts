@@ -22,7 +22,7 @@ export const demoProjects: Project[] = [
     sourceTasksWorkspaceId: null,
     slug: "product",
     name: "Product Roadmap",
-    oneLiner: "What we're building — and what we said no to.",
+    oneLiner: "What we're building, and what we said no to.",
     accent: "#4f46e5",
     sortOrder: 0,
     // Demo workspace is always published.
@@ -35,7 +35,7 @@ export const demoTasks: Task[] = [
     id: "tasks-product-001",
     projectSlug: "product",
     workspaceSlug: "tasks",
-    title: "Workspace onboarding — first-run experience",
+    title: "Workspace onboarding, first-run experience",
     description:
       "First-run experience for new workspaces. Mark tasks as milestones in Signal Tasks and they appear in your plan automatically.",
     status: "in-flight",
@@ -65,7 +65,7 @@ export const demoTasks: Task[] = [
     workspaceSlug: "tasks",
     title: "Proof card on the marketing homepage",
     description:
-      "A live screenshot of the demo workspace embedded in the homepage hero — so the product sells itself without a separate demo page. Blocked on screenshot infra.",
+      "A live screenshot of the demo workspace embedded in the homepage hero, so the product sells itself without a separate demo page. Blocked on screenshot infra.",
     status: "waiting",
     phase: null,
     tier: null,
@@ -121,7 +121,7 @@ export const demoTasks: Task[] = [
     workspaceSlug: "tasks",
     title: "Comment threads on roadmap items",
     description:
-      "Not shipping. Conversations belong in the work, not bolted onto a status page. Replying lands in your email — that's the channel.",
+      "Not shipping. Conversations belong in the work, not bolted onto a status page. Replying lands in your email, that's the channel.",
     status: "refused",
     phase: null,
     tier: null,
@@ -149,7 +149,7 @@ export const demoTasks: Task[] = [
     workspaceSlug: "tasks",
     title: "Per-workspace project slugs",
     description:
-      'Project slugs are now scoped per workspace — two separate plans can each have a "blog" project without colliding. Schema migration shipped cleanly.',
+      'Project slugs are now scoped per workspace, two separate plans can each have a "blog" project without colliding. Schema migration shipped cleanly.',
     status: "shipped",
     phase: null,
     tier: null,
@@ -177,7 +177,7 @@ export const demoTasks: Task[] = [
     workspaceSlug: "tasks",
     title: "studio. brand integration in nav + footer",
     description:
-      "The studio. parent brand whisper is now in the nav and footer — links Tasks and Roadmap under one roof without making it a big deal.",
+      "The studio. parent brand whisper is now in the nav and footer, links Tasks and Roadmap under one roof without making it a big deal.",
     status: "shipped",
     phase: null,
     tier: null,
@@ -236,7 +236,7 @@ export const demoUpcomingTasks = demoTasks.filter(
 /**
  * Synthetic user id used by access-mode demo/review (see lib/access-mode.ts).
  * In that mode the auth layer resolves to this id and the data layer serves
- * the in-memory demo workspace above — the real DB is never queried.
+ * the in-memory demo workspace above, the real DB is never queried.
  */
 export const DEMO_USER_ID = "seed-demo-user";
 

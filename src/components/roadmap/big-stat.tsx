@@ -1,5 +1,5 @@
 /**
- * BigStat — the values-then-labels stat treatment that anchors
+ * BigStat, the values-then-labels stat treatment that anchors
  * Roadmap hero rows. Big tabular number above (or beside) a small
  * uppercase label.
  *

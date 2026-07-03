@@ -19,7 +19,7 @@ const STATUS_LABEL: Record<string, string> = {
 
 /**
  * Timeline of activity events for a single task.
- * Public surface — read-only display.
+ * Public surface, read-only display.
  */
 export function ActivityPanel({ events }: { events: Activity[] }) {
   if (events.length === 0) {

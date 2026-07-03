@@ -1,17 +1,17 @@
 "use client";
 
 /**
- * Timeline hero loader — "the line extends."
+ * Timeline hero loader, "the line extends."
  *
  * Dot rolls in assembling "timeline." then every 20s pulses: it fires
  * concentric rings and lays a thin timeline track with a milestone node
- * at its end — the Timeline gesture, on a clean white field. (The earlier
+ * at its end, the Timeline gesture, on a clean white field. (The earlier
  * MapLibre Limerick-map background was removed 2026-06-22, review issue 05:
  * a heavy raster background is off the white-lock register.)
  *
  * SAFETY CONTRACT:
- *   · Fully scoped — every class and @keyframes prefixed `rml-`.
- *   · In-flow only — no position:fixed, no inset:0 globally.
+ *   · Fully scoped, every class and @keyframes prefixed `rml-`.
+ *   · In-flow only, no position:fixed, no inset:0 globally.
  *   · rAF loop runs only during the intro roll then cancels.
  *   · prefers-reduced-motion → assembled state, no animation.
  */
@@ -122,9 +122,9 @@ export function RoadmapHeroLoader() {
       <span className="rml-pulse-ring" aria-hidden />
 
       {/* Corner chrome removed (review 06/07): the site header already carries
-          the signal studio · timeline breadcrumb — the hero stays uncluttered. */}
+          the signal studio · timeline breadcrumb, the hero stays uncluttered. */}
 
-      {/* Stage — wordmark + animated dot */}
+      {/* Stage, wordmark + animated dot */}
       <div className="rml-stage" ref={stageRef} aria-hidden>
         <div className="rml-composer">
           <span className="rml-word">
@@ -195,7 +195,7 @@ const CSS = `
   border-color: var(--rml-indigo-300);
   animation-name: rml-pulse-ring-soft;
 }
-/* Fires at 0.5% — AFTER dot squish at 0% (physics: cause precedes effect) */
+/* Fires at 0.5%, AFTER dot squish at 0% (physics: cause precedes effect) */
 @keyframes rml-pulse-ring {
   0%   { transform: scale(0.4); opacity: 0;    }
   0.5% { transform: scale(0.6); opacity: 0.35; }
@@ -279,17 +279,17 @@ const CSS = `
   100% { transform: translate(0, 0) scale(1, 1);                                  opacity: 1; }
 }
 @keyframes rml-pulse {
-  0%   { transform: scale(1.4, 0.62);  opacity: 1; }  /* impact — fires FIRST */
+  0%   { transform: scale(1.4, 0.62);  opacity: 1; }  /* impact, fires FIRST */
   2.5% { transform: scale(.9,  1.12);  opacity: 1; }  /* rebound */
   4%   { transform: scale(1.04, .96);  opacity: 1; }  /* settle */
   8%   { transform: scale(1, 1);       opacity: 1; }  /* rest */
   100% { transform: scale(1, 1);       opacity: 1; }
 }
 
-/* ─── Timeline track — the dot lays a line, drops a milestone ───────
+/* ─── Timeline track, the dot lays a line, drops a milestone ───────
    The fitting Signal Timeline gesture: "the line extends." Once the dot
    has rolled in, each pulse cycle it extrudes a thin track to the right
-   and drops a milestone node at its end — a timeline being laid, in step
+   and drops a milestone node at its end, a timeline being laid, in step
    with the map opening from the same origin. The whole gesture lives in
    the dot's REST window (>8%, after the impact squish settles) so the
    dot's scale never distorts the line. --rml-track is the line length.

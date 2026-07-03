@@ -10,7 +10,7 @@
  *   - The `[projectSlug]/[id]` route's graceful-redirect fallback
  *   - The `[projectSlug]/[id]` route's metadata `noindex` for manual ids
  *
- * The discriminator is the load-bearing contract — getting it wrong in either
+ * The discriminator is the load-bearing contract, getting it wrong in either
  * direction (false positive on a synced id, false negative on a manual id)
  * resurfaces the original 404 bug or breaks the synced-milestone deep link.
  */
@@ -20,19 +20,19 @@ import assert from "node:assert/strict";
 
 import { isManualMilestoneId, milestoneAnchorId } from "./milestone-card";
 
-test("isManualMilestoneId — manual ids match", () => {
+test("isManualMilestoneId, manual ids match", () => {
   assert.equal(isManualMilestoneId("ms-manual-1700000000000"), true);
   assert.equal(isManualMilestoneId("ms-manual-0"), true);
 });
 
-test("isManualMilestoneId — synced task ids do not match", () => {
+test("isManualMilestoneId, synced task ids do not match", () => {
   assert.equal(isManualMilestoneId("wedding-2026-001"), false);
   assert.equal(isManualMilestoneId("ms-tasks-ws123-task456"), false);
   assert.equal(isManualMilestoneId("manual-something-else"), false);
   assert.equal(isManualMilestoneId(""), false);
 });
 
-test("milestoneAnchorId — produces a stable HTML id from a milestone id", () => {
+test("milestoneAnchorId, produces a stable HTML id from a milestone id", () => {
   assert.equal(
     milestoneAnchorId("ms-manual-1700000000000"),
     "milestone-ms-manual-1700000000000",
@@ -43,7 +43,7 @@ test("milestoneAnchorId — produces a stable HTML id from a milestone id", () =
   );
 });
 
-test("milestoneAnchorId — round-trips inside a URL fragment", () => {
+test("milestoneAnchorId, round-trips inside a URL fragment", () => {
   const id = "ms-manual-1700000000000";
   const anchor = milestoneAnchorId(id);
   // Anchor ids must be safe for `<a href="#...">` without escaping.

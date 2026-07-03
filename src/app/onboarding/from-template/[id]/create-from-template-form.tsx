@@ -88,7 +88,7 @@ export function CreateFromTemplateForm({
         {itemCount} starter items. Edit them once the workspace is live.
       </p>
 
-      {/* Preview — what the workspace ships with before you commit to a name. */}
+      {/* Preview, what the workspace ships with before you commit to a name. */}
       <section
         aria-label="Template preview"
         className="mb-10 rounded-xl border p-4"

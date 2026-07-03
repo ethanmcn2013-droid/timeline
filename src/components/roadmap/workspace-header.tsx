@@ -9,7 +9,7 @@ import { WorkspaceAuthControls } from "./workspace-auth-controls";
  * Replaces the marketing SiteNav on workspace-scoped pages.
  *
  * Layer 4 (seamless-ecosystem-2026-05-18): Added WorkspaceAuthControls
- * island — when authed, the owner sees an "Edit" shortcut and the Clerk
+ * island, when authed, the owner sees an "Edit" shortcut and the Clerk
  * UserButton with the "View public site" escape hatch. Guests see nothing
  * in that position (minimal public UX unchanged).
  *
@@ -17,7 +17,7 @@ import { WorkspaceAuthControls } from "./workspace-auth-controls";
  * The public /{workspaceSlug} route doesn't have ClerkProvider in its
  * layout (root layout is auth-agnostic), so it's scoped here.
  *
- * refusedCount: gate the "What didn't make it" nav link — only show
+ * refusedCount: gate the "What didn't make it" nav link, only show
  * it when there are actually refused items. Forwarded stakeholders
  * (e.g. a couple receiving a plan) should never see a dead link.
  */
@@ -64,7 +64,7 @@ export function WorkspaceHeader({
           {refusedCount > 0 ? (
             <Link
               href={`/${workspace.slug}/refusals`}
-              aria-label={`What didn't make it — ${refusedCount} item${refusedCount === 1 ? "" : "s"} we said no to`}
+              aria-label={`What didn't make it, ${refusedCount} item${refusedCount === 1 ? "" : "s"} we said no to`}
               className="hidden items-center gap-1.5 rounded-full border border-line-soft/70 bg-bg-elevated/40 px-2.5 py-1 text-[11px] font-medium tracking-[-0.005em] text-ink-quiet transition-colors hover:border-line-soft hover:bg-bg-elevated hover:text-ink sm:inline-flex"
               style={{ transition: "color var(--motion-fast) var(--ease-standard), background var(--motion-fast) var(--ease-standard), border-color var(--motion-fast) var(--ease-standard)" }}
             >
@@ -78,7 +78,7 @@ export function WorkspaceHeader({
               </span>
             </Link>
           ) : null}
-          {/* P2-4 fix: SuiteLauncher IS the product identity anchor — it shows
+          {/* P2-4 fix: SuiteLauncher IS the product identity anchor, it shows
               "signal studio." and contains the roadmap entry in its menu.
               The standalone <Wordmark> duplicated "roadmap." in the same
               header row, creating a double-brand strip. One identity element
@@ -86,7 +86,7 @@ export function WorkspaceHeader({
           <div className="hidden sm:inline-flex">
             <SuiteLauncher current="roadmap" />
           </div>
-          {/* Auth-aware owner controls — client island, renders nothing for guests */}
+          {/* Auth-aware owner controls, client island, renders nothing for guests */}
           <WorkspaceAuthControls ownerUserId={workspace.ownerUserId} />
         </div>
       </div>

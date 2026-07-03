@@ -4,11 +4,11 @@ import { useState } from "react";
 
 /**
  * Public-by-default proof. A single chip rendered like a real browser
- * address bar at the top of the page — copy icon included. The point is
+ * address bar at the top of the page, copy icon included. The point is
  * not navigation; the point is that the URL is the product.
  *
  * Walkover row 2 (Dalí, 2026-06-07): "timeline.signalstudio.ie/your-plan
- * — no login" must be the first thing readable on the homepage above the
+ *, no login" must be the first thing readable on the homepage above the
  * headline, before any marketing copy explains it.
  */
 export function AddressBarChip() {
@@ -24,7 +24,7 @@ export function AddressBarChip() {
         window.setTimeout(() => setCopied(false), 1600);
       },
       () => {
-        /* clipboard refused — silent; the chip is proof, not a tool */
+        /* clipboard refused, silent; the chip is proof, not a tool */
       }
     );
   }
@@ -38,9 +38,9 @@ export function AddressBarChip() {
         background: "var(--bg-deep)",
       }}
       role="group"
-      aria-label="Public timeline URL — no login required"
+      aria-label="Public timeline URL, no login required"
     >
-      {/* Lock — the calm signal that this is a normal public URL */}
+      {/* Lock, the calm signal that this is a normal public URL */}
       <svg
         width="11"
         height="11"

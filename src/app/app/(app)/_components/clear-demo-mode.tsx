@@ -6,9 +6,9 @@
  * The "View public site" escape hatch sets this cookie (max-age 86400,
  * SameSite=Strict) to suppress the M→app redirect. When the owner
  * navigates back to /app, the cookie is cleared so the next marketing
- * page visit redirects normally — no manual "Exit preview" required.
+ * page visit redirects normally, no manual "Exit preview" required.
  *
- * This is a zero-render effect component — returns null.
+ * This is a zero-render effect component, returns null.
  */
 
 import { useEffect } from "react";

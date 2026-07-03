@@ -7,7 +7,7 @@
  *   3. Later lane: status:"next" + null targetDate (D7 presentational)
  *   4. Overlay COALESCE: labelOverride wins; null overlay flows through generated
  *   5. D6 two-gate: promote does NOT publish (tested via logic guard)
- *   6. G1: no auto-promote (filter guard — only is_milestone=1 rows surface)
+ *   6. G1: no auto-promote (filter guard, only is_milestone=1 rows surface)
  *   7. Public viewer: markdown surfaces absent (no parse-markdown module)
  *
  * Run: ./node_modules/.bin/tsx --test src/server/sync/tasks-milestone-source.test.ts
@@ -20,23 +20,23 @@ import assert from "node:assert/strict";
 
 import { canonicaliseStatus } from "./tasks-milestone-source.js";
 
-test("canonicaliseStatus — todo → next", () => {
+test("canonicaliseStatus, todo → next", () => {
   assert.equal(canonicaliseStatus("todo"), "next");
 });
 
-test("canonicaliseStatus — doing → in-flight", () => {
+test("canonicaliseStatus, doing → in-flight", () => {
   assert.equal(canonicaliseStatus("doing"), "in-flight");
 });
 
-test("canonicaliseStatus — review → in-flight", () => {
+test("canonicaliseStatus, review → in-flight", () => {
   assert.equal(canonicaliseStatus("review"), "in-flight");
 });
 
-test("canonicaliseStatus — done → shipped", () => {
+test("canonicaliseStatus, done → shipped", () => {
   assert.equal(canonicaliseStatus("done"), "shipped");
 });
 
-test("canonicaliseStatus — unknown → next (safe default)", () => {
+test("canonicaliseStatus, unknown → next (safe default)", () => {
   assert.equal(canonicaliseStatus("backlog"), "next");
   assert.equal(canonicaliseStatus(""), "next");
 });
@@ -57,24 +57,24 @@ test("node id format: ms-{tasksWorkspaceId}-{tasksTaskId}", () => {
 
 import { statusToLane } from "../db/queries.js";
 
-test("statusToLane — shipped → Shipped", () => {
+test("statusToLane, shipped → Shipped", () => {
   assert.equal(statusToLane("shipped", "2026-06-01"), "Shipped");
 });
 
-test("statusToLane — in-flight → In flight", () => {
+test("statusToLane, in-flight → In flight", () => {
   assert.equal(statusToLane("in-flight", "2026-06-01"), "In flight");
 });
 
-test("statusToLane — next + date → Next", () => {
+test("statusToLane, next + date → Next", () => {
   assert.equal(statusToLane("next", "2026-06-01"), "Next");
 });
 
-test("statusToLane — next + null date → Later (D7 presentational)", () => {
+test("statusToLane, next + null date → Later (D7 presentational)", () => {
   // Later = status:"next" + view grouping. NOT a 6th status.
   assert.equal(statusToLane("next", null), "Later");
 });
 
-test("statusToLane — next + undefined date → Later", () => {
+test("statusToLane, next + undefined date → Later", () => {
   assert.equal(statusToLane("next", undefined), "Later");
 });
 
@@ -121,14 +121,14 @@ function applyOverlay(
   return { title: effectiveTitle, targetDate: effectiveDate ?? null, driftDetected };
 }
 
-test("COALESCE — no overlay: generated title flows through", () => {
+test("COALESCE, no overlay: generated title flows through", () => {
   const task = { id: "t1", title: "Venue walkthrough", status: "next", targetDate: "2026-06-12", sortOrder: 0 };
   const result = applyOverlay(task, null);
   assert.equal(result.title, "Venue walkthrough");
   assert.equal(result.driftDetected, false);
 });
 
-test("COALESCE — labelOverride set: overlay wins", () => {
+test("COALESCE, labelOverride set: overlay wins", () => {
   const task = { id: "t1", title: "Old title", status: "next", targetDate: "2026-06-12", sortOrder: 0 };
   const overlay: MinimalOverlay = {
     labelOverride: "Venue soft launch",
@@ -141,7 +141,7 @@ test("COALESCE — labelOverride set: overlay wins", () => {
   assert.equal(result.title, "Venue soft launch");
 });
 
-test("COALESCE — labelOverride null: generated title flows through", () => {
+test("COALESCE, labelOverride null: generated title flows through", () => {
   const task = { id: "t1", title: "Venue walkthrough", status: "next", targetDate: null, sortOrder: 0 };
   const overlay: MinimalOverlay = {
     labelOverride: null,
@@ -154,7 +154,7 @@ test("COALESCE — labelOverride null: generated title flows through", () => {
   assert.equal(result.title, "Venue walkthrough");
 });
 
-test("COALESCE — drift detected when Tasks title changed after override", () => {
+test("COALESCE, drift detected when Tasks title changed after override", () => {
   const task = { id: "t1", title: "New title from Tasks", status: "next", targetDate: "2026-06-12", sortOrder: 0 };
   const overlay: MinimalOverlay = {
     labelOverride: "Old human override",
@@ -168,7 +168,7 @@ test("COALESCE — drift detected when Tasks title changed after override", () =
   assert.equal(result.driftDetected, true);
 });
 
-test("COALESCE — no drift when override matches current Tasks value", () => {
+test("COALESCE, no drift when override matches current Tasks value", () => {
   const task = { id: "t1", title: "Venue walkthrough", status: "next", targetDate: "2026-06-12", sortOrder: 0 };
   const overlay: MinimalOverlay = {
     labelOverride: "Venue walkthrough", // same as task.title
@@ -205,9 +205,9 @@ import {
   publishRevalidationPaths,
 } from "../actions/revalidation-contracts.js";
 
-test("D6 two-gate — syncRevalidationPaths contains only /app-prefixed paths", () => {
+test("D6 two-gate, syncRevalidationPaths contains only /app-prefixed paths", () => {
   const paths = syncRevalidationPaths("venue-plan");
-  // Every path must start with /app — none may be a public URL
+  // Every path must start with /app, none may be a public URL
   for (const p of paths) {
     assert.ok(
       p.startsWith("/app"),
@@ -222,7 +222,7 @@ test("D6 two-gate — syncRevalidationPaths contains only /app-prefixed paths", 
   );
 });
 
-test("D6 two-gate — publishRevalidationPaths contains the public workspace URL", () => {
+test("D6 two-gate, publishRevalidationPaths contains the public workspace URL", () => {
   const paths = publishRevalidationPaths("glenmara-weddings");
   assert.ok(
     paths.includes("/glenmara-weddings"),
@@ -235,19 +235,19 @@ test("D6 two-gate — publishRevalidationPaths contains the public workspace URL
   );
 });
 
-test("D6 two-gate — sync paths and publish paths are disjoint on public URLs", () => {
+test("D6 two-gate, sync paths and publish paths are disjoint on public URLs", () => {
   const syncPaths = syncRevalidationPaths("venue-plan");
   const publishPaths = publishRevalidationPaths("glenmara-weddings");
   const publicPublishPaths = publishPaths.filter((p) => !p.startsWith("/app"));
   for (const pub of publicPublishPaths) {
     assert.ok(
       !syncPaths.includes(pub),
-      `sync must never revalidate public path ${pub} — only publish may do so`,
+      `sync must never revalidate public path ${pub}, only publish may do so`,
     );
   }
 });
 
-test("D6 two-gate — static source scan: syncMilestonesAction body has no public revalidatePath", async () => {
+test("D6 two-gate, static source scan: syncMilestonesAction body has no public revalidatePath", async () => {
   // Read the real action source and extract the syncMilestonesAction function body.
   // Assert that every revalidatePath call inside it begins with /app, never /{slug}.
   // This test catches inline additions that bypass the path-contract helper above.
@@ -283,7 +283,7 @@ test("D6 two-gate — static source scan: syncMilestonesAction body has no publi
   );
 });
 
-// ── 6. G1 — only is_milestone=1 rows (filter guard) ─────────────────────────
+// ── 6. G1, only is_milestone=1 rows (filter guard) ─────────────────────────
 
 function filterMilestones(
   tasks: Array<{ id: string; is_milestone: number; title: string }>,
@@ -293,7 +293,7 @@ function filterMilestones(
     .map((t) => ({ id: t.id, title: t.title }));
 }
 
-test("G1 — only is_milestone=1 tasks surface", () => {
+test("G1, only is_milestone=1 tasks surface", () => {
   const tasks = [
     { id: "t1", is_milestone: 1, title: "Venue walkthrough" },
     { id: "t2", is_milestone: 0, title: "Normal task" },
@@ -305,7 +305,7 @@ test("G1 — only is_milestone=1 tasks surface", () => {
   assert.ok(result.every((r) => tasks.find((t) => t.id === r.id)?.is_milestone === 1));
 });
 
-test("G1 — zero milestones when none flagged", () => {
+test("G1, zero milestones when none flagged", () => {
   const tasks = [
     { id: "t1", is_milestone: 0, title: "Normal task" },
   ];
@@ -313,7 +313,7 @@ test("G1 — zero milestones when none flagged", () => {
   assert.equal(result.length, 0);
 });
 
-// ── 6b. BV-2: drag-sort batch-write — all siblings must be persisted ─────────
+// ── 6b. BV-2: drag-sort batch-write, all siblings must be persisted ─────────
 //
 // The fix for BV-2 calls reorderNodesAction with the full ordered node list
 // (not just the moved node). This test asserts the persistence contract:
@@ -327,7 +327,7 @@ function reindexForPersistence(
   return nodes.map((n, i) => ({ nodeId: n.id, sortOverride: i }));
 }
 
-test("BV-2 — after drag, ALL siblings receive a sortOverride (not just moved node)", () => {
+test("BV-2, after drag, ALL siblings receive a sortOverride (not just moved node)", () => {
   const nodes = [
     { id: "ms-a" },
     { id: "ms-b" },
@@ -352,7 +352,7 @@ test("BV-2 — after drag, ALL siblings receive a sortOverride (not just moved n
   const movedEntry = entries.find((e) => e.nodeId === "ms-a");
   assert.equal(movedEntry?.sortOverride, 1, "Moved node must have correct sortOverride");
 
-  // Its former sibling (ms-b, now at index 0) must have sortOverride=0 — not its original 0
+  // Its former sibling (ms-b, now at index 0) must have sortOverride=0, not its original 0
   // (both have 0 in this case, but crucially ms-b is now explicitly written at 0)
   const siblingEntry = entries.find((e) => e.nodeId === "ms-b");
   assert.equal(siblingEntry?.sortOverride, 0, "Sibling node must have explicit sortOverride");
@@ -363,10 +363,10 @@ test("BV-2 — after drag, ALL siblings receive a sortOverride (not just moved n
   assert.equal(unique.size, entries.length, "sortOverride values must be unique across siblings");
 });
 
-test("BV-2 — reload order is stable: sorted by sortOverride is deterministic", () => {
+test("BV-2, reload order is stable: sorted by sortOverride is deterministic", () => {
   // Simulate what the query does on reload: sort by COALESCE(sortOverride, sortOrder).
   // With all siblings having explicit sortOverride values, the order is determined
-  // solely by those values — not by the Tasks DB sortOrder field.
+  // solely by those values, not by the Tasks DB sortOrder field.
   const persisted = [
     { id: "ms-b", sortOverride: 0, tasksSortOrder: 5 },
     { id: "ms-a", sortOverride: 1, tasksSortOrder: 3 }, // moved; Tasks sortOrder was 3
@@ -409,7 +409,7 @@ test("BV-2 — reload order is stable: sorted by sortOverride is deterministic",
   );
 });
 
-// ── 8. BV-8 — G2 retract: reconcile logic (pure, no DB) ──────────────────────
+// ── 8. BV-8, G2 retract: reconcile logic (pure, no DB) ──────────────────────
 //
 // Mirrors the reconcile pass added to writeRoadmapNodes (queries.ts).
 // Tests the branching logic that determines which synced nodes survive a sync.
@@ -417,7 +417,7 @@ test("BV-2 — reload order is stable: sorted by sortOverride is deterministic",
 // Rules under test:
 //   a) Sync with milestone X → node exists; re-sync without X → node gone.
 //   b) Manual nodes (non-ms- prefix) are NEVER touched by the reconcile pass.
-//   c) Overlay rows are orphaned (not deleted) — tested by asserting the
+//   c) Overlay rows are orphaned (not deleted), tested by asserting the
 //      overlay set is unchanged after reconcile.
 //   d) Empty incoming set → ALL synced ms- nodes for that project deleted.
 
@@ -454,7 +454,7 @@ function reconcileNodes(
   return { surviving, deleted };
 }
 
-test("BV-8 G2 — sync with milestone X: node exists after sync", () => {
+test("BV-8 G2, sync with milestone X: node exists after sync", () => {
   // Simulate: initial sync wrote ms-ws1-task1.
   const existing: NodeRow[] = [
     { id: "ms-ws1-task1", workspaceSlug: "venue-plan", projectSlug: "wedding", kind: "milestone" },
@@ -466,7 +466,7 @@ test("BV-8 G2 — sync with milestone X: node exists after sync", () => {
   assert.equal(surviving[0].id, "ms-ws1-task1");
 });
 
-test("BV-8 G2 — re-sync WITHOUT milestone X: node gone (immediate and total)", () => {
+test("BV-8 G2, re-sync WITHOUT milestone X: node gone (immediate and total)", () => {
   // Existing: ms-ws1-task1 was synced last time.
   const existing: NodeRow[] = [
     { id: "ms-ws1-task1", workspaceSlug: "venue-plan", projectSlug: "wedding", kind: "milestone" },
@@ -478,13 +478,13 @@ test("BV-8 G2 — re-sync WITHOUT milestone X: node gone (immediate and total)",
   assert.equal(deleted[0].id, "ms-ws1-task1");
 });
 
-test("BV-8 G2 — manual nodes (non-ms- prefix) are NEVER deleted by reconcile", () => {
+test("BV-8 G2, manual nodes (non-ms- prefix) are NEVER deleted by reconcile", () => {
   const existing: NodeRow[] = [
     { id: "ms-ws1-task1", workspaceSlug: "venue-plan", projectSlug: "wedding", kind: "milestone" },
     { id: "manual-abc123", workspaceSlug: "venue-plan", projectSlug: "wedding", kind: "milestone" },
     { id: "d5-custom-node", workspaceSlug: "venue-plan", projectSlug: "wedding", kind: "milestone" },
   ];
-  // Re-sync with EMPTY incoming set — all synced nodes gone, manual nodes survive.
+  // Re-sync with EMPTY incoming set, all synced nodes gone, manual nodes survive.
   const { surviving, deleted } = reconcileNodes(existing, "venue-plan", "wedding", []);
   assert.equal(deleted.length, 1, "Only the ms- node should be deleted");
   assert.equal(deleted[0].id, "ms-ws1-task1");
@@ -492,7 +492,7 @@ test("BV-8 G2 — manual nodes (non-ms- prefix) are NEVER deleted by reconcile",
   assert.ok(surviving.every((n) => !n.id.startsWith("ms-")), "Surviving nodes must all be non-ms- prefix");
 });
 
-test("BV-8 G2 — overlay rows are orphaned, not deleted, on retract", () => {
+test("BV-8 G2, overlay rows are orphaned, not deleted, on retract", () => {
   // Overlays are in a separate table and are NOT touched by the reconcile pass.
   // Model: after deleting ms-ws1-task1 from tasks, the nodeOverlays row remains.
   const overlays: OverlayRow[] = [
@@ -505,13 +505,13 @@ test("BV-8 G2 — overlay rows are orphaned, not deleted, on retract", () => {
   const { deleted } = reconcileNodes(existing, "venue-plan", "wedding", []);
   assert.equal(deleted.length, 1, "Task row deleted");
 
-  // Overlay table is NOT modified by reconcile — it stays as-is.
+  // Overlay table is NOT modified by reconcile, it stays as-is.
   // If re-promoted later, the overlay re-activates.
   assert.equal(overlays.length, 1, "Overlay row must be preserved (orphaned, not deleted)");
   assert.equal(overlays[0].nodeId, "ms-ws1-task1", "Orphaned overlay nodeId matches deleted task");
 });
 
-test("BV-8 G2 — partial un-promote: only un-promoted node deleted, others survive", () => {
+test("BV-8 G2, partial un-promote: only un-promoted node deleted, others survive", () => {
   const existing: NodeRow[] = [
     { id: "ms-ws1-task1", workspaceSlug: "venue-plan", projectSlug: "wedding", kind: "milestone" },
     { id: "ms-ws1-task2", workspaceSlug: "venue-plan", projectSlug: "wedding", kind: "milestone" },
@@ -528,12 +528,12 @@ test("BV-8 G2 — partial un-promote: only un-promoted node deleted, others surv
   assert.ok(surviving.every((n) => n.id !== "ms-ws1-task2"), "ms-ws1-task2 must not be in surviving");
 });
 
-test("BV-8 G2 — cross-workspace isolation: nodes from other workspaces untouched", () => {
+test("BV-8 G2, cross-workspace isolation: nodes from other workspaces untouched", () => {
   const existing: NodeRow[] = [
     { id: "ms-ws1-task1", workspaceSlug: "venue-plan", projectSlug: "wedding", kind: "milestone" },
     { id: "ms-ws2-task1", workspaceSlug: "other-workspace", projectSlug: "other-project", kind: "milestone" },
   ];
-  // Re-sync venue-plan with empty incoming — only venue-plan nodes deleted.
+  // Re-sync venue-plan with empty incoming, only venue-plan nodes deleted.
   const { surviving, deleted } = reconcileNodes(existing, "venue-plan", "wedding", []);
   assert.equal(deleted.length, 1, "Only venue-plan node deleted");
   assert.equal(deleted[0].id, "ms-ws1-task1");
@@ -543,8 +543,8 @@ test("BV-8 G2 — cross-workspace isolation: nodes from other workspaces untouch
 
 // ── 7. Markdown surfaces absent ───────────────────────────────────────────────
 
-test("RW-2 — parse-markdown module does not exist", async () => {
-  // Filesystem check — the parser file must not exist (RW-2 excised it).
+test("RW-2, parse-markdown module does not exist", async () => {
+  // Filesystem check, the parser file must not exist (RW-2 excised it).
   // Avoid a typed import so tsc doesn't try to resolve the deleted module.
   const { existsSync } = await import("node:fs");
   const moduleNotFound = !existsSync(
@@ -553,6 +553,6 @@ test("RW-2 — parse-markdown module does not exist", async () => {
   assert.equal(
     moduleNotFound,
     true,
-    "parse-markdown.ts must be deleted — markdown input path is removed (RW-2)",
+    "parse-markdown.ts must be deleted, markdown input path is removed (RW-2)",
   );
 });

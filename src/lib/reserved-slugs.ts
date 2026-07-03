@@ -1,5 +1,5 @@
 /**
- * Slugs that cannot be used as workspace or project slugs — they
+ * Slugs that cannot be used as workspace or project slugs, they
  * collide with app routes, public pages, or reserved infrastructure.
  */
 export const RESERVED_SLUGS = new Set([

@@ -5,7 +5,7 @@ import Link from "next/link";
 
 /**
  * Root error boundary. Catches uncaught errors in any route that lacks
- * a closer boundary — including the public `[workspaceSlug]` viewer,
+ * a closer boundary, including the public `[workspaceSlug]` viewer,
  * which does live DB work on every request. Without this, a Turso blip
  * renders an unstyled white-screen crash on a shared, forwardable link.
  */
@@ -45,7 +45,7 @@ export default function RootError({
           This page didn&apos;t load.
         </h1>
         <p className="mb-6 text-sm leading-relaxed" style={{ color: "var(--ink-soft)" }}>
-          The plan is safe — this was a loading hiccup, not lost work. Try
+          The plan is safe, this was a loading hiccup, not lost work. Try
           again in a moment.
         </p>
         {error.digest ? (

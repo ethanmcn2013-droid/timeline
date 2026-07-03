@@ -8,7 +8,7 @@ type Props = {
 
 /**
  * "Followers" counter pill that sits in the demo header alongside the
- * View toggle. Ambient surface — implies the page has an audience
+ * View toggle. Ambient surface, implies the page has an audience
  * subscribed to its updates, not just one-time viewers.
  */
 export function FollowersPill({ count }: Props) {

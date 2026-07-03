@@ -1,5 +1,5 @@
 /**
- * Tests for the current-state verdict — the public page's single-glance
+ * Tests for the current-state verdict, the public page's single-glance
  * read. Run: npx tsx --test src/lib/roadmap/current-state.test.ts
  *
  * The three-state contract is load-bearing: "On track" is a public
@@ -37,7 +37,7 @@ const milestone = (over: Partial<{ status: string; targetDate: string | null }> 
   ...over,
 }) as { status: "next" | "shipped" | "refused"; targetDate: string | null };
 
-test("on track — upcoming milestone, nothing late, nothing waiting", () => {
+test("on track, upcoming milestone, nothing late, nothing waiting", () => {
   const s = currentState(
     [task({ targetDate: "2026-06-10" }), task({ status: "shipped" })],
     [milestone()],
@@ -46,7 +46,7 @@ test("on track — upcoming milestone, nothing late, nothing waiting", () => {
   assert.deepEqual(s, { kind: "on-track", date: "2026-06-14" });
 });
 
-test("aiming — an item is past its date", () => {
+test("aiming, an item is past its date", () => {
   const s = currentState(
     [task({ targetDate: "2026-06-01" })],
     [milestone()],
@@ -55,13 +55,13 @@ test("aiming — an item is past its date", () => {
   assert.deepEqual(s, { kind: "aiming", date: "2026-06-14" });
 });
 
-test("aiming — an item is waiting", () => {
+test("aiming, an item is waiting", () => {
   const s = currentState([task({ status: "waiting" })], [milestone()], NOW);
   assert.deepEqual(s, { kind: "aiming", date: "2026-06-14" });
 });
 
 test("a late milestone row does not flip the verdict by itself", () => {
-  // Milestone rows are the destination, not the work — only the
+  // Milestone rows are the destination, not the work, only the
   // feeding items decide on-track vs aiming.
   const s = currentState(
     [task({ kind: "milestone", targetDate: "2026-06-01", status: "next" })],
@@ -84,7 +84,7 @@ test("skips shipped and undated milestones when picking the target", () => {
   assert.deepEqual(s, { kind: "on-track", date: "2026-07-02" });
 });
 
-test("everything shipped — completion verdict without a milestone", () => {
+test("everything shipped, completion verdict without a milestone", () => {
   const s = currentState(
     [task({ status: "shipped" }), task({ status: "refused" })],
     [],
@@ -93,10 +93,10 @@ test("everything shipped — completion verdict without a milestone", () => {
   assert.deepEqual(s, { kind: "shipped" });
 });
 
-test("null — no dated milestone and open work (say nothing)", () => {
+test("null, no dated milestone and open work (say nothing)", () => {
   assert.equal(currentState([task()], [], NOW), null);
 });
 
-test("null — empty workspace", () => {
+test("null, empty workspace", () => {
   assert.equal(currentState([], [], NOW), null);
 });

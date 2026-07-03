@@ -14,7 +14,7 @@ export type ProjectWithCounts = Project & {
 
 /**
  * Project overview card for the master workspace roadmap.
- * Accent + name come from the project row — no hardcoded maps.
+ * Accent + name come from the project row, no hardcoded maps.
  */
 export function ProjectCard({
   project,
@@ -37,7 +37,7 @@ export function ProjectCard({
         transition: "border-color var(--motion-base) var(--ease-standard), box-shadow var(--motion-base) var(--ease-standard)",
       }}
     >
-      {/* Top accent bar — single identity gesture, no glow */}
+      {/* Top accent bar, single identity gesture, no glow */}
       <span
         aria-hidden
         className="pointer-events-none absolute inset-x-0 top-0 h-[3px]"

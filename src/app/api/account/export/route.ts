@@ -4,7 +4,7 @@ import { db } from "@/server/db";
 import { exportAccountData } from "@/server/account-export";
 
 /**
- * GET /api/account/export — Signal Timeline.
+ * GET /api/account/export · Signal Timeline.
  *
  * GDPR Art. 20 data portability: the signed-in user downloads a complete
  * machine-readable (JSON) copy of every workspace they own and all its

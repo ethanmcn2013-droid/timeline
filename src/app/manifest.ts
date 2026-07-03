@@ -1,22 +1,22 @@
 import type { MetadataRoute } from "next";
 
 /**
- * PWA manifest — Signal Timeline.
+ * PWA manifest · Signal Timeline.
  *
  * Direction-clarity product. start_url goes to /app (the authed
- * workspace surface) — a home-screen tap should land where the
+ * workspace surface), a home-screen tap should land where the
  * planner does their work, not the marketing home.
  *
- * No private workspaces, no team tier — locked refusals per
+ * No private workspaces, no team tier, locked refusals per
  * AGENTS.md.
  *
  * `orientation: "any"` because the roadmap viewer has table content
- * and milestone maps that are wider-friendly — users rotate.
+ * and milestone maps that are wider-friendly, users rotate.
  *
  * One shortcut, not three. The Roadmap product is single-surface
  * (the workspace IS the destination); a returning user has exactly
  * one place to go. "Start a roadmap" / "Example" were marketing
- * artifacts in disguise — cut per UX review.
+ * artifacts in disguise, cut per UX review.
  *
  * Maskable icon at /icon1 (512×512) for Android adaptive icons.
  */

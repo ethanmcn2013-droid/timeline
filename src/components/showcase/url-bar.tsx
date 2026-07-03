@@ -5,7 +5,7 @@ import { forwardRef } from "react";
 
 type Props = {
   url: string;
-  /** True when a cursor is "pressing" the share button — flashes brand bg. */
+  /** True when a cursor is "pressing" the share button, flashes brand bg. */
   sharePressed?: boolean;
 };
 
@@ -13,7 +13,7 @@ type Props = {
  * The shared-URL bar at the top of the demo surface.
  * Carries the position: Roadmap is the audience surface, not the workspace.
  *
- * viewCount ticker removed in phase 1 unification — it was fake engagement
+ * viewCount ticker removed in phase 1 unification, it was fake engagement
  * theatre. The URL bar now shows just the workspace URL and the Share button,
  * which reflects what the product actually gives you.
  */

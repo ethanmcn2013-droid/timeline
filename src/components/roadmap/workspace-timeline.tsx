@@ -4,13 +4,13 @@ import type { Task, Project } from "@/server/db/schema";
 // The product rename (roadmap→timeline) earns a view that is literally a
 // timeline: one straight line, milestones plotted as points along it in date
 // order. For the 80% who don't live in tools, this is the most legible plan
-// there is — "here are the moments that matter, and here's where we are on the
+// there is, "here are the moments that matter, and here's where we are on the
 // way to them." No lanes, no grid, no vocabulary lesson.
 //
 // Server component, CSS-only (no motion / no client JS). The page server-renders
 // every view once and toggles visibility on the client, so keeping this a plain
 // server component preserves ISR and the no-JS baseline. Milestones are the
-// only thing plotted — items live in the Gantt view; refused work lives behind
+// only thing plotted, items live in the Gantt view; refused work lives behind
 // the "what didn't make it" link, same as everywhere else.
 
 type MilestoneNode = {
@@ -76,7 +76,7 @@ export function WorkspaceTimeline({ milestones, projects }: Props) {
           </p>
           <p className="text-[13px] text-ink-quiet">
             Give a milestone a date and it lands on the timeline. This page
-            updates as the plan moves — check back, or bookmark it.
+            updates as the plan moves, check back, or bookmark it.
           </p>
         </div>
       </section>
@@ -121,7 +121,7 @@ export function WorkspaceTimeline({ milestones, projects }: Props) {
 
       <div className="overflow-x-auto pb-4">
         <div className="relative" style={{ minWidth, height: 320 }}>
-          {/* The line — base rail + progress fill up to today */}
+          {/* The line, base rail + progress fill up to today */}
           <div
             aria-hidden
             className="absolute left-0 right-0"
@@ -235,7 +235,7 @@ export function WorkspaceTimeline({ milestones, projects }: Props) {
         </div>
       </div>
 
-      {/* Undated milestones — honest tray, never guessed onto the line */}
+      {/* Undated milestones, honest tray, never guessed onto the line */}
       {undated.length > 0 ? (
         <div className="mt-8">
           <h3 className="mb-3 text-[10.5px] font-semibold uppercase tracking-[0.14em] text-ink-quiet">

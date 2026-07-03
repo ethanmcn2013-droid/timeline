@@ -2,21 +2,21 @@ import type { Task, Project } from "@/server/db/schema";
 import { STATUS_DISPLAY } from "@/components/roadmap/status-pill";
 
 // ── Gantt view ────────────────────────────────────────────────────────────────
-// One bar per item across a month axis, grouped into project sections — the
+// One bar per item across a month axis, grouped into project sections, the
 // classic "where everything sits in time" read. Honest-data contract (the same
 // locked refusal ScheduleView documents): real Task rows carry a single
 // nullable `targetDate`, never a start/end span, so we do NOT invent per-item
-// durations. The bar occupies the item's *target month* — a true statement at
-// the data's month granularity ("scheduled for this month") — positioned to the
+// durations. The bar occupies the item's *target month*, a true statement at
+// the data's month granularity ("scheduled for this month"), positioned to the
 // exact target day. Undated work goes to an honest tray, never guessed onto the
 // axis.
 //
 // Server component, no motion: a quiet public read surface. Status colour/label
 // reuse STATUS_DISPLAY so the Gantt reads as the same product as every other
 // view. The demo's Gantt (showcase) uses real start/end spans from its domain
-// pack — that's honest there; this one can't, and doesn't pretend to.
+// pack, that's honest there; this one can't, and doesn't pretend to.
 
-const GUTTER = 220; // px — item-title column width
+const GUTTER = 220; // px, item-title column width
 
 type Props = {
   /** Non-refused, non-milestone tasks (page.tsx `visibleTasks`). */
@@ -91,7 +91,7 @@ export function GanttView({ tasks, milestones, projects, projectMap }: Props) {
         ) : (
           <>
             <p className="mb-6 text-[13px] text-ink-soft">
-              Nothing has a target date yet — so there is nothing to plot. These
+              Nothing has a target date yet, so there is nothing to plot. These
               items are still in the plan, just not scheduled.
             </p>
             <UndatedTray undated={undated} projects={projects} projectMap={projectMap} />
@@ -131,7 +131,7 @@ export function GanttView({ tasks, milestones, projects, projectMap }: Props) {
 
   return (
     <div className="mx-auto w-full max-w-[1240px] px-6 py-10">
-      {/* Caption row — legend + window range */}
+      {/* Caption row, legend + window range */}
       <div className="mb-5 flex flex-wrap items-end justify-between gap-x-8 gap-y-3">
         <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
           {(["shipped", "in-flight", "next", "waiting"] as const).map((s) => (
@@ -219,7 +219,7 @@ export function GanttView({ tasks, milestones, projects, projectMap }: Props) {
               </div>
             ) : null}
 
-            {/* Project sections — one bar per item row */}
+            {/* Project sections, one bar per item row */}
             {rowProjects.map((proj) => {
               const items = datedByProject.get(proj.slug)!;
               return (
@@ -273,7 +273,7 @@ export function GanttView({ tasks, milestones, projects, projectMap }: Props) {
                               background: meta.bg,
                               borderColor: meta.border,
                             }}
-                            title={`${task.title} — ${meta.label}${task.targetDate ? ` · ${formatDay(task.targetDate)}` : ""}`}
+                            title={`${task.title}, ${meta.label}${task.targetDate ? ` · ${formatDay(task.targetDate)}` : ""}`}
                           >
                             <span aria-hidden className="inline-block h-1.5 w-1.5 flex-shrink-0 rounded-full" style={{ background: meta.fg }} />
                             <span className="truncate font-mono text-[10.5px] tabular-nums" style={{ color: "var(--ink-soft)" }}>
@@ -338,7 +338,7 @@ function UndatedTray({
                     key={t.id}
                     className="inline-flex items-center gap-1.5 rounded-md border px-2 py-1 text-[11.5px]"
                     style={{ background: meta.bg, borderColor: meta.border, color: "var(--ink)" }}
-                    title={`${t.title} — ${meta.label}`}
+                    title={`${t.title}, ${meta.label}`}
                   >
                     <span aria-hidden className="inline-block h-1.5 w-1.5 flex-shrink-0 rounded-full" style={{ background: t.isLaunch ? accent : meta.fg }} />
                     {t.title}

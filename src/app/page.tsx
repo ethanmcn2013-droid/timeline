@@ -8,11 +8,11 @@ import { ItemAnatomy } from "@/components/marketing/anatomy";
 import { SuiteArrows } from "@/components/suite-arrows";
 
 /**
- * Roadmap marketing homepage — structure:
- *   1. RoadmapHeroLoader — roll + Limerick map heartbeat animation
- *   2. Hero              — product intro text + animated live demo
- *   3. ItemAnatomy       — roadmap item anatomy breakdown
- *   4. CTA               — confident close
+ * Roadmap marketing homepage, structure:
+ *   1. RoadmapHeroLoader, roll + Limerick map heartbeat animation
+ *   2. Hero             , product intro text + animated live demo
+ *   3. ItemAnatomy      , roadmap item anatomy breakdown
+ *   4. CTA              , confident close
  */
 export default function HomePage() {
   return (
@@ -23,14 +23,14 @@ export default function HomePage() {
         <RoadmapHeroLoader />
         <Hero />
 
-        {/* Long Now Strip — names the planning horizon. The interstitial
+        {/* Long Now Strip, names the planning horizon. The interstitial
             answer to every public-roadmap reader's first question. */}
         <LongNowStrip />
 
-        {/* What an item is — the product's smallest unit, explained */}
+        {/* What an item is, the product's smallest unit, explained */}
         <ItemAnatomy />
 
-        {/* Confident close — one ask, no noise */}
+        {/* Confident close, one ask, no noise */}
         <section className="px-6 pt-28 pb-32 md:pt-36 md:pb-40">
           <div className="mx-auto w-full max-w-[1240px]">
             <h2

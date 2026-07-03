@@ -6,14 +6,14 @@
  * can be imported directly in the Node.js test runner without pulling in
  * next/cache, Clerk, or Turso.
  *
- * workspaces.ts uses these same values inline — the static source scan in
+ * workspaces.ts uses these same values inline, the static source scan in
  * tasks-milestone-source.test.ts cross-checks the live code against the
  * contract documented here.
  */
 
 /**
  * The exact set of paths syncMilestonesAction revalidates.
- * All paths begin with /app — none are public /{workspaceSlug} paths.
+ * All paths begin with /app, none are public /{workspaceSlug} paths.
  * Invariant: sync NEVER touches the public ISR cache (D6 two-gate).
  */
 export function syncRevalidationPaths(projectSlug: string): string[] {
@@ -22,7 +22,7 @@ export function syncRevalidationPaths(projectSlug: string): string[] {
 
 /**
  * The exact set of paths publishWorkspaceAction revalidates.
- * Includes the public /{workspaceSlug} path — publish is the ONLY gate.
+ * Includes the public /{workspaceSlug} path, publish is the ONLY gate.
  */
 export function publishRevalidationPaths(workspaceSlug: string): string[] {
   return ["/app", `/${workspaceSlug}`];

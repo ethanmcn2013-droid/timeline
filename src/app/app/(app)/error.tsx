@@ -34,7 +34,7 @@ export default function AppError({
         Your workspace hit a snag.
       </h1>
       <p className="mb-6 text-sm leading-relaxed" style={{ color: "var(--ink-soft)" }}>
-        Nothing was lost — the last load failed. Try again, or head back to
+        Nothing was lost, the last load failed. Try again, or head back to
         your dashboard.
       </p>
       {error.digest ? (

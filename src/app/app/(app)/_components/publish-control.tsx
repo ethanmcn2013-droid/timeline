@@ -1,9 +1,9 @@
 "use client";
 
 /**
- * PublishControl — D6 two-gate, CREATIVE_SPEC §2.1/2.2.
+ * PublishControl, D6 two-gate, CREATIVE_SPEC §2.1/2.2.
  *
- * Publishing is the highest-value action in the product — turns a private plan
+ * Publishing is the highest-value action in the product, turns a private plan
  * into a growth surface. It must feel like a threshold, not a toggle.
  *
  * Draft state → "Publish the plan" CTA pill (ink bg, paper text).
@@ -13,7 +13,7 @@
  * Published state → URL chip + Copy link + External link + Unpublish text link.
  *
  * D6 two-gate: promotion populates the PRIVATE draft. This action is the
- * SECOND gate — the explicit "yes, in public" decision. Never auto-publish
+ * SECOND gate, the explicit "yes, in public" decision. Never auto-publish
  * on sync. Never auto-refresh published output on sync.
  */
 
@@ -121,7 +121,7 @@ export function PublishControl({
             {error}
           </p>
         )}
-        {/* CTA pill — CREATIVE_SPEC §2.1 button spec */}
+        {/* CTA pill, CREATIVE_SPEC §2.1 button spec */}
         <button
           type="button"
           onClick={handlePublish}
@@ -190,7 +190,7 @@ export function PublishControl({
         Published.
       </p>
 
-      {/* URL chip — CREATIVE_SPEC §2.2 */}
+      {/* URL chip, CREATIVE_SPEC §2.2 */}
       {url && (
         <div
           className="rw-chip-animate"
@@ -258,7 +258,7 @@ export function PublishControl({
         </div>
       )}
 
-      {/* Item 6: reassure the sharer — plain language, no hype. */}
+      {/* Item 6: reassure the sharer, plain language, no hype. */}
       <p
         style={{
           fontSize: 12,
@@ -267,7 +267,7 @@ export function PublishControl({
           lineHeight: 1.5,
         }}
       >
-        Anyone with this link can read the plan — no account, no sign-up.
+        Anyone with this link can read the plan, no account, no sign-up.
         Send it to a client or anyone following along.
       </p>
 
@@ -283,7 +283,7 @@ export function PublishControl({
         </p>
       )}
 
-      {/* Unpublish — text link, quiet, never prominent (CREATIVE_SPEC §2.1) */}
+      {/* Unpublish, text link, quiet, never prominent (CREATIVE_SPEC §2.1) */}
       <button
         type="button"
         onClick={handleUnpublish}

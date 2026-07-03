@@ -5,7 +5,7 @@ import { useClerk } from "@clerk/nextjs";
 /**
  * A quiet, hosted path into Clerk's account portal so the "lives in your
  * account" line isn't a dead end. Opens the Clerk user profile in place.
- * Timeline (suite) register — brand indigo, the crafted chevron.
+ * Timeline (suite) register, brand indigo, the crafted chevron.
  */
 export function ManageIdentityButton() {
   const { openUserProfile } = useClerk();

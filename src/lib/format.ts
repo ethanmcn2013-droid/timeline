@@ -32,10 +32,10 @@ export function formatRelative(d: Date): string {
 /**
  * Plain-English freshness phrase for the public view's "Updated …" stamp.
  *
- * A quiet trust signal for a reader who is not auditing timestamps — they
+ * A quiet trust signal for a reader who is not auditing timestamps, they
  * just want to know the plan is being kept current. The voice is human and
  * declarative (PRODUCT.md copy rules): "this morning", "today", "yesterday",
- * "3 days ago" — never a raw timestamp, never PM phrasing.
+ * "3 days ago", never a raw timestamp, never PM phrasing.
  *
  * Same-calendar-day work splits into "this morning" (before noon) and
  * "today" (noon onward) so an early-morning edit reads the way a person

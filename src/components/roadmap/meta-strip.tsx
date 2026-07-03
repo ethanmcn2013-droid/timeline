@@ -1,13 +1,13 @@
 import { Fragment } from "react";
 
 /**
- * MetaStrip — the small uppercase rhythm strip that anchors every
+ * MetaStrip, the small uppercase rhythm strip that anchors every
  * Roadmap hero. Same shape across workspace, project, and refusals
  * surfaces; different content. Reads as the brand's steady pulse: a
  * line of facts (identity · timeline · counts), separated by middle
  * dots, set in the smallest legible uppercase tracking.
  *
- * The `anchor` slot renders slightly bolder than the rest — it
+ * The `anchor` slot renders slightly bolder than the rest, it
  * carries the identity token (workspace name, "REFUSALS", etc).
  * The `items` array renders in the quiet register. Both filter out
  * null/empty so callers can pass conditional items without ternary

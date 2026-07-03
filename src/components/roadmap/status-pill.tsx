@@ -37,7 +37,7 @@ const STATUS_META: Record<
 };
 
 /**
- * Read-only status pill. Public surface — no click interaction, no server action.
+ * Read-only status pill. Public surface, no click interaction, no server action.
  */
 export function StatusPill({
   status,

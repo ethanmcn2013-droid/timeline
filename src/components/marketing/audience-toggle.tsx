@@ -10,7 +10,7 @@ type Props = {
 
 /**
  * Audience picker for the Roadmap cinematic demo.
- * Modelled on Tasks's DomainToggle — pill tab list with a sliding active
+ * Modelled on Tasks's DomainToggle, pill tab list with a sliding active
  * pill driven by motion's layoutId, two-line "Built for" caption above.
  */
 export function AudienceToggle({ domain, onChange }: Props) {

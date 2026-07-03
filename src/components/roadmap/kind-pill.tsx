@@ -58,7 +58,7 @@ const KIND_META: Record<Kind, { label: string; bg: string; fg: string }> = {
   },
 };
 
-/** Only render a pill for non-default kinds. "action" and "cycle" are ambient — no pill needed. */
+/** Only render a pill for non-default kinds. "action" and "cycle" are ambient, no pill needed. */
 const SILENT_KINDS: Kind[] = ["action", "cycle"];
 
 export function KindPill({

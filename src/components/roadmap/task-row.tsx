@@ -52,7 +52,7 @@ export function TaskRow({
             <KindPill kind={task.kind} size="sm" />
           </div>
           <h3 className="mt-2 text-[15.5px] font-semibold tracking-[-0.005em] text-ink">
-            {/* @ts-expect-error — Link/span polymorphism */}
+            {/* @ts-expect-error, Link/span polymorphism */}
             <TitleEl
               {...titleProps}
               className={

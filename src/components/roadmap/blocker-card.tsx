@@ -9,7 +9,7 @@ function dwellDaysSince(since: Date): number {
 
 /**
  * Read-only blocker card for the public roadmap surface.
- * Project accent comes from the project row — no hardcoded map.
+ * Project accent comes from the project row, no hardcoded map.
  */
 export function BlockerCard({
   blocker,

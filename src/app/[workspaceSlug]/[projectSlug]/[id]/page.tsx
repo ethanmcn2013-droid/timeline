@@ -39,7 +39,7 @@ export async function generateMetadata({
   const task = await getTask(workspaceSlug, projectSlug, id);
   if (!task) return { title: "Not Found" };
   return {
-    title: `${task.title} — Timeline`,
+    title: `${task.title}, Timeline`,
     description: task.description || undefined,
   };
 }
@@ -56,7 +56,7 @@ export default async function TaskDetailPage({
   const { workspaceSlug, projectSlug, id } = await params;
 
   // Manual-milestone deep links pre-dating the in-page-anchor fix would land
-  // here with a synthetic id and a `projects[0]` projectSlug — neither has a
+  // here with a synthetic id and a `projects[0]` projectSlug, neither has a
   // backing tasks row to resolve. Redirect to the overview anchor instead of
   // 404'ing so external/shared links and crawlers degrade gracefully.
   if (isManualMilestoneId(id)) {

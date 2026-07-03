@@ -21,13 +21,13 @@ export type ErasureDb = LibSQLDatabase<typeof schema>;
  * workspace layer (`workspaces.ownerUserId` = Clerk userId): the user "is"
  * their set of owned workspaces, and every content table carries a
  * denormalized `workspace_slug`. We delete every workspace-scoped table
- * EXPLICITLY rather than trust FK cascade — `ON DELETE cascade` is not
+ * EXPLICITLY rather than trust FK cascade, `ON DELETE cascade` is not
  * reliably enforced over Turso's stateless HTTP, so a cascade we assume is
  * happening can silently not.
  *
  * ── Why this changed ──────────────────────────────────────────────────
  * The previous version explicitly deleted `subtasks` (distrusting cascade)
- * but left `comments` to `comments.taskId ON DELETE cascade` — the exact
+ * but left `comments` to `comments.taskId ON DELETE cascade`, the exact
  * reliance it avoided one line above. If that cascade no-ops, comments
  * orphan (their task is gone) and survive the user's deletion. `comments`
  * carries a denormalized `workspace_slug`, so it's now deleted explicitly
@@ -63,7 +63,7 @@ export async function eraseAccountData(
     await database.delete(subtasks).where(inArray(subtasks.taskId, ids));
   }
 
-  // Every workspace-scoped content table — explicit, no cascade reliance.
+  // Every workspace-scoped content table, explicit, no cascade reliance.
   await database.delete(comments).where(inArray(comments.workspaceSlug, slugs));
   await database
     .delete(nodeOverlays)
