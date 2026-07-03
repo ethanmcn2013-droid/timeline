@@ -18,19 +18,21 @@ type Props = {
  */
 export function DemoTimelineView({ rows, domain }: Props) {
   const pack = DOMAINS[domain];
-  const start = pack.timelineStart;
-  const end = pack.timelineEnd;
-  const span = Math.max(1, end - start + 1);
 
   const ordered = [...rows].sort((a, b) => a.endMonth - b.endMonth);
 
-  // Map a month into a padded band so first/last labels stay in view.
+  // Even-spaced slots in date order. The live product reads "the moments, in
+  // order", so points get one slot each rather than a raw month fraction —
+  // otherwise several beats landing in the same month stack on the same x and
+  // their labels garble (review fix 2026-07-03). One slot per beat also means
+  // adjacent labels alternate above/below and never collide.
   const PAD = 9;
-  const fracOf = (month: number) => {
-    const clamped = Math.max(start, Math.min(end, month));
-    return PAD + ((clamped - start + 0.5) / span) * (100 - 2 * PAD);
-  };
-  const todayFrac = fracOf(pack.todayMonth);
+  const BAND = 100 - 2 * PAD;
+  const n = Math.max(1, ordered.length);
+  const slotFrac = (i: number) => PAD + ((i + 0.5) / n) * BAND;
+  // Today sits just past the last beat already behind us.
+  const passedCount = ordered.filter((r) => r.endMonth < pack.todayMonth).length;
+  const todayFrac = PAD + (passedCount / n) * BAND;
 
   return (
     <div className="relative w-full overflow-x-auto pb-2">
@@ -55,7 +57,7 @@ export function DemoTimelineView({ rows, domain }: Props) {
 
         {/* Points */}
         {ordered.map((row, i) => {
-          const left = fracOf(row.endMonth);
+          const left = slotFrac(i);
           const above = i % 2 === 0;
           const color = STATUS_TOKEN[row.status];
           const done = row.status === "shipped";
