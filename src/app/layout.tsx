@@ -28,13 +28,13 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "Signal Timeline · direction clarity",
+  title: "Timeline · direction clarity",
   description:
     "Public plans, decisions, and changes written in plain English.",
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? TIMELINE_URL),
   manifest: "/manifest.webmanifest",
   openGraph: {
-    title: "Signal Timeline · direction clarity",
+    title: "Timeline · direction clarity",
     description:
       "Public plans, decisions, and changes written in plain English.",
     type: "website",

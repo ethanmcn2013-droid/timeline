@@ -24,7 +24,7 @@ export function Hero() {
             animationDelay: "40ms",
           }}
         >
-          Signal Timeline &middot; Direction clarity
+          Timeline &middot; Direction clarity
         </p>
 
         <h1
