@@ -121,17 +121,8 @@ export function RoadmapHeroLoader() {
       <span className="rml-pulse-ring rml-pulse-soft" aria-hidden />
       <span className="rml-pulse-ring" aria-hidden />
 
-      {/* Corner chrome */}
-      <div className="rml-chrome rml-chrome-tl">
-        <span className="rml-wm">
-          signal studio<span className="rml-dot-static" />
-          <span className="rml-sep">/</span>timeline
-        </span>
-      </div>
-      <div className="rml-chrome rml-chrome-tr">
-        <span className="rml-pip" aria-hidden />
-        the line extends
-      </div>
+      {/* Corner chrome removed (review 06/07): the site header already carries
+          the signal studio · timeline breadcrumb — the hero stays uncluttered. */}
 
       {/* Stage — wordmark + animated dot */}
       <div className="rml-stage" ref={stageRef} aria-hidden>
@@ -217,50 +208,6 @@ const CSS = `
   22%  { transform: scale(18);  opacity: 0;    }
   100% { transform: scale(18);  opacity: 0;    }
 }
-
-/* ─── Chrome ───────────────────────────────────────────────── */
-.rml-chrome {
-  position: absolute;
-  font-family: var(--rml-mono);
-  font-size: 11px;
-  letter-spacing: .08em;
-  text-transform: uppercase;
-  color: var(--rml-stone-500);
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  z-index: 5;
-}
-.rml-chrome-tl { top: 28px; left: 32px; }
-.rml-chrome-tr { top: 28px; right: 32px; }
-.rml-wm {
-  display: inline-flex;
-  align-items: baseline;
-  font-family: var(--rml-font);
-  font-weight: 500;
-  font-size: 14px;
-  letter-spacing: -.025em;
-  line-height: .95;
-  color: var(--rml-ink);
-  text-transform: none;
-}
-.rml-dot-static {
-  width: .16em; height: .16em;
-  border-radius: 50%;
-  background: var(--rml-indigo);
-  margin-left: .06em;
-  align-self: flex-end;
-  margin-bottom: .06em;
-}
-.rml-sep { color: var(--rml-stone-500); margin: 0 .4em; font-weight: 300; }
-.rml-pip {
-  width: 6px; height: 6px;
-  border-radius: 50%;
-  background: var(--rml-indigo);
-  display: inline-block;
-  animation: rml-pip-blink 5s cubic-bezier(.45,.05,.55,.95) infinite;
-}
-@keyframes rml-pip-blink { 0%,100%{opacity:1} 50%{opacity:0.35} }
 
 /* ─── Stage ────────────────────────────────────────────────── */
 .rml-stage {
@@ -465,10 +412,8 @@ const CSS = `
   .rml-letter  { opacity: 1; transform: none; }
 }
 
-/* ─── Responsive chrome ────────────────────────────────────── */
+/* ─── Responsive ───────────────────────────────────────────── */
 @media (max-width: 600px) {
-  .rml-chrome-tl { top: 18px; left: 20px; }
-  .rml-chrome-tr { top: 18px; right: 20px; font-size: 10px; }
   .rml-hero-section {
     min-height: 58svh;
     padding: 58px 20px 44px;
@@ -477,5 +422,4 @@ const CSS = `
   .rml-stage { transform: translateY(-4px); }
   .rml-caption { margin-top: 30px; }
 }
-@media (max-width: 420px) { .rml-chrome-tr { display: none; } }
 `;
