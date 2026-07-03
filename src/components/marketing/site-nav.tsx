@@ -5,12 +5,14 @@ import { SuiteLauncher } from "@/components/suite-launcher";
 import { AuthNavControls } from "./auth-nav-controls";
 
 const UMBRELLA_PRICING = "https://signalstudio.ie/pricing";
+const UMBRELLA_DESIGN = "https://signalstudio.ie/design";
 
 const NAV: { href: string; label: string; external?: boolean }[] = [
   { href: UMBRELLA_PRICING, label: "Pricing",   external: true },
   { href: "/about",         label: "About"      },
   { href: "/demo",          label: "Demo"       },
   { href: "/changelog",     label: "Dispatch"   },
+  { href: UMBRELLA_DESIGN,  label: "Design",    external: true },
 ];
 
 /**
