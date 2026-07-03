@@ -51,7 +51,7 @@ export function Hero() {
         >
           A public plan written in plain English, live the moment you publish,
           shared with one link. The people who need it just read it, no
-          account, no app, no translation layer.
+          account, no app, nothing to decode.
         </p>
 
         <p

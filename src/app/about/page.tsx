@@ -36,7 +36,7 @@ const ANTI_FEATURES = [
 ] as const;
 
 const WHO_ITS_FOR = [
-  { index: "01", line: "Service operators sharing what is happening with clients." },
+  { index: "01", line: "A studio or venue, showing the client where things stand." },
   { index: "02", line: "Solo professionals who need public accountability." },
   { index: "03", line: "People coordinating a plan with clients, suppliers, or anyone waiting on the work." },
 ] as const;
