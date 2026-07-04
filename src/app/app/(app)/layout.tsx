@@ -1,7 +1,10 @@
+import { Suspense } from "react";
 import { SuiteSwitcher } from "@/components/suite-switcher-pills";
 import { UserButtonWithSuite } from "@/components/user-button-with-suite";
 import { SuiteHeader } from "@/components/chrome/suite-header";
+import { AppAccessGate } from "@/components/app-access-gate";
 import { ClearDemoMode } from "./_components/clear-demo-mode";
+import AppLoading from "./loading";
 
 /**
  * Authenticated app chrome, (app) route group layout.
@@ -30,8 +33,13 @@ export default function AppLayout({
 
       {/* Clear demo-mode cookie on app entry, escape hatch self-resets */}
       <ClearDemoMode />
-      {/* Page content */}
-      <main className="flex flex-1 flex-col">{children}</main>
+      {/* Page content. Closed-beta gate: only allowlisted accounts reach it
+          (production only); the wordmark loader paints during the check. */}
+      <main className="flex flex-1 flex-col">
+        <Suspense fallback={<AppLoading />}>
+          <AppAccessGate>{children}</AppAccessGate>
+        </Suspense>
+      </main>
     </div>
   );
 }
