@@ -1,5 +1,6 @@
 import { SuiteSwitcher } from "@/components/suite-switcher-pills";
 import { UserButtonWithSuite } from "@/components/user-button-with-suite";
+import { SuiteHeader } from "@/components/chrome/suite-header";
 import { ClearDemoMode } from "./_components/clear-demo-mode";
 
 /**
@@ -19,23 +20,13 @@ export default function AppLayout({
 }) {
   return (
     <div className="flex min-h-screen flex-col" style={{ background: "var(--bg)" }}>
-      {/* App top bar, persists across all (app) routes */}
-      <header
-        className="sticky top-0 z-40 border-b"
-        style={{
-          background: "color-mix(in srgb, var(--bg) 88%, transparent)",
-          backdropFilter: "saturate(150%) blur(12px)",
-          WebkitBackdropFilter: "saturate(150%) blur(12px)",
-          borderColor: "var(--border-soft)",
-        }}
-      >
-        <div className="mx-auto flex h-14 w-full max-w-[1240px] items-center justify-between px-6">
-          <div className="flex min-w-0 items-center">
-            <SuiteSwitcher current="roadmap" />
-          </div>
-          <UserButtonWithSuite current="roadmap" />
-        </div>
-      </header>
+      {/* App top bar — the shared SuiteHeader shell (switcher lockup, no
+          wordmark). Persists across all (app) routes. */}
+      <SuiteHeader
+        launcher={<SuiteSwitcher current="roadmap" />}
+        nav={[]}
+        account={<UserButtonWithSuite current="roadmap" />}
+      />
 
       {/* Clear demo-mode cookie on app entry, escape hatch self-resets */}
       <ClearDemoMode />
