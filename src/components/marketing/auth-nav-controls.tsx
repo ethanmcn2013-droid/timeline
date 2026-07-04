@@ -92,69 +92,24 @@ function EscapeHatchButton() {
   );
 }
 
-export function AuthNavControls({
-  nav,
-}: {
-  nav: { href: string; label: string; external?: boolean }[];
-}) {
+export function AuthNavControls() {
   const authState = isUxAssuranceMode()
     ? { isSignedIn: false, isLoaded: true }
     : useUser();
   const { isSignedIn, isLoaded } = authState;
 
-  // SSR / loading state: render the unauthed controls as default.
+  // SSR / loading state: render the unauthed control as default.
   // Once Clerk loads on the client, the correct branch renders.
+  // The mobile nav menu is owned by SuiteHeader; this is only the auth slot.
   if (!isLoaded || !isSignedIn) {
     return (
-      <div className="flex items-center gap-2">
-        <Link
-          href="/sign-in"
-          className="inline-flex min-h-8 items-center rounded-full px-3.5 text-[13px] font-medium text-ink-soft hover:text-ink"
-          style={{ transition: "color var(--motion-fast) var(--ease-standard)" }}
-        >
-          Sign in
-        </Link>
-        {/* Mobile menu, unauthed */}
-        <details className="relative md:hidden">
-          <summary
-            className="flex h-9 w-9 cursor-pointer list-none items-center justify-center rounded-full text-ink-soft transition-colors hover:text-ink"
-            style={{ border: "1px solid var(--border)" }}
-            aria-label="Open menu"
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden>
-              <path d="M4 7h16M4 12h16M4 17h16" />
-            </svg>
-          </summary>
-          <div
-            className="absolute right-0 top-11 w-56 rounded-xl p-3 shadow-lg"
-            style={{ background: "var(--bg)", border: "1px solid var(--border)" }}
-          >
-            <ul className="flex flex-col gap-1 text-[13px]">
-              {nav.map((item) => (
-                <li key={item.href}>
-                  {item.external ? (
-                    <a
-                      href={item.href}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="block rounded-lg px-3 py-2 text-ink-soft hover:bg-ink/5 hover:text-ink"
-                    >
-                      {item.label}
-                    </a>
-                  ) : (
-                    <Link
-                      href={item.href}
-                      className="block rounded-lg px-3 py-2 text-ink-soft hover:bg-ink/5 hover:text-ink"
-                    >
-                      {item.label}
-                    </Link>
-                  )}
-                </li>
-              ))}
-            </ul>
-          </div>
-        </details>
-      </div>
+      <Link
+        href="/sign-in"
+        className="inline-flex min-h-8 items-center rounded-full px-3.5 text-[13px] font-medium text-ink-soft hover:text-ink"
+        style={{ transition: "color var(--motion-fast) var(--ease-standard)" }}
+      >
+        Sign in
+      </Link>
     );
   }
 
