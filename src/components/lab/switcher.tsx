@@ -39,7 +39,7 @@ export function LabSwitcher({ activeSlug }: { activeSlug: string }) {
             >
               <span className="lab-idx">{i + 1}</span>
               <span className="lab-name">{o.name}</span>
-              {o.role === "wildcard" && <span className="lab-wild">wild</span>}
+              {o.role === "hybrid" && <span className="lab-wild">hybrid</span>}
             </Link>
           );
         })}

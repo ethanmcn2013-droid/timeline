@@ -5,13 +5,14 @@ export default function LabIndex() {
   return (
     <main className="labx">
       <header className="labx-head">
-        <p className="labx-kicker">Timeline · first-experience lab</p>
-        <h1 className="labx-h1">Four directions for the Timeline hero</h1>
+        <p className="labx-kicker">Signal Timeline · first-experience lab</p>
+        <h1 className="labx-h1">Three directions for the Timeline hero</h1>
         <p className="labx-lede">
           Each takes the same promise, one public plan anyone can read, and finds a different first
-          impression for it. Three are polished directions held to a 9.5 bar. One is a wildcard. Open each,
-          watch the first two seconds, then judge the rest state, that is what a visitor actually lives with.
-          Press 1 to {OPTIONS.length} to jump, R to replay.
+          impression for it. Two are refined directions held to a world-class bar. The third is their
+          hybrid, the link and the line married into one. Open each, watch the first two seconds, then
+          judge the rest state, that is what a visitor actually lives with. Press 1 to {OPTIONS.length} to
+          jump, R to replay.
         </p>
       </header>
       <div className="labx-grid">
@@ -19,9 +20,7 @@ export default function LabIndex() {
           <Link key={o.slug} href={`/lab/${o.slug}`} className="labx-card">
             <div className="labx-card-top">
               <span className="labx-idx">{i + 1}</span>
-              <span className={`labx-role labx-role-${o.flagship ? "flagship" : o.role}`}>
-                {o.flagship ? "flagship" : o.role}
-              </span>
+              <span className={`labx-role labx-role-${o.role}`}>{o.role}</span>
             </div>
             <h2 className="labx-name">{o.name}</h2>
             <p className="labx-lens">{o.lens}</p>
@@ -53,8 +52,7 @@ const INDEX_CSS = `
 .labx-role{font-family:var(--font-geist-mono,monospace);font-size:10.5px;letter-spacing:.08em;
   text-transform:uppercase;padding:3px 8px;border-radius:999px}
 .labx-role-polished{color:#3f3f46;background:#f4f4f5}
-.labx-role-wildcard{color:#4f46e5;background:rgba(79,70,229,.1)}
-.labx-role-flagship{color:#fff;background:#4f46e5}
+.labx-role-hybrid{color:#fff;background:#4f46e5}
 .labx-name{font-size:19px;font-weight:600;letter-spacing:-.01em;margin:4px 0 0}
 .labx-lens{font-family:var(--font-geist-mono,monospace);font-size:11px;letter-spacing:.04em;
   color:#a1a1aa;text-transform:uppercase;margin:0}
