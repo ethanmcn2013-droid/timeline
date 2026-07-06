@@ -6,11 +6,11 @@ import { AuthNavControls } from "./auth-nav-controls";
 const UMBRELLA_PRICING = "https://signalstudio.ie/pricing";
 const UMBRELLA_DESIGN = "https://signalstudio.ie/design";
 
+// One header contract (product-header-contract.md, 2026-07-06): the marketing
+// header nav is exactly Pricing · Design, both umbrella links. About, Demo and
+// Dispatch stay reachable from the footer and body, not the primary header.
 const NAV: SuiteNavItem[] = [
   { href: UMBRELLA_PRICING, label: "Pricing", external: true },
-  { href: "/about", label: "About" },
-  { href: "/demo", label: "Demo" },
-  { href: "/changelog", label: "Dispatch" },
   { href: UMBRELLA_DESIGN, label: "Design", external: true },
 ];
 
