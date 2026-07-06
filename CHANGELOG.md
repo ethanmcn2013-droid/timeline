@@ -3,6 +3,10 @@
 Convention: BRAND.md §6.5. Entries before 2026-05-14 keep their
 original shape; the new shape starts at the next cycle.
 
+## 2026-07-07 · R·30 · ships · the link is the hero
+
+**The front page now opens on the product truth: a real browser, the shared URL typing itself in, a sign-in wall dissolving to reveal a plan that was already there.** "The Link" graduates from the hero lab (three directions built, one survived) and replaces the wordmark-roll loader as the first thing a visitor sees. The h1 is "Send the link. They just read it."; the readability claim, "The plan your client can actually read.", steps down to lead the live demo section beneath it, so both stories keep their place without repeating each other. The address-bar chip leaves the demo section because the hero's omnibox now makes that point better. Pure CSS, server-rendered, the settled plan is the no-JS and reduced-motion default; under 560px the browser keeps its shape by letting the nav arrows and copy button step aside so the URL stays readable.
+
 ## 2026-07-02 · R·29 · tightens · product switching stays out of the old dropdown
 
 **Timeline keeps the signed-in switcher as visible pills and the public dropdown as the richer gesture-led launcher.** The suite-switcher guard now runs before tests, so `/app` chrome cannot quietly re-import the old hidden dropdown while the allowed public workspace/header exception remains intact.

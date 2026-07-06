@@ -1,21 +1,16 @@
 import Link from "next/link";
 import { RoadmapDemo } from "@/components/showcase/roadmap-demo";
-import { AddressBarChip } from "@/components/marketing/address-bar-chip";
 
 /**
- * Roadmap homepage hero.
- * The visual is the real product loop: status movement, share action, and
- * list/timeline switching on the same public plan.
+ * Roadmap homepage demo section. Sits under TimelineHeroLink ("The Link"
+ * hero, which owns the h1 and the one-link story); this section carries the
+ * readability claim and the real product loop: status movement, share
+ * action, and list/timeline switching on the same public plan.
  */
 export function Hero() {
   return (
     <section className="relative isolate overflow-hidden pt-2 md:pt-6">
       <div className="mx-auto w-full max-w-[1240px] px-5 md:px-6">
-        {/* Walkover row 2: public-by-default proof on first paint. The
-            address-bar chip is the first readable element on the page —
-            the URL IS the product. */}
-        <AddressBarChip />
-
         <p
           className="rise mt-5 font-mono text-[11px] font-semibold uppercase"
           style={{
@@ -27,19 +22,19 @@ export function Hero() {
           Timeline &middot; Direction clarity
         </p>
 
-        <h1
+        <h2
           className="rise mt-5 max-w-[16ch] text-balance font-display"
           style={{
-            fontSize: "clamp(2rem, 1rem + 5.6vw, 5.5rem)",
+            fontSize: "clamp(1.7rem, 1rem + 3.6vw, 3.6rem)",
             fontWeight: 600,
-            lineHeight: 0.96,
-            letterSpacing: "-0.045em",
+            lineHeight: 1.02,
+            letterSpacing: "-0.04em",
             color: "var(--ink)",
             animationDelay: "80ms",
           }}
         >
           The plan your client can actually read.
-        </h1>
+        </h2>
 
         <p
           className="rise mt-6 max-w-[52ch] text-[17px]"
@@ -49,9 +44,8 @@ export function Hero() {
             animationDelay: "160ms",
           }}
         >
-          A public plan written in plain English, live the moment you publish,
-          shared with one link. The people who need it just read it, no
-          account, no app, nothing to decode.
+          Written in plain English, live the moment you publish. Here is a
+          real one, running.
         </p>
 
         <p
