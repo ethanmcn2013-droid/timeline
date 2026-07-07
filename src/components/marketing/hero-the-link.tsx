@@ -22,12 +22,18 @@ const ROWS: Row[] = [
   { lane: "Set aside", item: "A second venue viewing", meta: "decided Jun 3", state: "refused" },
 ];
 
+const MODES = [
+  { cls: "tl2-mode--public", name: "Public", desc: "Anyone with the link can open it" },
+  { cls: "tl2-mode--link-only", name: "Link only", desc: "Private; the URL is the only key" },
+  { cls: "tl2-mode--invite-only", name: "Invite only", desc: "Named people you choose" },
+] as const;
+
 export function TimelineHeroLink() {
   return (
     <section className="tl2">
       <div className="tl2-wrap">
         <div className="tl2-copy">
-          <p className="tl2-eyebrow">Signal Timeline · Public by default</p>
+          <p className="tl2-eyebrow">Signal Timeline · You decide who sees it</p>
           <h1 className="tl2-h1">Send the link. They just read&nbsp;it.</h1>
           <p className="tl2-sub">
             A public plan lives at one link. The people who need it open it and read, no account, no app,
@@ -37,6 +43,20 @@ export function TimelineHeroLink() {
             <span className="tl2-proof-dot" aria-hidden />
             No sign-in. The plan is the page.
           </p>
+
+          <div className="tl2-modes-panel">
+            <p className="tl2-modes-eyebrow">VISIBILITY</p>
+            {MODES.map((m) => (
+              <div key={m.cls} className={`tl2-mode ${m.cls}`}>
+                <span className="tl2-mode-bar" aria-hidden />
+                <span className="tl2-mode-dot" aria-hidden />
+                <span className="tl2-mode-text">
+                  <span className="tl2-mode-name">{m.name}</span>
+                  <span className="tl2-mode-desc">{m.desc}</span>
+                </span>
+              </div>
+            ))}
+          </div>
         </div>
 
         <div className="tl2-stage">
@@ -118,8 +138,8 @@ const CSS = `
 .tl2{--ink:#111;--soft:#3f3f46;--faint:#71717a;--accent:#4f46e5;--paper:#fff;--hair:rgba(17,17,17,.1);
   min-height:92svh;display:flex;align-items:center;background:var(--paper);color:var(--ink);
   font-family:var(--font-geist-sans,system-ui,sans-serif)}
-.tl2-wrap{max-width:1200px;margin:0 auto;padding:72px 28px;width:100%;
-  display:grid;grid-template-columns:1fr 1.05fr;gap:56px;align-items:center}
+.tl2-wrap{max-width:1360px;margin:0 auto;padding:64px 24px;width:100%;
+  display:grid;grid-template-columns:1fr 1.45fr;gap:56px;align-items:center}
 @media (max-width:900px){.tl2-wrap{grid-template-columns:1fr;gap:40px}}
 
 .tl2-eyebrow{font-family:var(--font-geist-mono,monospace);font-size:11px;font-weight:600;letter-spacing:.14em;
@@ -128,6 +148,28 @@ const CSS = `
 .tl2-sub{font-size:clamp(15px,.6rem+.5vw,17.5px);line-height:1.55;color:var(--soft);max-width:46ch;margin:0 0 22px}
 .tl2-proof{display:inline-flex;align-items:center;gap:9px;font-size:13px;color:var(--faint);margin:0}
 .tl2-proof-dot{width:7px;height:7px;border-radius:50%;background:#15803d;box-shadow:0 0 0 4px rgba(21,128,61,.12)}
+
+/* ── Modes panel ─────────────────────────────────────────── */
+.tl2-modes-panel{border:1px solid var(--hair);border-radius:12px;overflow:hidden;margin-top:20px}
+.tl2-modes-eyebrow{font-family:var(--font-geist-mono,monospace);font-size:10px;font-weight:600;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--faint);padding:9px 14px 8px;margin:0;
+  border-bottom:1px solid var(--hair)}
+.tl2-mode{position:relative;display:flex;align-items:center;gap:10px;padding:11px 14px 11px 16px;
+  border-bottom:1px solid var(--hair)}
+.tl2-mode:last-child{border-bottom:none}
+.tl2-mode-bar{position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--accent);
+  transform-origin:top;transform:scaleY(0);opacity:0}
+.tl2-mode-dot{width:7px;height:7px;border-radius:50%;background:var(--faint);flex-shrink:0}
+.tl2-mode-text{display:flex;flex-direction:column;gap:2px}
+.tl2-mode-name{font-size:13px;font-weight:600;color:var(--ink);line-height:1.2}
+.tl2-mode-desc{font-size:11.5px;color:var(--faint);line-height:1.3}
+
+/* Reduced motion: public permanently active */
+@media (prefers-reduced-motion:reduce){
+  .tl2-mode--public{background:rgba(79,70,229,.06)}
+  .tl2-mode--public .tl2-mode-bar{transform:scaleY(1);opacity:1}
+  .tl2-mode--public .tl2-mode-dot{background:var(--accent)}
+}
 
 /* ── Browser ─────────────────────────────────────────────── */
 .tl2-stage{position:relative;min-width:0}
@@ -214,6 +256,7 @@ const CSS = `
 @media (prefers-reduced-motion:no-preference){
   .tl2-copy>*{opacity:0;animation:tl2-rise .6s ease forwards}
   .tl2-eyebrow{animation-delay:.05s}.tl2-h1{animation-delay:.14s}.tl2-sub{animation-delay:.24s}.tl2-proof{animation-delay:.34s}
+  .tl2-modes-panel{animation-delay:.44s}
   .tl2-browser{opacity:0;animation:tl2-lift .8s cubic-bezier(.2,.7,.2,1) .3s forwards}
   .tl2-omni{animation:tl2-focus .5s ease .85s forwards}
   .tl2-path-in{max-width:0;animation:tl2-type .55s steps(12,end) .95s forwards}
@@ -226,6 +269,16 @@ const CSS = `
   .tl2-row{animation-delay:calc(1.15s + var(--i) * .12s)}
   .tl2-foot{animation-delay:1.75s}
   .tl2-wall{animation:tl2-drop 1.6s ease .95s forwards}
+  /* Cycling visibility modes */
+  .tl2-mode--public{animation:tl2-mode-bg 9s linear 0s infinite}
+  .tl2-mode--public .tl2-mode-bar{animation:tl2-mode-bar 9s linear 0s infinite}
+  .tl2-mode--public .tl2-mode-dot{animation:tl2-mode-dot-pulse 9s linear 0s infinite}
+  .tl2-mode--link-only{animation:tl2-mode-bg 9s linear -6s infinite}
+  .tl2-mode--link-only .tl2-mode-bar{animation:tl2-mode-bar 9s linear -6s infinite}
+  .tl2-mode--link-only .tl2-mode-dot{animation:tl2-mode-dot-pulse 9s linear -6s infinite}
+  .tl2-mode--invite-only{animation:tl2-mode-bg 9s linear -3s infinite}
+  .tl2-mode--invite-only .tl2-mode-bar{animation:tl2-mode-bar 9s linear -3s infinite}
+  .tl2-mode--invite-only .tl2-mode-dot{animation:tl2-mode-dot-pulse 9s linear -3s infinite}
 }
 @keyframes tl2-rise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
 @keyframes tl2-lift{from{opacity:0;transform:translateY(26px) scale(.985)}to{opacity:1;transform:none}}
@@ -235,4 +288,19 @@ const CSS = `
 @keyframes tl2-scan{0%{opacity:1;transform:scaleX(0)}70%{opacity:1;transform:scaleX(1)}100%{opacity:0;transform:scaleX(1)}}
 @keyframes tl2-copied{0%{opacity:0}20%{opacity:1}80%{opacity:1}100%{opacity:0}}
 @keyframes tl2-drop{0%{opacity:1}70%{opacity:1}100%{opacity:0}}
+@keyframes tl2-mode-bg{
+  0%,3%{background:transparent}
+  7%,26%{background:rgba(79,70,229,.06)}
+  31%,100%{background:transparent}
+}
+@keyframes tl2-mode-bar{
+  0%,3%{transform:scaleY(0);opacity:0}
+  7%,26%{transform:scaleY(1);opacity:1}
+  31%,100%{transform:scaleY(0);opacity:0}
+}
+@keyframes tl2-mode-dot-pulse{
+  0%,3%{background:var(--faint);transform:scale(1)}
+  7%,26%{background:var(--accent);transform:scale(1.2)}
+  31%,100%{background:var(--faint);transform:scale(1)}
+}
 `;
