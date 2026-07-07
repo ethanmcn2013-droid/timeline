@@ -14,24 +14,24 @@
  */
 
 const HORIZON: { label: string; sense: string }[] = [
-  { label: "this week",   sense: "done" },
-  { label: "this month",  sense: "in flight" },
-  { label: "this quarter", sense: "named" },
-  { label: "this year",   sense: "earned" },
-  { label: "next year",   sense: "shaped" },
-  { label: "02030",       sense: "honest" },
+  { label: "this week",   sense: "what got done" },
+  { label: "this month",  sense: "what's moving" },
+  { label: "this season", sense: "what's next" },
+  { label: "this year",   sense: "what we promised" },
+  { label: "next year",   sense: "where this goes" },
+  { label: "02030",       sense: "the long view" },
 ];
 
 export function LongNowStrip() {
   return (
     <section
-      aria-label="Planning horizon, from this week to 02030"
+      aria-label="How far the plan looks, from this week to 02030"
       className="long-now-strip"
     >
       <div className="long-now-inner">
         <p className="long-now-eyebrow">
-          The horizon <span className="long-now-gold">·</span> from this week to
-          02030
+          The plan looks further <span className="long-now-gold">·</span> this
+          week to 02030
         </p>
         <ol className="long-now-list">
           {HORIZON.map((h) => (
@@ -43,9 +43,9 @@ export function LongNowStrip() {
           ))}
         </ol>
         <p className="long-now-foot">
-          A timeline that stops at the quarter has stopped asking the question.
-          The five-digit year is a quiet reminder that the work outlasts any
-          single calendar.
+          Most plans stop a few months out. A public plan should say where the
+          work is going after that. The extra digit in 02030 is on purpose:
+          some promises take longer than a calendar.
         </p>
       </div>
       <style>{LONG_NOW_CSS}</style>
