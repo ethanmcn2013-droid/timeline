@@ -505,13 +505,22 @@ function Annotations({
   active: Slot | null;
   setActive: (s: Slot | null) => void;
 }) {
+  // The numerals set in one by one on first scroll-in (same grammar as
+  // the Tasks anatomy), then the list is still.
+  const listRef = useRef<HTMLOListElement>(null);
+  const listInView = useInView(listRef, { amount: 0.3, once: true });
   return (
-    <ol className="space-y-1">
+    <ol ref={listRef} className="space-y-1">
       {ANN.map((a, i) => {
         const isOn = active === a.slot;
         const isOff = !!active && active !== a.slot;
         return (
-          <li key={a.slot}>
+          <motion.li
+            key={a.slot}
+            initial={{ opacity: 0, y: 6 }}
+            animate={listInView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.32, delay: i * 0.06, ease: EASE.inOut }}
+          >
             <motion.button
               type="button"
               onMouseEnter={() => setActive(a.slot)}
@@ -529,13 +538,15 @@ function Annotations({
               style={{ cursor: "default" }}
             >
               <motion.span
-                className="mt-0.5 text-[11px] font-semibold tracking-[0.14em] tabular-nums"
+                className="mt-0.5 inline-flex h-[20px] w-[20px] items-center justify-center rounded-full border font-mono text-[9.5px] font-semibold tabular-nums"
                 animate={{
                   color: isOn ? "var(--brand, #4f46e5)" : "var(--ink-quiet)",
-                  scale: isOn ? 1.04 : 1,
+                  borderColor: isOn
+                    ? "var(--brand, #4f46e5)"
+                    : "var(--line, rgba(17,17,17,0.1))",
+                  scale: isOn ? 1.06 : 1,
                 }}
                 transition={SPRING_SNAP}
-                style={{ minWidth: 22 }}
               >
                 {String(i + 1).padStart(2, "0")}
               </motion.span>
@@ -554,7 +565,7 @@ function Annotations({
                 </p>
               </div>
             </motion.button>
-          </li>
+          </motion.li>
         );
       })}
     </ol>
