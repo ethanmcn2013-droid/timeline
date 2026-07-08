@@ -2,6 +2,8 @@ import type { ComponentType } from "react";
 import { TimelineHeroLine } from "./option-the-line";
 import { TimelineHeroLink } from "./option-the-link";
 import { TimelineHeroOpenLine } from "./option-open-line";
+import { TimelineHeroOneLine } from "./option-one-line";
+import { TimelineHeroOpenPlan } from "./option-the-open-plan";
 
 export type LabOption = {
   slug: string;
@@ -43,5 +45,25 @@ export const OPTIONS: LabOption[] = [
     blurb:
       "The fusion. The shared URL opens, with no account, to a single readable line, and the line begins at the link itself: an indigo thread runs from the address bar down the margin and turns into the track at the first marker. One URL in, one plain line out. Access and shape, married.",
     Component: TimelineHeroOpenLine,
+  },
+  {
+    slug: "one-line",
+    name: "One Line",
+    role: "polished",
+    lens: "Editorial / the sentence becomes the line",
+    headline: "Put the whole plan on one line.",
+    blurb:
+      "Plans live in a dozen places and nobody sees the whole thing. The underline beneath the words one line extends across the page and becomes the timeline itself, and the plan drops onto it in order: Now, Soon, Later, Done, each a plain sentence at its marker, dated, with Now the only colour.",
+    Component: TimelineHeroOneLine,
+  },
+  {
+    slug: "the-open-plan",
+    name: "The Open Plan",
+    role: "polished",
+    lens: "Public by default / the wall dissolves",
+    headline: "Send one link. Everyone reads the same plan.",
+    blurb:
+      "You wrote the plan, then chased everyone to read it. The words one link condense into a public URL, the sign-in wall dissolves off the plan underneath, and the shared line reads exactly as a guest sees it. No account, no app, they just read it.",
+    Component: TimelineHeroOpenPlan,
   },
 ];
