@@ -154,7 +154,7 @@ const CSS = `
 
 .tl3-eyebrow{font-family:var(--font-geist-mono,monospace);font-size:11px;font-weight:600;letter-spacing:.14em;
   text-transform:uppercase;color:var(--faint);margin:0 0 20px}
-.tl3-h1{font-size:clamp(2.2rem,1rem+5.6vw,5rem);line-height:.96;letter-spacing:-.045em;font-weight:600;
+.tl3-h1{font-size:clamp(34px,6vw,76px) !important;line-height:.96;letter-spacing:-.045em;font-weight:600;
   margin:0 0 22px;max-width:15ch}
 .tl3-sub{font-size:clamp(15px,.6rem+.6vw,18px);line-height:1.55;color:var(--soft);max-width:52ch;margin:0 0 56px}
 
