@@ -144,7 +144,7 @@ const CSS = `
 /* ── Overture: the spoken idea. Default hidden; the settled artifact is canon. ── */
 .tl3-overture{display:none}
 .tl3-ov{position:absolute;left:28px;right:28px;top:clamp(140px,26vh,300px);margin:0;
-  max-width:20ch;font-size:clamp(2rem,1rem+4.4vw,4.4rem);line-height:1;letter-spacing:-.045em;font-weight:600;
+  max-width:18ch;font-size:clamp(34px,5vw,62px);line-height:1.02;letter-spacing:-.04em;font-weight:600;
   color:var(--ink);opacity:0}
 .tl3-ov-3{color:var(--soft)}
 .tl3-seed{position:relative;display:inline-block;color:var(--ink);font-weight:660}
@@ -154,7 +154,7 @@ const CSS = `
 
 .tl3-eyebrow{font-family:var(--font-geist-mono,monospace);font-size:11px;font-weight:600;letter-spacing:.14em;
   text-transform:uppercase;color:var(--faint);margin:0 0 20px}
-.tl3-h1{font-size:clamp(34px,6vw,76px) !important;line-height:.96;letter-spacing:-.045em;font-weight:600;
+.tl3-h1{font-size:clamp(34px,6vw,76px);line-height:.96;letter-spacing:-.045em;font-weight:600;
   margin:0 0 22px;max-width:15ch}
 .tl3-sub{font-size:clamp(15px,.6rem+.6vw,18px);line-height:1.55;color:var(--soft);max-width:52ch;margin:0 0 56px}
 
@@ -181,8 +181,8 @@ const CSS = `
   line-height:1.25;max-width:16ch}
 .tl3-date{margin-top:7px;font-family:var(--font-geist-mono,monospace);font-size:11px;letter-spacing:.03em;color:var(--faint)}
 .tl3-chip{margin-top:12px;display:inline-flex;align-items:center;gap:6px;font-family:var(--font-geist-mono,monospace);
-  font-size:10.5px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:#1d6fa3;
-  background:#eff6fc;border:1px solid rgba(29,111,163,.2);padding:4px 9px;border-radius:999px}
+  font-size:10.5px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--accent);
+  background:rgba(79,70,229,.08);border:1px solid rgba(79,70,229,.22);padding:4px 9px;border-radius:999px}
 
 /* Now — the earned indigo: the only node that carries colour + a single pulse. */
 .tl3-now .tl3-lane{color:var(--accent)}
