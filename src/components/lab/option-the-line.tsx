@@ -107,7 +107,7 @@ const CSS = `
 .tl1-wrap{max-width:1160px;margin:0 auto;padding:clamp(64px,9vh,120px) 28px 80px;width:100%}
 .tl1-eyebrow{font-family:var(--font-geist-mono,monospace);font-size:11px;font-weight:600;letter-spacing:.14em;
   text-transform:uppercase;color:var(--faint);margin:0 0 20px}
-.tl1-h1{font-size:clamp(2.2rem,1rem+5.6vw,5rem);line-height:.96;letter-spacing:-.045em;font-weight:600;
+.tl1-h1{font-size:clamp(34px,6vw,80px);line-height:.96;letter-spacing:-.045em;font-weight:600;
   margin:0 0 22px;max-width:15ch}
 .tl1-sub{font-size:clamp(15px,.6rem+.6vw,18px);line-height:1.55;color:var(--soft);max-width:52ch;margin:0 0 54px}
 
@@ -135,8 +135,8 @@ const CSS = `
   line-height:1.25;max-width:16ch}
 .tl1-date{margin-top:7px;font-family:var(--font-geist-mono,monospace);font-size:11px;letter-spacing:.03em;color:var(--faint)}
 .tl1-chip{margin-top:12px;display:inline-flex;align-items:center;gap:6px;font-family:var(--font-geist-mono,monospace);
-  font-size:10.5px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:#1d6fa3;
-  background:#eff6fc;border:1px solid rgba(29,111,163,.2);padding:4px 9px;border-radius:999px}
+  font-size:10.5px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--accent);
+  background:rgba(79,70,229,.08);border:1px solid rgba(79,70,229,.22);padding:4px 9px;border-radius:999px}
 
 /* Now — the earned indigo, the only node that carries colour + a pulse. */
 .tl1-now .tl1-lane{color:var(--accent)}
