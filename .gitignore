@@ -46,3 +46,6 @@ next-env.d.ts
 # local sqlite dev fallback — production uses Turso
 *.db
 *.db-journal
+
+# local lab screenshot output
+lab-shots/
