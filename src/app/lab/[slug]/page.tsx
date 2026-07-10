@@ -16,7 +16,7 @@ export default async function LabOptionPage({
   if (!option) notFound();
   const Hero = option.Component;
   return (
-    <main style={{ minHeight: "100svh", background: "#fff" }}>
+    <main style={{ minHeight: "100svh", background: "var(--paper)" }}>
       <LabSwitcher activeSlug={slug} />
       <Hero />
     </main>

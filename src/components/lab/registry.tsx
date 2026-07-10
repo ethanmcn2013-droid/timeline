@@ -8,7 +8,7 @@ import { TimelineHeroOpenPlan } from "./option-the-open-plan";
 export type LabOption = {
   slug: string;
   name: string;
-  role: "polished" | "hybrid";
+  role: "preferred" | "candidate";
   lens: string;
   headline: string;
   blurb: string;
@@ -17,19 +17,39 @@ export type LabOption = {
 
 export const OPTIONS: LabOption[] = [
   {
+    slug: "one-line",
+    name: "One Line",
+    role: "preferred",
+    lens: "Flagship / the sentence becomes the line",
+    headline: "Put the whole plan on one line.",
+    blurb:
+      "The flagship. A public-plan mast stays crisp while three plain sentences establish the problem. The underline beneath one line is the real timeline axis; it opens into the dated plan, reveals four visible moments, closes on one small sweep, and rests.",
+    Component: TimelineHeroOneLine,
+  },
+  {
     slug: "the-line",
     name: "The Line",
-    role: "polished",
-    lens: "Editorial / the line extends",
+    role: "preferred",
+    lens: "Counterpoint / the line reads",
     headline: "The plan, on one line.",
     blurb:
-      "The product's own gesture, the line extending, scaled to a first impression. A single hairline draws across and the plan sets itself onto it: Now, Soon, Later, Done, each a plain sentence at its own marker, dated, with what was set aside kept honestly below.",
+      "The restrained counterpoint. The public folio and hairline are fixed from frame zero; three short sentences hand off to one left-to-right read as the dated plan settles onto the line, then everything becomes still.",
     Component: TimelineHeroLine,
+  },
+  {
+    slug: "the-open-plan",
+    name: "The Open Plan",
+    role: "candidate",
+    lens: "Public by default / the wall dissolves",
+    headline: "Send one link. Everyone reads the same plan.",
+    blurb:
+      "The sharing-story candidate. The words one link condense into a public URL, the sign-in wall dissolves off the plan underneath, and the shared plan reads exactly as a guest sees it.",
+    Component: TimelineHeroOpenPlan,
   },
   {
     slug: "the-link",
     name: "The Link",
-    role: "polished",
+    role: "candidate",
     lens: "Public by default / reading room",
     headline: "Send the link. They just read it.",
     blurb:
@@ -39,31 +59,11 @@ export const OPTIONS: LabOption[] = [
   {
     slug: "open-line",
     name: "The Open Line",
-    role: "hybrid",
+    role: "candidate",
     lens: "The Link × The Line",
     headline: "One link opens the whole line.",
     blurb:
       "The fusion. The shared URL opens, with no account, to a single readable line, and the line begins at the link itself: an indigo thread runs from the address bar down the margin and turns into the track at the first marker. One URL in, one plain line out. Access and shape, married.",
     Component: TimelineHeroOpenLine,
-  },
-  {
-    slug: "one-line",
-    name: "One Line",
-    role: "polished",
-    lens: "Editorial / the sentence becomes the line",
-    headline: "Put the whole plan on one line.",
-    blurb:
-      "Plans live in a dozen places and nobody sees the whole thing. The underline beneath the words one line extends across the page and becomes the timeline itself, and the plan drops onto it in order: Now, Soon, Later, Done, each a plain sentence at its marker, dated, with Now the only colour.",
-    Component: TimelineHeroOneLine,
-  },
-  {
-    slug: "the-open-plan",
-    name: "The Open Plan",
-    role: "polished",
-    lens: "Public by default / the wall dissolves",
-    headline: "Send one link. Everyone reads the same plan.",
-    blurb:
-      "You wrote the plan, then chased everyone to read it. The words one link condense into a public URL, the sign-in wall dissolves off the plan underneath, and the shared line reads exactly as a guest sees it. No account, no app, they just read it.",
-    Component: TimelineHeroOpenPlan,
   },
 ];

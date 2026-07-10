@@ -11,14 +11,19 @@ import { OPTIONS } from "./registry";
  */
 export function LabSwitcher({ activeSlug }: { activeSlug: string }) {
   const router = useRouter();
+  const replay = () => window.location.reload();
 
-  // Keyboard: 1-4 jump between options, R replays (remount via refresh).
+  // Keyboard: 1-N jumps between registered options. A full lab-only reload is
+  // intentional for replay: it recreates the CSS animation timeline at zero.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.target instanceof HTMLInputElement) return;
       const n = Number(e.key);
       if (n >= 1 && n <= OPTIONS.length) router.push(`/lab/${OPTIONS[n - 1].slug}`);
-      if (e.key.toLowerCase() === "r") router.refresh();
+      if (e.key.toLowerCase() === "r") {
+        e.preventDefault();
+        window.location.reload();
+      }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
@@ -39,12 +44,12 @@ export function LabSwitcher({ activeSlug }: { activeSlug: string }) {
             >
               <span className="lab-idx">{i + 1}</span>
               <span className="lab-name">{o.name}</span>
-              {o.role === "hybrid" && <span className="lab-wild">hybrid</span>}
+              <span className={`lab-role lab-role-${o.role}`}>{o.role}</span>
             </Link>
           );
         })}
       </div>
-      <button className="lab-replay" onClick={() => router.refresh()} title="Replay (R)">Replay ▸</button>
+      <button className="lab-replay" onClick={replay} title="Replay (R)">Replay ▸</button>
       <style>{LAB_CSS}</style>
     </nav>
   );
@@ -54,20 +59,24 @@ const LAB_CSS = `
 .lab-bar{position:sticky;top:0;z-index:50;display:flex;align-items:center;gap:16px;
   padding:10px 18px;background:rgba(255,255,255,.82);backdrop-filter:blur(8px);
   border-bottom:1px solid rgba(17,17,17,.08);font-family:var(--font-geist-sans,system-ui,sans-serif)}
-.lab-home{font-size:13px;font-weight:600;color:#111;text-decoration:none;letter-spacing:-.01em;white-space:nowrap}
-.lab-tabs{display:flex;gap:6px;flex:1;overflow-x:auto}
+.lab-home{font-size:13px;font-weight:600;color:var(--ink);text-decoration:none;letter-spacing:-.01em;white-space:nowrap}
+.lab-tabs{display:flex;gap:6px;flex:1;min-width:0;overflow-x:auto}
 .lab-tab{display:inline-flex;align-items:center;gap:8px;padding:6px 12px;border-radius:999px;
-  border:1px solid rgba(17,17,17,.1);color:#3f3f46;text-decoration:none;font-size:13px;white-space:nowrap;transition:.15s}
-.lab-tab:hover{border-color:#4f46e5;color:#111}
-.lab-tab-on{background:#4f46e5;border-color:#4f46e5;color:#fff}
-.lab-tab-on .lab-idx{color:#fff;border-color:rgba(255,255,255,.5)}
+  border:1px solid var(--hairline);color:var(--ink-soft);text-decoration:none;font-size:13px;white-space:nowrap;
+  transition:border-color .15s,color .15s,background .15s}
+.lab-tab:hover{border-color:var(--accent);color:var(--ink)}
+.lab-tab-on{background:var(--accent);border-color:var(--accent);color:var(--paper)}
+.lab-tab-on .lab-idx{color:var(--paper);border-color:rgba(255,255,255,.5)}
 .lab-idx{display:grid;place-items:center;width:18px;height:18px;border-radius:50%;
-  border:1px solid rgba(17,17,17,.2);font-family:var(--font-geist-mono,monospace);font-size:10px;color:#71717a}
-.lab-wild{font-family:var(--font-geist-mono,monospace);font-size:10px;letter-spacing:.06em;
-  color:#4f46e5;text-transform:uppercase}
-.lab-tab-on .lab-wild{color:#fff}
-.lab-replay{appearance:none;border:1px solid rgba(17,17,17,.12);background:#fff;color:#111;
+  border:1px solid var(--hairline);font-family:var(--font-geist-mono,monospace);font-size:10px;color:var(--ink-faint)}
+.lab-role{font-family:var(--font-geist-mono,monospace);font-size:9px;letter-spacing:.06em;text-transform:uppercase}
+.lab-role-preferred{color:var(--accent)}.lab-role-candidate{color:var(--ink-ghost)}
+.lab-tab-on .lab-role{color:var(--paper)}
+.lab-replay{appearance:none;border:1px solid var(--hairline);background:var(--paper);color:var(--ink);
   font:inherit;font-size:12.5px;padding:6px 13px;border-radius:8px;cursor:pointer;white-space:nowrap}
-.lab-replay:hover{border-color:#4f46e5}
-@media (max-width:520px){.lab-home{display:none}}
+.lab-replay:hover{border-color:var(--accent)}
+.lab-tab:focus-visible,.lab-home:focus-visible,.lab-replay:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+@media (max-width:720px){.lab-replay{display:none}}
+@media (max-width:520px){.lab-home{display:none}.lab-bar{padding-inline:10px}}
+@media (prefers-reduced-motion:reduce){.lab-tab{transition:none}}
 `;

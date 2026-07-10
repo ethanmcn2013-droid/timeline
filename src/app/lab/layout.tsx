@@ -1,4 +1,11 @@
+import type { Metadata } from "next";
 import type { ReactNode } from "react";
+
+export const metadata: Metadata = {
+  title: "Timeline hero lab · Signal Timeline",
+  description: "Private review directions for the Signal Timeline homepage hero.",
+  robots: { index: false, follow: false },
+};
 
 /**
  * Lab-only layout. Suppresses dev-mode chrome (Clerk keyless prompt, Next dev
@@ -12,7 +19,7 @@ export default function LabLayout({ children }: { children: ReactNode }) {
       <style>{`
         .cl-keylessPrompt, [class*="cl-keyless"], .cl-impersonationFab,
         [data-clerk-keyless], a[href*="clerk.com/apps/claim"],
-        #clerk-components { display: none !important; }
+        #clerk-components, .signal-devbanner { display: none !important; }
         [data-nextjs-toast], [data-next-badge], nextjs-portal { display: none !important; }
       `}</style>
     </>

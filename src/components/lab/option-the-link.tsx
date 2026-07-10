@@ -113,7 +113,7 @@ export function TimelineHeroLink() {
 }
 
 const CSS = `
-.tl2{--ink:#111;--soft:#3f3f46;--faint:#71717a;--accent:#4f46e5;--paper:#fff;--hair:rgba(17,17,17,.1);
+.tl2{--soft:var(--ink-soft);--faint:var(--ink-faint);--hair:var(--hairline);
   min-height:92svh;display:flex;align-items:center;background:var(--paper);color:var(--ink);
   font-family:var(--font-geist-sans,system-ui,sans-serif)}
 .tl2-wrap{max-width:1200px;margin:0 auto;padding:72px 28px;width:100%;
@@ -125,7 +125,7 @@ const CSS = `
 .tl2-h1{font-size:clamp(2rem,1rem+4.4vw,4.1rem);line-height:.98;letter-spacing:-.04em;font-weight:600;margin:0 0 20px;max-width:14ch}
 .tl2-sub{font-size:clamp(15px,.6rem+.5vw,17.5px);line-height:1.55;color:var(--soft);max-width:46ch;margin:0 0 22px}
 .tl2-proof{display:inline-flex;align-items:center;gap:9px;font-size:13px;color:var(--faint);margin:0}
-.tl2-proof-dot{width:7px;height:7px;border-radius:50%;background:#15803d;box-shadow:0 0 0 4px rgba(21,128,61,.12)}
+.tl2-proof-dot{width:7px;height:7px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 4px var(--accent-soft)}
 
 /* ── Browser ─────────────────────────────────────────────── */
 .tl2-stage{position:relative}
@@ -133,7 +133,7 @@ const CSS = `
   box-shadow:0 40px 80px -44px rgba(17,17,17,.45),0 10px 26px -18px rgba(17,17,17,.3)}
 
 /* Tab strip */
-.tl2-tabs{display:flex;align-items:flex-end;gap:6px;padding:8px 10px 0;background:#f1f1f3}
+.tl2-tabs{display:flex;align-items:flex-end;gap:6px;padding:8px 10px 0;background:var(--paper-deep)}
 .tl2-tab-on{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;background:var(--paper);
   border-radius:8px 8px 0 0;font-size:12px;color:var(--soft);max-width:180px}
 .tl2-fav{width:11px;height:11px;border-radius:50%;background:var(--accent);flex-shrink:0}
@@ -145,9 +145,9 @@ const CSS = `
 .tl2-nav{display:flex;align-items:center;gap:4px;color:var(--faint)}
 .tl2-nav svg{width:17px;height:17px}
 .tl2-nav-off{opacity:.35}
-.tl2-omni{flex:1;display:flex;align-items:center;gap:8px;height:34px;padding:0 12px;background:#f6f6f7;
+.tl2-omni{flex:1;display:flex;align-items:center;gap:8px;height:34px;padding:0 12px;background:var(--paper-soft);
   border:1px solid transparent;border-radius:9px;font-family:var(--font-geist-mono,monospace);font-size:12.5px}
-.tl2-lock{width:13px;height:13px;color:#15803d;flex-shrink:0}
+.tl2-lock{width:13px;height:13px;color:var(--accent);flex-shrink:0}
 .tl2-url{display:inline-flex;min-width:0;color:var(--faint);white-space:nowrap}
 .tl2-host{color:var(--soft)}
 .tl2-path{color:var(--accent);font-weight:600;overflow:hidden;max-width:200px}
@@ -156,14 +156,14 @@ const CSS = `
 .tl2-share{position:relative;font-family:var(--font-geist-mono,monospace);font-size:11.5px;white-space:nowrap;
   padding:6px 11px;border:1px solid var(--hair);border-radius:8px;color:var(--accent)}
 .tl2-share-done{position:absolute;inset:0;display:grid;place-items:center;border-radius:8px;
-  background:var(--accent);color:#fff;opacity:0}
+  background:var(--accent);color:var(--paper);opacity:0}
 
 .tl2-sweep{position:absolute;left:0;right:0;top:96px;height:2px;background:var(--accent);transform:scaleX(0);opacity:0;transform-origin:left}
 
 .tl2-page{padding:28px 30px 26px}
 .tl2-mast{border-bottom:1px solid var(--hair);padding-bottom:20px;margin-bottom:6px}
 .tl2-kicker{display:inline-flex;align-items:center;gap:8px;font-family:var(--font-geist-mono,monospace);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);margin:0 0 10px}
-.tl2-live{width:6px;height:6px;border-radius:50%;background:#15803d;box-shadow:0 0 0 3px rgba(21,128,61,.14)}
+.tl2-live{width:6px;height:6px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
 .tl2-title{font-size:clamp(20px,1rem+1.4vw,29px);font-weight:600;letter-spacing:-.03em;margin:0 0 8px;line-height:1.05}
 .tl2-read{font-size:13px;color:var(--faint);margin:0}
 
@@ -178,7 +178,7 @@ const CSS = `
 .tl2-rmeta{font-size:12px;color:var(--faint);font-family:var(--font-geist-mono,monospace)}
 .tl2-now .tl2-rlane{color:var(--accent)}
 .tl2-now .tl2-rdot{background:var(--accent);border-color:var(--accent);box-shadow:0 0 0 4px rgba(79,70,229,.14)}
-.tl2-now .tl2-rmeta{color:#1d6fa3}
+.tl2-now .tl2-rmeta{color:var(--accent)}
 .tl2-later .tl2-ritem{color:var(--soft)}
 /* Refused — the honest bucket. Dated, no apology, no colour. */
 .tl2-refused .tl2-rlane,.tl2-refused .tl2-ritem{color:var(--faint)}
@@ -188,7 +188,7 @@ const CSS = `
 .tl2-foot{display:flex;align-items:center;gap:10px;margin:20px 0 0;font-size:12.5px;color:var(--faint)}
 .tl2-avatars{display:flex}
 .tl2-avatars i{width:18px;height:18px;border-radius:50%;border:2px solid var(--paper);margin-left:-6px;
-  background:linear-gradient(135deg,#c7d2fe,#a5b4fc)}
+  background:var(--accent-soft)}
 .tl2-avatars i:first-child{margin-left:0}
 
 /* The wall that never drops. */
@@ -201,11 +201,11 @@ const CSS = `
 @media (prefers-reduced-motion:no-preference){
   .tl2-copy>*{opacity:0;animation:tl2-rise .6s ease forwards}
   .tl2-eyebrow{animation-delay:.05s}.tl2-h1{animation-delay:.14s}.tl2-sub{animation-delay:.24s}.tl2-proof{animation-delay:.34s}
-  .tl2-browser{opacity:0;animation:tl2-lift .8s cubic-bezier(.2,.7,.2,1) .3s forwards}
+  .tl2-browser{opacity:0;animation:tl2-lift .8s var(--ease-out) .3s forwards}
   .tl2-omni{animation:tl2-focus .5s ease .85s forwards}
   .tl2-path-in{max-width:0;animation:tl2-type .55s steps(12,end) .95s forwards}
   .tl2-caret{animation:tl2-blink 1s step-end 1.5s 2}
-  .tl2-sweep{animation:tl2-scan .7s cubic-bezier(.4,.6,.2,1) 1.05s forwards}
+  .tl2-sweep{animation:tl2-scan .7s var(--ease-in-out) 1.05s forwards}
   .tl2-share-done{animation:tl2-copied 1.2s ease 2.5s 1}
   /* Plan is populated BEHIND the wall, then the wall lifts to reveal it. */
   .tl2-mast,.tl2-row,.tl2-foot{opacity:0;animation:tl2-rise .5s ease forwards}
@@ -216,7 +216,7 @@ const CSS = `
 }
 @keyframes tl2-rise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
 @keyframes tl2-lift{from{opacity:0;transform:translateY(26px) scale(.985)}to{opacity:1;transform:none}}
-@keyframes tl2-focus{from{background:#f6f6f7;border-color:transparent}to{background:var(--paper);border-color:rgba(79,70,229,.4)}}
+@keyframes tl2-focus{from{background:var(--paper-soft);border-color:transparent}to{background:var(--paper);border-color:var(--accent-soft)}}
 @keyframes tl2-type{from{max-width:0}to{max-width:200px}}
 @keyframes tl2-blink{50%{opacity:1}0%,100%{opacity:0}}
 @keyframes tl2-scan{0%{opacity:1;transform:scaleX(0)}70%{opacity:1;transform:scaleX(1)}100%{opacity:0;transform:scaleX(1)}}

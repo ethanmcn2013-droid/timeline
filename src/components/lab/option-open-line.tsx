@@ -106,8 +106,8 @@ export function TimelineHeroOpenLine() {
 }
 
 const CSS = `
-.tlo{--ink:#111;--soft:#3f3f46;--faint:#71717a;--accent:#4f46e5;--paper:#fff;
-  --hair:rgba(17,17,17,.1);--hair-soft:rgba(17,17,17,.07);
+.tlo{--soft:var(--ink-soft);--faint:var(--ink-faint);
+  --hair:var(--hairline);--hair-soft:var(--hairline-soft);
   min-height:92svh;display:flex;align-items:center;background:var(--paper);color:var(--ink);
   font-family:var(--font-geist-sans,system-ui,sans-serif);
   background-image:radial-gradient(rgba(17,17,17,.04) 1px,transparent 1px);background-size:26px 26px;background-position:center}
@@ -122,13 +122,13 @@ const CSS = `
 /* ── Browser ─────────────────────────────────────────────── */
 .tlo-browser{position:relative;border:1px solid var(--hair);border-radius:16px;background:var(--paper);
   box-shadow:0 44px 90px -50px rgba(17,17,17,.45),0 12px 30px -20px rgba(17,17,17,.28)}
-.tlo-chrome{display:flex;align-items:center;gap:14px;padding:12px 16px;background:#fafafa;
+.tlo-chrome{display:flex;align-items:center;gap:14px;padding:12px 16px;background:var(--paper-soft);
   border-bottom:1px solid var(--hair);border-radius:16px 16px 0 0}
 .tlo-lights{display:flex;gap:6px}
-.tlo-lights i{width:11px;height:11px;border-radius:50%;background:#e4e4e7}
+.tlo-lights i{width:11px;height:11px;border-radius:50%;background:var(--paper-deep)}
 .tlo-omni{flex:1;display:flex;align-items:center;gap:8px;height:34px;padding:0 12px;background:var(--paper);
   border:1px solid var(--hair);border-radius:9px;font-family:var(--font-geist-mono,monospace);font-size:12.5px}
-.tlo-lock{width:13px;height:13px;color:#15803d;flex-shrink:0}
+.tlo-lock{width:13px;height:13px;color:var(--accent);flex-shrink:0}
 .tlo-url{color:var(--faint);white-space:nowrap}
 .tlo-host{color:var(--soft)}
 .tlo-path{position:relative;color:var(--accent);font-weight:600;padding:1px 3px;border-radius:4px;background:rgba(79,70,229,.09)}
@@ -145,7 +145,7 @@ const CSS = `
 .tlo-page{padding:26px 34px 24px}
 .tlo-mast{margin-bottom:30px}
 .tlo-kicker{display:inline-flex;align-items:center;gap:8px;font-family:var(--font-geist-mono,monospace);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);margin:0 0 9px}
-.tlo-live{width:6px;height:6px;border-radius:50%;background:#15803d;box-shadow:0 0 0 3px rgba(21,128,61,.14)}
+.tlo-live{width:6px;height:6px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
 .tlo-title{font-size:clamp(19px,1rem+1.1vw,26px);font-weight:600;letter-spacing:-.03em;margin:0;line-height:1.05}
 .tlo-guest{margin:8px 0 0;font-size:12.5px;color:var(--faint)}
 
@@ -161,7 +161,7 @@ const CSS = `
 .tlo-dot{width:15px;height:15px;border-radius:50%;background:var(--paper);border:2px solid var(--ink);box-shadow:0 0 0 5px var(--paper)}
 .tlo-item{font-size:clamp(15px,.5rem+.6vw,18px);font-weight:500;letter-spacing:-.01em;color:var(--ink);line-height:1.25;max-width:16ch}
 .tlo-date{margin-top:6px;font-family:var(--font-geist-mono,monospace);font-size:11px;letter-spacing:.03em;color:var(--faint)}
-.tlo-chip{margin-top:11px;display:inline-flex;align-items:center;font-family:var(--font-geist-mono,monospace);font-size:10.5px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:#1d6fa3;background:#eff6fc;border:1px solid rgba(29,111,163,.2);padding:4px 9px;border-radius:999px}
+.tlo-chip{margin-top:11px;display:inline-flex;align-items:center;font-family:var(--font-geist-mono,monospace);font-size:10.5px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--accent);background:var(--accent-tint);border:1px solid var(--accent-soft);padding:4px 9px;border-radius:999px}
 
 .tlo-now .tlo-lane{color:var(--accent);padding-left:26px}
 .tlo-now .tlo-dot{background:var(--accent);border-color:var(--accent);box-shadow:0 0 0 5px var(--paper),0 0 0 6px rgba(79,70,229,.25)}
@@ -204,16 +204,16 @@ const CSS = `
 @media (prefers-reduced-motion:no-preference){
   .tlo-copy>*{opacity:0;animation:tlo-rise .6s ease forwards}
   .tlo-eyebrow{animation-delay:.05s}.tlo-h1{animation-delay:.14s}.tlo-sub{animation-delay:.24s}
-  .tlo-browser{opacity:0;animation:tlo-lift .8s cubic-bezier(.2,.7,.2,1) .34s forwards}
+  .tlo-browser{opacity:0;animation:tlo-lift .8s var(--ease-out) .34s forwards}
   .tlo-path{background-size:0 100%;background-image:linear-gradient(90deg,rgba(79,70,229,.09),rgba(79,70,229,.09));
     background-repeat:no-repeat;animation:tlo-hi .45s ease .95s forwards}
   .tlo-mast{opacity:0;animation:tlo-rise .5s ease .8s forwards}
   /* cord drops from the link; the Now marker lands as it arrives, then the
      line draws right from it. No blank hand-off. */
   .tlo-cord-tip{opacity:0;animation:tlo-fade .3s ease 1.1s forwards}
-  .tlo-cord{transform:scaleY(0);animation:tlo-drop .48s cubic-bezier(.5,.2,.2,1) 1.15s forwards}
-  .tlo-node{opacity:0;animation:tlo-pop .5s cubic-bezier(.2,.8,.2,1) forwards;animation-delay:calc(1.5s + var(--i) * .2s)}
-  .tlo-track{transform:scaleX(0);animation:tlo-draw .8s cubic-bezier(.4,.7,.2,1) 1.62s forwards}
+  .tlo-cord{transform:scaleY(0);animation:tlo-drop .48s var(--ease-in-out) 1.15s forwards}
+  .tlo-node{opacity:0;animation:tlo-pop .5s var(--ease-out) forwards;animation-delay:calc(1.5s + var(--i) * .2s)}
+  .tlo-track{transform:scaleX(0);animation:tlo-draw .8s var(--ease-in-out) 1.62s forwards}
   .tlo-onward{opacity:0;animation:tlo-rise .6s ease 2.4s forwards}
   .tlo-coda{opacity:0;animation:tlo-rise .6s ease 2.55s forwards}
 }

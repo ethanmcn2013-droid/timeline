@@ -157,12 +157,12 @@ export function TimelineHeroOpenPlan() {
 }
 
 const CSS = `
-.tl4{--ink:#111;--soft:#3f3f46;--faint:#71717a;--accent:#4f46e5;--paper:#fff;
-  --hair:rgba(17,17,17,.12);--hair-soft:rgba(17,17,17,.07);
-  --ease-rack:cubic-bezier(0.22,0.61,0.18,1);
-  --ease-soft:cubic-bezier(0.16,1,0.3,1);
-  --ease-draw:cubic-bezier(0.22,0.61,0.36,1);
-  --ease-pencil:cubic-bezier(0.7,0,0.3,1);
+.tl4{--soft:var(--ink-soft);--faint:var(--ink-faint);
+  --hair:var(--hairline);--hair-soft:var(--hairline-soft);
+  --ease-rack:var(--ease-out);
+  --ease-soft:var(--ease-out);
+  --ease-draw:var(--ease-in-out);
+  --ease-pencil:var(--ease-in-out);
   position:relative;min-height:92svh;display:flex;align-items:flex-start;background:var(--paper);color:var(--ink);
   font-family:var(--font-geist-sans,system-ui,sans-serif);overflow:hidden;
   background-image:radial-gradient(rgba(17,17,17,.045) 1px,transparent 1px);background-size:26px 26px;
@@ -183,8 +183,8 @@ const CSS = `
 .tl4-seed-pill{position:absolute;left:0;top:50%;transform:translateY(-50%) scale(.9);opacity:0;
   display:inline-flex;align-items:center;gap:7px;white-space:nowrap;
   font-family:var(--font-geist-mono,monospace);font-size:.42em;font-weight:500;letter-spacing:.01em;
-  color:var(--faint);background:#f6f6f7;border:1px solid var(--hair);border-radius:999px;padding:.5em .9em}
-.tl4-seed-lock{width:.9em;height:.9em;border-radius:2px;background:#15803d;flex-shrink:0}
+  color:var(--faint);background:var(--paper-soft);border:1px solid var(--hair);border-radius:999px;padding:.5em .9em}
+.tl4-seed-lock{width:.9em;height:.9em;border-radius:2px;background:var(--accent);flex-shrink:0}
 
 .tl4-eyebrow{font-family:var(--font-geist-mono,monospace);font-size:11px;font-weight:600;letter-spacing:.14em;
   text-transform:uppercase;color:var(--faint);margin:0 0 20px}
@@ -198,7 +198,7 @@ const CSS = `
 /* Address line — editorial, not a browser skin. */
 .tl4-address{display:flex;align-items:center;gap:10px;padding:0 0 16px;margin-bottom:22px;
   border-bottom:1px solid var(--hair)}
-.tl4-lock{display:grid;place-items:center;color:#15803d}
+.tl4-lock{display:grid;place-items:center;color:var(--accent)}
 .tl4-lock svg{width:14px;height:14px}
 .tl4-url{flex:1;min-width:0;display:inline-flex;white-space:nowrap;overflow:hidden;
   font-family:var(--font-geist-mono,monospace);font-size:13px;letter-spacing:.01em}
@@ -215,7 +215,7 @@ const CSS = `
 .tl4-mast{margin-bottom:8px}
 .tl4-kicker{display:inline-flex;align-items:center;gap:8px;font-family:var(--font-geist-mono,monospace);
   font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);margin:0 0 12px}
-.tl4-live{width:6px;height:6px;border-radius:50%;background:#15803d;box-shadow:0 0 0 3px rgba(21,128,61,.14)}
+.tl4-live{width:6px;height:6px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
 .tl4-title{font-size:clamp(22px,1rem+1.8vw,32px);font-weight:600;letter-spacing:-.03em;margin:0 0 8px;line-height:1.04}
 .tl4-read{font-size:13px;color:var(--faint);margin:0}
 
@@ -234,7 +234,7 @@ const CSS = `
 .tl4-rdate{font-size:12px;color:var(--faint);font-family:var(--font-geist-mono,monospace)}
 .tl4-chip{grid-column:3;margin-top:8px;justify-self:start;display:inline-flex;align-items:center;
   font-family:var(--font-geist-mono,monospace);font-size:10px;font-weight:600;letter-spacing:.04em;
-  text-transform:uppercase;color:#1d6fa3;background:#eff6fc;border:1px solid rgba(29,111,163,.2);
+  text-transform:uppercase;color:var(--accent);background:var(--accent-tint);border:1px solid var(--accent-soft);
   padding:3px 8px;border-radius:999px}
 
 /* Now — the earned indigo, the only coloured row + a single pulse. */
@@ -254,7 +254,7 @@ const CSS = `
 .tl4-foot{display:flex;align-items:center;gap:10px;margin:22px 0 0;font-size:12.5px;color:var(--faint)}
 .tl4-avatars{display:flex}
 .tl4-avatars i{width:18px;height:18px;border-radius:50%;border:2px solid var(--paper);margin-left:-6px;
-  background:linear-gradient(135deg,#c7d2fe,#a5b4fc)}
+  background:var(--accent-soft)}
 .tl4-avatars i:first-child{margin-left:0}
 
 /* The wall that never drops — hidden at rest, dissolves during intro only. */

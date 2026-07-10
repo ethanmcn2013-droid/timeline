@@ -1,94 +1,157 @@
+import Link from "next/link";
+
 /**
- * Direction — "The Line" (polished, v2).
+ * Direction — "The Line" (quiet counterpoint).
  *
- * The product's own gesture, the line extending, scaled to a first impression.
- * A single hairline draws left→right; as it passes each anchor a milestone sets
- * itself with a plain sentence and a date: Now, Soon, Later, Done. The plan lays
- * itself onto one readable line, framed as an editorial artifact (folio rule +
- * a dated "Set aside" coda for the one thing that was refused).
- *
- * Pure CSS, server-rendered, zero JS. The DEFAULT styles ARE the rest state, so
- * SSR / no-JS / reduced-motion all show the settled timeline. Intro plays only
- * inside `@media (prefers-reduced-motion: no-preference)`. Scoped `tl1-`.
+ * One editorial rule is present from frame zero. Three short sentences establish
+ * the job, then the rule reads left to right and the real dated plan settles onto
+ * it. This keeps the original direction's restraint while giving the motion a
+ * product argument. It plays once and stops.
  */
 
 type Node = {
   lane: string;
   item: string;
-  date: string;
+  due: string;
   state: "now" | "soon" | "later" | "done";
-  chip?: string;
+  status?: string;
 };
 
 const NODES: Node[] = [
-  { lane: "Now", item: "Confirm the florist", date: "this week", state: "now", chip: "Waiting on you" },
-  { lane: "Soon", item: "Send the invitations", date: "by Friday", state: "soon" },
-  { lane: "Later", item: "Draw the seating plan", date: "after RSVPs", state: "later" },
-  { lane: "Done", item: "Venue booked", date: "Jun 2", state: "done" },
+  {
+    lane: "Now",
+    item: "Confirm the florist",
+    due: "this week",
+    state: "now",
+    status: "Waiting on you",
+  },
+  {
+    lane: "Soon",
+    item: "Send the invitations",
+    due: "by Friday",
+    state: "soon",
+  },
+  {
+    lane: "Later",
+    item: "Draw the seating plan",
+    due: "after RSVPs",
+    state: "later",
+  },
+  {
+    lane: "Done",
+    item: "Venue booked",
+    due: "Jun 2",
+    state: "done",
+  },
 ];
 
 export function TimelineHeroLine() {
   return (
-    <section className="tl1">
+    <section className="tl1" aria-labelledby="tl1-title">
       <div className="tl1-wrap">
-        <p className="tl1-eyebrow">Signal Timeline · Direction clarity</p>
-        <h1 className="tl1-h1">The plan, on one&nbsp;line.</h1>
-        <p className="tl1-sub">
-          One public plan in plain English, laid on a single line anyone can read. What is moving now, what is
-          coming, and what you set aside, all in one place, shared with one link.
-        </p>
+        <div className="tl1-folio">
+          <span className="tl1-folio-name">The plan</span>
+          <span className="tl1-folio-rule" aria-hidden="true" />
+          <Link
+            href="/the-wedding"
+            className="tl1-folio-link"
+            aria-label="Open the public wedding plan"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden>
+              <path
+                d="M7 11V8a5 5 0 0110 0v3"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.8"
+                strokeLinecap="round"
+              />
+              <rect x="5" y="11" width="14" height="9" rx="2" fill="currentColor" />
+            </svg>
+            timeline.signalstudio.ie/the-wedding
+          </Link>
+        </div>
 
-        <div
-          className="tl1-timeline"
-          role="img"
-          aria-label="A dated timeline. Now, confirm the florist, this week, waiting on you. Soon, send the invitations, by Friday. Later, draw the seating plan, after RSVPs. Done, venue booked, June 2. Set aside: a second venue viewing, decided June 3."
-        >
-          <div className="tl1-folio" aria-hidden>
-            <span className="tl1-folio-name">The plan</span>
-            <span className="tl1-folio-rule" />
-            <span className="tl1-folio-link">
-              <svg className="tl1-folio-lock" viewBox="0 0 24 24"><path d="M7 11V8a5 5 0 0110 0v3" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" /><rect x="5" y="11" width="14" height="9" rx="2" fill="currentColor" /></svg>
-              timeline.signalstudio.ie/the-wedding
-            </span>
+        <div className="tl1-stage">
+          <div className="tl1-intro" aria-hidden="true">
+            <p className="tl1-intro-line tl1-intro-1">Plans change.</p>
+            <p className="tl1-intro-line tl1-intro-2">The direction should stay clear.</p>
+            <p className="tl1-intro-line tl1-intro-3">Read it on the line.</p>
           </div>
 
-          <div className="tl1-plot">
-            <span className="tl1-track" aria-hidden />
-            <ol className="tl1-nodes">
-              {NODES.map((n, i) => (
-                <li
-                  key={n.lane}
-                  className={`tl1-node tl1-${n.state}`}
-                  style={{ ["--i" as string]: i }}
-                >
-                  <span className="tl1-lane">{n.lane}</span>
-                  <span className="tl1-mark" aria-hidden>
-                    {n.state === "done" ? (
-                      <svg viewBox="0 0 24 24" className="tl1-check">
-                        <path d="M5 12.5l4.2 4.2L19 7" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
-                      </svg>
-                    ) : (
-                      <span className="tl1-dot" />
-                    )}
-                  </span>
-                  <span className="tl1-item">{n.item}</span>
-                  <span className="tl1-date">{n.date}</span>
-                  {n.chip && <span className="tl1-chip">{n.chip}</span>}
-                </li>
-              ))}
-            </ol>
-            <span className="tl1-onward" aria-hidden>
-              <span className="tl1-onward-line" />
-              <span className="tl1-onward-year">02030</span>
-            </span>
-          </div>
+          <header className="tl1-copy">
+            <p className="tl1-eyebrow">Signal Timeline · Direction clarity</p>
+            <h1 id="tl1-title" className="tl1-h1">
+              The plan, on one&nbsp;line.
+            </h1>
+            <p className="tl1-sub">
+              One public plan in plain English. Now, soon, later, and done, dated
+              and readable without an account.
+            </p>
+          </header>
 
-          <p className="tl1-coda">
-            <span className="tl1-coda-lane">Set aside</span>
-            <span className="tl1-coda-dash" aria-hidden />
-            <span className="tl1-coda-item">A second venue viewing</span>
-            <span className="tl1-coda-date">decided Jun 3</span>
-          </p>
+          <article className="tl1-timeline" aria-labelledby="tl1-plan-title">
+            <h2 id="tl1-plan-title" className="tl1-sr-only">
+              Public wedding plan
+            </h2>
+
+            <div className="tl1-plot">
+              <span className="tl1-track-base" aria-hidden="true" />
+              <span className="tl1-track-fill" aria-hidden="true" />
+              <ol className="tl1-nodes">
+                {NODES.map((node, index) => (
+                  <li
+                    key={node.lane}
+                    className={`tl1-node tl1-${node.state}`}
+                    style={{ ["--i" as string]: index }}
+                  >
+                    <span className="tl1-lane">{node.lane}</span>
+                    <span className="tl1-mark" aria-hidden="true">
+                      {node.state === "done" ? (
+                        <svg viewBox="0 0 24 24" className="tl1-check">
+                          <path
+                            d="M5 12.5l4.2 4.2L19 7"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2.4"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                        </svg>
+                      ) : (
+                        <span className="tl1-dot" />
+                      )}
+                    </span>
+                    <span className="tl1-item">{node.item}</span>
+                    <span className="tl1-due">{node.due}</span>
+                    {node.status ? <span className="tl1-status">{node.status}</span> : null}
+                  </li>
+                ))}
+              </ol>
+            </div>
+
+            <p className="tl1-coda">
+              <span className="tl1-coda-label">Set aside</span>
+              <span className="tl1-coda-dash" aria-hidden="true" />
+              <span className="tl1-coda-item">A second venue viewing</span>
+              <span className="tl1-coda-date">decided Jun 3</span>
+            </p>
+
+            <footer className="tl1-ledger">
+              <span className="tl1-wordmark" aria-label="Timeline">
+                timeline<span className="tl1-wordmark-dot" aria-hidden="true" />
+              </span>
+              <span>Four dated moments. One set-aside decision. Nothing hidden.</span>
+            </footer>
+          </article>
+
+          <nav className="tl1-cta" aria-label="Timeline hero actions">
+            <Link className="tl1-cta-primary" href="/the-wedding">
+              Open the wedding plan
+            </Link>
+            <Link className="tl1-cta-secondary" href="/demo">
+              See how Timeline works
+            </Link>
+          </nav>
         </div>
       </div>
 
@@ -98,110 +161,156 @@ export function TimelineHeroLine() {
 }
 
 const CSS = `
-.tl1{--ink:#111;--soft:#3f3f46;--faint:#71717a;--accent:#4f46e5;--paper:#fff;
-  --hair:rgba(17,17,17,.12);--hair-soft:rgba(17,17,17,.07);
-  min-height:92svh;display:flex;align-items:flex-start;background:var(--paper);color:var(--ink);
+.tl1{
+  min-height:92svh;
+  overflow:hidden;
+  background-color:var(--paper);
+  background-image:radial-gradient(rgba(17,17,17,.035) 1px,transparent 1px);
+  background-position:center;
+  background-size:28px 28px;
+  color:var(--ink);
   font-family:var(--font-geist-sans,system-ui,sans-serif);
-  background-image:radial-gradient(rgba(17,17,17,.045) 1px,transparent 1px);background-size:26px 26px;
-  background-position:center}
-.tl1-wrap{max-width:1160px;margin:0 auto;padding:clamp(64px,9vh,120px) 28px 80px;width:100%}
-.tl1-eyebrow{font-family:var(--font-geist-mono,monospace);font-size:11px;font-weight:600;letter-spacing:.14em;
-  text-transform:uppercase;color:var(--faint);margin:0 0 20px}
-.tl1-h1{font-size:clamp(34px,6vw,80px);line-height:.96;letter-spacing:-.045em;font-weight:600;
-  margin:0 0 22px;max-width:15ch}
-.tl1-sub{font-size:clamp(15px,.6rem+.6vw,18px);line-height:1.55;color:var(--soft);max-width:52ch;margin:0 0 54px}
+}
+.tl1 *{box-sizing:border-box}
+.tl1-wrap{width:min(1160px,100%);margin:0 auto;padding:clamp(44px,6vh,76px) 28px 72px}
+.tl1-sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);
+  white-space:nowrap;border:0}
 
-/* ── Editorial folio rule above the plot ─────────────────────── */
-.tl1-folio{display:flex;align-items:center;gap:16px;margin-bottom:40px}
-.tl1-folio-name{font-family:var(--font-geist-mono,monospace);font-size:11px;font-weight:600;letter-spacing:.12em;
-  text-transform:uppercase;color:var(--ink)}
-.tl1-folio-rule{flex:1;height:1px;background:var(--hair)}
-.tl1-folio-link{display:inline-flex;align-items:center;gap:7px;font-family:var(--font-geist-mono,monospace);
-  font-size:11px;letter-spacing:.02em;color:var(--faint);padding:5px 11px;border:1px solid var(--hair);border-radius:999px}
-.tl1-folio-lock{width:11px;height:11px;color:#15803d}
+/* The editorial folio is the fixed anchor from the first frame onward. */
+.tl1-folio{display:flex;align-items:center;gap:14px;padding-bottom:16px;border-bottom:1px solid var(--hairline)}
+.tl1-folio-name{font-family:var(--font-geist-mono,ui-monospace,monospace);font-size:10.5px;font-weight:600;
+  letter-spacing:.13em;text-transform:uppercase;color:var(--ink);white-space:nowrap}
+.tl1-folio-rule{flex:1;height:1px;background:var(--hairline)}
+.tl1-folio-link{display:inline-flex;align-items:center;gap:7px;min-width:0;padding:6px 10px;border:1px solid var(--hairline);
+  border-radius:999px;color:var(--ink-faint);font-family:var(--font-geist-mono,ui-monospace,monospace);font-size:10.5px;
+  text-decoration:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  transition:border-color .18s var(--ease-out),color .18s var(--ease-out)}
+.tl1-folio-link svg{width:12px;height:12px;color:var(--accent);flex:0 0 auto}
+.tl1-folio-link:hover{border-color:var(--accent);color:var(--ink)}
 
-.tl1-plot{position:relative;padding-top:2px}
-.tl1-track{position:absolute;left:0;right:88px;top:calc(2px + 26px + 15px);height:2px;
-  background:linear-gradient(90deg,var(--ink) 0%,var(--ink) 62%,var(--hair) 100%);border-radius:2px;
+.tl1-stage{position:relative}
+.tl1-intro{display:none}
+.tl1-intro-line{position:absolute;left:0;top:clamp(68px,9vh,98px);z-index:3;margin:0;max-width:19ch;
+  font-size:clamp(32px,4.6vw,56px);font-weight:620;line-height:1.03;letter-spacing:-.04em;color:var(--ink);opacity:0}
+
+.tl1-copy{padding-top:clamp(44px,7vh,82px);margin-bottom:44px}
+.tl1-eyebrow{margin:0 0 16px;font-family:var(--font-geist-mono,ui-monospace,monospace);font-size:11px;
+  font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-faint)}
+.tl1-h1{max-width:15ch;margin:0 0 20px;font-size:clamp(38px,6vw,76px);font-weight:620;line-height:.96;
+  letter-spacing:-.046em;text-wrap:balance}
+.tl1-sub{max-width:50ch;margin:0;font-size:clamp(15px,.6rem + .6vw,18px);line-height:1.55;color:var(--ink-soft);
+  text-wrap:pretty}
+
+.tl1-timeline{position:relative}
+.tl1-plot{position:relative;padding-top:1px}
+.tl1-track-base,.tl1-track-fill{position:absolute;left:15px;right:0;top:40px;height:2px;border-radius:2px;
   transform-origin:left center}
-.tl1-nodes{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
-.tl1-node{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:0;padding-right:14px}
-.tl1-lane{font-family:var(--font-geist-mono,monospace);font-size:11px;font-weight:600;letter-spacing:.1em;
-  text-transform:uppercase;color:var(--faint);margin-bottom:14px}
-.tl1-mark{position:relative;display:grid;place-items:center;width:30px;height:30px;margin-bottom:16px}
-.tl1-dot{width:15px;height:15px;border-radius:50%;background:var(--paper);border:2px solid var(--ink);
+.tl1-track-base{background:var(--hairline)}
+.tl1-track-fill{background:linear-gradient(90deg,var(--ink) 0 66%,var(--hairline) 100%)}
+.tl1-nodes{position:relative;list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:20px}
+.tl1-node{position:relative;display:grid;grid-template-rows:auto 30px auto auto auto;justify-items:start;min-width:0}
+.tl1-lane{margin-bottom:10px;font-family:var(--font-geist-mono,ui-monospace,monospace);font-size:10.5px;
+  font-weight:600;letter-spacing:.11em;text-transform:uppercase;color:var(--ink-faint)}
+.tl1-mark{position:relative;z-index:1;display:grid;place-items:center;width:30px;height:30px;margin-bottom:13px}
+.tl1-dot{width:14px;height:14px;border:2px solid var(--ink);border-radius:50%;background:var(--paper);
   box-shadow:0 0 0 5px var(--paper)}
-.tl1-item{font-size:clamp(15px,.5rem+.7vw,19px);font-weight:500;letter-spacing:-.01em;color:var(--ink);
-  line-height:1.25;max-width:16ch}
-.tl1-date{margin-top:7px;font-family:var(--font-geist-mono,monospace);font-size:11px;letter-spacing:.03em;color:var(--faint)}
-.tl1-chip{margin-top:12px;display:inline-flex;align-items:center;gap:6px;font-family:var(--font-geist-mono,monospace);
-  font-size:10.5px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--accent);
-  background:rgba(79,70,229,.08);border:1px solid rgba(79,70,229,.22);padding:4px 9px;border-radius:999px}
+.tl1-item{max-width:16ch;font-size:clamp(15px,.5rem + .65vw,18px);font-weight:520;line-height:1.24;
+  letter-spacing:-.012em;color:var(--ink);text-wrap:pretty}
+.tl1-due{margin-top:6px;font-family:var(--font-geist-mono,ui-monospace,monospace);font-size:10.5px;
+  letter-spacing:.03em;color:var(--ink-faint)}
+.tl1-status{margin-top:10px;padding:4px 8px;border:1px solid rgba(79,70,229,.22);border-radius:999px;
+  background:var(--accent-tint);color:var(--accent);font-family:var(--font-geist-mono,ui-monospace,monospace);
+  font-size:9.5px;font-weight:600;letter-spacing:.055em;text-transform:uppercase;white-space:nowrap}
+.tl1-now .tl1-lane,.tl1-now .tl1-due{color:var(--accent)}
+.tl1-now .tl1-dot{border-color:var(--accent);background:var(--accent);
+  box-shadow:0 0 0 5px var(--paper),0 0 0 6px rgba(79,70,229,.22)}
+.tl1-now .tl1-mark::before{content:"";position:absolute;inset:2px;border:2px solid var(--accent);border-radius:50%;opacity:0}
+.tl1-later .tl1-item{color:var(--ink-soft)}
+.tl1-later .tl1-dot{border-color:var(--ink-faint)}
+.tl1-done .tl1-lane,.tl1-done .tl1-item,.tl1-done .tl1-due{color:var(--ink-faint)}
+.tl1-check{width:24px;height:24px;color:var(--ink-faint)}
 
-/* Now — the earned indigo, the only node that carries colour + a pulse. */
-.tl1-now .tl1-lane{color:var(--accent)}
-.tl1-now .tl1-dot{background:var(--accent);border-color:var(--accent);
-  box-shadow:0 0 0 5px var(--paper),0 0 0 6px rgba(79,70,229,.25)}
-.tl1-now .tl1-date{color:var(--accent)}
-.tl1-now .tl1-mark::before{content:"";position:absolute;inset:2px;border-radius:50%;
-  border:2px solid var(--accent);opacity:0}
+.tl1-coda{display:flex;align-items:center;gap:12px;margin:38px 0 0;padding-top:18px;border-top:1px solid var(--hairline-soft)}
+.tl1-coda-label{font-family:var(--font-geist-mono,ui-monospace,monospace);font-size:10px;font-weight:600;
+  letter-spacing:.12em;text-transform:uppercase;color:var(--ink-faint)}
+.tl1-coda-dash{width:16px;height:2px;border-radius:2px;background:var(--ink-faint)}
+.tl1-coda-item{font-size:14px;color:var(--ink-faint)}
+.tl1-coda-date{font-family:var(--font-geist-mono,ui-monospace,monospace);font-size:10.5px;color:var(--ink-faint)}
+.tl1-ledger{display:flex;align-items:center;gap:16px;margin-top:24px;color:var(--ink-faint);font-size:12.5px;line-height:1.45}
+.tl1-wordmark{display:inline-flex;align-items:flex-end;color:var(--ink);font-size:15px;font-weight:620;letter-spacing:-.025em}
+.tl1-wordmark-dot{display:inline-block;width:6px;height:6px;margin:0 0 2px 3px;border-radius:50%;background:var(--accent)}
 
-/* Later — quieter, it is further away. */
-.tl1-later .tl1-lane,.tl1-later .tl1-item{color:var(--soft)}
-.tl1-later .tl1-dot{border-color:var(--faint)}
+.tl1-cta{display:flex;flex-wrap:wrap;align-items:center;gap:12px 18px;margin-top:26px}
+.tl1-cta a{display:inline-flex;align-items:center;justify-content:center;min-height:38px;padding:9px 15px;border-radius:4px;
+  font-size:13px;font-weight:550;text-decoration:none;transition:transform .18s var(--ease-out),border-color .18s var(--ease-out),
+  color .18s var(--ease-out),background .18s var(--ease-out)}
+.tl1-cta-primary{border:1px solid var(--ink);background:var(--ink);color:var(--paper)}
+.tl1-cta-primary:hover{transform:translateY(-1px);background:var(--ink-soft)}
+.tl1-cta-secondary{border:1px solid var(--hairline);background:var(--paper);color:var(--ink-soft)}
+.tl1-cta-secondary:hover{transform:translateY(-1px);border-color:var(--ink-faint);color:var(--ink)}
+.tl1 a:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
 
-/* Done — settled, checked, muted. */
-.tl1-done .tl1-lane{color:var(--faint)}
-.tl1-done .tl1-item{color:var(--faint)}
-.tl1-check{width:26px;height:26px;color:var(--faint)}
-
-/* The onward tail: the line keeps going, to the five-digit year. */
-.tl1-onward{position:absolute;right:0;top:calc(2px + 26px + 6px);display:flex;flex-direction:column;
-  align-items:flex-end;gap:8px;width:88px}
-.tl1-onward-line{width:100%;height:2px;background:repeating-linear-gradient(90deg,var(--hair) 0 6px,transparent 6px 12px)}
-.tl1-onward-year{font-family:var(--font-geist-mono,monospace);font-size:11px;letter-spacing:.08em;color:var(--faint)}
-
-/* ── Set-aside coda: the one refused thing, dated, no apology ─── */
-.tl1-coda{display:flex;align-items:center;gap:14px;margin:46px 0 0;padding-top:22px;
-  border-top:1px solid var(--hair-soft)}
-.tl1-coda-lane{font-family:var(--font-geist-mono,monospace);font-size:11px;font-weight:600;letter-spacing:.1em;
-  text-transform:uppercase;color:var(--faint)}
-.tl1-coda-dash{width:16px;height:2px;border-radius:2px;background:var(--faint);flex-shrink:0}
-.tl1-coda-item{font-size:15px;color:var(--faint)}
-.tl1-coda-date{font-family:var(--font-geist-mono,monospace);font-size:11px;letter-spacing:.03em;color:var(--faint)}
-
-/* ── Vertical timeline on narrow screens ─────────────────────────── */
 @media (max-width:720px){
-  .tl1-sub{margin-bottom:40px}
-  .tl1-track{left:14px;right:auto;top:0;bottom:44px;width:2px;height:auto;
-    background:linear-gradient(180deg,var(--ink) 0%,var(--ink) 62%,var(--hair) 100%)}
-  .tl1-nodes{grid-template-columns:1fr;gap:32px}
-  .tl1-node{flex-direction:row;align-items:center;gap:16px;flex-wrap:wrap;padding-right:0}
-  .tl1-lane{width:52px;margin:0;flex-shrink:0}
-  .tl1-mark{margin:0}
-  .tl1-item{flex:1;max-width:none}
-  .tl1-date{margin:0;width:100%;padding-left:68px}
-  .tl1-chip{margin:0}
-  .tl1-onward{position:static;flex-direction:row;align-items:center;width:auto;margin-top:28px;padding-left:6px}
-  .tl1-onward-line{width:56px}
-  .tl1-coda{flex-wrap:wrap;gap:10px}
+  .tl1-wrap{padding:34px 20px 56px}
+  .tl1-folio{align-items:flex-start;flex-wrap:wrap}
+  .tl1-folio-rule{min-width:36px;margin-top:8px}
+  .tl1-folio-link{max-width:100%;order:3}
+  .tl1-copy{padding-top:42px;margin-bottom:34px}
+  .tl1-h1{font-size:clamp(38px,12vw,58px)}
+  .tl1-nodes{display:flex;flex-direction:column;gap:26px}
+  .tl1-node{display:grid;grid-template-columns:52px 30px minmax(0,1fr);grid-template-areas:
+      "lane mark item" ". . due" ". . status";column-gap:14px;row-gap:5px;align-items:start;min-height:62px}
+  .tl1-lane{grid-area:lane;margin:7px 0 0}
+  .tl1-mark{grid-area:mark;margin:0}
+  .tl1-item{grid-area:item;max-width:none;padding-top:4px}
+  .tl1-due{grid-area:due;margin:0}
+  .tl1-status{grid-area:status;margin:3px 0 0;width:max-content}
+  .tl1-track-base,.tl1-track-fill{left:79.5px;right:auto;top:15px;bottom:15px;width:2px;height:auto;
+    transform-origin:top center}
+  .tl1-track-fill{background:linear-gradient(180deg,var(--ink) 0 66%,var(--hairline) 100%)}
+  .tl1-coda{align-items:flex-start;flex-wrap:wrap;gap:9px}
+  .tl1-coda-date{flex-basis:100%;padding-left:28px}
+  .tl1-ledger{align-items:flex-start;flex-direction:column;gap:8px}
+  .tl1-cta{align-items:stretch;flex-direction:column}
+  .tl1-cta a{width:100%}
+  .tl1-intro-line{top:76px;font-size:clamp(34px,11vw,48px)}
 }
 
-/* ── Intro motion, opt-in only. Default above IS the rest state. ── */
 @media (prefers-reduced-motion:no-preference){
-  .tl1-eyebrow{opacity:0;animation:tl1-rise .6s ease .05s forwards}
-  .tl1-h1{opacity:0;animation:tl1-rise .7s cubic-bezier(.2,.7,.2,1) .12s forwards}
-  .tl1-sub{opacity:0;animation:tl1-rise .7s ease .22s forwards}
-  .tl1-folio{opacity:0;animation:tl1-rise .6s ease .38s forwards}
-  .tl1-track{transform:scaleX(0);animation:tl1-draw .9s cubic-bezier(.4,.7,.2,1) .55s forwards}
-  .tl1-node{opacity:0;animation:tl1-pop .5s cubic-bezier(.2,.8,.2,1) forwards;
-    animation-delay:calc(.62s + var(--i) * .22s)}
-  .tl1-onward{opacity:0;animation:tl1-rise .6s ease 1.55s forwards}
-  .tl1-coda{opacity:0;animation:tl1-rise .6s ease 1.72s forwards}
-  .tl1-now .tl1-mark::before{animation:tl1-pulse 1.4s ease-out 1s 1}
+  .tl1-intro{display:block}
+  .tl1-intro-1{animation:tl1-intro-beat 1.45s var(--ease-out) .2s both}
+  .tl1-intro-2{animation:tl1-intro-beat 1.55s var(--ease-out) 1.55s both}
+  .tl1-intro-3{animation:tl1-intro-last 1.35s var(--ease-out) 2.95s both}
+  .tl1-copy>*{opacity:0;animation:tl1-rise .58s var(--ease-out) forwards}
+  .tl1-eyebrow{animation-delay:3.75s}
+  .tl1-h1{animation-delay:3.84s}
+  .tl1-sub{animation-delay:3.96s}
+  .tl1-track-fill{transform:scaleX(0);animation:tl1-draw-x 1.1s var(--ease-in-out) 3.65s forwards}
+  .tl1-node{opacity:0;animation:tl1-node-in .46s var(--ease-out) forwards;
+    animation-delay:calc(3.82s + var(--i) * .22s)}
+  .tl1-now .tl1-mark::before{animation:tl1-pulse 1.1s var(--ease-out) 4.62s 1}
+  .tl1-coda{opacity:0;animation:tl1-rise .5s var(--ease-out) 4.82s forwards}
+  .tl1-ledger{opacity:0;animation:tl1-rise .5s var(--ease-out) 5s forwards}
+  .tl1-cta{opacity:0;animation:tl1-rise .5s var(--ease-out) 5.16s forwards}
+  .tl1-wordmark-dot{animation:tl1-wordmark-sweep 1s var(--ease-out) 5.3s 1 both}
 }
-@keyframes tl1-rise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
-@keyframes tl1-draw{from{transform:scaleX(0)}to{transform:scaleX(1)}}
-@keyframes tl1-pop{from{opacity:0;transform:translateY(10px) scale(.96)}to{opacity:1;transform:none}}
-@keyframes tl1-pulse{0%{opacity:.5;transform:scale(1)}100%{opacity:0;transform:scale(2.4)}}
+
+@media (max-width:720px) and (prefers-reduced-motion:no-preference){
+  .tl1-track-fill{transform:scaleY(0);animation-name:tl1-draw-y}
+}
+
+@keyframes tl1-rise{from{opacity:0;transform:translateY(9px)}to{opacity:1;transform:none}}
+@keyframes tl1-node-in{from{opacity:0;transform:translateY(8px);clip-path:inset(0 0 18% 0)}to{opacity:1;transform:none;clip-path:inset(0)}}
+@keyframes tl1-intro-beat{0%{opacity:0;transform:translateY(10px)}18%,72%{opacity:1;transform:none}100%{opacity:0;transform:translateY(-7px)}}
+@keyframes tl1-intro-last{0%{opacity:0;transform:translateY(10px)}22%,70%{opacity:1;transform:none}100%{opacity:0;transform:translateY(-5px)}}
+@keyframes tl1-draw-x{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@keyframes tl1-draw-y{from{transform:scaleY(0)}to{transform:scaleY(1)}}
+@keyframes tl1-pulse{0%{opacity:.5;transform:scale(1)}100%{opacity:0;transform:scale(2.25)}}
+@keyframes tl1-wordmark-sweep{
+  0%{opacity:1;transform:translateX(0)}
+  42%{opacity:1;transform:translateX(4px)}
+  50%{opacity:0;transform:translateX(4px)}
+  58%{opacity:0;transform:translateX(0)}
+  100%{opacity:1;transform:translateX(0)}
+}
 `;
