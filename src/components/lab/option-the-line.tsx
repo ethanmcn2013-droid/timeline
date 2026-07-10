@@ -73,19 +73,19 @@ export function TimelineHeroLine() {
 
         <div className="tl1-stage">
           <div className="tl1-intro" aria-hidden="true">
-            <p className="tl1-intro-line tl1-intro-1">Plans change.</p>
-            <p className="tl1-intro-line tl1-intro-2">The direction should stay clear.</p>
-            <p className="tl1-intro-line tl1-intro-3">Read it on the line.</p>
+            <p className="tl1-intro-line tl1-intro-1">Plans move.</p>
+            <p className="tl1-intro-line tl1-intro-2">The direction stays clear.</p>
+            <p className="tl1-intro-line tl1-intro-3">One public line.</p>
           </div>
 
           <header className="tl1-copy">
-            <p className="tl1-eyebrow">Signal Timeline · Direction clarity</p>
+            <p className="tl1-eyebrow">Signal Timeline · Public plan</p>
             <h1 id="tl1-title" className="tl1-h1">
               The plan, on one&nbsp;line.
             </h1>
             <p className="tl1-sub">
-              One public plan in plain English. Now, soon, later, and done, dated
-              and readable without an account.
+              Now, next, later, and done — one public plan in plain English,
+              dated and easy to share.
             </p>
           </header>
 
@@ -140,7 +140,7 @@ export function TimelineHeroLine() {
               <span className="tl1-wordmark" aria-label="Timeline">
                 timeline<span className="tl1-wordmark-dot" aria-hidden="true" />
               </span>
-              <span>Four dated moments. One set-aside decision. Nothing hidden.</span>
+              <span>Four dated moments. One public plan. Nothing hidden.</span>
             </footer>
           </article>
 
