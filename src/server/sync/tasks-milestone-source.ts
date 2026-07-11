@@ -24,6 +24,7 @@
 import { createClient, type Client } from "@libsql/client";
 import type { SyncedMilestone } from "@/server/db/queries";
 import type { Status } from "@/server/db/schema";
+import { assertTasksMilestoneQuery } from "./tasks-read-contract";
 
 // ── Auth-error heuristic (mirrors analytics tasks-db-source) ─────────────────
 
@@ -83,6 +84,7 @@ export function makeMilestoneSyncSource(): MilestoneSyncSource | null {
 
   return {
     async getMilestonesForClerkId(clerkId: string): Promise<SyncedMilestone[]> {
+      assertTasksMilestoneQuery({ subject: clerkId });
       // Step 1, immutable suite subject → Tasks user id.
       let tasksUserId: string | null = null;
       try {
