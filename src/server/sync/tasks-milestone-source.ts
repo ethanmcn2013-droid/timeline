@@ -2,8 +2,8 @@
  * tasks-milestone-source.ts, read-only milestone pull from the Tasks DB.
  *
  * Structural copy of analytics/src/lib/briefing/tasks-db-source.ts.
- * Email is the only cross-product key (Tasks and Roadmap use separate
- * Clerk apps; clerk_id won't match). ARCH_SPEC §1.2.
+ * The immutable suite subject (`clerk_id`) is the only cross-product key.
+ * Email is display data and never authorizes a Tasks read. ARCH_SPEC §1.2.
  *
  * Read-only by design, TASKS_AUTH_TOKEN must be a Turso read-only token.
  * Data flow: Roadmap ← Tasks. Never the other way.
@@ -24,6 +24,7 @@
 import { createClient, type Client } from "@libsql/client";
 import type { SyncedMilestone } from "@/server/db/queries";
 import type { Status } from "@/server/db/schema";
+import { assertTasksMilestoneQuery } from "./tasks-read-contract";
 
 // ── Auth-error heuristic (mirrors analytics tasks-db-source) ─────────────────
 
@@ -58,7 +59,7 @@ export function canonicaliseStatus(tasksLane: string): Status {
 // ── Source factory ────────────────────────────────────────────────────────────
 
 export interface MilestoneSyncSource {
-  getMilestonesForEmail(email: string): Promise<SyncedMilestone[]>;
+  getMilestonesForClerkId(clerkId: string): Promise<SyncedMilestone[]>;
 }
 
 /**
@@ -82,13 +83,14 @@ export function makeMilestoneSyncSource(): MilestoneSyncSource | null {
   }
 
   return {
-    async getMilestonesForEmail(email: string): Promise<SyncedMilestone[]> {
-      // Step 1, email → Tasks user id (cross-product key, ARCH_SPEC §1.2)
+    async getMilestonesForClerkId(clerkId: string): Promise<SyncedMilestone[]> {
+      assertTasksMilestoneQuery({ subject: clerkId });
+      // Step 1, immutable suite subject → Tasks user id.
       let tasksUserId: string | null = null;
       try {
         const userRow = await getClient().execute({
-          sql: "SELECT id FROM users WHERE email = ? LIMIT 1",
-          args: [email],
+          sql: "SELECT id FROM users WHERE clerk_id = ? LIMIT 1",
+          args: [clerkId],
         });
         const id = userRow.rows[0]?.id;
         tasksUserId = id != null ? String(id) : null;
@@ -98,7 +100,7 @@ export function makeMilestoneSyncSource(): MilestoneSyncSource | null {
         return [];
       }
       if (!tasksUserId) {
-        // Email not in Tasks DB, calm empty state, not an error
+        // Subject not linked in Tasks DB, calm empty state, not an error.
         return [];
       }
 

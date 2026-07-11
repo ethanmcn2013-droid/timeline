@@ -43,6 +43,10 @@
     "hex": 7,
     "ease": 0
   },
+  "src/app/waitlist/page.tsx": {
+    "hex": 5,
+    "ease": 0
+  },
   "src/app/[workspaceSlug]/page.tsx": {
     "hex": 9,
     "ease": 3
@@ -51,13 +55,21 @@
     "hex": 1,
     "ease": 0
   },
+  "src/components/chrome/suite-header.tsx": {
+    "hex": 4,
+    "ease": 0
+  },
   "src/components/dev-banner.tsx": {
     "hex": 10,
     "ease": 1
   },
   "src/components/marketing/anatomy.tsx": {
-    "hex": 7,
+    "hex": 8,
     "ease": 0
+  },
+  "src/components/marketing/hero-the-link.tsx": {
+    "hex": 15,
+    "ease": 2
   },
   "src/components/marketing/long-now-strip.tsx": {
     "hex": 6,
@@ -65,7 +77,7 @@
   },
   "src/components/marketing/roadmap-hero-loader.tsx": {
     "hex": 6,
-    "ease": 12
+    "ease": 11
   },
   "src/components/roadmap/item-row.tsx": {
     "hex": 2,
@@ -109,7 +121,7 @@
   },
   "src/components/suite-switcher-pills.tsx": {
     "hex": 9,
-    "ease": 2
+    "ease": 1
   },
   "src/components/system/long-wait-status.tsx": {
     "hex": 1,

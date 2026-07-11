@@ -16,6 +16,7 @@ import type { NextConfig } from "next";
  */
 
 const isDev = process.env.NODE_ENV === "development";
+const enforceCsp = process.env.SIGNAL_ENFORCE_CSP === "true";
 
 // CSP allowlists mirrored from notes/next.config.ts (suite-locked enforce model). Report-Only until cross-suite verification — see audit/ISSUES.md suite-01.
 // Aligned 2026-06-06 — roadmap was previously excluded from the day-6
@@ -48,7 +49,7 @@ const csp = [
 ].join("; ");
 
 const securityHeaders = [
-  { key: "Content-Security-Policy-Report-Only", value: csp },
+  { key: enforceCsp ? "Content-Security-Policy" : "Content-Security-Policy-Report-Only", value: csp },
   { key: "Reporting-Endpoints", value: 'csp="/api/csp-report"' },
   { key: "Strict-Transport-Security", value: "max-age=63072000; includeSubDomains; preload" },
   { key: "X-Content-Type-Options", value: "nosniff" },
