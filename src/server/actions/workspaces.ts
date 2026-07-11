@@ -242,12 +242,7 @@ export async function syncMilestonesAction(
     return { error: "Tasks sync is not configured. Set TASKS_DATABASE_URL and TASKS_AUTH_TOKEN." };
   }
 
-  const ownerEmail = workspace.ownerEmail;
-  if (!ownerEmail) {
-    return { error: "Owner email not resolved. Re-sign in to refresh your profile." };
-  }
-
-  const rawMilestones = await source.getMilestonesForEmail(ownerEmail);
+  const rawMilestones = await source.getMilestonesForClerkId(userId);
 
   // Map milestones to roadmap nodes and write to the first project
   // (D3: one workspace = one project in v1). Fill in workspace + project slug.

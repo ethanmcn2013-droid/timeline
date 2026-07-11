@@ -20,6 +20,17 @@ import assert from "node:assert/strict";
 
 import { canonicaliseStatus } from "./tasks-milestone-source.js";
 
+test("cross-product milestone source is keyed by immutable clerk_id", async () => {
+  const { readFileSync } = await import("node:fs");
+  const src = readFileSync(
+    new URL("./tasks-milestone-source.ts", import.meta.url),
+    "utf8",
+  );
+  assert.match(src, /getMilestonesForClerkId\(clerkId: string\)/);
+  assert.match(src, /SELECT id FROM users WHERE clerk_id = \? LIMIT 1/);
+  assert.doesNotMatch(src, /getMilestonesForEmail|WHERE email =/);
+});
+
 test("canonicaliseStatus, todo → next", () => {
   assert.equal(canonicaliseStatus("todo"), "next");
 });

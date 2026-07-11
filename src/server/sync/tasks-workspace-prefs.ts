@@ -8,11 +8,11 @@ export type TasksWorkspacePrefs = {
 };
 
 /**
- * Read Tasks workspace segment for a user email (read-only Turso token).
+ * Read Tasks workspace segment for an immutable suite subject (read-only Turso token).
  * Returns the first owned workspace's onboarding fields.
  */
-export async function getTasksWorkspacePrefsForEmail(
-  email: string,
+export async function getTasksWorkspacePrefsForClerkId(
+  clerkId: string,
 ): Promise<TasksWorkspacePrefs | null> {
   const url = process.env.TASKS_DATABASE_URL;
   const authToken = process.env.TASKS_AUTH_TOKEN;
@@ -29,8 +29,8 @@ export async function getTasksWorkspacePrefsForEmail(
 
   try {
     const userRow = await getClient().execute({
-      sql: "SELECT id FROM users WHERE email = ? LIMIT 1",
-      args: [email.trim().toLowerCase()],
+      sql: "SELECT id FROM users WHERE clerk_id = ? LIMIT 1",
+      args: [clerkId],
     });
     const userId = userRow.rows[0]?.id;
     if (userId == null) return null;
