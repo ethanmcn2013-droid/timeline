@@ -176,6 +176,110 @@ export async function createAudiencePublication(input: {
   return publicationId;
 }
 
+/**
+ * Narrow Notes -> Timeline receiver. Notes sends an already reviewed
+ * projection, never the private note body. This function performs the same
+ * current Tasks-membership check as the owner flow, then creates a frozen
+ * published projection with a one-time bearer URL.
+ */
+export async function createNotesAudiencePublication(input: {
+  ownerUserId: string;
+  workspaceSlug: string;
+  sourceTasksWorkspaceId: string;
+  sourceNoteId: string;
+  title: string;
+  date: string;
+  completion: number;
+  audienceLabel: string;
+}): Promise<{ publicationId: string; rawToken: string }> {
+  const [workspace] = await db
+    .select({ suiteWorkspaceId: workspaces.suiteWorkspaceId })
+    .from(workspaces)
+    .where(
+      and(
+        eq(workspaces.slug, input.workspaceSlug),
+        eq(workspaces.ownerUserId, input.ownerUserId),
+      ),
+    )
+    .limit(1);
+  if (!workspace || workspace.suiteWorkspaceId !== input.sourceTasksWorkspaceId) {
+    throw new TypeError("Timeline workspace is not connected to this Tasks workspace");
+  }
+
+  const sourceObjectId = `notes:${input.sourceNoteId}`;
+  const [existing] = await db
+    .select({ id: timelinePublications.id })
+    .from(timelinePublications)
+    .where(
+      and(
+        eq(timelinePublications.workspaceSlug, input.workspaceSlug),
+        eq(timelinePublications.sourceObjectId, sourceObjectId),
+      ),
+    )
+    .limit(1);
+  if (existing) throw new TypeError("This Note already has a Timeline publication");
+
+  const publicationId = randomUUID();
+  const rawToken = generateAudienceToken();
+  const now = new Date();
+  const itemState: AudienceItemState =
+    input.completion >= 100
+      ? "covered"
+      : input.completion > 0
+        ? "now"
+        : "next";
+  const itemDigest = digestSourceFields({
+    title: input.title,
+    date: input.date,
+    completionState: String(input.completion),
+  });
+
+  await db.transaction(async (tx) => {
+    await tx.insert(timelinePublications).values({
+      id: publicationId,
+      workspaceSlug: input.workspaceSlug,
+      sourceWorkspaceId: input.sourceTasksWorkspaceId,
+      sourceObjectId,
+      sourceRevision: 1,
+      sourceDigest: itemDigest,
+      label: input.audienceLabel,
+      primaryDateLabel: "Selected date",
+      primaryDate: input.date,
+      audienceKind: "class",
+      timezone: "UTC",
+      ownerDisplayLabel: null,
+      state: "published",
+      lastUpdatedAt: now,
+      createdAt: now,
+      updatedAt: now,
+      publishedAt: now,
+    });
+    await tx.insert(timelinePublicationItems).values({
+      publicId: randomUUID(),
+      publicationId,
+      title: input.title,
+      calendarDate: input.date,
+      state: itemState,
+      sortOrder: 0,
+      sourceRelation: sourceObjectId,
+      sourceDigest: itemDigest,
+      copiedAt: now,
+      publishedAt: now,
+      updatedAt: now,
+    });
+    await tx.insert(audienceShares).values({
+      id: randomUUID(),
+      publicationId,
+      tokenHash: hashAudienceToken(rawToken),
+      state: "active",
+      version: 1,
+      createdAt: now,
+    });
+  });
+
+  return { publicationId, rawToken };
+}
+
 export async function getOwnerAudiencePublications(
   workspaceSlug: string,
 ): Promise<AudienceOwnerPublication[]> {
