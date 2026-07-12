@@ -23,7 +23,11 @@ The repo contains the core Roadmap product surface:
 - Refusals page.
 - Auth-backed app shell.
 - Workspace and project creation forms.
-- Plain-text source editor.
+- Milestone sync and an owner-only curation surface.
+- Frozen Audience Timeline previews for a named class, module, or couple,
+  gated for new creation by `SIGNAL_AUDIENCE_TIMELINE_ENABLED`.
+- Hashed, revocable Audience Timeline links at `/s/[token]`, with a separate
+  projector view and no access to the underlying private workspace.
 - Public demo route.
 
 Claims about billing, digest emails, calendar subscriptions, custom share
@@ -45,6 +49,12 @@ the work:
 
 The default surface is public. A roadmap that cannot be shared without a login
 has missed the point.
+
+Audience Timelines are a separate publication boundary, not private Timeline
+workspaces and not a new visibility mode for legacy slug links. An owner copies
+only selected labels, calendar dates, and completion states into a frozen
+projection, previews that exact copy, and then creates a revocable bearer link.
+Later source edits are marked for review and never propagate automatically.
 
 ### Lane Vocabulary (locked 2026-06-07 — Dalí walkover row 4)
 

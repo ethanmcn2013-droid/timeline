@@ -89,6 +89,26 @@ export async function getWorkspacesForUser(
     .orderBy(asc(workspaces.createdAt));
 }
 
+/** Resolve a canonical suite workspace only when the local Timeline mapping
+ * is owned by the current user. A current Tasks membership check is still
+ * required by the caller; the incoming id alone never authorizes access. */
+export async function getWorkspaceForSuiteIdForUser(
+  suiteWorkspaceId: string,
+  ownerUserId: string,
+): Promise<Workspace | null> {
+  const [row] = await db
+    .select()
+    .from(workspaces)
+    .where(
+      and(
+        eq(workspaces.suiteWorkspaceId, suiteWorkspaceId),
+        eq(workspaces.ownerUserId, ownerUserId),
+      ),
+    )
+    .limit(1);
+  return row ?? null;
+}
+
 /** Create a new workspace. Slug must be unique (PK). Throws on conflict.
  *  When `templateId` is set, the workspace records which canonical
  *  template seeded it (see studio/docs/TEMPLATES_STRATEGY.md). The
@@ -329,6 +349,44 @@ export async function createProject({
     .limit(1);
   if (!row) throw new Error(`createProject: row not found after insert for slug="${slug}"`);
   return row;
+}
+
+/** Bind a Timeline project to one immutable Tasks workspace after current
+ * membership has been verified by the action layer. Existing non-matching
+ * mappings are never overwritten. */
+export async function bindProjectToTasksWorkspace(
+  workspaceSlug: string,
+  projectSlug: string,
+  sourceTasksWorkspaceId: string,
+): Promise<void> {
+  const [project] = await db
+    .select({ sourceTasksWorkspaceId: projects.sourceTasksWorkspaceId })
+    .from(projects)
+    .where(
+      and(
+        eq(projects.workspaceSlug, workspaceSlug),
+        eq(projects.slug, projectSlug),
+      ),
+    )
+    .limit(1);
+  if (!project) throw new TypeError("Project not found");
+  if (
+    project.sourceTasksWorkspaceId &&
+    project.sourceTasksWorkspaceId !== sourceTasksWorkspaceId
+  ) {
+    throw new TypeError("Project is already bound to another Tasks workspace");
+  }
+  if (!project.sourceTasksWorkspaceId) {
+    await db
+      .update(projects)
+      .set({ sourceTasksWorkspaceId })
+      .where(
+        and(
+          eq(projects.workspaceSlug, workspaceSlug),
+          eq(projects.slug, projectSlug),
+        ),
+      );
+  }
 }
 
 // ---------------------------------------------------------------------------

@@ -46,6 +46,13 @@ export async function generateMetadata({
   const { workspaceSlug } = await params;
   const workspace = await getWorkspace(workspaceSlug);
   if (!workspace) return { title: "Not Found" };
+  const [published, currentUser] = await Promise.all([
+    isWorkspacePublished(workspaceSlug),
+    getCurrentUser(),
+  ]);
+  if (!published && currentUser?.userId !== workspace.ownerUserId) {
+    return { title: "Timeline", robots: { index: false, follow: false } };
+  }
   return {
     title: `${workspace.name}, Timeline`,
     description: `Public roadmap for ${workspace.name}.`,

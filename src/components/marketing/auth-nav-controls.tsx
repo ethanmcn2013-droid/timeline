@@ -21,7 +21,7 @@
 import { useUser } from "@clerk/nextjs";
 import { UserButton } from "@clerk/nextjs";
 import Link from "next/link";
-import { isUxAssuranceMode } from "@/lib/access-mode";
+import { isDemoMode, isUxAssuranceMode } from "@/lib/access-mode";
 
 function ArrowIcon() {
   return (
@@ -40,63 +40,8 @@ function ArrowIcon() {
   );
 }
 
-function EscapeHatchButton() {
-  // §14: check if the preview cookie is currently active to toggle label.
-  const isPreviewActive =
-    typeof document !== "undefined" &&
-    document.cookie.includes("signal_preview_public=1");
-
-  function activatePreview() {
-    // §14: 24h cookie, SameSite=Strict.
-    document.cookie =
-      "signal_preview_public=1; path=/; max-age=86400; SameSite=Strict";
-    // Force a full navigation so the middleware re-evaluates.
-    window.location.href = "/";
-  }
-
-  function exitPreview() {
-    // §14: deactivation, clear cookie and reload.
-    document.cookie =
-      "signal_preview_public=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Strict";
-    window.location.reload();
-  }
-
-  return (
-    <button
-      type="button"
-      onClick={isPreviewActive ? exitPreview : activatePreview}
-      style={{
-        display: "flex",
-        alignItems: "center",
-        gap: 6,
-        padding: "6px 10px",
-        fontSize: 13,
-        color: "var(--ink-soft)",
-        background: "transparent",
-        border: "none",
-        cursor: "pointer",
-        width: "100%",
-        textAlign: "left",
-        borderRadius: 6,
-        transition: "background 120ms",
-      }}
-      onMouseEnter={(e) => (e.currentTarget.style.background = "color-mix(in srgb, var(--ink) 5%, transparent)")}
-      onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
-    >
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-        <circle cx="12" cy="12" r="3" />
-      </svg>
-      {isPreviewActive ? "Exit preview" : "View public site"}
-    </button>
-  );
-}
-
-export function AuthNavControls() {
-  const authState = isUxAssuranceMode()
-    ? { isSignedIn: false, isLoaded: true }
-    : useUser();
-  const { isSignedIn, isLoaded } = authState;
+function ClerkAuthNavControls() {
+  const { isSignedIn, isLoaded } = useUser();
 
   // SSR / loading state: render the unauthed control as default.
   // Once Clerk loads on the client, the correct branch renders.
@@ -132,4 +77,20 @@ export function AuthNavControls() {
       </UserButton>
     </div>
   );
+}
+
+export function AuthNavControls() {
+  if (isDemoMode() || isUxAssuranceMode()) {
+    return (
+      <Link
+        href="/sign-in"
+        className="inline-flex min-h-8 items-center rounded-full px-3.5 text-[13px] font-medium text-ink-soft hover:text-ink"
+        style={{ transition: "color var(--motion-fast) var(--ease-standard)" }}
+      >
+        Sign in
+      </Link>
+    );
+  }
+
+  return <ClerkAuthNavControls />;
 }

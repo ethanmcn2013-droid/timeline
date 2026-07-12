@@ -2,12 +2,15 @@ import { eq, inArray } from "drizzle-orm";
 import type { LibSQLDatabase } from "drizzle-orm/libsql";
 import {
   activity,
+  audienceShares,
   comments,
   nodeOverlays,
   projectSources,
   projects,
   subtasks,
   tasks,
+  timelinePublicationItems,
+  timelinePublications,
   workspaces,
 } from "./db/schema";
 import * as schema from "./db/schema";
@@ -40,10 +43,18 @@ export async function exportAccountData(database: ExportDb, clerkId: string) {
     comments: [] as (typeof comments.$inferSelect)[],
     projectSources: [] as (typeof projectSources.$inferSelect)[],
     nodeOverlays: [] as (typeof nodeOverlays.$inferSelect)[],
+    timelinePublications: [] as (typeof timelinePublications.$inferSelect)[],
+    timelinePublicationItems: [] as (typeof timelinePublicationItems.$inferSelect)[],
+    audienceShares: [] as (typeof audienceShares.$inferSelect)[],
   };
   if (slugs.length === 0) return empty;
 
-  const [projectRows, taskRows, subtaskRows, activityRows, commentRows, sourceRows, overlayRows] =
+  const publicationRows = await database
+    .select()
+    .from(timelinePublications)
+    .where(inArray(timelinePublications.workspaceSlug, slugs));
+  const publicationIds = publicationRows.map((row) => row.id);
+  const [projectRows, taskRows, subtaskRows, activityRows, commentRows, sourceRows, overlayRows, publicationItemRows, shareRows] =
     await Promise.all([
       database.select().from(projects).where(inArray(projects.workspaceSlug, slugs)),
       database.select().from(tasks).where(inArray(tasks.workspaceSlug, slugs)),
@@ -52,6 +63,12 @@ export async function exportAccountData(database: ExportDb, clerkId: string) {
       database.select().from(comments).where(inArray(comments.workspaceSlug, slugs)),
       database.select().from(projectSources).where(inArray(projectSources.workspaceSlug, slugs)),
       database.select().from(nodeOverlays).where(inArray(nodeOverlays.workspaceSlug, slugs)),
+      publicationIds.length > 0
+        ? database.select().from(timelinePublicationItems).where(inArray(timelinePublicationItems.publicationId, publicationIds))
+        : Promise.resolve([]),
+      publicationIds.length > 0
+        ? database.select().from(audienceShares).where(inArray(audienceShares.publicationId, publicationIds))
+        : Promise.resolve([]),
     ]);
 
   return {
@@ -63,5 +80,8 @@ export async function exportAccountData(database: ExportDb, clerkId: string) {
     comments: commentRows,
     projectSources: sourceRows,
     nodeOverlays: overlayRows,
+    timelinePublications: publicationRows,
+    timelinePublicationItems: publicationItemRows,
+    audienceShares: shareRows,
   };
 }

@@ -28,6 +28,7 @@ async function freshDb() {
       name text NOT NULL,
       description text,
       owner_user_id text NOT NULL,
+      suite_workspace_id text,
       owner_name text, owner_email text,
       plan text NOT NULL DEFAULT 'free',
       template_id text,
@@ -109,6 +110,29 @@ async function freshDb() {
       created_at integer NOT NULL DEFAULT (unixepoch()),
       updated_at integer NOT NULL DEFAULT (unixepoch())
     );
+    CREATE TABLE timeline_publications (
+      id text PRIMARY KEY NOT NULL, workspace_slug text NOT NULL,
+      source_workspace_id text NOT NULL, source_object_id text,
+      source_revision integer NOT NULL DEFAULT 1, source_digest text NOT NULL,
+      label text NOT NULL, primary_date_label text, primary_date text,
+      audience_kind text NOT NULL, timezone text NOT NULL, owner_display_label text, state text NOT NULL,
+      last_updated_at integer NOT NULL, created_at integer NOT NULL,
+      updated_at integer NOT NULL, published_at integer, unpublished_at integer
+    );
+    CREATE TABLE timeline_publication_items (
+      public_id text PRIMARY KEY NOT NULL, publication_id text NOT NULL,
+      title text NOT NULL, calendar_date text, state text NOT NULL,
+      sort_order integer NOT NULL, source_relation text NOT NULL,
+      source_digest text NOT NULL, copied_at integer NOT NULL,
+      published_at integer, unpublished_at integer, diverged_at integer,
+      updated_at integer NOT NULL
+    );
+    CREATE TABLE audience_shares (
+      id text PRIMARY KEY NOT NULL, publication_id text NOT NULL,
+      token_hash text NOT NULL, state text NOT NULL, version integer NOT NULL,
+      expires_at integer, created_at integer NOT NULL, rotated_at integer,
+      revoked_at integer, last_access_at integer, visit_count integer NOT NULL
+    );
   `);
   const db = drizzle(client, { schema });
   return { client, db };
@@ -137,6 +161,18 @@ async function seed(client: Client) {
       ('p1','ws-a','# a'), ('p9','ws-b','# b');
     INSERT INTO node_overlays (workspace_slug, node_id) VALUES
       ('ws-a','n-a'), ('ws-b','n-b');
+    INSERT INTO timeline_publications
+      (id, workspace_slug, source_workspace_id, source_digest, label, audience_kind, timezone, state, last_updated_at, created_at, updated_at)
+      VALUES ('pub-a','ws-a','suite-a','digest-a','A public','class','Europe/Dublin','published',1,1,1),
+             ('pub-b','ws-b','suite-b','digest-b','B public','class','Europe/Dublin','published',1,1,1);
+    INSERT INTO timeline_publication_items
+      (public_id, publication_id, title, state, sort_order, source_relation, source_digest, copied_at, updated_at)
+      VALUES ('pi-a','pub-a','A item','next',0,'t-a1','digest-a',1,1),
+             ('pi-b','pub-b','B item','next',0,'t-b1','digest-b',1,1);
+    INSERT INTO audience_shares
+      (id, publication_id, token_hash, state, version, created_at, visit_count)
+      VALUES ('sh-a','pub-a','hash-a','active',1,1,0),
+             ('sh-b','pub-b','hash-b','active',1,1,0);
   `);
 }
 
@@ -156,6 +192,9 @@ test("erasure clears every workspace-scoped table incl. comments; bystander inta
       "comments WHERE workspace_slug='ws-a'",
       "project_sources WHERE workspace_slug='ws-a'",
       "node_overlays WHERE workspace_slug='ws-a'",
+      "timeline_publications WHERE workspace_slug='ws-a'",
+      "timeline_publication_items WHERE publication_id='pub-a'",
+      "audience_shares WHERE publication_id='pub-a'",
     ]) {
       assert.equal(await count(client, where), 0, `residual rows in ${where}`);
     }
@@ -164,6 +203,7 @@ test("erasure clears every workspace-scoped table incl. comments; bystander inta
     for (const table of [
       "workspaces", "projects", "tasks", "subtasks",
       "activity", "comments", "project_sources", "node_overlays",
+      "timeline_publications", "timeline_publication_items", "audience_shares",
     ]) {
       assert.equal(await count(client, table), 1, `bystander row lost in ${table}`);
     }

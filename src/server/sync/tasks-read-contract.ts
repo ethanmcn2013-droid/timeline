@@ -5,12 +5,10 @@ export const TASKS_READ_TIMEOUT_MS = contract.timeoutMs;
 
 export type TasksMilestoneQuery = Readonly<{
   subject: string;
-  workspaceId?: string;
+  workspaceId: string;
 }>;
 
 export function assertTasksMilestoneQuery(query: TasksMilestoneQuery): void {
   if (!query.subject.trim()) throw new TypeError("Tasks read subject is required");
-  if (query.workspaceId !== undefined && !query.workspaceId.trim()) {
-    throw new TypeError("Tasks read workspaceId cannot be blank");
-  }
+  if (!query.workspaceId.trim()) throw new TypeError("Tasks read workspaceId is required");
 }

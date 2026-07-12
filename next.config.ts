@@ -70,6 +70,20 @@ const nextConfig: NextConfig = {
         source: "/(.*)",
         headers: securityHeaders,
       },
+      {
+        // Audience links carry a bearer token in the path. They are resolved
+        // dynamically on every request and must not leak through referrers,
+        // indexing, shared caches, or embedding.
+        source: "/s/:path*",
+        headers: [
+          { key: "Cache-Control", value: "private, no-store, max-age=0, must-revalidate" },
+          { key: "CDN-Cache-Control", value: "no-store" },
+          { key: "Vercel-CDN-Cache-Control", value: "no-store" },
+          { key: "Referrer-Policy", value: "no-referrer" },
+          { key: "X-Robots-Tag", value: "noindex, nofollow, noarchive" },
+          { key: "Cross-Origin-Resource-Policy", value: "same-origin" },
+        ],
+      },
     ];
   },
 };

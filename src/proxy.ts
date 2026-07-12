@@ -107,9 +107,26 @@ const productionProxy = clerkMiddleware(async (auth, req) => {
   }
 });
 
-export default function proxy(req: NextRequest, event: NextFetchEvent) {
-  if (isDemoMode()) return NextResponse.next();
-  return productionProxy(req, event);
+const AUDIENCE_CACHE_CONTROL = "private, no-store, max-age=0, must-revalidate";
+
+function hardenAudienceResponse(response: NextResponse): NextResponse {
+  response.headers.set("Cache-Control", AUDIENCE_CACHE_CONTROL);
+  response.headers.set("CDN-Cache-Control", "no-store");
+  response.headers.set("Vercel-CDN-Cache-Control", "no-store");
+  response.headers.set("Referrer-Policy", "no-referrer");
+  response.headers.set("X-Robots-Tag", "noindex, nofollow, noarchive");
+  response.headers.set("Cross-Origin-Resource-Policy", "same-origin");
+  return response;
+}
+
+export default async function proxy(req: NextRequest, event: NextFetchEvent) {
+  const response = isDemoMode()
+    ? NextResponse.next()
+    : ((await productionProxy(req, event)) ?? NextResponse.next());
+
+  return req.nextUrl.pathname.startsWith("/s/")
+    ? hardenAudienceResponse(response as NextResponse)
+    : response;
 }
 
 export const config = {

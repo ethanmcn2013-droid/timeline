@@ -1,0 +1,614 @@
+import "server-only";
+
+import { randomUUID } from "node:crypto";
+import { and, asc, eq, inArray, sql } from "drizzle-orm";
+import { cache } from "react";
+import {
+  audienceShares,
+  timelinePublicationItems,
+  timelinePublications,
+  workspaces,
+  type AudienceItemState,
+  type AudienceKind,
+} from "@/server/db/schema";
+import { db } from "@/server/db";
+import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
+import {
+  getEffectiveNodesForWorkspace,
+  getProjectsForWorkspace,
+} from "@/server/db/queries";
+import {
+  AUDIENCE_ITEM_STATES,
+  AUDIENCE_TIMELINE_DTO_VERSION,
+  SECTION_LABELS,
+  calendarDateInTimeZone,
+  digestSourceFields,
+  freezeAudienceItem,
+  generateAudienceToken,
+  hashAudienceToken,
+  hashesEqual,
+  isAudienceTokenShape,
+  resolveShareAccessState,
+  validateAudienceTimelineDto,
+  validateIanaTimezone,
+  type AudienceTimelineDto,
+  type ShareAccessState,
+} from "@/lib/audience-timeline";
+import {
+  assertAudienceSourceAuthority,
+  type AudienceSourceAuthority,
+} from "@/server/audience-authority";
+
+export function audienceTimelineEnabled(): boolean {
+  return process.env.SIGNAL_AUDIENCE_TIMELINE_ENABLED === "true";
+}
+
+export type AudienceOwnerItem = Readonly<{
+  publicId: string;
+  title: string;
+  calendarDate: string | null;
+  state: AudienceItemState;
+  sortOrder: number;
+  divergedAt: Date | null;
+}>;
+
+export type AudienceOwnerPublication = Readonly<{
+  id: string;
+  label: string;
+  audienceKind: AudienceKind;
+  ownerDisplayLabel: string | null;
+  primaryDateLabel: string | null;
+  primaryDate: string | null;
+  timezone: string;
+  state: "draft" | "published" | "unpublished";
+  lastUpdatedAt: Date;
+  activeShareCount: number;
+  items: readonly AudienceOwnerItem[];
+}>;
+
+export async function connectSuiteWorkspace(
+  workspaceSlug: string,
+  ownerUserId: string,
+  suiteWorkspaceId: string,
+): Promise<boolean> {
+  const rows = await db
+    .update(workspaces)
+    .set({ suiteWorkspaceId, updatedAt: new Date() })
+    .where(
+      and(
+        eq(workspaces.slug, workspaceSlug),
+        eq(workspaces.ownerUserId, ownerUserId),
+      ),
+    )
+    .returning({ slug: workspaces.slug });
+  return rows.length === 1;
+}
+
+export async function createAudiencePublication(input: {
+  workspaceSlug: string;
+  sourceAuthority: AudienceSourceAuthority;
+  label: string;
+  audienceKind: AudienceKind;
+  ownerDisplayLabel: string | null;
+  primaryDateLabel: string | null;
+  primaryDate: string | null;
+  timezone: string;
+  selectedSourceIds: readonly string[];
+}): Promise<string> {
+  const [nodes, projects] = await Promise.all([
+    getEffectiveNodesForWorkspace(input.workspaceSlug),
+    getProjectsForWorkspace(input.workspaceSlug),
+  ]);
+  const nodeMap = new Map(nodes.map((node) => [node.id, node]));
+  const projectMap = new Map(projects.map((project) => [project.slug, project]));
+  const uniqueIds = [...new Set(input.selectedSourceIds)];
+  if (uniqueIds.length === 0) throw new TypeError("Select at least one milestone");
+  if (uniqueIds.length > 100) throw new TypeError("An Audience Timeline can contain at most 100 items");
+
+  const frozen = uniqueIds.map((id) => {
+    const node = nodeMap.get(id);
+    if (!node || node.hidden) throw new TypeError("A selected milestone is not available in this workspace");
+    const project = node.source === "synced" ? projectMap.get(node.projectSlug) : null;
+    if (node.source === "synced" && !project) {
+      throw new TypeError("A selected milestone has no local project provenance");
+    }
+    assertAudienceSourceAuthority(
+      input.sourceAuthority,
+      {
+        kind: node.source,
+        sourceTasksWorkspaceId: project?.sourceTasksWorkspaceId ?? null,
+      },
+    );
+    return freezeAudienceItem(
+      {
+        id: node.id,
+        workspaceId: input.sourceAuthority.sourceWorkspaceId,
+        title: node.title,
+        date: node.targetDate,
+        completionState: node.status,
+      },
+      input.sourceAuthority.sourceWorkspaceId,
+    );
+  });
+
+  const publicationId = randomUUID();
+  const now = new Date();
+  const publicationDigest = digestSourceFields({
+    title: input.label,
+    date: input.primaryDate,
+    completionState: frozen.map((item) => item.sourceDigest).join(":"),
+  });
+
+  await db.transaction(async (tx) => {
+    await tx.insert(timelinePublications).values({
+      id: publicationId,
+      workspaceSlug: input.workspaceSlug,
+      sourceWorkspaceId: input.sourceAuthority.sourceWorkspaceId,
+      sourceObjectId: `selection:${publicationId}`,
+      sourceRevision: 1,
+      sourceDigest: publicationDigest,
+      label: input.label,
+      primaryDateLabel: input.primaryDateLabel,
+      primaryDate: input.primaryDate,
+      audienceKind: input.audienceKind,
+      timezone: validateIanaTimezone(input.timezone),
+      ownerDisplayLabel: input.ownerDisplayLabel,
+      state: "draft",
+      lastUpdatedAt: now,
+      updatedAt: now,
+    });
+    await tx.insert(timelinePublicationItems).values(
+      frozen.map((item, index) => ({
+        publicId: randomUUID(),
+        publicationId,
+        title: item.title,
+        calendarDate: item.calendarDate,
+        state: item.state,
+        sortOrder: index,
+        sourceRelation: item.sourceRelation,
+        sourceDigest: item.sourceDigest,
+        copiedAt: now,
+        updatedAt: now,
+      })),
+    );
+  });
+
+  return publicationId;
+}
+
+export async function getOwnerAudiencePublications(
+  workspaceSlug: string,
+): Promise<AudienceOwnerPublication[]> {
+  const publications = await db
+    .select({
+      id: timelinePublications.id,
+      label: timelinePublications.label,
+      audienceKind: timelinePublications.audienceKind,
+      timezone: timelinePublications.timezone,
+      ownerDisplayLabel: timelinePublications.ownerDisplayLabel,
+      primaryDateLabel: timelinePublications.primaryDateLabel,
+      primaryDate: timelinePublications.primaryDate,
+      state: timelinePublications.state,
+      lastUpdatedAt: timelinePublications.lastUpdatedAt,
+    })
+    .from(timelinePublications)
+    .where(eq(timelinePublications.workspaceSlug, workspaceSlug))
+    .orderBy(asc(timelinePublications.createdAt));
+  if (publications.length === 0) return [];
+
+  const publicationIds = publications.map((publication) => publication.id);
+  const [items, activeShares] = await Promise.all([
+    db
+      .select({
+        publicId: timelinePublicationItems.publicId,
+        publicationId: timelinePublicationItems.publicationId,
+        title: timelinePublicationItems.title,
+        calendarDate: timelinePublicationItems.calendarDate,
+        state: timelinePublicationItems.state,
+        sortOrder: timelinePublicationItems.sortOrder,
+        divergedAt: timelinePublicationItems.divergedAt,
+      })
+      .from(timelinePublicationItems)
+      .where(inArray(timelinePublicationItems.publicationId, publicationIds))
+      .orderBy(asc(timelinePublicationItems.sortOrder)),
+    db
+      .select({ publicationId: audienceShares.publicationId })
+      .from(audienceShares)
+      .where(
+        and(
+          inArray(audienceShares.publicationId, publicationIds),
+          eq(audienceShares.state, "active"),
+        ),
+      ),
+  ]);
+
+  return publications.map((publication) => ({
+    ...publication,
+    activeShareCount: activeShares.filter(
+      (share) => share.publicationId === publication.id,
+    ).length,
+    items: items
+      .filter((item) => item.publicationId === publication.id)
+      .map((item) => ({
+        publicId: item.publicId,
+        title: item.title,
+        calendarDate: item.calendarDate,
+        state: item.state,
+        sortOrder: item.sortOrder,
+        divergedAt: item.divergedAt,
+      })),
+  }));
+}
+
+async function ownsPublication(
+  publicationId: string,
+  workspaceSlug: string,
+): Promise<boolean> {
+  const [row] = await db
+    .select({ id: timelinePublications.id })
+    .from(timelinePublications)
+    .where(
+      and(
+        eq(timelinePublications.id, publicationId),
+        eq(timelinePublications.workspaceSlug, workspaceSlug),
+      ),
+    )
+    .limit(1);
+  return Boolean(row);
+}
+
+export async function publishAudiencePublication(
+  publicationId: string,
+  workspaceSlug: string,
+  expiresAt: Date | null,
+): Promise<string> {
+  if (!(await ownsPublication(publicationId, workspaceSlug))) {
+    throw new TypeError("Publication not found");
+  }
+  const rawToken = generateAudienceToken();
+  const tokenHash = hashAudienceToken(rawToken);
+  const now = new Date();
+
+  await db.transaction(async (tx) => {
+    const priorVersions = await tx
+      .select({ version: audienceShares.version })
+      .from(audienceShares)
+      .where(eq(audienceShares.publicationId, publicationId));
+    const nextVersion = Math.max(0, ...priorVersions.map((row) => row.version)) + 1;
+    await tx
+      .update(audienceShares)
+      .set({ state: "rotated", rotatedAt: now })
+      .where(
+        and(
+          eq(audienceShares.publicationId, publicationId),
+          eq(audienceShares.state, "active"),
+        ),
+      );
+    await tx
+      .update(timelinePublications)
+      .set({
+        state: "published",
+        publishedAt: now,
+        unpublishedAt: null,
+        lastUpdatedAt: now,
+        updatedAt: now,
+      })
+      .where(
+        and(
+          eq(timelinePublications.id, publicationId),
+          eq(timelinePublications.workspaceSlug, workspaceSlug),
+        ),
+      );
+    await tx
+      .update(timelinePublicationItems)
+      .set({ publishedAt: now, unpublishedAt: null })
+      .where(eq(timelinePublicationItems.publicationId, publicationId));
+    await tx.insert(audienceShares).values({
+      id: randomUUID(),
+      publicationId,
+      tokenHash,
+      state: "active",
+      version: nextVersion,
+      expiresAt,
+      createdAt: now,
+    });
+  });
+  return rawToken;
+}
+
+export async function rotateAudienceShare(
+  publicationId: string,
+  workspaceSlug: string,
+  expiresAt: Date | null,
+): Promise<string> {
+  if (!(await ownsPublication(publicationId, workspaceSlug))) {
+    throw new TypeError("Publication not found");
+  }
+  const rawToken = generateAudienceToken();
+  const tokenHash = hashAudienceToken(rawToken);
+  const now = new Date();
+
+  await db.transaction(async (tx) => {
+    const versions = await tx
+      .select({ version: audienceShares.version })
+      .from(audienceShares)
+      .where(eq(audienceShares.publicationId, publicationId));
+    const nextVersion = Math.max(0, ...versions.map((row) => row.version)) + 1;
+    await tx
+      .update(audienceShares)
+      .set({ state: "rotated", rotatedAt: now })
+      .where(
+        and(
+          eq(audienceShares.publicationId, publicationId),
+          eq(audienceShares.state, "active"),
+        ),
+      );
+    await tx.insert(audienceShares).values({
+      id: randomUUID(),
+      publicationId,
+      tokenHash,
+      state: "active",
+      version: nextVersion,
+      expiresAt,
+      createdAt: now,
+    });
+  });
+  return rawToken;
+}
+
+export async function revokeAudienceShares(
+  publicationId: string,
+  workspaceSlug: string,
+): Promise<void> {
+  if (!(await ownsPublication(publicationId, workspaceSlug))) {
+    throw new TypeError("Publication not found");
+  }
+  const now = new Date();
+  await db
+    .update(audienceShares)
+    .set({ state: "revoked", revokedAt: now })
+    .where(
+      and(
+        eq(audienceShares.publicationId, publicationId),
+        eq(audienceShares.state, "active"),
+      ),
+    );
+}
+
+export async function unpublishAudiencePublication(
+  publicationId: string,
+  workspaceSlug: string,
+): Promise<void> {
+  if (!(await ownsPublication(publicationId, workspaceSlug))) {
+    throw new TypeError("Publication not found");
+  }
+  const now = new Date();
+  await db.transaction(async (tx) => {
+    await tx
+      .update(timelinePublications)
+      .set({ state: "unpublished", unpublishedAt: now, updatedAt: now, lastUpdatedAt: now })
+      .where(
+        and(
+          eq(timelinePublications.id, publicationId),
+          eq(timelinePublications.workspaceSlug, workspaceSlug),
+        ),
+      );
+    await tx
+      .update(timelinePublicationItems)
+      .set({ unpublishedAt: now })
+      .where(eq(timelinePublicationItems.publicationId, publicationId));
+    await tx
+      .update(audienceShares)
+      .set({ state: "revoked", revokedAt: now })
+      .where(
+        and(
+          eq(audienceShares.publicationId, publicationId),
+          eq(audienceShares.state, "active"),
+        ),
+      );
+  });
+}
+
+export async function updateAudiencePublicationItem(input: {
+  publicationId: string;
+  publicId: string;
+  workspaceSlug: string;
+  title: string;
+  calendarDate: string | null;
+  state: AudienceItemState;
+}): Promise<void> {
+  if (!(await ownsPublication(input.publicationId, input.workspaceSlug))) {
+    throw new TypeError("Publication not found");
+  }
+  const now = new Date();
+  await db.transaction(async (tx) => {
+    await tx
+      .update(timelinePublicationItems)
+      .set({
+        title: input.title,
+        calendarDate: input.calendarDate,
+        state: input.state,
+        updatedAt: now,
+      })
+      .where(
+        and(
+          eq(timelinePublicationItems.publicId, input.publicId),
+          eq(timelinePublicationItems.publicationId, input.publicationId),
+        ),
+      );
+    await tx
+      .update(timelinePublications)
+      .set({ lastUpdatedAt: now, updatedAt: now })
+      .where(
+        and(
+          eq(timelinePublications.id, input.publicationId),
+          eq(timelinePublications.workspaceSlug, input.workspaceSlug),
+        ),
+      );
+  });
+}
+
+export async function refreshAudienceDivergence(
+  publicationId: string,
+  workspaceSlug: string,
+): Promise<number> {
+  if (!(await ownsPublication(publicationId, workspaceSlug))) {
+    throw new TypeError("Publication not found");
+  }
+  const nodes = await getEffectiveNodesForWorkspace(workspaceSlug);
+  const nodeMap = new Map(nodes.map((node) => [node.id, node]));
+  const items = await db
+    .select({
+      publicId: timelinePublicationItems.publicId,
+      sourceRelation: timelinePublicationItems.sourceRelation,
+      sourceDigest: timelinePublicationItems.sourceDigest,
+      divergedAt: timelinePublicationItems.divergedAt,
+    })
+    .from(timelinePublicationItems)
+    .where(eq(timelinePublicationItems.publicationId, publicationId));
+  const now = new Date();
+  let changed = 0;
+
+  for (const item of items) {
+    const source = nodeMap.get(item.sourceRelation);
+    const currentDigest = source
+      ? digestSourceFields({
+          title: source.title,
+          date: source.targetDate,
+          completionState: source.status,
+        })
+      : null;
+    const diverged = currentDigest === null || !hashesEqual(item.sourceDigest, currentDigest);
+    if (diverged && item.divergedAt === null) {
+      await db
+        .update(timelinePublicationItems)
+        .set({ divergedAt: now })
+        .where(
+          and(
+            eq(timelinePublicationItems.publicId, item.publicId),
+            eq(timelinePublicationItems.publicationId, publicationId),
+          ),
+        );
+      changed += 1;
+    }
+  }
+  return changed;
+}
+
+export type AudienceResolution =
+  | { kind: "ok"; dto: AudienceTimelineDto }
+  | { kind: Exclude<ShareAccessState, "valid"> | "unpublished" };
+
+/**
+ * Resolves a raw token on every request. The indexed lookup uses only a fixed
+ * length SHA-256 digest, followed by a timing-safe digest comparison. The raw
+ * token is neither selected nor logged because no raw-token column exists.
+ */
+export const resolveAudienceTimeline = cache(async (
+  rawToken: string,
+): Promise<AudienceResolution> => {
+  const rateLimit = await checkRateLimit(
+    "audience-read",
+    await getClientIp(),
+    120,
+    60,
+  );
+  if (!rateLimit.allowed) return { kind: "invalid" };
+  if (!isAudienceTokenShape(rawToken)) return { kind: "invalid" };
+  const tokenHash = hashAudienceToken(rawToken);
+  const [share] = await db
+    .select({
+      id: audienceShares.id,
+      publicationId: audienceShares.publicationId,
+      tokenHash: audienceShares.tokenHash,
+      state: audienceShares.state,
+      expiresAt: audienceShares.expiresAt,
+    })
+    .from(audienceShares)
+    .where(eq(audienceShares.tokenHash, tokenHash))
+    .limit(1);
+  if (!share || !hashesEqual(share.tokenHash, tokenHash)) return { kind: "invalid" };
+
+  const access = resolveShareAccessState(share, new Date());
+  if (access !== "valid") return { kind: access };
+
+  const [publication] = await db
+    .select({
+      id: timelinePublications.id,
+      audienceKind: timelinePublications.audienceKind,
+      timezone: timelinePublications.timezone,
+      label: timelinePublications.label,
+      ownerDisplayLabel: timelinePublications.ownerDisplayLabel,
+      primaryDateLabel: timelinePublications.primaryDateLabel,
+      primaryDate: timelinePublications.primaryDate,
+      lastUpdatedAt: timelinePublications.lastUpdatedAt,
+      state: timelinePublications.state,
+    })
+    .from(timelinePublications)
+    .where(eq(timelinePublications.id, share.publicationId))
+    .limit(1);
+  if (!publication || publication.state !== "published") return { kind: "unpublished" };
+
+  // Public boundary: explicit presentation columns only. No source relation,
+  // digest, workspace, user, description, note, comment, or attachment column.
+  const items = await db
+    .select({
+      publicId: timelinePublicationItems.publicId,
+      title: timelinePublicationItems.title,
+      date: timelinePublicationItems.calendarDate,
+      state: timelinePublicationItems.state,
+      sortOrder: timelinePublicationItems.sortOrder,
+    })
+    .from(timelinePublicationItems)
+    .where(eq(timelinePublicationItems.publicationId, publication.id))
+    .orderBy(asc(timelinePublicationItems.sortOrder));
+
+  const candidate = {
+    version: AUDIENCE_TIMELINE_DTO_VERSION,
+    audienceKind: publication.audienceKind,
+    publicationId: publication.id,
+    label: publication.label,
+    ...(publication.ownerDisplayLabel
+      ? { ownerDisplayLabel: publication.ownerDisplayLabel }
+      : {}),
+    ...(publication.primaryDate && publication.primaryDateLabel
+      ? {
+          primaryDate: {
+            label: publication.primaryDateLabel,
+            date: publication.primaryDate,
+          },
+        }
+      : {}),
+    lastUpdatedAt: publication.lastUpdatedAt.toISOString(),
+    today: calendarDateInTimeZone(new Date(), publication.timezone),
+    sections: AUDIENCE_ITEM_STATES.map((state) => ({
+      state,
+      label: SECTION_LABELS[state],
+      items: items
+        .filter((item) => item.state === state)
+        .map((item) => ({
+          publicId: item.publicId,
+          title: item.title,
+          ...(item.date ? { date: item.date } : {}),
+          state: item.state,
+        })),
+    })).filter((section) => section.items.length > 0),
+  };
+  const dto = validateAudienceTimelineDto(candidate);
+  const accessReceipt = await db
+    .update(audienceShares)
+    .set({
+      lastAccessAt: new Date(),
+      visitCount: sql`${audienceShares.visitCount} + 1`,
+    })
+    .where(
+      and(
+        eq(audienceShares.id, share.id),
+        eq(audienceShares.tokenHash, tokenHash),
+        eq(audienceShares.state, "active"),
+      ),
+    )
+    .returning({ id: audienceShares.id });
+  if (accessReceipt.length !== 1) return { kind: "revoked" };
+  return { kind: "ok", dto };
+});

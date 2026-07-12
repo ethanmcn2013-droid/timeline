@@ -1,7 +1,11 @@
 import "server-only";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
-import { getWorkspacesForUser } from "@/server/db/queries";
+import {
+  getWorkspaceForSuiteIdForUser,
+  getWorkspacesForUser,
+} from "@/server/db/queries";
+import { getCurrentTasksWorkspaceContext } from "@/server/sync/tasks-workspace-context";
 import type { Workspace } from "@/server/db/schema";
 import { isDemoMode } from "@/lib/access-mode";
 import { DEMO_USER_ID, demoWorkspace } from "@/lib/roadmap/demo-data";
@@ -50,10 +54,50 @@ export async function getCurrentUser(): Promise<{ userId: string } | null> {
  */
 export async function getCurrentWorkspace(
   userId: string,
+  requestedSuiteWorkspaceId?: string,
 ): Promise<Workspace | null> {
   if (isDemoMode()) return demoWorkspace;
+  if (requestedSuiteWorkspaceId) {
+    const [localWorkspace, currentMembership] = await Promise.all([
+      getWorkspaceForSuiteIdForUser(requestedSuiteWorkspaceId, userId),
+      getCurrentTasksWorkspaceContext(userId, requestedSuiteWorkspaceId),
+    ]);
+    // No first-workspace fallback: a requested canonical context that cannot
+    // be mapped and reauthorized is rejected.
+    if (!localWorkspace || !currentMembership) return null;
+    return localWorkspace;
+  }
   const workspaces = await getWorkspacesForUser(userId);
   return workspaces[0] ?? null;
+}
+
+export type ResolvedTimelineContext = Readonly<{
+  workspace: Workspace;
+  workspaceId: string;
+  planningPeriodId: string | null;
+}>;
+
+export async function resolveTimelineContext(
+  userId: string,
+  requestedWorkspaceId: string,
+  requestedPlanningPeriodId?: string,
+): Promise<ResolvedTimelineContext | null> {
+  const [workspace, current] = await Promise.all([
+    getWorkspaceForSuiteIdForUser(requestedWorkspaceId, userId),
+    getCurrentTasksWorkspaceContext(userId, requestedWorkspaceId),
+  ]);
+  if (!workspace || !current) return null;
+  if (
+    requestedPlanningPeriodId &&
+    current.planningPeriodId !== requestedPlanningPeriodId
+  ) {
+    return null;
+  }
+  return {
+    workspace,
+    workspaceId: current.workspaceId,
+    planningPeriodId: current.planningPeriodId,
+  };
 }
 
 /**

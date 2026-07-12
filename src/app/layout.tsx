@@ -3,7 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
 import { clerkAppearance } from "@/lib/clerk-appearance";
 import { DevBanner } from "@/components/dev-banner";
-import { clerkPublishableKey } from "@/lib/access-mode";
+import { clerkPublishableKey, isDemoMode } from "@/lib/access-mode";
 import { TIMELINE_URL } from "@/lib/product-urls";
 import "./globals.css";
 
@@ -46,6 +46,17 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const content = isDemoMode() ? (
+    children
+  ) : (
+    <ClerkProvider
+      publishableKey={clerkPublishableKey()}
+      appearance={clerkAppearance}
+    >
+      {children}
+    </ClerkProvider>
+  );
+
   return (
     <html
       lang="en"
@@ -62,7 +73,6 @@ export default function RootLayout({
         {/* D4, belt-and-braces inline style: fires synchronously before the
             linked stylesheet resolves, preventing any grey flash on the
             document body. One-liner; only background is set here. */}
-        {/* eslint-disable-next-line react/no-danger */}
         <style dangerouslySetInnerHTML={{ __html: "html{background:#fff}" }} />
       </head>
       <body
@@ -81,12 +91,7 @@ export default function RootLayout({
           Layer 3/4 (seamless-ecosystem-2026-05-18): SuiteLauncher and
           WorkspaceAuthControls need useUser in the public route tree.
         */}
-        <ClerkProvider
-          publishableKey={clerkPublishableKey()}
-          appearance={clerkAppearance}
-        >
-          {children}
-        </ClerkProvider>
+        {content}
         <DevBanner />
       </body>
     </html>

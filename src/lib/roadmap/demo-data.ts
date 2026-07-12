@@ -7,6 +7,7 @@ export const demoWorkspace: Workspace = {
   name: "Tasks · Product Roadmap",
   description: "What we're building next, written in plain English.",
   ownerUserId: "seed-demo-user",
+  suiteWorkspaceId: null,
   ownerName: "Ethan McNamara",
   ownerEmail: "hello@signalstudio.ie",
   plan: "free",
@@ -282,6 +283,7 @@ export const weddingDemoWorkspace: Workspace = {
   description:
     "A planning update for a venue, couple, and suppliers who need the next steps in plain English.",
   ownerUserId: "seed-wedding-demo-user",
+  suiteWorkspaceId: null,
   ownerName: "Aoife Murphy",
   ownerEmail: "aoife@harbourhouse.example",
   plan: "free",

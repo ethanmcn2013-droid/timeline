@@ -1,7 +1,11 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
-import { requireUser, getCurrentWorkspace } from "@/server/auth";
+import {
+  requireUser,
+  getCurrentWorkspace,
+  resolveTimelineContext,
+} from "@/server/auth";
 import {
   getProjectsForWorkspace,
   getEffectiveNodesForWorkspace,
@@ -21,12 +25,24 @@ export async function generateMetadata({
 
 export default async function PlanPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ projectSlug: string }>;
+  searchParams: Promise<{ workspaceId?: string; planningPeriodId?: string }>;
 }) {
   const { projectSlug } = await params;
   const userId = await requireUser();
-  const workspace = await getCurrentWorkspace(userId);
+  const requested = await searchParams;
+  const requestedWorkspaceId = requested.workspaceId?.trim();
+  const context = requestedWorkspaceId
+    ? await resolveTimelineContext(
+        userId,
+        requestedWorkspaceId,
+        requested.planningPeriodId?.trim(),
+      )
+    : null;
+  if (requestedWorkspaceId && !context) notFound();
+  const workspace = context?.workspace ?? (await getCurrentWorkspace(userId));
 
   if (!workspace) notFound();
 
@@ -39,6 +55,13 @@ export default async function PlanPage({
 
   const publicBase = process.env.NEXT_PUBLIC_SITE_URL ?? TIMELINE_URL;
   const publicUrl = `${publicBase}/${workspace.slug}`;
+  const contextQuery = context
+    ? `?workspaceId=${encodeURIComponent(context.workspaceId)}${
+        context.planningPeriodId
+          ? `&planningPeriodId=${encodeURIComponent(context.planningPeriodId)}`
+          : ""
+      }`
+    : "";
 
   return (
     <div className="mx-auto flex w-full max-w-4xl flex-1 flex-col px-6 py-10">
@@ -48,7 +71,7 @@ export default async function PlanPage({
         style={{ color: "var(--ink-quiet)" }}
       >
         <Link
-          href="/app"
+          href={`/app${contextQuery}`}
           className="transition-colors hover:text-ink"
           style={{ color: "var(--ink-soft)" }}
         >

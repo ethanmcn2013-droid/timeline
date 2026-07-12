@@ -36,6 +36,7 @@ import {
   primaryKey,
   sqliteTable,
   text,
+  uniqueIndex,
 } from "drizzle-orm/sqlite-core";
 
 /**
@@ -330,6 +331,10 @@ export const workspaces = sqliteTable(
      *  "Where ${name} is going." when null. */
     description: text("description"),
     ownerUserId: text("owner_user_id").notNull(), // Clerk userId
+    /** Immutable Signal Tasks workspace id. Slugs and labels remain display
+     * data; this id is the only suite-wide workspace join key. Nullable while
+     * legacy Timeline workspaces are connected deliberately. Migration 0007. */
+    suiteWorkspaceId: text("suite_workspace_id"),
     /** Display name of the workspace owner, surfaced on public guest views
      *  as "Shared by ${ownerName}". Captured from Clerk at workspace-
      *  creation time so the public render stays a single DB query, never
@@ -371,7 +376,10 @@ export const workspaces = sqliteTable(
       .notNull()
       .default(sql`(unixepoch())`),
   },
-  (t) => [index("idx_workspaces_owner").on(t.ownerUserId)],
+  (t) => [
+    index("idx_workspaces_owner").on(t.ownerUserId),
+    uniqueIndex("uq_workspaces_suite_workspace_id").on(t.suiteWorkspaceId),
+  ],
 );
 
 /**
@@ -454,6 +462,121 @@ export const nodeOverlays = sqliteTable(
   ],
 );
 
+export type AudienceKind = "class" | "module" | "couple";
+export type AudiencePublicationState = "draft" | "published" | "unpublished";
+export type AudienceItemState =
+  | "covered"
+  | "now"
+  | "next"
+  | "later"
+  | "cancelled";
+export type AudienceShareState = "active" | "revoked" | "expired" | "rotated";
+
+/**
+ * Frozen, audience-safe projection owned by Timeline.
+ *
+ * Source identifiers and digests are deliberately internal. The public DTO
+ * builder selects only the allowlisted presentation columns, so these values
+ * can never cross the /s/[token] boundary by accidental object spreading.
+ */
+export const timelinePublications = sqliteTable(
+  "timeline_publications",
+  {
+    id: text("id").primaryKey(),
+    workspaceSlug: text("workspace_slug").notNull(),
+    sourceWorkspaceId: text("source_workspace_id").notNull(),
+    sourceObjectId: text("source_object_id"),
+    sourceRevision: integer("source_revision").notNull().default(1),
+    sourceDigest: text("source_digest").notNull(),
+    label: text("label").notNull(),
+    primaryDateLabel: text("primary_date_label"),
+    primaryDate: text("primary_date"),
+    audienceKind: text("audience_kind").$type<AudienceKind>().notNull(),
+    /** IANA timezone used to derive the viewer's calendar-day "Today". */
+    timezone: text("timezone").notNull(),
+    ownerDisplayLabel: text("owner_display_label"),
+    state: text("state")
+      .$type<AudiencePublicationState>()
+      .notNull()
+      .default("draft"),
+    lastUpdatedAt: integer("last_updated_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+    createdAt: integer("created_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+    updatedAt: integer("updated_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+    publishedAt: integer("published_at", { mode: "timestamp" }),
+    unpublishedAt: integer("unpublished_at", { mode: "timestamp" }),
+  },
+  (t) => [
+    index("idx_timeline_publications_workspace").on(t.workspaceSlug),
+    index("idx_timeline_publications_source_workspace").on(t.sourceWorkspaceId),
+    index("idx_timeline_publications_state").on(t.state),
+  ],
+);
+
+export const timelinePublicationItems = sqliteTable(
+  "timeline_publication_items",
+  {
+    publicId: text("public_id").primaryKey(),
+    publicationId: text("publication_id")
+      .notNull()
+      .references(() => timelinePublications.id, { onDelete: "cascade" }),
+    title: text("title").notNull(),
+    calendarDate: text("calendar_date"),
+    state: text("state").$type<AudienceItemState>().notNull(),
+    sortOrder: integer("sort_order").notNull().default(0),
+    sourceRelation: text("source_relation").notNull(),
+    sourceDigest: text("source_digest").notNull(),
+    copiedAt: integer("copied_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+    publishedAt: integer("published_at", { mode: "timestamp" }),
+    unpublishedAt: integer("unpublished_at", { mode: "timestamp" }),
+    divergedAt: integer("diverged_at", { mode: "timestamp" }),
+    updatedAt: integer("updated_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (t) => [
+    index("idx_timeline_publication_items_publication").on(
+      t.publicationId,
+      t.sortOrder,
+    ),
+    index("idx_timeline_publication_items_source").on(t.sourceRelation),
+  ],
+);
+
+export const audienceShares = sqliteTable(
+  "audience_shares",
+  {
+    id: text("id").primaryKey(),
+    publicationId: text("publication_id")
+      .notNull()
+      .references(() => timelinePublications.id, { onDelete: "cascade" }),
+    /** SHA-256 hex digest only. The 256-bit raw token is returned once. */
+    tokenHash: text("token_hash").notNull(),
+    state: text("state").$type<AudienceShareState>().notNull().default("active"),
+    version: integer("version").notNull().default(1),
+    expiresAt: integer("expires_at", { mode: "timestamp" }),
+    createdAt: integer("created_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+    rotatedAt: integer("rotated_at", { mode: "timestamp" }),
+    revokedAt: integer("revoked_at", { mode: "timestamp" }),
+    lastAccessAt: integer("last_access_at", { mode: "timestamp" }),
+    visitCount: integer("visit_count").notNull().default(0),
+  },
+  (t) => [
+    uniqueIndex("uq_audience_shares_token_hash").on(t.tokenHash),
+    index("idx_audience_shares_publication").on(t.publicationId, t.state),
+    index("idx_audience_shares_expiry").on(t.expiresAt),
+  ],
+);
+
 export type Project = typeof projects.$inferSelect;
 export type Task = typeof tasks.$inferSelect;
 export type Subtask = typeof subtasks.$inferSelect;
@@ -461,3 +584,6 @@ export type Comment = typeof comments.$inferSelect;
 export type Workspace = typeof workspaces.$inferSelect;
 export type ProjectSource = typeof projectSources.$inferSelect;
 export type NodeOverlay = typeof nodeOverlays.$inferSelect;
+export type TimelinePublication = typeof timelinePublications.$inferSelect;
+export type TimelinePublicationItem = typeof timelinePublicationItems.$inferSelect;
+export type AudienceShare = typeof audienceShares.$inferSelect;

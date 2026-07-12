@@ -18,6 +18,7 @@ import {
   writeRoadmapNodes,
   upsertNodeOverlay,
   batchUpsertNodeSortOrders,
+  bindProjectToTasksWorkspace,
   type NodeOverlayInput,
 } from "@/server/db/queries";
 import { isValidSlug, slugify } from "@/lib/reserved-slugs";
@@ -222,6 +223,7 @@ export type SyncMilestonesResult =
 
 export async function syncMilestonesAction(
   workspaceSlug: string,
+  projectSlug: string,
 ): Promise<SyncMilestonesResult> {
   const userId = await requireUser();
 
@@ -235,6 +237,24 @@ export async function syncMilestonesAction(
     return { error: "Create a project first." };
   }
 
+  const targetProject = ownedProjects.find((project) => project.slug === projectSlug);
+  if (!targetProject) return { error: "Project not found." };
+  const canonicalWorkspaceId =
+    targetProject.sourceTasksWorkspaceId ?? workspace.suiteWorkspaceId;
+  if (!canonicalWorkspaceId) {
+    return {
+      error:
+        "Connect this plan to one canonical Signal Tasks workspace before syncing.",
+    };
+  }
+  if (
+    targetProject.sourceTasksWorkspaceId &&
+    workspace.suiteWorkspaceId &&
+    targetProject.sourceTasksWorkspaceId !== workspace.suiteWorkspaceId
+  ) {
+    return { error: "This project is connected to a different canonical workspace." };
+  }
+
   // Import lazily to avoid bundling in the non-sync path
   const { makeMilestoneSyncSource } = await import("@/server/sync/tasks-milestone-source");
   const source = makeMilestoneSyncSource();
@@ -242,11 +262,22 @@ export async function syncMilestonesAction(
     return { error: "Tasks sync is not configured. Set TASKS_DATABASE_URL and TASKS_AUTH_TOKEN." };
   }
 
-  const rawMilestones = await source.getMilestonesForClerkId(userId);
+  const rawMilestones = await source.getMilestonesForClerkId(
+    userId,
+    canonicalWorkspaceId,
+  );
 
-  // Map milestones to roadmap nodes and write to the first project
-  // (D3: one workspace = one project in v1). Fill in workspace + project slug.
-  const targetProject = ownedProjects[0];
+  // Persist the provenance mapping before writing synced rows. This turns
+  // future publication checks into an exact project-level proof and prevents
+  // old mixed-workspace rows from being promoted via a workspace fallback.
+  await bindProjectToTasksWorkspace(
+    workspaceSlug,
+    targetProject.slug,
+    canonicalWorkspaceId,
+  );
+
+  // One canonical Tasks workspace maps to this one explicitly selected
+  // Timeline project. Never pool every member workspace into a first project.
   const milestones = rawMilestones.map((m) => ({
     ...m,
     workspaceSlug,
@@ -386,7 +417,9 @@ export async function publishWorkspaceAction(
 
   await publishWorkspace(workspaceSlug);
   revalidatePath("/app");
-  revalidatePath(`/${workspaceSlug}`);
+  // Invalidate the whole legacy public subtree, including project and item
+  // detail ISR entries. Root-only invalidation left nested draft content live.
+  revalidatePath(`/${workspaceSlug}`, "layout");
   return { ok: true };
 }
 
@@ -405,7 +438,7 @@ export async function unpublishWorkspaceAction(
   }
   await unpublishWorkspace(workspaceSlug);
   revalidatePath("/app");
-  revalidatePath(`/${workspaceSlug}`);
+  revalidatePath(`/${workspaceSlug}`, "layout");
   return { ok: true };
 }
 
