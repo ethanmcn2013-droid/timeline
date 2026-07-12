@@ -902,9 +902,11 @@ function ManualAddForm({
  */
 function SyncButton({
   workspaceSlug,
+  projectSlug,
   onSync,
 }: {
   workspaceSlug: string;
+  projectSlug: string;
   onSync: () => void;
 }) {
   const [isPending, startTransition] = useTransition();
@@ -919,7 +921,7 @@ function SyncButton({
     setResult(null);
     setErrorMsg(null);
     startTransition(async () => {
-      const res = await syncMilestonesAction(workspaceSlug);
+      const res = await syncMilestonesAction(workspaceSlug, projectSlug);
       if ("error" in res) {
         setErrorMsg(res.error);
         setResult("error");
@@ -1127,7 +1129,7 @@ export function CurationSurface({
     if (didAutoSync.current) return;
     didAutoSync.current = true;
     setAutoSyncing(true);
-    syncMilestonesAction(workspaceSlug).then(() => {
+    syncMilestonesAction(workspaceSlug, projectSlug).then(() => {
       setAutoSyncing(false);
       // C1c: only refresh if no writes are in flight, avoids clobbering
       // optimistic state mid-write with stale RSC data.
@@ -1137,7 +1139,7 @@ export function CurationSurface({
     }).catch(() => {
       setAutoSyncing(false);
     });
-  }, [workspaceSlug, router]);
+  }, [workspaceSlug, projectSlug, router]);
 
   // DRAG: justPublished localStorage persistence
   // Initialise from localStorage so the chip animation fires on first load
@@ -1369,7 +1371,11 @@ export function CurationSurface({
             </span>
           )}
         </div>
-        <SyncButton workspaceSlug={workspaceSlug} onSync={refresh} />
+        <SyncButton
+          workspaceSlug={workspaceSlug}
+          projectSlug={projectSlug}
+          onSync={refresh}
+        />
       </div>
 
       {/* Empty state, H2: single primary CTA + quiet inline manual-add link.

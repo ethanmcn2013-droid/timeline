@@ -59,7 +59,10 @@ export function canonicaliseStatus(tasksLane: string): Status {
 // ── Source factory ────────────────────────────────────────────────────────────
 
 export interface MilestoneSyncSource {
-  getMilestonesForClerkId(clerkId: string): Promise<SyncedMilestone[]>;
+  getMilestonesForClerkId(
+    clerkId: string,
+    canonicalWorkspaceId: string,
+  ): Promise<SyncedMilestone[]>;
 }
 
 /**
@@ -83,8 +86,14 @@ export function makeMilestoneSyncSource(): MilestoneSyncSource | null {
   }
 
   return {
-    async getMilestonesForClerkId(clerkId: string): Promise<SyncedMilestone[]> {
-      assertTasksMilestoneQuery({ subject: clerkId });
+    async getMilestonesForClerkId(
+      clerkId: string,
+      canonicalWorkspaceId: string,
+    ): Promise<SyncedMilestone[]> {
+      assertTasksMilestoneQuery({
+        subject: clerkId,
+        workspaceId: canonicalWorkspaceId,
+      });
       // Step 1, immutable suite subject → Tasks user id.
       let tasksUserId: string | null = null;
       try {
@@ -123,13 +132,15 @@ export function makeMilestoneSyncSource(): MilestoneSyncSource | null {
             INNER JOIN workspaces w ON w.id = t.workspace_id
             WHERE t.is_milestone = 1
               AND t.parent_task_id IS NULL
-              AND t.workspace_id IN (
-                SELECT workspace_id FROM workspace_members WHERE user_id = ?
+              AND t.workspace_id = ?
+              AND EXISTS (
+                SELECT 1 FROM workspace_members wm
+                WHERE wm.workspace_id = t.workspace_id AND wm.user_id = ?
               )
-            ORDER BY w.id, t.due_at, t.id
+            ORDER BY t.due_at, t.id
             LIMIT 200
           `,
-          args: [tasksUserId],
+          args: [canonicalWorkspaceId, tasksUserId],
         });
         rows = result.rows;
       } catch (err) {

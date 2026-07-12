@@ -6,7 +6,9 @@ import {
   getTask,
   getActivityForTask,
   getRefusedTasks,
+  isWorkspacePublished,
 } from "@/server/db/queries";
+import { getCurrentUser } from "@/server/auth";
 import { WorkspaceHeader } from "@/components/roadmap/workspace-header";
 import { StatusPill } from "@/components/roadmap/status-pill";
 import { KindPill } from "@/components/roadmap/kind-pill";
@@ -30,6 +32,21 @@ export async function generateMetadata({
   }>;
 }): Promise<Metadata> {
   const { workspaceSlug, projectSlug, id } = await params;
+  const [workspace, project, published, currentUser] = await Promise.all([
+    getWorkspace(workspaceSlug),
+    getProject(workspaceSlug, projectSlug),
+    isWorkspacePublished(workspaceSlug),
+    getCurrentUser(),
+  ]);
+  if (!workspace || !project) {
+    return { title: "Not Found", robots: { index: false, follow: false } };
+  }
+  const isOwner = currentUser?.userId === workspace.ownerUserId;
+  if (!published && !isOwner) {
+    // Gate before reading task title or description. Draft object ids are not
+    // metadata capabilities.
+    return { title: "Timeline", robots: { index: false, follow: false } };
+  }
   // Symmetry with the page redirect: a manual-milestone id has no task row;
   // signal the overview as the canonical destination via noindex so robots
   // don't waste a crawl on the about-to-redirect URL.
@@ -55,6 +72,18 @@ export default async function TaskDetailPage({
 }) {
   const { workspaceSlug, projectSlug, id } = await params;
 
+  // Resolve the publication/owner gate before reading the task row, its
+  // description, or its activity. This closes the legacy draft-content IDOR.
+  const [workspace, project, published, currentUser] = await Promise.all([
+    getWorkspace(workspaceSlug),
+    getProject(workspaceSlug, projectSlug),
+    isWorkspacePublished(workspaceSlug),
+    getCurrentUser(),
+  ]);
+  if (!workspace || !project) notFound();
+  const isOwner = currentUser?.userId === workspace.ownerUserId;
+  if (!published && !isOwner) return <DraftItemUnavailable />;
+
   // Manual-milestone deep links pre-dating the in-page-anchor fix would land
   // here with a synthetic id and a `projects[0]` projectSlug, neither has a
   // backing tasks row to resolve. Redirect to the overview anchor instead of
@@ -63,15 +92,11 @@ export default async function TaskDetailPage({
     redirect(`/${workspaceSlug}#${milestoneAnchorId(id)}`);
   }
 
-  const [workspace, project, task, refused] = await Promise.all([
-    getWorkspace(workspaceSlug),
-    getProject(workspaceSlug, projectSlug),
+  const [task, refused] = await Promise.all([
     getTask(workspaceSlug, projectSlug, id),
     getRefusedTasks(workspaceSlug),
   ]);
 
-  if (!workspace) notFound();
-  if (!project) notFound();
   if (!task) notFound();
 
   const taskActivity = await getActivityForTask(workspaceSlug, task.id);
@@ -170,5 +195,17 @@ export default async function TaskDetailPage({
 
       <SiteFooter />
     </div>
+  );
+}
+
+function DraftItemUnavailable() {
+  return (
+    <main className="flex min-h-screen items-center justify-center bg-[var(--bg)] px-6 py-20 text-center">
+      <div className="max-w-sm">
+        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-ink-quiet">Timeline</p>
+        <h1 className="mt-4 text-3xl font-semibold tracking-[-0.035em] text-ink">This item isn&apos;t public.</h1>
+        <p className="mt-3 text-sm leading-6 text-ink-soft">The owner will share it when the plan is ready.</p>
+      </div>
+    </main>
   );
 }

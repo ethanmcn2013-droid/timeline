@@ -27,15 +27,22 @@ test("cross-product milestone source is keyed by immutable clerk_id", async () =
     new URL("./tasks-milestone-source.ts", import.meta.url),
     "utf8",
   );
-  assert.match(src, /getMilestonesForClerkId\(clerkId: string\)/);
+  assert.match(src, /getMilestonesForClerkId\([\s\S]*clerkId: string,[\s\S]*canonicalWorkspaceId: string/);
   assert.match(src, /SELECT id FROM users WHERE clerk_id = \? LIMIT 1/);
   assert.doesNotMatch(src, /getMilestonesForEmail|WHERE email =/);
 });
 
 test("Timeline consumes the versioned Tasks read contract", () => {
   assert.equal(TASKS_READ_CONTRACT_VERSION, 1);
-  assert.doesNotThrow(() => assertTasksMilestoneQuery({ subject: "user_1" }));
-  assert.throws(() => assertTasksMilestoneQuery({ subject: "" }));
+  assert.doesNotThrow(() =>
+    assertTasksMilestoneQuery({ subject: "user_1", workspaceId: "workspace_1" }),
+  );
+  assert.throws(() =>
+    assertTasksMilestoneQuery({ subject: "", workspaceId: "workspace_1" }),
+  );
+  assert.throws(() =>
+    assertTasksMilestoneQuery({ subject: "user_1", workspaceId: "" }),
+  );
 });
 
 test("canonicaliseStatus, todo → next", () => {

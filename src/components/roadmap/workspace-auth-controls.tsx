@@ -16,6 +16,8 @@
 
 import { useUser } from "@clerk/nextjs";
 import { UserButton } from "@clerk/nextjs";
+import Link from "next/link";
+import { isDemoMode } from "@/lib/access-mode";
 
 function EyeIcon() {
   return (
@@ -53,7 +55,7 @@ function PencilIcon() {
   );
 }
 
-export function WorkspaceAuthControls({
+function ClerkWorkspaceAuthControls({
   ownerUserId,
 }: {
   ownerUserId: string;
@@ -68,7 +70,7 @@ export function WorkspaceAuthControls({
   return (
     <div className="flex items-center gap-3">
       {isOwner ? (
-        <a
+        <Link
           href="/app"
           className="hidden items-center gap-1.5 text-[12px] font-medium sm:flex"
           style={{
@@ -81,7 +83,7 @@ export function WorkspaceAuthControls({
         >
           <PencilIcon />
           Edit
-        </a>
+        </Link>
       ) : null}
       <UserButton>
         <UserButton.MenuItems>
@@ -98,5 +100,15 @@ export function WorkspaceAuthControls({
         </UserButton.MenuItems>
       </UserButton>
     </div>
+  );
+}
+
+export function WorkspaceAuthControls({
+  ownerUserId,
+}: {
+  ownerUserId: string;
+}) {
+  return isDemoMode() ? null : (
+    <ClerkWorkspaceAuthControls ownerUserId={ownerUserId} />
   );
 }

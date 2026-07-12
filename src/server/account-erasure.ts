@@ -2,12 +2,15 @@ import { eq, inArray } from "drizzle-orm";
 import type { LibSQLDatabase } from "drizzle-orm/libsql";
 import {
   activity,
+  audienceShares,
   comments,
   nodeOverlays,
   projectSources,
   projects,
   subtasks,
   tasks,
+  timelinePublicationItems,
+  timelinePublications,
   workspaces,
 } from "./db/schema";
 import * as schema from "./db/schema";
@@ -48,6 +51,23 @@ export async function eraseAccountData(
   if (ownedWorkspaces.length === 0) return;
 
   const slugs = ownedWorkspaces.map((w) => w.slug);
+
+  const publicationRows = await database
+    .select({ id: timelinePublications.id })
+    .from(timelinePublications)
+    .where(inArray(timelinePublications.workspaceSlug, slugs));
+  if (publicationRows.length > 0) {
+    const publicationIds = publicationRows.map((row) => row.id);
+    await database
+      .delete(audienceShares)
+      .where(inArray(audienceShares.publicationId, publicationIds));
+    await database
+      .delete(timelinePublicationItems)
+      .where(inArray(timelinePublicationItems.publicationId, publicationIds));
+    await database
+      .delete(timelinePublications)
+      .where(inArray(timelinePublications.id, publicationIds));
+  }
 
   // Collect task ids so subtasks (keyed by taskId) are swept explicitly
   // rather than via the unreliable cascade.

@@ -1,6 +1,8 @@
 "use client";
 
 import { UserButton, useUser, useClerk } from "@clerk/nextjs";
+import Link from "next/link";
+import { isDemoMode } from "@/lib/access-mode";
 import {
   SIGNAL_URL,
   NOTES_URL,
@@ -83,7 +85,7 @@ function CameraIcon() {
  *     so the M→app redirect is suppressed while the owner demos the
  *     marketing surface while logged in. "Exit preview" clears the cookie.
  */
-export function UserButtonWithSuite({ current }: { current: ProductSlug }) {
+function ClerkUserButtonWithSuite({ current }: { current: ProductSlug }) {
   // Escape hatch state: check if the preview cookie is currently active.
   // Reading document.cookie is synchronous and safe in a client component.
   const isPreviewActive =
@@ -161,5 +163,50 @@ export function UserButtonWithSuite({ current }: { current: ProductSlug }) {
         )}
       </UserButton.MenuItems>
     </UserButton>
+  );
+}
+
+function DemoUserButtonWithSuite({ current }: { current: ProductSlug }) {
+  return (
+    <details className="group relative">
+      <summary
+        aria-label="Open demo account menu"
+        className="flex h-8 w-8 cursor-pointer list-none items-center justify-center rounded-full bg-ink text-[11px] font-semibold text-white outline-none ring-offset-2 focus-visible:ring-2 focus-visible:ring-ink [&::-webkit-details-marker]:hidden"
+      >
+        DO
+      </summary>
+      <div className="absolute right-0 z-50 mt-2 w-52 rounded-xl border border-line-soft bg-white p-1.5 shadow-[0_24px_60px_-24px_rgba(20,21,26,0.18)]">
+        <p className="px-2.5 py-2 text-[11px] font-medium uppercase tracking-[0.12em] text-ink-faint">
+          Demo operator
+        </p>
+        {PRODUCTS.filter((product) => product.slug !== current).map(
+          (product) => (
+            <a
+              key={product.slug}
+              href={product.url}
+              className="flex min-h-11 items-center justify-between rounded-lg px-2.5 text-sm text-ink hover:bg-bg-sunken focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink"
+            >
+              {product.label}
+              <ArrowIcon />
+            </a>
+          ),
+        )}
+        <Link
+          href="/?preview=public"
+          className="flex min-h-11 items-center justify-between rounded-lg px-2.5 text-sm text-ink hover:bg-bg-sunken focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink"
+        >
+          View public site
+          <EyeIcon />
+        </Link>
+      </div>
+    </details>
+  );
+}
+
+export function UserButtonWithSuite({ current }: { current: ProductSlug }) {
+  return isDemoMode() ? (
+    <DemoUserButtonWithSuite current={current} />
+  ) : (
+    <ClerkUserButtonWithSuite current={current} />
   );
 }

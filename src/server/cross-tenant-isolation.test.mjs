@@ -43,9 +43,15 @@ const OWNER_TABLES = [
   "nodeOverlays",
   "activity",
   "projectSources",
+  "timelinePublications",
+  "timelinePublicationItems",
+  "audienceShares",
 ];
 // A statement is "scoped" if it mentions any of these tokens.
-const SCOPE_TOKENS = ["workspaceSlug", "workspace_slug", "ownerUserId", "owner_user_id", "userId", "user_id", "published"];
+const SCOPE_TOKENS = [
+  "workspaceSlug", "workspace_slug", "ownerUserId", "owner_user_id",
+  "userId", "user_id", "publicationId", "publicId", "tokenHash", "published",
+];
 // Minimum owner-table statements we expect to find. If the scan finds
 // fewer, the scan itself is broken (wrong path / changed API) and the
 // test must fail rather than pass vacuously.

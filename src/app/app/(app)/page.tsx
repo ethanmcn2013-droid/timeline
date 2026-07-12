@@ -1,5 +1,9 @@
 import Link from "next/link";
-import { requireUser, getCurrentWorkspace } from "@/server/auth";
+import {
+  requireUser,
+  getCurrentWorkspace,
+  resolveTimelineContext,
+} from "@/server/auth";
 import { getProjectsForWorkspace, isWorkspacePublished } from "@/server/db/queries";
 import { resolveEntitlement } from "@/lib/entitlements-shared/reads";
 import { TIER_LABEL } from "@/lib/entitlements-shared/tiers";
@@ -11,9 +15,32 @@ import { TIMELINE_URL } from "@/lib/product-urls";
 export const metadata = { title: "Dashboard, Timeline" };
 export const dynamic = "force-dynamic";
 
-export default async function AppPage() {
+export default async function AppPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ workspaceId?: string; planningPeriodId?: string }>;
+}) {
   const userId = await requireUser();
-  const workspace = await getCurrentWorkspace(userId);
+  const requested = await searchParams;
+  const requestedWorkspaceId = requested.workspaceId?.trim();
+  const resolvedContext = requestedWorkspaceId
+    ? await resolveTimelineContext(
+        userId,
+        requestedWorkspaceId,
+        requested.planningPeriodId?.trim(),
+      )
+    : null;
+  if (requestedWorkspaceId && !resolvedContext) {
+    return <UnavailableWorkspaceContext />;
+  }
+  const workspace = resolvedContext?.workspace ?? (await getCurrentWorkspace(userId));
+  const contextQuery = resolvedContext
+    ? `?workspaceId=${encodeURIComponent(resolvedContext.workspaceId)}${
+        resolvedContext.planningPeriodId
+          ? `&planningPeriodId=${encodeURIComponent(resolvedContext.planningPeriodId)}`
+          : ""
+      }`
+    : "";
 
   // ── No workspace yet ────────────────────────────────────────────────────
   if (!workspace) {
@@ -75,13 +102,19 @@ export default async function AppPage() {
 
       {/* Project list */}
       <section>
-        <div className="mb-4 flex items-center justify-between">
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
           <h2
             className="text-sm font-semibold"
             style={{ color: "var(--ink-soft)" }}
           >
             Projects
           </h2>
+          <Link
+            href={`/app/audience${contextQuery}`}
+            className="rounded-lg border border-line-soft bg-white px-3 py-2 text-sm font-medium text-ink-soft hover:border-indigo-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2"
+          >
+            Audience Timelines
+          </Link>
         </div>
 
         {projects.length === 0 ? (
@@ -92,7 +125,7 @@ export default async function AppPage() {
               {projects.map((p) => (
                 <Link
                   key={p.slug}
-                  href={`/app/plan/${p.slug}`}
+                  href={`/app/plan/${p.slug}${contextQuery}`}
                   className="flex items-center justify-between rounded-xl border px-4 py-3.5 hover:border-indigo-300"
                   style={{
                     background: "var(--bg-elev)",
@@ -137,6 +170,20 @@ export default async function AppPage() {
           </>
         )}
       </section>
+    </div>
+  );
+}
+
+function UnavailableWorkspaceContext() {
+  return (
+    <div className="mx-auto flex w-full max-w-xl flex-1 items-center px-6 py-16 text-center">
+      <div>
+        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-ink-quiet">Workspace context</p>
+        <h1 className="mt-3 text-3xl font-semibold tracking-[-0.035em] text-ink">That workspace is not available here.</h1>
+        <p className="mt-3 text-sm leading-6 text-ink-soft">
+          Timeline could not confirm a current Signal Tasks membership and local mapping. Return to Your Work and choose a workspace you can access.
+        </p>
+      </div>
     </div>
   );
 }

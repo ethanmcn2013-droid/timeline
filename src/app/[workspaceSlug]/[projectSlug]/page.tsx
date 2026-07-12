@@ -33,6 +33,13 @@ export async function generateMetadata({
     getProject(workspaceSlug, projectSlug),
   ]);
   if (!workspace || !project) return { title: "Not Found" };
+  const [published, currentUser] = await Promise.all([
+    isWorkspacePublished(workspaceSlug),
+    getCurrentUser(),
+  ]);
+  if (!published && currentUser?.userId !== workspace.ownerUserId) {
+    return { title: "Timeline", robots: { index: false, follow: false } };
+  }
   return {
     title: `${project.name} · ${workspace.name}, Timeline`,
     description: project.oneLiner || `Timeline for ${project.name}.`,
