@@ -1,0 +1,95 @@
+{
+  "schemaVersion": "signal-experience-evidence/1",
+  "capturedAt": "2026-07-15",
+  "product": "timeline",
+  "environment": {
+    "accessMode": "demo",
+    "database": "file::memory:",
+    "databaseSchemaPresent": false,
+    "baseUrl": "http://127.0.0.1:3107",
+    "browser": "Chromium via @playwright/cli",
+    "viewports": [
+      { "name": "mobile", "width": 390, "height": 844 },
+      { "name": "wide", "width": 1440, "height": 960 }
+    ]
+  },
+  "automatedChecks": [
+    {
+      "command": "npx tsx --test src/server/db/demo-mode.test.ts",
+      "result": "1 passed",
+      "proves": "All fixture-backed reads resolve against a schema-less database and unknown slugs remain empty."
+    },
+    {
+      "command": "node --test scripts/experience/demo-boundary.test.mjs",
+      "result": "2 passed",
+      "proves": "Autosync exits before auth and database setup, and required demo read guards remain present."
+    },
+    {
+      "command": "node --test scripts/experience/shortcuts-dialog.test.mjs",
+      "result": "3 passed",
+      "proves": "The governed dialog contract remains present in source."
+    }
+  ],
+  "routeAssertions": [
+    { "experienceId": "timeline.page.app", "route": "/app", "mobileStatus": 200, "wideStatus": 200 },
+    { "experienceId": "timeline.page.app-plan-by-project-slug", "route": "/app/plan/product", "mobileStatus": 200, "wideStatus": 200, "autosyncPostStatus": 200 },
+    { "experienceId": "timeline.page.by-workspace-slug", "route": "/tasks", "mobileStatus": 200, "wideStatus": 200 },
+    { "experienceId": "timeline.page.by-workspace-slug-by-project-slug", "route": "/tasks/product", "mobileStatus": 200, "wideStatus": 200 },
+    { "experienceId": "timeline.page.by-workspace-slug-by-project-slug-by-id", "route": "/tasks/product/tasks-product-001", "mobileStatus": 200, "wideStatus": 200 },
+    { "experienceId": "timeline.page.by-workspace-slug-refusals", "route": "/tasks/refusals", "mobileStatus": 200, "wideStatus": 200 },
+    { "experienceId": "timeline.state.by-workspace-slug-not-found", "route": "/unknown-fixture-workspace", "mobileStatus": 404, "wideStatus": 404 },
+    { "experienceId": "timeline.page.the-wedding", "route": "/the-wedding", "mobileStatus": 200, "wideStatus": 200 }
+  ],
+  "accessibilityAssertions": {
+    "allCapturedPages": {
+      "mainLandmarkCount": 1,
+      "h1Present": true,
+      "horizontalOverflowPixels": 0,
+      "unlabelledInteractiveControls": 0,
+      "duplicateIds": 0,
+      "headingLevelSkips": 0,
+      "unexpectedConsoleErrors": 0,
+      "pageErrors": 0
+    },
+    "timeline.page.app-plan-by-project-slug": {
+      "dateInputsHaveAccessibleNames": true,
+      "autosyncPostStatus": 200
+    },
+    "timeline.page.the-wedding": {
+      "mobileScheduleItemCount": 8,
+      "mobileDateKeyVisible": true,
+      "reducedMotionCapture": true
+    },
+    "timeline.surface.shortcuts-dialog": {
+      "initialFocus": "Close keyboard shortcuts",
+      "tabContainment": true,
+      "bodyScrollLocked": true,
+      "escapeCloses": true
+    }
+  },
+  "captures": [
+    { "experienceId": "timeline.page.by-workspace-slug", "viewport": "mobile", "artifact": "output/playwright/mobile-tasks.png", "sha256": "e7c6576cd868ef24a5359e2d2d19ab6779f610213fb265cf1e625d7ab25d245c" },
+    { "experienceId": "timeline.page.by-workspace-slug", "viewport": "wide", "artifact": "output/playwright/wide-tasks.png", "sha256": "988b305436178c0bab50e3656430eabaaa713ac4879d082f14de84420082ffdd" },
+    { "experienceId": "timeline.page.by-workspace-slug-by-project-slug", "viewport": "mobile", "artifact": "output/playwright/mobile-tasks-product.png", "sha256": "d13f2689097a3f6f61f42912bed4b0869c52e125c678751d18227e2549f6773a" },
+    { "experienceId": "timeline.page.by-workspace-slug-by-project-slug", "viewport": "wide", "artifact": "output/playwright/wide-tasks-product.png", "sha256": "ffecc14635faf5230014a0ee1d5ff319d765f689c88d0989da93a43ab934c5cf" },
+    { "experienceId": "timeline.page.by-workspace-slug-by-project-slug-by-id", "viewport": "mobile", "artifact": "output/playwright/mobile-tasks-product-tasks-product-001.png", "sha256": "aee6b69bd9232ec507b7fc91bb9dc21bf93955acddc30ff45a34189a6c9403d3" },
+    { "experienceId": "timeline.page.by-workspace-slug-by-project-slug-by-id", "viewport": "wide", "artifact": "output/playwright/wide-tasks-product-tasks-product-001.png", "sha256": "2772b7f0a240fc067d6a80a8f17d172ec95431f10d671e06291d187a0f0193d0" },
+    { "experienceId": "timeline.page.by-workspace-slug-refusals", "viewport": "mobile", "artifact": "output/playwright/mobile-tasks-refusals.png", "sha256": "9d1652833884ff2af29d259a424a0691651d0e3609baf41d3a283323e8f79724" },
+    { "experienceId": "timeline.page.by-workspace-slug-refusals", "viewport": "wide", "artifact": "output/playwright/wide-tasks-refusals.png", "sha256": "bda7ea8ecfdb4cff19286ef63522940623ae0c01484d4b701258108f87ac97a1" },
+    { "experienceId": "timeline.state.by-workspace-slug-not-found", "viewport": "mobile", "artifact": "output/playwright/mobile-unknown-fixture-workspace.png", "sha256": "e0f1521aa73d125dfef5ac89b60bb851c2e879cdf198a7dff9f677caf1db29d1" },
+    { "experienceId": "timeline.state.by-workspace-slug-not-found", "viewport": "wide", "artifact": "output/playwright/wide-unknown-fixture-workspace.png", "sha256": "f8c93bb734dd3e9bb770208e094ebb9f32b78496c7c6c779d5d2b671fb6015cf" },
+    { "experienceId": "timeline.page.app", "viewport": "mobile", "motion": "reduced", "artifact": "output/playwright/reduced-mobile-app.png", "sha256": "2e6e7a31f4a22ec3a8447e53211e99a71407fd884f6548915b5d34580b86cdc8" },
+    { "experienceId": "timeline.page.app", "viewport": "wide", "motion": "reduced", "artifact": "output/playwright/reduced-wide-app.png", "sha256": "86589b36fdedf1a9966dc3e96a5ca75c0d043555f2a705467b9df1ec6b7f8a7f" },
+    { "experienceId": "timeline.page.app-plan-by-project-slug", "viewport": "mobile", "motion": "reduced", "artifact": "output/playwright/reduced-mobile-app-plan-product.png", "sha256": "7d58f9c4eb76532d32cbc8cc85af643f976f18666af73923678377ac710887e7" },
+    { "experienceId": "timeline.page.app-plan-by-project-slug", "viewport": "wide", "motion": "reduced", "artifact": "output/playwright/reduced-wide-app-plan-product.png", "sha256": "5b66c534a5701ee2e4cce32daaff6fdf399f31ac104a3262090d43288366a4f6" },
+    { "experienceId": "timeline.page.the-wedding", "viewport": "mobile", "motion": "reduced", "artifact": "output/playwright/reduced-mobile-the-wedding.png", "sha256": "9f54ab5e46259722502abeed02667a1844dfab09251ea4f42675d350debbd601" },
+    { "experienceId": "timeline.page.the-wedding", "viewport": "wide", "motion": "reduced", "artifact": "output/playwright/reduced-wide-the-wedding.png", "sha256": "7af91351921aee527c9ecac99a776042b9e36e4a667446d5700921f9ca63717b" },
+    { "experienceId": "timeline.surface.shortcuts-dialog", "viewport": "mobile", "motion": "reduced", "artifact": "output/playwright/mobile-shortcuts-dialog.png", "sha256": "9608304e6a02f0ac4c0c328deb5d254affe6cbebf94489d5c3cdd22fbe90ec9e" },
+    { "experienceId": "timeline.surface.shortcuts-dialog", "viewport": "wide", "motion": "reduced", "artifact": "output/playwright/wide-shortcuts-dialog.png", "sha256": "f02180562ccdfbfd3735ff9a52ad5c15fdd737217f19822c2403f18d977210df" }
+  ],
+  "coverageNotes": [
+    "Mobile and wide baselines are captured; tablet and desktop remain open, so registry screenshot coverage stays partial.",
+    "The fixture-backed populated and not-found states are covered; every registered empty, loading, failure, and restricted state is not yet covered, so automated and accessibility coverage stays partial.",
+    "Capture PNGs are generated artifacts. Their logical paths and SHA-256 digests are recorded here so a reviewer can reproduce and compare them without committing binary baselines."
+  ]
+}

@@ -3,6 +3,7 @@ import { and, eq, gt, isNull, or } from "drizzle-orm";
 import { entitlementsDb } from "./client";
 import { entitlements, type EntitlementTier } from "./schema";
 import { TIER_RANK } from "./tiers";
+import { isDemoMode } from "@/lib/access-mode";
 
 export type ResolvedEntitlement = {
   tier: EntitlementTier;
@@ -31,6 +32,7 @@ const FREE_DEFAULT: ResolvedEntitlement = {
 export async function resolveEntitlement(
   clerkId: string,
 ): Promise<ResolvedEntitlement> {
+  if (isDemoMode()) return FREE_DEFAULT;
   if (!clerkId) return FREE_DEFAULT;
   try {
     return await resolveEntitlementOrThrow(clerkId);
@@ -42,6 +44,7 @@ export async function resolveEntitlement(
 export async function resolveEntitlementOrThrow(
   clerkId: string,
 ): Promise<ResolvedEntitlement> {
+  if (isDemoMode()) return FREE_DEFAULT;
   if (!clerkId) return FREE_DEFAULT;
   const now = Date.now();
   const db = entitlementsDb();
@@ -98,6 +101,7 @@ function coerceTier(value: string): EntitlementTier {
  * dashboards, settings/plan pages, admin tooling. Read-only.
  */
 export async function listEntitlements(clerkId: string) {
+  if (isDemoMode()) return [];
   if (!clerkId) return [];
   const now = Date.now();
   const db = entitlementsDb();

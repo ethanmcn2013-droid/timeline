@@ -1,12 +1,18 @@
 import Link from "next/link";
 import { requireUser, getCurrentWorkspace } from "@/server/auth";
-import { getProjectsForWorkspace, isWorkspacePublished } from "@/server/db/queries";
+import {
+  getProjectsForWorkspace,
+  getEffectiveNodesForWorkspace,
+  isWorkspacePublished,
+} from "@/server/db/queries";
 import { resolveEntitlement } from "@/lib/entitlements-shared/reads";
 import { TIER_LABEL } from "@/lib/entitlements-shared/tiers";
 import { CreateWorkspaceForm } from "./_components/create-workspace-form";
 import { CreateProjectForm } from "./_components/create-project-form";
 import { PublishControl } from "./_components/publish-control";
+import { AnchorChip } from "@/components/roadmap/anchor-countdown";
 import { TIMELINE_URL } from "@/lib/product-urls";
+import { getRequestTime } from "@/lib/request-time";
 
 export const metadata = { title: "Dashboard, Timeline" };
 export const dynamic = "force-dynamic";
@@ -28,12 +34,22 @@ export default async function AppPage() {
   }
 
   // ── Workspace exists, show dashboard ───────────────────────────────────
-  const [projects, workspacePublished, { tier }] = await Promise.all([
-    getProjectsForWorkspace(workspace.slug),
-    isWorkspacePublished(workspace.slug),
-    resolveEntitlement(userId),
-  ]);
+  const [projects, effectiveNodes, workspacePublished, { tier }] =
+    await Promise.all([
+      getProjectsForWorkspace(workspace.slug),
+      // React-cached; the plan editor reuses the same round-trip. Feeds the
+      // anchor chip, the day this workspace is counting down to.
+      getEffectiveNodesForWorkspace(workspace.slug),
+      isWorkspacePublished(workspace.slug),
+      resolveEntitlement(userId),
+    ]);
   const publicBase = process.env.NEXT_PUBLIC_SITE_URL ?? TIMELINE_URL;
+
+  // Anchor is workspace-level, drawn from every visible milestone across the
+  // workspace's projects. Hidden nodes are curated out of the public plan, so
+  // they should not set the private countdown either.
+  const anchorCandidates = effectiveNodes.filter((n) => !n.hidden);
+  const now = getRequestTime();
 
   return (
     <div className="mx-auto w-full max-w-4xl px-6 py-12">
@@ -62,15 +78,21 @@ export default async function AppPage() {
             />
           </div>
         </div>
-        <span
-          className="mt-1 rounded-full px-2.5 py-0.5 text-xs font-medium"
-          style={{
-            background: "var(--brand-soft)",
-            color: "var(--brand-deep)",
-          }}
-        >
-          {TIER_LABEL[tier]}
-        </span>
+        <div className="mt-1 flex flex-col items-end gap-2">
+          <span
+            className="rounded-full px-2.5 py-0.5 text-xs font-medium"
+            style={{
+              background: "var(--brand-soft)",
+              color: "var(--brand-deep)",
+            }}
+          >
+            {TIER_LABEL[tier]}
+          </span>
+          {/* Anchor countdown, the quiet context of how far out the day is.
+              Renders nothing when the workspace has no upcoming dated
+              milestone, so early-stage workspaces stay uncluttered. */}
+          <AnchorChip milestones={anchorCandidates} now={now} />
+        </div>
       </div>
 
       {/* Project list */}

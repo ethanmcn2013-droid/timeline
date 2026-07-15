@@ -19,6 +19,7 @@ import { MetaStrip } from "@/components/roadmap/meta-strip";
 import { ShortcutsOverlay } from "@/components/roadmap/shortcuts-overlay";
 import { SiteFooter } from "@/components/marketing/site-footer";
 import Link from "next/link";
+import { getRequestTime } from "@/lib/request-time";
 
 export const revalidate = 300;
 
@@ -82,12 +83,13 @@ export default async function ProjectDrillDownPage({
   const allTasks = await getTasksForProject(workspaceSlug, projectSlug);
   const visibleTasks = allTasks.filter((t) => t.status !== "refused");
   const refusedCount = allTasks.filter((t) => t.status === "refused").length;
+  const now = getRequestTime();
 
   // Tier 3 derived attention signal, owner-only. Computed once per
   // request from the existing fetch; consumed by the owner-only BigStat
   // and the per-row Idle / Overdue pill on each ItemRow.
   const needsAttentionCount = isOwner
-    ? countNeedsAttention(visibleTasks, Date.now())
+    ? countNeedsAttention(visibleTasks, now)
     : 0;
 
   const groups = groupByWeek(visibleTasks);
@@ -238,7 +240,7 @@ export default async function ProjectDrillDownPage({
                         showProject={false}
                         attentionReason={
                           isOwner
-                            ? computeAttentionReason(t, Date.now())
+                            ? computeAttentionReason(t, now)
                             : null
                         }
                         isOwner={isOwner}

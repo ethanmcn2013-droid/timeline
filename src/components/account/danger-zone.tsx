@@ -69,7 +69,7 @@ export function DangerZone({ email }: { email: string }) {
       <p className="mt-1.5 max-w-[560px] text-[12.5px] leading-[1.6] text-rose-800/80">
         Closes your Signal account across every product, Tasks, Notes,
         Timeline, Signal. Workspaces you own are deleted with you, including
-        anyone you've invited. There's no undo.
+        anyone you&apos;ve invited. There&apos;s no undo.
       </p>
 
       {!confirming ? (

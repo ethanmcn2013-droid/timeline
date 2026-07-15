@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import { formatRelative } from "@/lib/format";
 import { currentState, type CurrentState } from "@/lib/roadmap/current-state";
+import { anchorMilestone, countdown, countdownToken } from "@/lib/roadmap/anchor";
 import {
   getWorkspace,
   getProjectsForWorkspace,
@@ -27,6 +28,7 @@ import {
 import { GanttView } from "@/components/roadmap/gantt-view";
 import { WorkspaceTimeline } from "@/components/roadmap/workspace-timeline";
 import { SiteFooter } from "@/components/marketing/site-footer";
+import { getRequestTime } from "@/lib/request-time";
 
 // Public roadmap is read-only, ISR with a 5-min window. The page reads
 // NO dynamic APIs (no searchParams/cookies/headers) so this revalidate
@@ -105,7 +107,6 @@ export default async function WorkspaceRoadmapPage({
         static aria-current values irrelevant.
       */}
       <style
-        // eslint-disable-next-line react/no-danger
         dangerouslySetInnerHTML={{
           __html: `
 /* Gantt is the default: the timeline panel is hidden until ?view=timeline is
@@ -118,7 +119,6 @@ export default async function WorkspaceRoadmapPage({
         }}
       />
       <script
-        // eslint-disable-next-line react/no-danger
         dangerouslySetInnerHTML={{
           __html: `(function(){try{
 var m=location.search.match(/[?&]view=(timeline)(?:&|$)/);
@@ -168,6 +168,7 @@ for(var i=0;i<tabs.length;i++){
 // pre-CSS window, reading as a much larger circle to the visitor). Letters of
 // "roadmap" rise with stagger; indigo dot lands with overshoot; canonical
 // Roadmap sweep gesture continues during the wait. Server Component, zero JS.
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function ContentWellFallback() {
   const word = "timeline";
   return (
@@ -441,9 +442,10 @@ async function WorkspaceContentWell({
   // extra query, ISR intact. Renders on every breakpoint (the
   // milestone emphasis block is desktop-only; this line is the
   // mobile reader's only date read).
-  const verdict = hasItems
-    ? currentState(allTasks, milestones, Date.now())
-    : null;
+  // One clock read per request, threaded to every time-relative child
+  // (verdict + anchor countdown) so the whole hero agrees on "now".
+  const now = getRequestTime();
+  const verdict = hasItems ? currentState(allTasks, milestones, now) : null;
 
   // Per-milestone progress: share of non-refused dated items due on or
   // before the milestone date that have shipped. Cheap O(n·m).
@@ -587,6 +589,7 @@ async function WorkspaceContentWell({
                       progress={progress}
                       totalForProgress={totalForProgress}
                       shipped={counts.shipped}
+                      now={now}
                     />
                   </div>
                 ) : (
@@ -682,17 +685,6 @@ function formatShortDate(iso: string): string {
   });
 }
 
-function daysUntilSimple(iso: string): number {
-  const target = new Date(iso + "T00:00:00Z").getTime();
-  const today = new Date();
-  const todayUTC = Date.UTC(
-    today.getUTCFullYear(),
-    today.getUTCMonth(),
-    today.getUTCDate(),
-  );
-  return Math.round((target - todayUTC) / (1000 * 60 * 60 * 24));
-}
-
 /**
  * Single-glance current-state line, the first thing a recipient reads.
  *
@@ -749,25 +741,28 @@ function MilestoneEmphasisBlock({
   progress,
   totalForProgress,
   shipped,
+  now,
 }: {
   milestones: Task[];
   progress: number;
   totalForProgress: number;
   shipped: number;
+  now: number;
 }) {
-  const next = milestones.find(
-    (m) => m.status !== "shipped" && m.targetDate,
-  );
-  // When there is no upcoming dated milestone, fall back to overall progress only.
-  // §1.4 block still renders so the ring earns its hero placement.
+  // The anchor is the day the whole plan points at, the wedding, the
+  // go-live, the launch, not the next waypoint. Leading the block with its
+  // countdown is the context the reader actually wants. §1.4 is kept intact:
+  // the ring still earns its hero placement beside the number.
+  const anchor = anchorMilestone(milestones);
+  const c = anchor?.targetDate ? countdown(anchor.targetDate, now) : null;
+  // A day already met is not a countdown; the block falls back to progress.
+  const showCountdown = c !== null && c.kind !== "past";
   const pct = Math.round(Math.max(0, Math.min(1, progress)) * 100);
   const size = 48;
   const stroke = 4;
   const radius = (size - stroke) / 2;
   const circumference = 2 * Math.PI * radius;
   const offset = circumference * (1 - Math.max(0, Math.min(1, progress)));
-
-  const days = next?.targetDate ? daysUntilSimple(next.targetDate) : null;
 
   return (
     <div
@@ -783,7 +778,7 @@ function MilestoneEmphasisBlock({
         gap: 16,
       }}
     >
-      {/* Left: eyebrow + title + date meta */}
+      {/* Left: eyebrow + countdown + title + date meta */}
       <div style={{ flex: 1, minWidth: 0 }}>
         {/* Eyebrow, §1.4 exact token */}
         <div
@@ -796,56 +791,94 @@ function MilestoneEmphasisBlock({
             marginBottom: 6,
           }}
         >
-          Next milestone
+          {showCountdown ? "Building toward" : "Progress"}
         </div>
 
-        {/* Title, §1.4: 15px / 600 / -0.02em */}
-        <div
-          style={{
-            fontSize: 15,
-            fontWeight: 600,
-            color: "var(--ink)",
-            letterSpacing: "-0.02em",
-            lineHeight: 1.3,
-            overflow: "hidden",
-            textOverflow: "ellipsis",
-            whiteSpace: "nowrap",
-          }}
-        >
-          {next?.title ?? "No upcoming milestone"}
-        </div>
-
-        {/* Date + count meta, §1.4 mono 11px, marginTop 4px */}
-        <div
-          style={{
-            fontFamily: "var(--font-mono-stack)",
-            fontSize: 11,
-            color: "var(--ink-quiet)",
-            marginTop: 4,
-            display: "flex",
-            alignItems: "center",
-            gap: 6,
-            flexWrap: "wrap",
-          }}
-        >
-          {next?.targetDate ? (
-            <>
-              <span>{formatShortDate(next.targetDate)}</span>
-              {days !== null ? (
-                <span
-                  style={{
-                    // §1.4 + §1.7: T-N is the indigo use in this block.
-                    color: days >= 0 ? "var(--accent, #4f46e5)" : "var(--ink-quiet)",
-                    fontWeight: 600,
-                  }}
-                >
-                  {days >= 0 ? `T-${days}` : `−${Math.abs(days)}d`}
+        {showCountdown ? (
+          <>
+            {/* The countdown, promoted to the block's primary value.
+                §1.7: T-N is the one indigo use in this block. */}
+            <div
+              style={{
+                fontFamily: "var(--font-mono-stack)",
+                fontSize: 26,
+                fontWeight: 600,
+                lineHeight: 1,
+                letterSpacing: "-0.01em",
+                color: "var(--accent, #4f46e5)",
+                fontVariantNumeric: "tabular-nums",
+              }}
+            >
+              {countdownToken(c!)}
+            </div>
+            {/* Anchor title, §1.4: 600 / -0.02em, one line */}
+            <div
+              style={{
+                marginTop: 6,
+                fontSize: 13,
+                fontWeight: 600,
+                color: "var(--ink)",
+                letterSpacing: "-0.02em",
+                lineHeight: 1.3,
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+              }}
+            >
+              {anchor!.title}
+            </div>
+            {/* Date + count meta, §1.4 mono 11px */}
+            <div
+              style={{
+                fontFamily: "var(--font-mono-stack)",
+                fontSize: 11,
+                color: "var(--ink-quiet)",
+                marginTop: 4,
+                display: "flex",
+                alignItems: "center",
+                gap: 6,
+                flexWrap: "wrap",
+              }}
+            >
+              <span>{formatShortDate(anchor!.targetDate!)}</span>
+              {totalForProgress > 0 ? (
+                <span>
+                  {shipped} of {totalForProgress} shipped
                 </span>
               ) : null}
-            </>
-          ) : null}
-          <span>{totalForProgress > 0 ? `${shipped} of ${totalForProgress} shipped` : null}</span>
-        </div>
+            </div>
+          </>
+        ) : (
+          <>
+            {/* No upcoming dated day, the block still earns its place by
+                carrying the ring; the copy stays quiet. */}
+            <div
+              style={{
+                fontSize: 15,
+                fontWeight: 600,
+                color: "var(--ink)",
+                letterSpacing: "-0.02em",
+                lineHeight: 1.3,
+              }}
+            >
+              {totalForProgress > 0
+                ? `${shipped} of ${totalForProgress} shipped`
+                : "In progress"}
+            </div>
+            {anchor?.targetDate ? (
+              <div
+                style={{
+                  fontFamily: "var(--font-mono-stack)",
+                  fontSize: 11,
+                  color: "var(--ink-quiet)",
+                  marginTop: 4,
+                }}
+              >
+                {formatShortDate(anchor.targetDate)}
+              </div>
+            ) : null}
+          </>
+        )}
       </div>
 
       {/* Right: 48px ProgressRing, inside the block per §1.4 */}

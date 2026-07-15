@@ -25,6 +25,8 @@ import { checkRateLimit, getClientIp, type RateLimitResult } from "@/lib/rate-li
 import { getSyncedTemplateRoadmap } from "@/lib/templates.generated";
 import { resolveEntitlement } from "@/lib/entitlements-shared/reads";
 import { tierAtLeast } from "@/lib/entitlements-shared/tiers";
+import { isDemoMode } from "@/lib/access-mode";
+import { demoEffectiveNodes } from "@/lib/roadmap/demo-data";
 
 /** Translate a denied RateLimitResult into the correct user-facing error string. */
 function rateLimitError(result: RateLimitResult & { allowed: false }): string {
@@ -223,6 +225,13 @@ export type SyncMilestonesResult =
 export async function syncMilestonesAction(
   workspaceSlug: string,
 ): Promise<SyncMilestonesResult> {
+  // Demo/review is a read-only fixture boundary. The editor still exercises
+  // its real autosync POST lifecycle, but the action returns deterministic
+  // fixture evidence before auth, Tasks, or Timeline databases are touched.
+  if (isDemoMode()) {
+    return { ok: true, count: demoEffectiveNodes(workspaceSlug).length };
+  }
+
   const userId = await requireUser();
 
   const workspace = await getWorkspace(workspaceSlug);

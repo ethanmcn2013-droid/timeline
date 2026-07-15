@@ -63,7 +63,7 @@ export function ScheduleSpine({ items }: Props) {
       }}
     >
       <div
-        className="mb-4 flex items-baseline gap-3"
+        className="mb-4 flex flex-col items-start gap-1 md:flex-row md:items-baseline md:gap-3"
         style={{
           borderTop: "1px solid var(--line-soft)",
           paddingTop: 20,
@@ -80,7 +80,7 @@ export function ScheduleSpine({ items }: Props) {
       {/* The spine itself: SVG-backed hairline + lane markers.
           Height accommodates four lanes of pip + title. */}
       <div
-        className="relative"
+        className="relative hidden md:block"
         style={{
           height: 132,
           background:
@@ -201,19 +201,68 @@ export function ScheduleSpine({ items }: Props) {
         })}
       </div>
 
+      {/* At compact widths, the spatial spine becomes a readable lane list.
+          The same fixture drives both representations, so mobile keeps every
+          item and date without forcing labels into an absolute 390px canvas. */}
+      <div className="md:hidden">
+        <div
+          className="space-y-5 rounded-xl px-4 py-5"
+          style={{ background: "var(--paper-bone)" }}
+        >
+          {grouped.map(({ lane, items: laneItems }) => (
+            <div key={lane}>
+              <h3 className="font-mono text-[10px] font-semibold uppercase tracking-[0.16em] text-ink-faint">
+                {lane}
+              </h3>
+              <ul className="mt-2 space-y-3">
+                {laneItems.map((item) => (
+                  <li key={item.id} className="flex min-w-0 items-start gap-3">
+                    <span
+                      aria-hidden
+                      className="mt-[0.42rem] block shrink-0 rounded-full"
+                      style={{
+                        width: lane === "Now" ? 8 : 6,
+                        height: lane === "Now" ? 8 : 6,
+                        background:
+                          lane === "Now"
+                            ? "var(--aud-wedding)"
+                            : "var(--ink-soft)",
+                        opacity: LANE_OPACITY[lane],
+                      }}
+                    />
+                    <div className="min-w-0">
+                      <p className="text-[13px] font-medium leading-snug text-ink">
+                        {item.title}
+                      </p>
+                      {item.when ? (
+                        <div className="mt-1">
+                          <DatePrecisionChip precision={item.when} tone="quiet" />
+                        </div>
+                      ) : null}
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+      </div>
+
       {/* Below-spine legend for date precision, repurposes the row-7
           primitive so readers learn the glyph vocabulary in context. */}
-      <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 text-[11.5px]">
-        <span className="text-ink-quiet">When-glyphs:</span>
-        <DatePrecisionChip
-          precision={{ kind: "exact", value: "exact" }}
-          tone="quiet"
-        />
-        <DatePrecisionChip
-          precision={{ kind: "window", value: "window" }}
-          tone="quiet"
-        />
-        <DatePrecisionChip precision={{ kind: "pending" }} tone="quiet" />
+      <div className="mt-4 text-[11.5px]">
+        <span className="text-ink-quiet">Date key</span>
+        <div className="mt-2 grid gap-2 min-[460px]:flex min-[460px]:flex-wrap min-[460px]:items-center min-[460px]:gap-x-5">
+          <DatePrecisionChip
+            precision={{ kind: "exact", value: "exact" }}
+            tone="quiet"
+          />
+          <DatePrecisionChip
+            precision={{ kind: "window", value: "window" }}
+            tone="quiet"
+          />
+          <DatePrecisionChip precision={{ kind: "pending" }} tone="quiet" />
+        </div>
       </div>
     </section>
   );

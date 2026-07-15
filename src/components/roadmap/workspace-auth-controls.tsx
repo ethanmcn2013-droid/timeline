@@ -16,6 +16,8 @@
 
 import { useUser } from "@clerk/nextjs";
 import { UserButton } from "@clerk/nextjs";
+import { isDemoMode } from "@/lib/access-mode";
+import Link from "next/link";
 
 function EyeIcon() {
   return (
@@ -58,6 +60,15 @@ export function WorkspaceAuthControls({
 }: {
   ownerUserId: string;
 }) {
+  if (isDemoMode()) return null;
+  return <ClerkWorkspaceAuthControls ownerUserId={ownerUserId} />;
+}
+
+function ClerkWorkspaceAuthControls({
+  ownerUserId,
+}: {
+  ownerUserId: string;
+}) {
   const { isSignedIn, user } = useUser();
 
   // Not signed in, render nothing (guest experience is minimal by design).
@@ -68,7 +79,7 @@ export function WorkspaceAuthControls({
   return (
     <div className="flex items-center gap-3">
       {isOwner ? (
-        <a
+        <Link
           href="/app"
           className="hidden items-center gap-1.5 text-[12px] font-medium sm:flex"
           style={{
@@ -81,7 +92,7 @@ export function WorkspaceAuthControls({
         >
           <PencilIcon />
           Edit
-        </a>
+        </Link>
       ) : null}
       <UserButton>
         <UserButton.MenuItems>

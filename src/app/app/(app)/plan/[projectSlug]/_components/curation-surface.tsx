@@ -248,6 +248,7 @@ function NodeCard({
   }
 
   const isShipped = node.lane === "Shipped";
+  const [attentionNow] = useState(Date.now);
 
   // Tier 3 attention signal, surface drift at edit time (R·22). Calendar-day
   // anchored, so server-render and client-hydration agree within a calendar
@@ -255,7 +256,7 @@ function NodeCard({
   // ownership) so no isOwner check needed here.
   const attention = attentionReason(
     { status: node.status, targetDate: node.targetDate, updatedAt: node.updatedAt },
-    Date.now(),
+    attentionNow,
   );
 
   return (
@@ -512,6 +513,7 @@ function NodeCard({
               <input
                 ref={dateInputRef}
                 type="date"
+                aria-label={`Target date for ${node.title}`}
                 value={node.targetDate ?? ""}
                 onChange={(e) => setDate(e.target.value)}
                 className="date-input-custom"
@@ -715,6 +717,7 @@ function ManualAddForm({
         {/* Title */}
         <div>
           <label
+            htmlFor="manual-milestone-date"
             style={{ fontSize: 11, color: "var(--ink-quiet)", display: "block", marginBottom: 4 }}
           >
             What&apos;s the milestone?
@@ -790,6 +793,7 @@ function ManualAddForm({
           </label>
           <div className="date-input-wrapper">
             <input
+              id="manual-milestone-date"
               ref={manualDateInputRef}
               type="date"
               value={date}
@@ -1142,8 +1146,6 @@ export function CurationSurface({
   // DRAG: justPublished localStorage persistence
   // Initialise from localStorage so the chip animation fires on first load
   // after a publish, even if the page was reloaded.
-  const lsKey = `roadmap-publish-celebrated-${workspaceSlug}`;
-
   // ── Shared reorder logic ────────────────────────────────────────────────────
   // Used by both HTML5 drag and Pointer Events paths. Computes the new order,
   // updates optimistic state, then batch-writes ALL sortOverride values (BV-2).

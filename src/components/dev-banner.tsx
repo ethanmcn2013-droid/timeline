@@ -37,7 +37,13 @@ export function DevBanner() {
     } catch {
       /* sessionStorage unavailable, show anyway */
     }
-    setHidden(false);
+    let cancelled = false;
+    queueMicrotask(() => {
+      if (!cancelled) setHidden(false);
+    });
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   if (hidden) return null;

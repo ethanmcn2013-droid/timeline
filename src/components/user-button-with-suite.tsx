@@ -7,6 +7,7 @@ import {
   TIMELINE_URL,
   TASKS_URL,
 } from "@/lib/product-urls";
+import { isDemoMode } from "@/lib/access-mode";
 
 type ProductSlug = "tasks" | "roadmap" | "notes" | "analytics";
 
@@ -84,6 +85,21 @@ function CameraIcon() {
  *     marketing surface while logged in. "Exit preview" clears the cookie.
  */
 export function UserButtonWithSuite({ current }: { current: ProductSlug }) {
+  if (isDemoMode()) {
+    return (
+      <span
+        className="inline-flex min-h-8 items-center rounded-full border border-line-soft px-3 text-[11px] font-semibold uppercase tracking-[0.12em] text-ink-faint"
+        aria-label="Demo account"
+      >
+        Demo
+      </span>
+    );
+  }
+
+  return <ClerkUserButtonWithSuite current={current} />;
+}
+
+function ClerkUserButtonWithSuite({ current }: { current: ProductSlug }) {
   // Escape hatch state: check if the preview cookie is currently active.
   // Reading document.cookie is synchronous and safe in a client component.
   const isPreviewActive =

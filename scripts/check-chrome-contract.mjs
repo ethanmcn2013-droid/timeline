@@ -25,7 +25,7 @@ import path from "node:path";
 // If SuiteHeader legitimately changes, reseal this to the new hash (the same
 // contract as the SuiteLoader seal).
 const SUITE_HEADER_SHA =
-  "96b6cc15b148bff434727454dc991404f65bcf4405c51b40225823499f020dc3";
+  "a716d31c9b21aba894c8b4b67f0db6f1953997b1a80845443b1aac57e0c01708";
 
 const root = process.cwd();
 const pkg = JSON.parse(readFileSync(path.join(root, "package.json"), "utf8"));

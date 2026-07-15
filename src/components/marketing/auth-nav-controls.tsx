@@ -21,7 +21,7 @@
 import { useUser } from "@clerk/nextjs";
 import { UserButton } from "@clerk/nextjs";
 import Link from "next/link";
-import { isUxAssuranceMode } from "@/lib/access-mode";
+import { isDemoMode, isUxAssuranceMode } from "@/lib/access-mode";
 
 function ArrowIcon() {
   return (
@@ -40,6 +40,9 @@ function ArrowIcon() {
   );
 }
 
+// Legacy escape-hatch implementation retained while Clerk's menu action owns
+// the live path below.
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function EscapeHatchButton() {
   // §14: check if the preview cookie is currently active to toggle label.
   const isPreviewActive =
@@ -93,24 +96,21 @@ function EscapeHatchButton() {
 }
 
 export function AuthNavControls() {
-  const authState = isUxAssuranceMode()
-    ? { isSignedIn: false, isLoaded: true }
-    : useUser();
-  const { isSignedIn, isLoaded } = authState;
+  if (isDemoMode() || isUxAssuranceMode()) {
+    return <SignedOutControl />;
+  }
+
+  return <ClerkAuthNavControls />;
+}
+
+function ClerkAuthNavControls() {
+  const { isSignedIn, isLoaded } = useUser();
 
   // SSR / loading state: render the unauthed control as default.
   // Once Clerk loads on the client, the correct branch renders.
   // The mobile nav menu is owned by SuiteHeader; this is only the auth slot.
   if (!isLoaded || !isSignedIn) {
-    return (
-      <Link
-        href="/sign-in"
-        className="inline-flex min-h-8 items-center rounded-full px-3.5 text-[13px] font-medium text-ink-soft hover:text-ink"
-        style={{ transition: "color var(--motion-fast) var(--ease-standard)" }}
-      >
-        Sign in
-      </Link>
-    );
+    return <SignedOutControl />;
   }
 
   // Authed state: account menu only. No upper CTA.
@@ -131,5 +131,17 @@ export function AuthNavControls() {
         </UserButton.MenuItems>
       </UserButton>
     </div>
+  );
+}
+
+function SignedOutControl() {
+  return (
+    <Link
+      href="/sign-in"
+      className="inline-flex min-h-8 items-center rounded-full px-3.5 text-[13px] font-medium text-ink-soft hover:text-ink"
+      style={{ transition: "color var(--motion-fast) var(--ease-standard)" }}
+    >
+      Sign in
+    </Link>
   );
 }
