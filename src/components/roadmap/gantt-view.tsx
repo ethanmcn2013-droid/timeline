@@ -101,7 +101,7 @@ export function GanttView({ tasks, milestones, projects, projectMap }: Props) {
     );
   }
 
-  let windowStart = Math.min(...anchored);
+  const windowStart = Math.min(...anchored);
   let windowEnd = Math.max(...anchored);
   while (windowEnd - windowStart + 1 < 3) windowEnd++;
   const span = windowEnd - windowStart + 1;

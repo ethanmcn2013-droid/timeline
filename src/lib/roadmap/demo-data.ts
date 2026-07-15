@@ -7,7 +7,7 @@ export const demoWorkspace: Workspace = {
   name: "Tasks · Product Roadmap",
   description: "What we're building next, written in plain English.",
   ownerUserId: "seed-demo-user",
-  suiteWorkspaceId: null,
+  suiteWorkspaceId: "tasks",
   ownerName: "Ethan McNamara",
   ownerEmail: "hello@signalstudio.ie",
   plan: "free",
@@ -20,7 +20,7 @@ export const demoWorkspace: Workspace = {
 export const demoProjects: Project[] = [
   {
     workspaceSlug: "tasks",
-    sourceTasksWorkspaceId: null,
+    sourceTasksWorkspaceId: "tasks",
     slug: "product",
     name: "Product Roadmap",
     oneLiner: "What we're building, and what we said no to.",
@@ -257,8 +257,11 @@ function demoLane(
   return "Next";
 }
 
-export function demoEffectiveNodes() {
-  return demoTasks.map((t, i) => ({
+export function demoEffectiveNodes(workspaceSlug = demoWorkspace.slug) {
+  const dataset = getDemoSharedUpdateDataset(workspaceSlug);
+  if (!dataset) return [];
+
+  return dataset.tasks.map((t, i) => ({
     id: t.id,
     projectSlug: t.projectSlug,
     workspaceSlug: t.workspaceSlug,
@@ -402,6 +405,51 @@ export function getDemoSharedUpdateDataset(workspaceSlug: string) {
   }
 
   return null;
+}
+
+/**
+ * Lookup helpers for the demo/review data boundary.
+ *
+ * Every demo-mode query goes through these fixtures before it can reach the
+ * database. Unknown slugs intentionally resolve to null/empty so App Router
+ * can render its normal not-found state without probing tenant tables.
+ */
+export function getDemoWorkspaceFixture(
+  workspaceSlug: string,
+): Workspace | null {
+  return getDemoSharedUpdateDataset(workspaceSlug)?.workspace ?? null;
+}
+
+export function getDemoProjectsFixture(workspaceSlug: string): Project[] {
+  return getDemoSharedUpdateDataset(workspaceSlug)?.projects ?? [];
+}
+
+export function getDemoTasksFixture(workspaceSlug: string): Task[] {
+  return getDemoSharedUpdateDataset(workspaceSlug)?.tasks ?? [];
+}
+
+export function getDemoProjectFixture(
+  workspaceSlug: string,
+  projectSlug: string,
+): Project | null {
+  return (
+    getDemoProjectsFixture(workspaceSlug).find(
+      (project) => project.slug === projectSlug,
+    ) ?? null
+  );
+}
+
+export function getDemoTaskFixture(
+  workspaceSlug: string,
+  projectSlug: string,
+  taskId: string,
+): Task | null {
+  return (
+    getDemoTasksFixture(workspaceSlug).find(
+      (task) =>
+        task.projectSlug === projectSlug && task.id === taskId,
+    ) ?? null
+  );
 }
 
 function makeDemoTask(

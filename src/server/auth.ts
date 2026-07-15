@@ -82,6 +82,24 @@ export async function resolveTimelineContext(
   requestedWorkspaceId: string,
   requestedPlanningPeriodId?: string,
 ): Promise<ResolvedTimelineContext | null> {
+  // Demo/review is a self-contained fixture boundary. Context query params
+  // may still be present in copied suite links, but they must never open the
+  // Tasks or Timeline databases. Only the canonical fixture slug is valid and
+  // the fixture intentionally has no Planning Period identity.
+  if (isDemoMode()) {
+    if (
+      requestedWorkspaceId.trim() !== demoWorkspace.slug ||
+      requestedPlanningPeriodId?.trim()
+    ) {
+      return null;
+    }
+    return {
+      workspace: demoWorkspace,
+      workspaceId: demoWorkspace.slug,
+      planningPeriodId: null,
+    };
+  }
+
   const [workspace, current] = await Promise.all([
     getWorkspaceForSuiteIdForUser(requestedWorkspaceId, userId),
     getCurrentTasksWorkspaceContext(userId, requestedWorkspaceId),

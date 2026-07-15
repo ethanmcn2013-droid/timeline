@@ -9,7 +9,9 @@ import {
   type SpineItem,
   type SpineLane,
 } from "@/components/roadmap/schedule-spine";
+import { AnchorSentence } from "@/components/roadmap/anchor-countdown";
 import { SiteFooter } from "@/components/marketing/site-footer";
+import { getRequestTime } from "@/lib/request-time";
 
 /**
  * /the-wedding, the canonical public wedding-plan example.
@@ -72,6 +74,16 @@ type Section = {
 };
 
 const VENUE = "Glenmara House";
+
+/**
+ * The day the whole plan points at. Two weeks after the "Sat 2026-06-06"
+ * final walkthrough in SECTIONS, the wedding is Saturday 20 June 2026.
+ * Stated here so the couple's own plan finally names its date, the one
+ * fact a wedding plan cannot be missing. AnchorSentence self-guards: it
+ * states the date plainly and only adds a live "N days from now" while the
+ * day is still ahead, so the example never reads "days ago" once it passes.
+ */
+const WEDDING_DATE = "2026-06-20";
 
 const SECTIONS: Section[] = [
   {
@@ -255,6 +267,7 @@ function StateChip({ state }: { state: State }) {
 export default function TheWeddingExamplePage() {
   let rise = 0;
   const nextDelay = () => `${(rise++ * 70).toString()}ms`;
+  const now = getRequestTime();
 
   return (
     <div className="flex min-h-screen flex-col" style={{ background: "var(--bg)" }}>
@@ -308,6 +321,13 @@ export default function TheWeddingExamplePage() {
             Everything that matters, in one place. Forward this to anyone
             who needs to see where things stand, they will not need an
             account or a login.
+          </p>
+
+          <p
+            className="reveal mt-5 text-[15px] leading-[1.6] text-ink-soft"
+            style={{ animationDelay: nextDelay() }}
+          >
+            <AnchorSentence targetDate={WEDDING_DATE} now={now} />
           </p>
 
           <p

@@ -38,9 +38,13 @@ import {
   assertAudienceSourceAuthority,
   type AudienceSourceAuthority,
 } from "@/server/audience-authority";
+import { isDemoMode } from "@/lib/access-mode";
+import { demoWorkspace } from "@/lib/roadmap/demo-data";
 
 export function audienceTimelineEnabled(): boolean {
-  return process.env.SIGNAL_AUDIENCE_TIMELINE_ENABLED === "true";
+  return (
+    isDemoMode() || process.env.SIGNAL_AUDIENCE_TIMELINE_ENABLED === "true"
+  );
 }
 
 export type AudienceOwnerItem = Readonly<{
@@ -65,6 +69,92 @@ export type AudienceOwnerPublication = Readonly<{
   activeShareCount: number;
   items: readonly AudienceOwnerItem[];
 }>;
+
+/**
+ * Stable review fixture for the Audience Timeline boundary. The token has the
+ * same 256-bit base64url shape as production tokens but is intentionally
+ * public and valid only while demo/review mode is active.
+ */
+export const DEMO_AUDIENCE_TOKEN =
+  "DemoAudienceTimelineToken2026Fixed000000000";
+
+const DEMO_AUDIENCE_DTO = validateAudienceTimelineDto({
+  version: AUDIENCE_TIMELINE_DTO_VERSION,
+  audienceKind: "module",
+  publicationId: "demo-audience-publication",
+  label: "Launch partners, autumn roadmap",
+  ownerDisplayLabel: "Shared by Signal Studio",
+  primaryDate: { label: "Launch review", date: "2026-09-18" },
+  lastUpdatedAt: "2026-07-15T09:00:00.000Z",
+  today: "2026-07-15",
+  sections: [
+    {
+      state: "covered",
+      label: SECTION_LABELS.covered,
+      items: [
+        {
+          publicId: "demo-audience-item-brief",
+          title: "Partner brief agreed",
+          date: "2026-07-10",
+          state: "covered",
+        },
+      ],
+    },
+    {
+      state: "now",
+      label: SECTION_LABELS.now,
+      items: [
+        {
+          publicId: "demo-audience-item-pilot",
+          title: "Pilot workspace review",
+          date: "2026-07-15",
+          state: "now",
+        },
+      ],
+    },
+    {
+      state: "next",
+      label: SECTION_LABELS.next,
+      items: [
+        {
+          publicId: "demo-audience-item-onboarding",
+          title: "Partner onboarding window",
+          date: "2026-08-21",
+          state: "next",
+        },
+        {
+          publicId: "demo-audience-item-review",
+          title: "Launch readiness review",
+          date: "2026-09-18",
+          state: "next",
+        },
+      ],
+    },
+  ],
+});
+
+const DEMO_OWNER_PUBLICATION: AudienceOwnerPublication = {
+  id: DEMO_AUDIENCE_DTO.publicationId,
+  label: DEMO_AUDIENCE_DTO.label,
+  audienceKind: DEMO_AUDIENCE_DTO.audienceKind,
+  ownerDisplayLabel: DEMO_AUDIENCE_DTO.ownerDisplayLabel ?? null,
+  primaryDateLabel: DEMO_AUDIENCE_DTO.primaryDate?.label ?? null,
+  primaryDate: DEMO_AUDIENCE_DTO.primaryDate?.date ?? null,
+  timezone: "Europe/Dublin",
+  state: "published",
+  lastUpdatedAt: new Date(DEMO_AUDIENCE_DTO.lastUpdatedAt),
+  activeShareCount: 1,
+  items: DEMO_AUDIENCE_DTO.sections.flatMap((section) =>
+    section.items.map((item, sortOrder) => ({
+      publicId: item.publicId,
+      title: item.title,
+      calendarDate: item.date ?? null,
+      state: item.state,
+      sortOrder,
+      divergedAt: null,
+    })),
+  ),
+};
 
 export async function connectSuiteWorkspace(
   workspaceSlug: string,
@@ -283,6 +373,12 @@ export async function createNotesAudiencePublication(input: {
 export async function getOwnerAudiencePublications(
   workspaceSlug: string,
 ): Promise<AudienceOwnerPublication[]> {
+  if (isDemoMode()) {
+    return workspaceSlug === demoWorkspace.slug
+      ? [DEMO_OWNER_PUBLICATION]
+      : [];
+  }
+
   const publications = await db
     .select({
       id: timelinePublications.id,
@@ -611,6 +707,12 @@ export type AudienceResolution =
 export const resolveAudienceTimeline = cache(async (
   rawToken: string,
 ): Promise<AudienceResolution> => {
+  if (isDemoMode()) {
+    return rawToken === DEMO_AUDIENCE_TOKEN
+      ? { kind: "ok", dto: DEMO_AUDIENCE_DTO }
+      : { kind: "invalid" };
+  }
+
   const rateLimit = await checkRateLimit(
     "audience-read",
     await getClientIp(),

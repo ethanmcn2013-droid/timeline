@@ -59,7 +59,7 @@ export function RoadmapHeroLoader() {
     const RISE_LEAD  = 80;
 
     const start   = performance.now();
-    let risenAt: Array<number | null> = new Array(letterEls.length).fill(null);
+    const risenAt: Array<number | null> = new Array(letterEls.length).fill(null);
     let centers: number[] = [];
     let raf = 0;
 

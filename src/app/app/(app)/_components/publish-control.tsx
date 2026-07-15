@@ -160,7 +160,6 @@ export function PublishControl({
       }}
     >
       <style
-        // eslint-disable-next-line react/no-danger
         dangerouslySetInnerHTML={{
           __html: `
 @keyframes rw-published-in {

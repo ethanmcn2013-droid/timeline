@@ -68,7 +68,6 @@ const EASE = {
   glide: [0.32, 0.72, 0, 1] as const,
 };
 const SPRING_SNAP = { type: "spring" as const, stiffness: 340, damping: 28 };
-const SPRING_SOFT = { type: "spring" as const, stiffness: 220, damping: 26 };
 
 type Phase =
   | "init"        // SSR / pre-intersection: card at final state visually
@@ -89,8 +88,13 @@ function useNarrative(active: boolean, reduced: boolean) {
 
   useEffect(() => {
     if (reduced) {
-      setPhase("settled");
-      return;
+      let cancelled = false;
+      queueMicrotask(() => {
+        if (!cancelled) setPhase("settled");
+      });
+      return () => {
+        cancelled = true;
+      };
     }
     if (!active) return;
     let cancelled = false;

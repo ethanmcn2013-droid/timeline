@@ -113,7 +113,7 @@ test("isWorkspacePublished, multiple projects, ONE unpublished, tasks present �
 });
 
 test("publishWorkspaceAction guard, zero projects → error, published_at unset", () => {
-  let publishCalled = false;
+  const publishCalled = false;
   // Simulate the guard logic; if it returns error, publishWorkspace is never reached.
   const result = publishWorkspaceGuard(0, 0);
   // published_at is never set when guard returns error (simulated by publishCalled=false).
@@ -127,7 +127,7 @@ test("publishWorkspaceAction guard, zero projects → error, published_at unset"
 });
 
 test("publishWorkspaceAction guard, project exists + zero visible nodes → error, published_at unset", () => {
-  let publishCalled = false;
+  const publishCalled = false;
   // visibleNodeCount=0: no synced tasks AND no manual overlays visible.
   const result = publishWorkspaceGuard(1, 0);
   assert.ok("error" in result, "Should return error for zero visible nodes");

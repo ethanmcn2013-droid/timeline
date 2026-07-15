@@ -1,0 +1,153 @@
+{
+  "schemaVersion": "signal-experience-evidence/1",
+  "capturedAt": "2026-07-15",
+  "product": "timeline",
+  "environment": {
+    "accessMode": "demo",
+    "database": "file::memory:",
+    "databaseSchemaPresent": false,
+    "baseUrl": "http://127.0.0.1:3107",
+    "browser": "Chromium via @playwright/cli",
+    "viewports": [
+      { "name": "mobile", "width": 390, "height": 844 },
+      { "name": "wide", "width": 1440, "height": 960 }
+    ]
+  },
+  "automatedChecks": [
+    {
+      "command": "tsx --conditions=react-server --test src/server/audience-demo-mode.test.ts",
+      "result": "1 passed",
+      "proves": "Audience owner and public reads resolve deterministic fixtures before rate-limit or database infrastructure."
+    },
+    {
+      "command": "tsx --test src/server/db/demo-mode.test.ts",
+      "result": "1 passed",
+      "proves": "Fixture-backed workspace and project reads resolve against a schema-less database with canonical suite provenance."
+    },
+    {
+      "command": "node --test scripts/experience/demo-boundary.test.mjs",
+      "result": "5 passed",
+      "proves": "Demo reads and every exported audience mutation short-circuit before authentication, rate limits, or database writes."
+    },
+    {
+      "command": "node --test scripts/experience/shortcuts-dialog.test.mjs",
+      "result": "3 passed",
+      "proves": "The governed modal, focus-containment, keyboard lifecycle, and backdrop contracts remain present in source."
+    }
+  ],
+  "sourceMaterialityHashes": {
+    "timeline.page.root": "33fb4cc3acaa9fbf",
+    "timeline.page.app": "e90f2efb6181165f",
+    "timeline.page.app-audience": "81ebdf42728fef29",
+    "timeline.page.app-plan-by-project-slug": "f0b323198e985960",
+    "timeline.page.by-workspace-slug": "fbb7fd54eb16b4d8",
+    "timeline.page.by-workspace-slug-by-project-slug": "6794fc419f959868",
+    "timeline.page.by-workspace-slug-by-project-slug-by-id": "1bedf7d71c0a4cc5",
+    "timeline.page.s-by-token": "a368206c4323207d",
+    "timeline.page.s-by-token-present": "88cd02edd286ca39"
+  },
+  "routeAssertions": [
+    { "experienceId": "timeline.page.root", "route": "/", "mobileStatus": 200, "wideStatus": 200 },
+    { "experienceId": "timeline.page.by-workspace-slug", "route": "/tasks", "mobileStatus": 200, "wideStatus": 200 },
+    { "experienceId": "timeline.page.by-workspace-slug-by-project-slug", "route": "/tasks/product", "mobileStatus": 200, "wideStatus": 200 },
+    { "experienceId": "timeline.page.by-workspace-slug-by-project-slug-by-id", "route": "/tasks/product/tasks-product-001", "mobileStatus": 200, "wideStatus": 200 },
+    { "experienceId": "timeline.page.by-workspace-slug-refusals", "route": "/tasks/refusals", "mobileStatus": 200, "wideStatus": 200 },
+    { "experienceId": "timeline.page.app", "route": "/app", "mobileStatus": 200, "wideStatus": 200 },
+    { "experienceId": "timeline.page.app-plan-by-project-slug", "route": "/app/plan/product", "mobileStatus": 200, "wideStatus": 200, "autosyncPostStatus": 200 },
+    { "experienceId": "timeline.page.app-audience", "route": "/app/audience", "mobileStatus": 200, "wideStatus": 200, "demoMutationPostStatus": 200 },
+    { "experienceId": "timeline.page.s-by-token", "route": "/s/DemoAudienceTimelineToken2026Fixed000000000", "mobileStatus": 200, "wideStatus": 200 },
+    { "experienceId": "timeline.page.s-by-token-present", "route": "/s/DemoAudienceTimelineToken2026Fixed000000000/present", "mobileStatus": 200, "wideStatus": 200 },
+    { "experienceId": "timeline.page.s-by-token", "state": "unavailable", "route": "/s/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", "mobileStatus": 200, "wideStatus": 200 },
+    { "experienceId": "timeline.page.the-wedding", "route": "/the-wedding", "mobileStatus": 200, "wideStatus": 200 },
+    { "experienceId": "timeline.state.by-workspace-slug-not-found", "route": "/unknown-fixture-workspace", "mobileStatus": 404, "wideStatus": 404 }
+  ],
+  "accessibilityAssertions": {
+    "allCapturedKnownPages": {
+      "mainLandmarkCount": 1,
+      "h1Count": 1,
+      "horizontalOverflowPixels": 0,
+      "unlabelledInteractiveControls": 0,
+      "duplicateIds": 0,
+      "headingLevelSkips": 0,
+      "unexpectedConsoleErrors": 0,
+      "pageErrors": 0
+    },
+    "timeline.page.app-plan-by-project-slug": {
+      "dateInputsHaveAccessibleNames": true,
+      "autosyncPostStatus": 200
+    },
+    "timeline.page.app-audience": {
+      "canonicalWorkspaceVisible": true,
+      "publicationVisible": true,
+      "labelledFormControls": true,
+      "demoMutationPostStatus": 200,
+      "demoMutationStatusText": "Demo mode is read-only. The publication and its controls are review fixtures."
+    },
+    "timeline.page.s-by-token": {
+      "projectorLinkVisible": true,
+      "formControlCount": 0,
+      "emailLinkCount": 0,
+      "scheduleItemCount": 4
+    },
+    "timeline.page.s-by-token-present": {
+      "fullscreenToggleVisible": true,
+      "fullscreenStatusText": "Fullscreen opened.",
+      "scheduleItemCount": 4
+    },
+    "timeline.page.the-wedding": {
+      "mobileScheduleItemCount": 8,
+      "mobileDateKeyVisible": true,
+      "reducedMotionCapture": true
+    },
+    "timeline.surface.shortcuts-dialog": {
+      "mobile": {
+        "initialFocus": "Close keyboard shortcuts",
+        "tabContainment": true,
+        "bodyScrollLocked": true,
+        "escapeCloses": true
+      },
+      "wide": {
+        "initialFocus": "Close keyboard shortcuts",
+        "tabContainment": true,
+        "bodyScrollLocked": true,
+        "escapeCloses": true
+      }
+    }
+  },
+  "captures": [
+    { "experienceId": "timeline.page.app", "viewport": "mobile", "motion": "reduced", "artifact": "output/playwright/merged-mobile-app.png", "sha256": "e6de3ed9d0566d1ecde584c0f33a52525c890b43ae759460a582db810fb37f8a" },
+    { "experienceId": "timeline.page.app-audience", "viewport": "mobile", "motion": "reduced", "artifact": "output/playwright/merged-mobile-app-audience.png", "sha256": "01a100459428edc4b28cd67b038cbf406fac63a141ddda768e68abbb8f0a7909" },
+    { "experienceId": "timeline.page.app-plan-by-project-slug", "viewport": "mobile", "motion": "reduced", "artifact": "output/playwright/merged-mobile-app-plan-product.png", "sha256": "259dff165da0e1aea5acc64d284acdb14fc852c7023d6cde46aaca2852946952" },
+    { "experienceId": "timeline.page.s-by-token-present", "viewport": "mobile", "motion": "reduced", "artifact": "output/playwright/merged-mobile-audience-projector.png", "sha256": "9d534bf83d0e9da9ee13c5e5e007c2162c4ce3df717de692e807e802012ed4c4" },
+    { "experienceId": "timeline.page.s-by-token", "viewport": "mobile", "motion": "reduced", "artifact": "output/playwright/merged-mobile-audience-shared.png", "sha256": "617359ae5fb1db12b2c0f00470e13ab688d2160b63248d4b23b3e704e0831b32" },
+    { "experienceId": "timeline.page.s-by-token", "state": "unavailable", "viewport": "mobile", "motion": "reduced", "artifact": "output/playwright/merged-mobile-audience-unavailable.png", "sha256": "7fa29cb6e81c687cfc7bebb9e6e7f0995c16f80a822f71c3cea496a9b2019299" },
+    { "experienceId": "timeline.page.root", "viewport": "mobile", "motion": "reduced", "artifact": "output/playwright/merged-mobile-root.png", "sha256": "fbb513d3acae6372ef3d82901a0bec1c433b966c0b14d4f07c26649e1a2332b7" },
+    { "experienceId": "timeline.surface.shortcuts-dialog", "viewport": "mobile", "motion": "reduced", "artifact": "output/playwright/merged-mobile-shortcuts-dialog.png", "sha256": "2ca4876db82ae40cb4519850ae52c42f8e8dc3a1a995c3946b205b12eb5a4669" },
+    { "experienceId": "timeline.page.by-workspace-slug", "viewport": "mobile", "motion": "reduced", "artifact": "output/playwright/merged-mobile-tasks.png", "sha256": "7da64630cb9ff9963fb0ffa7b0b224aed4774a8ab39d565dd1c1058142552c8e" },
+    { "experienceId": "timeline.page.by-workspace-slug-by-project-slug", "viewport": "mobile", "motion": "reduced", "artifact": "output/playwright/merged-mobile-tasks-product.png", "sha256": "b1c87b64629ec57985d7cedbc1d056d06d982e012bfb0329afddfafb721f43d9" },
+    { "experienceId": "timeline.page.by-workspace-slug-by-project-slug-by-id", "viewport": "mobile", "motion": "reduced", "artifact": "output/playwright/merged-mobile-tasks-product-item.png", "sha256": "2794323568050c508bfdcf57ef407226af61c6a63b6e99f9c8bd593d96e7d246" },
+    { "experienceId": "timeline.page.by-workspace-slug-refusals", "viewport": "mobile", "motion": "reduced", "artifact": "output/playwright/merged-mobile-tasks-refusals.png", "sha256": "2e29d9a22db46f554bb8067b8719b0689fc4b440cfea6de992b298018503fdcf" },
+    { "experienceId": "timeline.page.the-wedding", "viewport": "mobile", "motion": "reduced", "artifact": "output/playwright/merged-mobile-the-wedding.png", "sha256": "adea84c34e12b440e9d81ab0662894ea4305e7d24846c680c9693cfb99e28991" },
+    { "experienceId": "timeline.state.by-workspace-slug-not-found", "viewport": "mobile", "motion": "reduced", "artifact": "output/playwright/merged-mobile-unknown-fixture-workspace.png", "sha256": "d6ebbf591aab9c306dcd17db3695f750efb3fe90ca3fde811dac865e6661a9ec" },
+    { "experienceId": "timeline.page.app", "viewport": "wide", "motion": "reduced", "artifact": "output/playwright/merged-wide-app.png", "sha256": "e51330fcf5384235104901295264ddafd467411e9bca87819142e61fcb5e8577" },
+    { "experienceId": "timeline.page.app-audience", "viewport": "wide", "motion": "reduced", "artifact": "output/playwright/merged-wide-app-audience.png", "sha256": "024e240ca11d3a38218d7a39d04a10703aeed25307c58bc0a3024307e412c823" },
+    { "experienceId": "timeline.page.app-plan-by-project-slug", "viewport": "wide", "motion": "reduced", "artifact": "output/playwright/merged-wide-app-plan-product.png", "sha256": "5da892cdb4d8a643145f92b78f8944a29f409c9dca3033ecf49b4d00d346eece" },
+    { "experienceId": "timeline.page.s-by-token-present", "viewport": "wide", "motion": "reduced", "artifact": "output/playwright/merged-wide-audience-projector.png", "sha256": "e11235a9a092af009658dc297265d4d3cc7ad329cb31fb6fd31a1284733b1600" },
+    { "experienceId": "timeline.page.s-by-token", "viewport": "wide", "motion": "reduced", "artifact": "output/playwright/merged-wide-audience-shared.png", "sha256": "3d4b9b40a391314610d438b00ddb358db390d23a0cd27c268f21f86b8b11a89a" },
+    { "experienceId": "timeline.page.s-by-token", "state": "unavailable", "viewport": "wide", "motion": "reduced", "artifact": "output/playwright/merged-wide-audience-unavailable.png", "sha256": "ac6239e46d30f8295f99a6fe4f4da975bc2a6fba6c0f2658b2e847f38ffb6bae" },
+    { "experienceId": "timeline.page.root", "viewport": "wide", "motion": "reduced", "artifact": "output/playwright/merged-wide-root.png", "sha256": "638566c9cd46a65c61a3042a4c834b0ab716c3c9d158675c2d72cb4eaed2bca2" },
+    { "experienceId": "timeline.surface.shortcuts-dialog", "viewport": "wide", "motion": "reduced", "artifact": "output/playwright/merged-wide-shortcuts-dialog.png", "sha256": "2987de4f5d9ba92348bdb01ba3b2cefca80075f3bff7480cf72c096210e9b211" },
+    { "experienceId": "timeline.page.by-workspace-slug", "viewport": "wide", "motion": "reduced", "artifact": "output/playwright/merged-wide-tasks.png", "sha256": "bc4b5dafa148ba5802e2057b390a75c2a82419cc77e27b129c05956382146b60" },
+    { "experienceId": "timeline.page.by-workspace-slug-by-project-slug", "viewport": "wide", "motion": "reduced", "artifact": "output/playwright/merged-wide-tasks-product.png", "sha256": "eac38b42d97b48eb1aac8b683a7be8d1136f03b324e649bc3bc77318497c8c57" },
+    { "experienceId": "timeline.page.by-workspace-slug-by-project-slug-by-id", "viewport": "wide", "motion": "reduced", "artifact": "output/playwright/merged-wide-tasks-product-item.png", "sha256": "8a0a614bab2abe15761c18533dd5fba882d7d490cee35b6b975784fbbc136618" },
+    { "experienceId": "timeline.page.by-workspace-slug-refusals", "viewport": "wide", "motion": "reduced", "artifact": "output/playwright/merged-wide-tasks-refusals.png", "sha256": "2a651bdcf42bd74f7794ad53565003dc04ceb6a9e11fec24570a7b5044e259c9" },
+    { "experienceId": "timeline.page.the-wedding", "viewport": "wide", "motion": "reduced", "artifact": "output/playwright/merged-wide-the-wedding.png", "sha256": "ce3da401bf9c5f40b728eb6402196e9e9f67b606d1530039db8d274b5ded1960" },
+    { "experienceId": "timeline.state.by-workspace-slug-not-found", "viewport": "wide", "motion": "reduced", "artifact": "output/playwright/merged-wide-unknown-fixture-workspace.png", "sha256": "553d8ea0b3b3dbd8419c68a549b72ff77ae10fad27a49e794b3b72b613f96814" }
+  ],
+  "coverageNotes": [
+    "Mobile and wide baselines are captured; tablet and desktop remain open, so registry screenshot and accessibility coverage stay partial.",
+    "Representative populated, unavailable, read-only, projector, dialog, and not-found states are covered; every registered loading, empty, failure, restricted, and dense state is not yet covered.",
+    "The Next.js development portal and demo environment banner were hidden from visual baselines; application UI was not altered for capture.",
+    "Capture PNGs are generated artifacts. Their logical paths and SHA-256 digests are recorded here so a reviewer can reproduce and compare them without committing binary baselines."
+  ]
+}
