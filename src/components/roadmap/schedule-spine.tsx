@@ -211,7 +211,7 @@ export function ScheduleSpine({ items }: Props) {
         >
           {grouped.map(({ lane, items: laneItems }) => (
             <div key={lane}>
-              <h3 className="font-mono text-[10px] font-semibold uppercase tracking-[0.16em] text-ink-faint">
+              <h3 className="font-mono text-[10px] font-semibold uppercase tracking-[0.16em] text-ink-soft">
                 {lane}
               </h3>
               <ul className="mt-2 space-y-3">
@@ -236,7 +236,7 @@ export function ScheduleSpine({ items }: Props) {
                       </p>
                       {item.when ? (
                         <div className="mt-1">
-                          <DatePrecisionChip precision={item.when} tone="quiet" />
+                          <DatePrecisionChip precision={item.when} />
                         </div>
                       ) : null}
                     </div>

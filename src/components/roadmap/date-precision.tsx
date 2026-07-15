@@ -89,7 +89,7 @@ export function DatePrecisionChip({ precision, tone = "default" }: Props) {
   return (
     <span
       className="inline-flex items-center gap-1.5 font-mono text-[11.5px]"
-      style={{ color: "var(--ink-quiet)", letterSpacing: "0.01em" }}
+      style={{ color: colour, letterSpacing: "0.01em" }}
       aria-label={
         precision.value
           ? `Awaiting confirmation: ${precision.value}`
@@ -99,7 +99,7 @@ export function DatePrecisionChip({ precision, tone = "default" }: Props) {
       <span
         aria-hidden
         className="inline-block h-1.5 w-1.5 rounded-full border"
-        style={{ borderColor: "var(--ink-quiet)" }}
+        style={{ borderColor: colour }}
       />
       {precision.value ?? "awaiting confirmation"}
     </span>

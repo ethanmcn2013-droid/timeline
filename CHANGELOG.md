@@ -3,6 +3,10 @@
 Convention: BRAND.md §6.5. Entries before 2026-05-14 keep their
 original shape; the new shape starts at the next cycle.
 
+## 2026-07-15 · R·32 · tightens · the compact schedule stays readable
+
+**The wedding plan's compact Schedule now keeps every lane and date label legible against its quiet paper panel.** The panel uses the stronger existing ink step for its 10px and 11.5px supporting copy, while the same date primitive keeps its quieter tone on plain white surfaces. The rendered mobile route now clears WCAG AA contrast with no change to wording, spacing, or information hierarchy.
+
 ## 2026-07-12 · R·31 · ships · share the schedule, not the workspace
 
 **Timeline now has a separate, frozen publication boundary for a class, module, or couple.** An owner selects the exact milestone labels, calendar dates, and completion states to copy, previews and edits that public copy independently, then creates a 256-bit bearer link whose database record stores only a SHA-256 digest. Source edits mark the copy as diverged but never propagate; rotate, revoke, expiry, and unpublish take effect on uncached reads. The `/s/[token]` reader is noindex, no-referrer, responsive, and deliberately separates the time window, covered count, next fixed date, and timezone-correct Today marker instead of inventing an “on track” score. A projector view uses the same strict DTO with larger type and simple chrome. Existing slug links remain intact and separate. The same cycle closes the legacy draft-item IDOR, scopes Tasks milestone sync to one current-member canonical workspace, carries validated Planning Period context across the suite switcher, and adds Audience rows to account export and erasure. New creation is controlled by `SIGNAL_AUDIENCE_TIMELINE_ENABLED`; existing links and safety controls remain available when it is off.
