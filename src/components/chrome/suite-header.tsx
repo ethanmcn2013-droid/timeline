@@ -35,7 +35,7 @@
  * ── Tokens ────────────────────────────────────────────────────────
  * Colors come through CSS-var fallback chains so the one file themes
  * correctly in every repo regardless of its token names. The hairline is a
- * component-scoped default (rgba(17,17,17,0.08)) so all four render the SAME
+ * component-scoped hairline token so all four render the SAME
  * neutral rule — this is what kills the green-grey / border-soft divergence.
  * A repo may override --suite-header-hairline at :root for a sanctioned skin,
  * but the default is the unified suite hairline.
@@ -46,11 +46,11 @@ import Link from "next/link";
 
 export type SuiteNavItem = { href: string; label: string; external?: boolean };
 
-const HAIRLINE = "var(--suite-header-hairline, rgba(17, 17, 17, 0.08))";
-const BG = "color-mix(in srgb, var(--bg, #ffffff) 88%, transparent)";
-const INK = "var(--ink, #14151a)";
-const INK_SOFT = "var(--ink-soft, #52525b)";
-const INK_FAINT = "var(--ink-faint, #a1a1aa)";
+const HAIRLINE = "var(--suite-header-hairline, var(--hairline-soft))";
+const BG = "color-mix(in srgb, var(--paper) 88%, transparent)";
+const INK = "var(--ink)";
+const INK_SOFT = "var(--ink-soft)";
+const INK_FAINT = "var(--ink-faint)";
 
 function ExternalGlyph() {
   return (

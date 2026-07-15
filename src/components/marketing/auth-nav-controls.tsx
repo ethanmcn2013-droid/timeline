@@ -40,6 +40,14 @@ function ArrowIcon() {
   );
 }
 
+export function AuthNavControls() {
+  if (isDemoMode() || isUxAssuranceMode()) {
+    return <SignedOutControl />;
+  }
+
+  return <ClerkAuthNavControls />;
+}
+
 function ClerkAuthNavControls() {
   const { isSignedIn, isLoaded } = useUser();
 
@@ -47,15 +55,7 @@ function ClerkAuthNavControls() {
   // Once Clerk loads on the client, the correct branch renders.
   // The mobile nav menu is owned by SuiteHeader; this is only the auth slot.
   if (!isLoaded || !isSignedIn) {
-    return (
-      <Link
-        href="/sign-in"
-        className="inline-flex min-h-8 items-center rounded-full px-3.5 text-[13px] font-medium text-ink-soft hover:text-ink"
-        style={{ transition: "color var(--motion-fast) var(--ease-standard)" }}
-      >
-        Sign in
-      </Link>
-    );
+    return <SignedOutControl />;
   }
 
   // Authed state: account menu only. No upper CTA.
@@ -79,18 +79,14 @@ function ClerkAuthNavControls() {
   );
 }
 
-export function AuthNavControls() {
-  if (isDemoMode() || isUxAssuranceMode()) {
-    return (
-      <Link
-        href="/sign-in"
-        className="inline-flex min-h-8 items-center rounded-full px-3.5 text-[13px] font-medium text-ink-soft hover:text-ink"
-        style={{ transition: "color var(--motion-fast) var(--ease-standard)" }}
-      >
-        Sign in
-      </Link>
-    );
-  }
-
-  return <ClerkAuthNavControls />;
+function SignedOutControl() {
+  return (
+    <Link
+      href="/sign-in"
+      className="inline-flex min-h-8 items-center rounded-full px-3.5 text-[13px] font-medium text-ink-soft hover:text-ink"
+      style={{ transition: "color var(--motion-fast) var(--ease-standard)" }}
+    >
+      Sign in
+    </Link>
+  );
 }

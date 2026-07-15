@@ -40,8 +40,6 @@ export function ItemRow({
   isOwner?: boolean;
 }) {
   const isDone = task.status === "shipped";
-  const isDoing = task.status === "in-flight";
-  const isStuck = task.status === "waiting";
   const isMilestone = isMilestoneItem(task);
 
   const rowBg =

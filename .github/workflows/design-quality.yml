@@ -1,0 +1,67 @@
+name: Design quality
+
+on:
+  pull_request:
+    paths:
+      - "src/**"
+      - "experience/**"
+      - "scripts/experience/**"
+      - "scripts/ds/**"
+      - ".ds-grandfather.json"
+      - ".github/workflows/design-quality.yml"
+      - ".github/pull_request_template.md"
+  push:
+    branches: [main]
+    paths:
+      - "src/**"
+      - "experience/**"
+      - "scripts/experience/**"
+      - "scripts/ds/**"
+      - ".ds-grandfather.json"
+      - ".github/workflows/design-quality.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: design-quality-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  experience-registry:
+    name: Experience registry
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Check out repository and base history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Use Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Check validator syntax
+        run: |
+          node --check scripts/experience/lib.mjs
+          node --check scripts/experience/validate.mjs
+          node --check scripts/experience/self-test.mjs
+
+      - name: Prove drift detection
+        run: node scripts/experience/self-test.mjs
+
+      - name: Check governed interaction contracts
+        run: |
+          node --test scripts/experience/demo-boundary.test.mjs
+          node --test scripts/experience/shortcuts-dialog.test.mjs
+          node --test scripts/experience/reserved-slugs.test.mjs
+
+      - name: Validate experience registry
+        run: node scripts/experience/validate.mjs
+
+      - name: Enforce design-system drift ratchet
+        run: node scripts/ds/ds-check.mjs

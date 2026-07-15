@@ -25,6 +25,7 @@ import {
 import { TIMELINE_URL } from "@/lib/product-urls";
 import { getCurrentTasksWorkspaceContext } from "@/server/sync/tasks-workspace-context";
 import { withFreshAudienceMutationAuthority } from "@/server/audience-authority";
+import { isDemoMode } from "@/lib/access-mode";
 
 export type AudienceActionState = Readonly<{
   status: "idle" | "success" | "error";
@@ -33,9 +34,18 @@ export type AudienceActionState = Readonly<{
   publicationId?: string;
 }>;
 
-export const INITIAL_AUDIENCE_ACTION_STATE: AudienceActionState = {
-  status: "idle",
-};
+function demoReadOnlyState(formData: FormData): AudienceActionState | null {
+  if (!isDemoMode()) return null;
+  const rawPublicationId = formData.get("publicationId");
+  return {
+    status: "error",
+    message:
+      "Demo mode is read-only. The publication and its controls are review fixtures.",
+    ...(typeof rawPublicationId === "string" && rawPublicationId
+      ? { publicationId: rawPublicationId }
+      : {}),
+  };
+}
 
 function requiredText(formData: FormData, name: string, max: number): string {
   const value = formData.get(name);
@@ -105,6 +115,8 @@ export async function connectSuiteWorkspaceAction(
   _previous: AudienceActionState,
   formData: FormData,
 ): Promise<AudienceActionState> {
+  const demoState = demoReadOnlyState(formData);
+  if (demoState) return demoState;
   try {
     await allowWrite("audience-connect-workspace");
     const { userId, workspace } = await ownerWorkspace(formData);
@@ -139,6 +151,8 @@ export async function createAudiencePublicationAction(
   _previous: AudienceActionState,
   formData: FormData,
 ): Promise<AudienceActionState> {
+  const demoState = demoReadOnlyState(formData);
+  if (demoState) return demoState;
   try {
     if (!audienceTimelineEnabled()) throw new TypeError("New Audience Timelines are paused by the feature flag.");
     await allowWrite("audience-create");
@@ -186,6 +200,8 @@ export async function publishAudiencePublicationAction(
   _previous: AudienceActionState,
   formData: FormData,
 ): Promise<AudienceActionState> {
+  const demoState = demoReadOnlyState(formData);
+  if (demoState) return demoState;
   try {
     await allowWrite("audience-publish");
     const { userId, workspace } = await ownerWorkspace(formData);
@@ -215,6 +231,8 @@ export async function rotateAudienceShareAction(
   _previous: AudienceActionState,
   formData: FormData,
 ): Promise<AudienceActionState> {
+  const demoState = demoReadOnlyState(formData);
+  if (demoState) return demoState;
   try {
     await allowWrite("audience-rotate");
     const { userId, workspace } = await ownerWorkspace(formData);
@@ -244,6 +262,8 @@ export async function revokeAudienceShareAction(
   _previous: AudienceActionState,
   formData: FormData,
 ): Promise<AudienceActionState> {
+  const demoState = demoReadOnlyState(formData);
+  if (demoState) return demoState;
   try {
     const { workspace } = await ownerWorkspace(formData);
     const publicationId = requiredText(formData, "publicationId", 80);
@@ -259,6 +279,8 @@ export async function unpublishAudiencePublicationAction(
   _previous: AudienceActionState,
   formData: FormData,
 ): Promise<AudienceActionState> {
+  const demoState = demoReadOnlyState(formData);
+  if (demoState) return demoState;
   try {
     const { workspace } = await ownerWorkspace(formData);
     const publicationId = requiredText(formData, "publicationId", 80);
@@ -278,6 +300,8 @@ export async function updateAudiencePublicationItemAction(
   _previous: AudienceActionState,
   formData: FormData,
 ): Promise<AudienceActionState> {
+  const demoState = demoReadOnlyState(formData);
+  if (demoState) return demoState;
   try {
     const { workspace } = await ownerWorkspace(formData);
     const publicationId = requiredText(formData, "publicationId", 80);
@@ -308,6 +332,8 @@ export async function refreshAudienceDivergenceAction(
   _previous: AudienceActionState,
   formData: FormData,
 ): Promise<AudienceActionState> {
+  const demoState = demoReadOnlyState(formData);
+  if (demoState) return demoState;
   try {
     const { workspace } = await ownerWorkspace(formData);
     const publicationId = requiredText(formData, "publicationId", 80);

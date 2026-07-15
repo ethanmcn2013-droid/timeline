@@ -23,8 +23,14 @@ import type { Workspace, Project, ProjectSource, Task, Activity, NodeOverlay } f
 import type { Status } from "./schema";
 import { isDemoMode } from "@/lib/access-mode";
 import {
-  demoProjects,
+  demoWorkspace,
   demoEffectiveNodes,
+  getDemoProjectFixture,
+  getDemoProjectsFixture,
+  getDemoSharedUpdateDataset,
+  getDemoTaskFixture,
+  getDemoTasksFixture,
+  getDemoWorkspaceFixture,
 } from "@/lib/roadmap/demo-data";
 
 // Re-export for callers (workspaces.ts action layer)
@@ -66,6 +72,8 @@ export type NodeOverlayInput = {
 export const getWorkspace = cache(async (
   slug: string,
 ): Promise<Workspace | null> => {
+  if (isDemoMode()) return getDemoWorkspaceFixture(slug);
+
   // isolation-ok: public read by design. Signal Timeline has NO private
   // workspaces (locked product refusal, AGENTS.md), every timeline is
   // public-by-default, so resolving one by its public slug is the intended
@@ -82,6 +90,10 @@ export const getWorkspace = cache(async (
 export async function getWorkspacesForUser(
   userId: string,
 ): Promise<Workspace[]> {
+  if (isDemoMode()) {
+    return userId === demoWorkspace.ownerUserId ? [demoWorkspace] : [];
+  }
+
   return db
     .select()
     .from(workspaces)
@@ -221,7 +233,7 @@ export async function seedWorkspaceFromTemplate({
 export async function getProjectsForWorkspace(
   workspaceSlug: string,
 ): Promise<Project[]> {
-  if (isDemoMode()) return demoProjects;
+  if (isDemoMode()) return getDemoProjectsFixture(workspaceSlug);
   return db
     .select()
     .from(projects)
@@ -258,8 +270,9 @@ export async function getProjectsForWorkspace(
 export async function isWorkspacePublished(
   workspaceSlug: string,
 ): Promise<boolean> {
-  // Demo/Review: the seeded workspace is always publishable.
-  if (isDemoMode()) return true;
+  // Demo/Review: known fixture workspaces are always publishable; unknown
+  // slugs stay false and never fall through to tenant tables.
+  if (isDemoMode()) return getDemoWorkspaceFixture(workspaceSlug) !== null;
   // Step 1+2: require ≥1 project, all published.
   const projectRows = await db
     .select({ publishedAt: projects.publishedAt })
@@ -459,6 +472,8 @@ export async function upsertProjectSource({
 export async function getTasksForWorkspace(
   workspaceSlug: string,
 ): Promise<Task[]> {
+  if (isDemoMode()) return getDemoTasksFixture(workspaceSlug);
+
   return db
     .select()
     .from(tasks)
@@ -476,6 +491,15 @@ export async function getTasksForWorkspace(
 export async function getLastUpdatedForWorkspace(
   workspaceSlug: string,
 ): Promise<Date | null> {
+  if (isDemoMode()) {
+    const fixtureTasks = getDemoTasksFixture(workspaceSlug);
+    return fixtureTasks.reduce<Date | null>(
+      (latest, task) =>
+        latest === null || task.updatedAt > latest ? task.updatedAt : latest,
+      null,
+    );
+  }
+
   const rows = await db
     .select({ updatedAt: tasks.updatedAt })
     .from(tasks)
@@ -728,7 +752,7 @@ export type EffectiveNode = {
 export const getEffectiveNodesForWorkspace = cache(async (
   workspaceSlug: string,
 ): Promise<EffectiveNode[]> => {
-  if (isDemoMode()) return demoEffectiveNodes();
+  if (isDemoMode()) return demoEffectiveNodes(workspaceSlug);
   const [allMilestoneTasks, allOverlays] = await Promise.all([
     db
       .select()
@@ -836,6 +860,12 @@ export function statusToLane(
  * Drives the /[workspaceSlug]/refusals page.
  */
 export async function getRefusedTasks(workspaceSlug: string): Promise<Task[]> {
+  if (isDemoMode()) {
+    return getDemoTasksFixture(workspaceSlug).filter(
+      (task) => task.status === "refused",
+    );
+  }
+
   return db
     .select()
     .from(tasks)
@@ -856,6 +886,12 @@ export async function getUpcomingTasks(
   workspaceSlug: string,
   days = 7,
 ): Promise<Task[]> {
+  if (isDemoMode()) {
+    // The fixture owns its clock. Do not make deterministic review captures
+    // decay as wall-clock time moves past the seeded dates.
+    return getDemoSharedUpdateDataset(workspaceSlug)?.upcoming ?? [];
+  }
+
   const today = new Date();
   const todayStr = today.toISOString().slice(0, 10);
   const future = new Date(today);
@@ -886,6 +922,10 @@ export const getTask = cache(async (
   projectSlug: string,
   taskId: string,
 ): Promise<Task | null> => {
+  if (isDemoMode()) {
+    return getDemoTaskFixture(workspaceSlug, projectSlug, taskId);
+  }
+
   const [row] = await db
     .select()
     .from(tasks)
@@ -908,6 +948,10 @@ export const getProject = cache(async (
   workspaceSlug: string,
   projectSlug: string,
 ): Promise<Project | null> => {
+  if (isDemoMode()) {
+    return getDemoProjectFixture(workspaceSlug, projectSlug);
+  }
+
   const [row] = await db
     .select()
     .from(projects)
@@ -940,6 +984,8 @@ export async function getActivityForTask(
   taskId: string,
   limit = 20,
 ): Promise<Activity[]> {
+  if (isDemoMode()) return [];
+
   // Most-recent-first so the activity panel shows the latest 20
   // events, not the oldest 20 (which would never grow past day-one
   // history once a task accumulates events).
@@ -967,6 +1013,12 @@ export async function getTasksForProject(
   workspaceSlug: string,
   projectSlug: string,
 ): Promise<Task[]> {
+  if (isDemoMode()) {
+    return getDemoTasksFixture(workspaceSlug).filter(
+      (task) => task.projectSlug === projectSlug,
+    );
+  }
+
   return db
     .select()
     .from(tasks)
