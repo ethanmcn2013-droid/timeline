@@ -31,6 +31,7 @@ import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import type { NextFetchEvent, NextRequest } from "next/server";
 import { isDemoMode } from "@/lib/access-mode";
+import { timelineProjectContextRedirect } from "@/lib/suite-context-redirect";
 
 // Exact M-route list. Only these routes redirect authed users to /app.
 // /{workspaceSlug}/... is intentionally NOT here (it's category C).
@@ -81,6 +82,11 @@ const productionProxy = clerkMiddleware(async (auth, req) => {
 
   const { userId } = await auth();
 
+  if (userId) {
+    const contextDestination = timelineProjectContextRedirect(req.nextUrl);
+    if (contextDestination) return NextResponse.redirect(contextDestination);
+  }
+
   // R5: bounce authenticated users away from sign-in/sign-up back to app.
   if (isAuthRoute(req) && userId) {
     return NextResponse.redirect(new URL("/app", req.url));
@@ -120,6 +126,11 @@ function hardenAudienceResponse(response: NextResponse): NextResponse {
 }
 
 export default async function proxy(req: NextRequest, event: NextFetchEvent) {
+  if (isDemoMode()) {
+    const contextDestination = timelineProjectContextRedirect(req.nextUrl);
+    if (contextDestination) return NextResponse.redirect(contextDestination);
+  }
+
   const response = isDemoMode()
     ? NextResponse.next()
     : ((await productionProxy(req, event)) ?? NextResponse.next());

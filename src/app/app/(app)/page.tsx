@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import {
   requireUser,
   getCurrentWorkspace,
@@ -25,11 +24,7 @@ export const dynamic = "force-dynamic";
 export default async function AppPage({
   searchParams,
 }: {
-  searchParams: Promise<{
-    workspaceId?: string;
-    planningPeriodId?: string;
-    projectId?: string;
-  }>;
+  searchParams: Promise<{ workspaceId?: string; planningPeriodId?: string }>;
 }) {
   const userId = await requireUser();
   const requested = await searchParams;
@@ -76,14 +71,6 @@ export default async function AppPage({
       resolveEntitlement(userId),
     ]);
   const publicBase = process.env.NEXT_PUBLIC_SITE_URL ?? TIMELINE_URL;
-
-  const requestedProjectId = requested.projectId?.trim();
-  if (
-    requestedProjectId &&
-    projects.some((project) => project.slug === requestedProjectId)
-  ) {
-    redirect(`/app/plan/${encodeURIComponent(requestedProjectId)}${contextQuery}`);
-  }
 
   // Anchor is workspace-level, drawn from every visible milestone across the
   // workspace's projects. Hidden nodes are curated out of the public plan, so
