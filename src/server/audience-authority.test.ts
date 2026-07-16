@@ -139,8 +139,10 @@ test("removed Tasks membership blocks create, publish, and rotate before any URL
     await rm(directory, {
       recursive: true,
       force: true,
-      maxRetries: 5,
-      retryDelay: 50,
+      // libSQL can release its Windows file handle slightly after close().
+      // Keep cleanup deterministic without weakening any assertion.
+      maxRetries: 20,
+      retryDelay: 100,
     });
   }
 });

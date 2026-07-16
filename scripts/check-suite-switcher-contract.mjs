@@ -81,6 +81,18 @@ if (switcher.file) {
     ".suitesw-pill--current",
     "current product must be a visible active pill",
   );
+  mustContain(
+    switcher.file,
+    switcher.source,
+    "sourceProduct",
+    "suite links must identify Timeline so Signal can normalize authorized context",
+  );
+  mustContain(
+    switcher.file,
+    switcher.source,
+    "projectId",
+    "a selected Timeline project must survive the jump into Signal",
+  );
   mustNotContain(
     switcher.file,
     switcher.source,
