@@ -3,6 +3,10 @@
 Convention: BRAND.md §6.5. Entries before 2026-05-14 keep their
 original shape; the new shape starts at the next cycle.
 
+## 2026-07-17 · R·33 · opens · the homepage leads with one public line
+
+**The Timeline homepage now opens on "The Line": a single public plan that reads left to right.** Three short sentences name the job, then one horizontal line draws in and four dated moments settle onto it: now, soon, later, and done. It replaces the browser-and-link opener with the plainest statement of what Timeline makes, one public plan anyone can read without an account or an app. The motion plays once and respects reduced-motion, and the settled plan is the default state, so the page is legible before any animation runs. The previous "The Link" opener stays in the codebase as an alternate.
+
 ## 2026-07-15 · R·32 · tightens · the compact schedule stays readable
 
 **The wedding plan's compact Schedule now keeps every lane and date label legible against its quiet paper panel.** The panel uses the stronger existing ink step for its 10px and 11.5px supporting copy, while the same date primitive keeps its quieter tone on plain white surfaces. The rendered mobile route now clears WCAG AA contrast with no change to wording, spacing, or information hierarchy.

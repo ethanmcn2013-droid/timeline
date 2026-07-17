@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { SiteNav } from "@/components/marketing/site-nav";
 import { SiteFooter } from "@/components/marketing/site-footer";
-import { TimelineHeroLink } from "@/components/marketing/hero-the-link";
+import { TimelineHeroLine } from "@/components/marketing/hero-the-line";
 import { Hero } from "@/components/marketing/hero";
 import { LongNowStrip } from "@/components/marketing/long-now-strip";
 import { ItemAnatomy } from "@/components/marketing/anatomy";
@@ -9,8 +9,9 @@ import { SuiteArrows } from "@/components/suite-arrows";
 
 /**
  * Roadmap marketing homepage, structure:
- *   1. TimelineHeroLink , "The Link": the shared URL opens in a real browser,
- *                         the sign-in wall dissolves, the plan just reads
+ *   1. TimelineHeroLine , "The Line": three sentences name the job, then a
+ *                         single line reads left to right and the dated plan
+ *                         settles onto it — now, soon, later, done
  *   2. Hero             , readability claim + animated live demo
  *   3. ItemAnatomy      , roadmap item anatomy breakdown
  *   4. CTA              , confident close
@@ -21,7 +22,7 @@ export default function HomePage() {
       <SiteNav />
       <SuiteArrows current="roadmap" />
       <main className="flex-1">
-        <TimelineHeroLink />
+        <TimelineHeroLine />
         <Hero />
 
         {/* Long Now Strip, names the planning horizon. The interstitial
