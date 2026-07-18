@@ -25,8 +25,9 @@ export const metadata: Metadata = {
 export default async function AccountPage() {
   // Demo/Review: render the settings surface with a synthetic identity so it
   // is reviewable without a session. Never touches Clerk.
+  const reviewIdentity = isDemoMode();
   let email: string;
-  if (isDemoMode()) {
+  if (reviewIdentity) {
     email = "you@theorchard.example";
   } else {
     const user = await currentUser();
@@ -50,9 +51,17 @@ export default async function AccountPage() {
         sign-in methods live in your Signal account.
       </p>
 
-      <ManageIdentityButton />
-
-      <DangerZone email={email} />
+      {reviewIdentity ? (
+        <p className="rounded-lg border border-line-soft bg-bg-sunken px-4 py-3 text-[13px] leading-[1.6] text-ink-soft">
+          Identity and account deletion stay unavailable in review mode. This
+          preview never connects to a real Signal account.
+        </p>
+      ) : (
+        <>
+          <ManageIdentityButton />
+          <DangerZone email={email} />
+        </>
+      )}
     </main>
   );
 }
