@@ -1,7 +1,4 @@
 import assert from "node:assert/strict";
-import { mkdtemp, rm } from "node:fs/promises";
-import { tmpdir } from "node:os";
-import { join } from "node:path";
 import { test } from "node:test";
 import { createClient } from "@libsql/client";
 import {
@@ -16,9 +13,10 @@ function restoreEnv(name: string, value: string | undefined): void {
 }
 
 test("removed Tasks membership blocks create, publish, and rotate before any URL is returned", async () => {
-  const directory = await mkdtemp(join(tmpdir(), "timeline-audience-authority-"));
-  const databasePath = join(directory, "tasks.db").replaceAll("\\", "/");
-  const url = `file:${databasePath}`;
+  // Shared in-memory mode preserves the independent-client boundary used by
+  // Tasks reauthorization without leaving libsql's embedded file handle for
+  // Windows test teardown to race.
+  const url = "file::memory:?cache=shared";
   const client = createClient({ url });
   const previousUrl = process.env.TASKS_DATABASE_URL;
   const previousToken = process.env.TASKS_AUTH_TOKEN;
@@ -143,6 +141,5 @@ test("removed Tasks membership blocks create, publish, and rotate before any URL
       // Keep cleanup deterministic without weakening any assertion.
       maxRetries: 20,
       retryDelay: 100,
-    });
-  }
+    });  }
 });

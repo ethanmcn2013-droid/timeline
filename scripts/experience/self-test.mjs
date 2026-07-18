@@ -82,6 +82,15 @@ try {
   const rootEntry = registeredEntry(initialDiscovery[0]);
   const registered = registry([rootEntry]);
 
+  const encodedLab = path.join(appRoot, "%5F%5Fdesign-lab", "timeline");
+  mkdirSync(encodedLab, { recursive: true });
+  writeFileSync(path.join(encodedLab, "page.tsx"), "export default function Page(){return null}\n");
+  const decodedLab = discoverRoutes(root).find((entry) => entry.source.includes("%5F%5Fdesign-lab"));
+  if (decodedLab?.route !== "/__design-lab/timeline" || decodedLab.id !== "timeline.page.design-lab-timeline") {
+    throw new Error(`self-test did not decode the routable private-folder escape: ${JSON.stringify(decodedLab)}`);
+  }
+  rmSync(path.join(appRoot, "%5F%5Fdesign-lab"), { recursive: true, force: true });
+
   const missingRoot = path.join(appRoot, "deliberately-unregistered");
   mkdirSync(missingRoot, { recursive: true });
   writeFileSync(

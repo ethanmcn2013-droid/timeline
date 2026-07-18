@@ -1,0 +1,34 @@
+{
+  "schemaVersion": "signal-experience-evidence/1",
+  "capturedAt": "2026-07-18",
+  "product": "timeline",
+  "experienceId": "timeline.page.root",
+  "sourceMaterialityHash": "75606e566bdd5e27",
+  "scope": "Regression evidence only. The production root was not redesigned in Phase 1.",
+  "automatedChecks": [
+    {
+      "command": "pnpm test:lab:browser",
+      "result": "root regression passed at 390, 768, 1280, and 1440 pixels",
+      "proves": "The unchanged production root returned 200, retained its primary heading, had no horizontal overflow, and had no Axe violations in main."
+    }
+  ],
+  "screenshots": [
+    {
+      "width": 390,
+      "sha256": "e13a1683b9e6916e0bfaac2311c77a6b2b353d553ebe6a828bc81d3750a0c8b3"
+    },
+    {
+      "width": 768,
+      "sha256": "512806a9c1a4edb5a058a78a8180894cb7375929a58db9c2f121edc661fff44e"
+    },
+    {
+      "width": 1280,
+      "sha256": "d63ac0304d6c5ee4f267975894736da3fc70e2dad6f24886c0a4fc7c4610b55b"
+    },
+    {
+      "width": 1440,
+      "sha256": "357d95ed3ce5251d9678c7d9e11d825c8f353e10e82e38bf4b9be4d1f30504fe"
+    }
+  ],
+  "qualification": "This evidence does not claim that every legacy root state is fully remediated or that Phase 1 changes production Timeline."
+}
