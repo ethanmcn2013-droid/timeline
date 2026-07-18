@@ -44,12 +44,33 @@ test.describe("Timeline review lab", () => {
   for (const width of [390, 768, 1280, 1440] as const) {
     test(`production root regression at ${width}`, async ({ page }) => {
       await page.setViewportSize({ width, height: 960 });
+      if (width === 768) {
+        await page.emulateMedia({ reducedMotion: "reduce" });
+      }
       const response = await page.goto("/", { waitUntil: "networkidle" });
       expect(response?.status()).toBe(200);
       await expect(page.locator("main h1").first()).toBeVisible();
       await expectNoPageOverflow(page);
       const result = await new AxeBuilder({ page }).include("main").analyze();
       expect(result.violations.map((violation) => violation.id)).toEqual([]);
+
+      if (width === 390) {
+        const dimensions = await page.evaluate(() => ({
+          viewport: document.documentElement.clientHeight,
+          content: document.documentElement.scrollHeight,
+        }));
+        expect(dimensions.content).toBeGreaterThan(dimensions.viewport * 2);
+
+        await page.keyboard.press("Tab");
+        const focused = page.locator(":focus");
+        await expect(focused).toBeVisible();
+        await expect(focused).not.toHaveJSProperty("tagName", "BODY");
+      }
+
+      if (width === 768) {
+        await expect(page.locator(".tl1-intro")).toBeHidden();
+        await expect(page.locator("#tl1-title")).toBeVisible();
+      }
     });
   }
 

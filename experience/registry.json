@@ -122,8 +122,8 @@
       "source": "src/app/app/(app)/account/page.tsx",
       "parentJourney": "signed-in-work",
       "archetype": "settings-and-administration",
-      "primaryJob": "Understand and use app Â· account.",
-      "primaryAction": "Complete the primary action on app Â· account.",
+      "primaryJob": "Understand and use app Ã‚Â· account.",
+      "primaryAction": "Complete the primary action on app Ã‚Â· account.",
       "roles": [
         "owner",
         "member"
@@ -225,8 +225,8 @@
       "source": "src/app/app/(app)/plan/[projectSlug]/page.tsx",
       "parentJourney": "signed-in-work",
       "archetype": "editor-or-canvas",
-      "primaryJob": "Understand and use app Â· plan Â· selected record.",
-      "primaryAction": "Complete the primary action on app Â· plan Â· selected record.",
+      "primaryJob": "Understand and use app Ã‚Â· plan Ã‚Â· selected record.",
+      "primaryAction": "Complete the primary action on app Ã‚Â· plan Ã‚Â· selected record.",
       "roles": [
         "owner",
         "member"
@@ -318,8 +318,8 @@
       "source": "src/app/[workspaceSlug]/[projectSlug]/page.tsx",
       "parentJourney": "public-discovery-and-proof",
       "archetype": "detail-or-record-view",
-      "primaryJob": "Understand and use selected record Â· selected record.",
-      "primaryAction": "Complete the primary action on selected record Â· selected record.",
+      "primaryJob": "Understand and use selected record Ã‚Â· selected record.",
+      "primaryAction": "Complete the primary action on selected record Ã‚Â· selected record.",
       "roles": [
         "public"
       ],
@@ -361,8 +361,8 @@
       "source": "src/app/[workspaceSlug]/[projectSlug]/[id]/page.tsx",
       "parentJourney": "public-discovery-and-proof",
       "archetype": "detail-or-record-view",
-      "primaryJob": "Understand and use selected record Â· selected record Â· selected record.",
-      "primaryAction": "Complete the primary action on selected record Â· selected record Â· selected record.",
+      "primaryJob": "Understand and use selected record Ã‚Â· selected record Ã‚Â· selected record.",
+      "primaryAction": "Complete the primary action on selected record Ã‚Â· selected record Ã‚Â· selected record.",
       "roles": [
         "public"
       ],
@@ -404,8 +404,8 @@
       "source": "src/app/[workspaceSlug]/refusals/page.tsx",
       "parentJourney": "public-discovery-and-proof",
       "archetype": "detail-or-record-view",
-      "primaryJob": "Understand and use selected record Â· refusals.",
-      "primaryAction": "Complete the primary action on selected record Â· refusals.",
+      "primaryJob": "Understand and use selected record Ã‚Â· refusals.",
+      "primaryAction": "Complete the primary action on selected record Ã‚Â· refusals.",
       "roles": [
         "public"
       ],
@@ -447,8 +447,8 @@
       "source": "src/app/[workspaceSlug]/update/page.tsx",
       "parentJourney": "public-discovery-and-proof",
       "archetype": "detail-or-record-view",
-      "primaryJob": "Understand and use selected record Â· update.",
-      "primaryAction": "Complete the primary action on selected record Â· update.",
+      "primaryJob": "Understand and use selected record Ã‚Â· update.",
+      "primaryAction": "Complete the primary action on selected record Ã‚Â· update.",
       "roles": [
         "owner",
         "guest",
@@ -758,8 +758,8 @@
       "source": "src/app/onboarding/from-template/[id]/page.tsx",
       "parentJourney": "access-and-onboarding",
       "archetype": "onboarding-and-authentication",
-      "primaryJob": "Understand and use onboarding Â· from template Â· selected record.",
-      "primaryAction": "Complete the primary action on onboarding Â· from template Â· selected record.",
+      "primaryJob": "Understand and use onboarding Ã‚Â· from template Ã‚Â· selected record.",
+      "primaryAction": "Complete the primary action on onboarding Ã‚Â· from template Ã‚Â· selected record.",
       "roles": [
         "public"
       ],
@@ -872,14 +872,15 @@
       "auditStatus": "registered",
       "auditScore": null,
       "openFindingIds": [],
-      "automatedTestCoverage": "none",
+      "automatedTestCoverage": "complete",
       "screenshotCoverage": "complete",
       "accessibilityCoverage": "complete",
       "fixtureCoverage": "complete",
       "lastReviewedAt": "2026-07-19",
       "approvedBaselineReference": "experience/evidence/waitlist-cta-2026-07-19.json#timeline.page.root",
       "intentionalExceptions": [],
-      "materialityHash": "7e47f8afd9230bd0"    },
+      "materialityHash": "7e47f8afd9230bd0"
+    },
     {
       "id": "timeline.page.sign-in-by-sign-in",
       "product": "timeline",
@@ -888,8 +889,8 @@
       "source": "src/app/sign-in/[[...sign-in]]/page.tsx",
       "parentJourney": "access-and-onboarding",
       "archetype": "onboarding-and-authentication",
-      "primaryJob": "Understand and use sign in Â· selected record.",
-      "primaryAction": "Complete the primary action on sign in Â· selected record.",
+      "primaryJob": "Understand and use sign in Ã‚Â· selected record.",
+      "primaryAction": "Complete the primary action on sign in Ã‚Â· selected record.",
       "roles": [
         "public"
       ],
@@ -933,8 +934,8 @@
       "source": "src/app/sign-up/[[...sign-up]]/page.tsx",
       "parentJourney": "access-and-onboarding",
       "archetype": "onboarding-and-authentication",
-      "primaryJob": "Understand and use sign up Â· selected record.",
-      "primaryAction": "Complete the primary action on sign up Â· selected record.",
+      "primaryJob": "Understand and use sign up Ã‚Â· selected record.",
+      "primaryAction": "Complete the primary action on sign up Ã‚Â· selected record.",
       "roles": [
         "public"
       ],
@@ -1199,8 +1200,8 @@
       "source": "src/app/app/(app)/plan/[projectSlug]/loading.tsx",
       "parentJourney": "signed-in-work",
       "archetype": "feedback-interruption-and-exception",
-      "primaryJob": "Understand and use app Â· plan Â· selected record.",
-      "primaryAction": "Complete the primary action on app Â· plan Â· selected record.",
+      "primaryJob": "Understand and use app Ã‚Â· plan Ã‚Â· selected record.",
+      "primaryAction": "Complete the primary action on app Ã‚Â· plan Ã‚Â· selected record.",
       "roles": [
         "owner",
         "member"

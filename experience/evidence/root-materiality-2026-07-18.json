@@ -9,9 +9,16 @@
     {
       "command": "pnpm test:lab:browser",
       "result": "root regression passed at 390, 768, 1280, and 1440 pixels",
-      "proves": "The unchanged production root returned 200, retained its primary heading, had no horizontal overflow, and had no Axe violations in main."
+      "proves": "The unchanged production root returned 200, retained its primary heading, remained a substantial long page, accepted keyboard focus, exposed the settled hero under reduced motion, had no horizontal overflow, and had no Axe violations in main."
     }
   ],
+  "coverage": {
+    "requiredBreakpoints": ["mobile", "tablet", "desktop", "wide"],
+    "requiredStates": ["default", "long-content", "reduced-motion", "keyboard-only"],
+    "screenshotCoverage": "complete at all four required breakpoints",
+    "accessibilityCoverage": "complete at all four required breakpoints",
+    "fixtureCoverage": "complete through the deterministic public homepage"
+  },
   "screenshots": [
     {
       "width": 390,
