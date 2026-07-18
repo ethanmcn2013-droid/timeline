@@ -10,6 +10,20 @@
     "route": "/__design-lab/timeline",
     "productionAvailability": "fail-closed"
   },
+  "deployment": {
+    "id": "dpl_7yTJzGhnrcUtDdtpb9owonAv1ttY",
+    "previewUrl": "https://roadmap-q13ccckyb-ethanmcn2013-1730s-projects.vercel.app",
+    "inspectorUrl": "https://vercel.com/ethanmcn2013-1730s-projects/roadmap/7yTJzGhnrcUtDdtpb9owonAv1ttY",
+    "readyState": "READY",
+    "target": "preview",
+    "vercelAuthentication": "preview",
+    "sourceCommit": "9955bf4",
+    "requiredRuntimeFlags": {
+      "SIGNAL_ACCESS_MODE": "review",
+      "NEXT_PUBLIC_SIGNAL_ACCESS_MODE": "review",
+      "SIGNAL_TIMELINE_DESIGN_LAB": "true"
+    }
+  },
   "automatedChecks": [
     {
       "command": "pnpm test:lab:model",

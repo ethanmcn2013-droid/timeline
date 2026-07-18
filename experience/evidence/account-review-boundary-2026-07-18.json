@@ -1,0 +1,56 @@
+{
+  "schemaVersion": "signal-experience-evidence/1",
+  "capturedAt": "2026-07-18",
+  "product": "timeline",
+  "experienceId": "timeline.page.app-account",
+  "sourceMaterialityHash": "3d4e0f8859efc8b6",
+  "scope": "Review-mode safety boundary only. Authenticated production account controls are unchanged.",
+  "automatedChecks": [
+    {
+      "command": "pnpm exec playwright test tests/design-lab/account-review-boundary.spec.ts",
+      "result": "7 passed",
+      "proves": "The review boundary is truthful, Clerk-free, overflow-free, Axe-clean, keyboard reachable, and reduced-motion safe across every required breakpoint."
+    },
+    {
+      "command": "VERCEL_ENV=preview SIGNAL_ACCESS_MODE=review NEXT_PUBLIC_SIGNAL_ACCESS_MODE=review SIGNAL_TIMELINE_DESIGN_LAB=true pnpm build",
+      "result": "passed",
+      "proves": "Keyless review builds no longer render Clerk-only account controls outside ClerkProvider."
+    },
+    {
+      "command": "vercel deploy (Preview target)",
+      "result": "READY: dpl_7yTJzGhnrcUtDdtpb9owonAv1ttY",
+      "proves": "The same review-mode branch completed Vercel prerender and deployment."
+    }
+  ],
+  "screenshots": [
+    {
+      "name": "account-review-390.png",
+      "sha256": "440fe13184d724db26ad98654ef41f37cbcd9fd81d2a3456a14d0af67b2401d2"
+    },
+    {
+      "name": "account-review-768.png",
+      "sha256": "fdd5123ba3c00d9ae3c72599329dfc364af7d1ca5b509b03dfd4d51248edbe9d"
+    },
+    {
+      "name": "account-review-1280.png",
+      "sha256": "5c8f8845f9f0907f12f65b0c6b5915f3cb8e1f4819c48bed01bc2a1a21d02c51"
+    },
+    {
+      "name": "account-review-1440.png",
+      "sha256": "fd9b964be24ab838f9025b0f0df32c76ad7fca2c41cbadacca94aa8a118139af"
+    },
+    {
+      "name": "account-review-keyboard.png",
+      "sha256": "f10c23d6589da2381ae8a7319d1a002d49f46669fdc8645bc3070847db53394b"
+    },
+    {
+      "name": "account-review-reduced-motion.png",
+      "sha256": "a4f409c41267751770b65e8bf686c0b2fdc95f15475282bd0ccd1b94985a4324"
+    },
+    {
+      "name": "account-review-short-viewport.png",
+      "sha256": "688738ce57e48961049a0874475d981974ab28dc1ee023fa5ac8c13b5b239924"
+    }
+  ],
+  "qualification": "This receipt does not expand account capabilities or claim new authenticated account coverage. Review mode shows a truthful unavailable state; production continues to render the existing Clerk-backed identity and deletion controls."
+}

@@ -38,11 +38,17 @@ export default async function AccountPage() {
   }
 
   return (
-    <main className="mx-auto w-full max-w-[640px] px-6 py-16">
+    <section
+      aria-labelledby="account-heading"
+      className="mx-auto w-full max-w-[640px] px-6 py-16"
+    >
       <p className="mb-4 text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-quiet">
         Settings · Account
       </p>
-      <h1 className="mb-3 text-[32px] font-semibold leading-[1.15] text-ink">
+      <h1
+        id="account-heading"
+        className="mb-3 text-[32px] font-semibold leading-[1.15] text-ink"
+      >
         Your Signal account
       </h1>
       <p className="mb-7 max-w-[560px] text-[15px] leading-[1.6] text-ink-soft">
@@ -62,6 +68,6 @@ export default async function AccountPage() {
           <DangerZone email={email} />
         </>
       )}
-    </main>
+    </section>
   );
 }
