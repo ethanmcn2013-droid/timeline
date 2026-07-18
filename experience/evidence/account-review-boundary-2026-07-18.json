@@ -18,7 +18,7 @@
     },
     {
       "command": "vercel deploy (Preview target)",
-      "result": "READY: dpl_7yTJzGhnrcUtDdtpb9owonAv1ttY",
+      "result": "READY: dpl_3W6krhr15HicXNWQ5bSkNDxMDFyH",
       "proves": "The same review-mode branch completed Vercel prerender and deployment."
     }
   ],
