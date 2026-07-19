@@ -9,7 +9,10 @@
  *     per DESIGN.md §14. Sets `signal_preview_public=1` (24h, SameSite=Strict).
  *
  * When unauthed:
- *   - Sign in renders as the only auth control.
+ *   - Pre-access (waitlist) mode: the only auth control is the "Join the
+ *     waitlist" CTA -> /waitlist. No "Sign in" on marketing surfaces; the
+ *     app is access-gated, so a marketing sign-in link is a false door.
+ *     Enforced by scripts/check-marketing-waitlist-contract.mjs.
  *
  * Escape hatch implementation (§14 canonical):
  *   Cookie name: `signal_preview_public` (suite-wide; not repo-local).
@@ -82,11 +85,11 @@ function ClerkAuthNavControls() {
 function SignedOutControl() {
   return (
     <Link
-      href="/sign-in"
-      className="inline-flex min-h-8 items-center rounded-full px-3.5 text-[13px] font-medium text-ink-soft hover:text-ink"
-      style={{ transition: "color var(--motion-fast) var(--ease-standard)" }}
+      href="/waitlist?source=header&product=timeline"
+      className="inline-flex min-h-8 items-center rounded-full px-3.5 text-[13px] font-medium text-white transition-transform hover:-translate-y-px"
+      style={{ background: "var(--ink)" }}
     >
-      Sign in
+      Join the waitlist
     </Link>
   );
 }
