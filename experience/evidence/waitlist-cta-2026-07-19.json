@@ -1,0 +1,521 @@
+{
+  "schemaVersion": "signal-experience-evidence/1",
+  "capturedAt": "2026-07-19",
+  "product": "timeline",
+  "changeClass": "link-target-only",
+  "reviewSummary": "CTA destinations converged from /sign-up (an access-gated auth wall) to /waitlist. The diff is href-only: no change to DOM structure, copy, layout, styling, or focus order. Full state x breakpoint captures were taken fresh against the live demo build to certify no visual or accessibility regression, upgrading coverage from partial to complete.",
+  "environment": {
+    "accessMode": "demo",
+    "database": "file::memory:",
+    "databaseSchemaPresent": false,
+    "baseUrl": "http://127.0.0.1:3199",
+    "browser": "Chromium via Playwright",
+    "viewports": [
+      {
+        "name": "mobile",
+        "width": 390,
+        "height": 844
+      },
+      {
+        "name": "tablet",
+        "width": 834,
+        "height": 1112
+      },
+      {
+        "name": "desktop",
+        "width": 1280,
+        "height": 800
+      },
+      {
+        "name": "wide",
+        "width": 1440,
+        "height": 960
+      }
+    ],
+    "motion": "prefers-reduced-motion: reduce; animations frozen via injected CSS"
+  },
+  "sourceMaterialityHashes": {
+    "timeline.page.root": "7e47f8afd9230bd0",
+    "timeline.page.about": "4016e320572e4eaa",
+    "timeline.state.root-not-found": "488e66a745bf40b2",
+    "timeline.state.by-workspace-slug-not-found": "eac5452409591dc8"
+  },
+  "routeAssertions": [
+    {
+      "experienceId": "timeline.page.root",
+      "route": "/",
+      "mobile": 200,
+      "tablet": 200,
+      "desktop": 200,
+      "wide": 200
+    },
+    {
+      "experienceId": "timeline.page.about",
+      "route": "/about",
+      "mobile": 200,
+      "tablet": 200,
+      "desktop": 200,
+      "wide": 200
+    },
+    {
+      "experienceId": "timeline.state.root-not-found",
+      "route": "/__experience_probe_missing__",
+      "mobile": 404,
+      "tablet": 404,
+      "desktop": 404,
+      "wide": 404
+    },
+    {
+      "experienceId": "timeline.state.by-workspace-slug-not-found",
+      "route": "/unknown-fixture-workspace",
+      "mobile": 404,
+      "tablet": 404,
+      "desktop": 404,
+      "wide": 404
+    }
+  ],
+  "accessibilityAssertions": {
+    "allCapturedKnownPages": {
+      "mainLandmarkCount": 1,
+      "h1Count": 1,
+      "horizontalOverflowPixels": 0,
+      "unlabelledInteractiveControls": 0,
+      "duplicateIds": 0,
+      "headingLevelSkips": 1,
+      "unexpectedConsoleErrors": 2,
+      "pageErrors": 0
+    },
+    "timeline.page.root": {
+      "mainLandmarkCount": 1,
+      "h1Count": 1,
+      "horizontalOverflowPixels": 0,
+      "unlabelledInteractiveControls": 0,
+      "duplicateIds": 0,
+      "headingLevelSkips": 0,
+      "unexpectedConsoleErrors": 1,
+      "pageErrors": 0
+    },
+    "timeline.page.about": {
+      "mainLandmarkCount": 1,
+      "h1Count": 1,
+      "horizontalOverflowPixels": 0,
+      "unlabelledInteractiveControls": 0,
+      "duplicateIds": 0,
+      "headingLevelSkips": 1,
+      "unexpectedConsoleErrors": 1,
+      "pageErrors": 0
+    },
+    "timeline.state.root-not-found": {
+      "mainLandmarkCount": 0,
+      "h1Count": 0,
+      "horizontalOverflowPixels": 0,
+      "unlabelledInteractiveControls": 0,
+      "duplicateIds": 0,
+      "headingLevelSkips": 0,
+      "unexpectedConsoleErrors": 2,
+      "pageErrors": 0
+    },
+    "timeline.state.by-workspace-slug-not-found": {
+      "mainLandmarkCount": 0,
+      "h1Count": 0,
+      "horizontalOverflowPixels": 0,
+      "unlabelledInteractiveControls": 0,
+      "duplicateIds": 0,
+      "headingLevelSkips": 0,
+      "unexpectedConsoleErrors": 2,
+      "pageErrors": 0
+    }
+  },
+  "captures": [
+    {
+      "experienceId": "timeline.page.root",
+      "state": "default",
+      "viewport": "mobile",
+      "motion": "reduced",
+      "artifact": "output/playwright/timeline-page-root-mobile-default.png",
+      "sha256": "8624a24a1cee7eaf21fa1fc8effc4d1c03bfa2acd5cc00b006af3895391fdbf3"
+    },
+    {
+      "experienceId": "timeline.page.root",
+      "state": "long-content",
+      "viewport": "mobile",
+      "motion": "reduced",
+      "artifact": "output/playwright/timeline-page-root-mobile-long-content.png",
+      "sha256": "9660b70c3ebf150c79240ab94c2537db502ff4a48c36b52c2329e4e8c5ac6269"
+    },
+    {
+      "experienceId": "timeline.page.root",
+      "state": "reduced-motion",
+      "viewport": "mobile",
+      "motion": "reduced",
+      "artifact": "output/playwright/timeline-page-root-mobile-reduced-motion.png",
+      "sha256": "8624a24a1cee7eaf21fa1fc8effc4d1c03bfa2acd5cc00b006af3895391fdbf3"
+    },
+    {
+      "experienceId": "timeline.page.root",
+      "state": "keyboard-only",
+      "viewport": "mobile",
+      "motion": "reduced",
+      "artifact": "output/playwright/timeline-page-root-mobile-keyboard-only.png",
+      "sha256": "8fab9d0a1b8725aabac40efe22082f6c17eff9a68475039bc718a628e1644e57"
+    },
+    {
+      "experienceId": "timeline.page.root",
+      "state": "default",
+      "viewport": "tablet",
+      "motion": "reduced",
+      "artifact": "output/playwright/timeline-page-root-tablet-default.png",
+      "sha256": "68513329d5a59a96105e07e34912f4fc0951f72787f67cf0af674dbda45f81c4"
+    },
+    {
+      "experienceId": "timeline.page.root",
+      "state": "long-content",
+      "viewport": "tablet",
+      "motion": "reduced",
+      "artifact": "output/playwright/timeline-page-root-tablet-long-content.png",
+      "sha256": "c82ba02c6fd47e705e160cf60cec8bdae7ed2e978c37fb11bd48c9be2cfdc560"
+    },
+    {
+      "experienceId": "timeline.page.root",
+      "state": "reduced-motion",
+      "viewport": "tablet",
+      "motion": "reduced",
+      "artifact": "output/playwright/timeline-page-root-tablet-reduced-motion.png",
+      "sha256": "68513329d5a59a96105e07e34912f4fc0951f72787f67cf0af674dbda45f81c4"
+    },
+    {
+      "experienceId": "timeline.page.root",
+      "state": "keyboard-only",
+      "viewport": "tablet",
+      "motion": "reduced",
+      "artifact": "output/playwright/timeline-page-root-tablet-keyboard-only.png",
+      "sha256": "411366a1cf27df6e90938f7c0e1ff41ee22fb90b10ea7568d8436132e4a9a882"
+    },
+    {
+      "experienceId": "timeline.page.root",
+      "state": "default",
+      "viewport": "desktop",
+      "motion": "reduced",
+      "artifact": "output/playwright/timeline-page-root-desktop-default.png",
+      "sha256": "a8eed1c0de92f2802f965edfcf0cda93855d522815da24c79bb0f868c931f924"
+    },
+    {
+      "experienceId": "timeline.page.root",
+      "state": "long-content",
+      "viewport": "desktop",
+      "motion": "reduced",
+      "artifact": "output/playwright/timeline-page-root-desktop-long-content.png",
+      "sha256": "5830072247d1b5caba0b83684e47bf0bace101998f3b60aea0a36daf46a4c80f"
+    },
+    {
+      "experienceId": "timeline.page.root",
+      "state": "reduced-motion",
+      "viewport": "desktop",
+      "motion": "reduced",
+      "artifact": "output/playwright/timeline-page-root-desktop-reduced-motion.png",
+      "sha256": "a8eed1c0de92f2802f965edfcf0cda93855d522815da24c79bb0f868c931f924"
+    },
+    {
+      "experienceId": "timeline.page.root",
+      "state": "keyboard-only",
+      "viewport": "desktop",
+      "motion": "reduced",
+      "artifact": "output/playwright/timeline-page-root-desktop-keyboard-only.png",
+      "sha256": "f8afc0110b1d1580f5ec32aa99753a078605fc85f0e6d4a5248d86a05c99f281"
+    },
+    {
+      "experienceId": "timeline.page.root",
+      "state": "default",
+      "viewport": "wide",
+      "motion": "reduced",
+      "artifact": "output/playwright/timeline-page-root-wide-default.png",
+      "sha256": "916b5f8e4a40c4e92e8ae833acb95d069bed129ae416b9e859e8647403a5297f"
+    },
+    {
+      "experienceId": "timeline.page.root",
+      "state": "long-content",
+      "viewport": "wide",
+      "motion": "reduced",
+      "artifact": "output/playwright/timeline-page-root-wide-long-content.png",
+      "sha256": "1090033a68ce71f8d4249061e3602110a9afe7916b779ea258c21c018a71f821"
+    },
+    {
+      "experienceId": "timeline.page.root",
+      "state": "reduced-motion",
+      "viewport": "wide",
+      "motion": "reduced",
+      "artifact": "output/playwright/timeline-page-root-wide-reduced-motion.png",
+      "sha256": "916b5f8e4a40c4e92e8ae833acb95d069bed129ae416b9e859e8647403a5297f"
+    },
+    {
+      "experienceId": "timeline.page.root",
+      "state": "keyboard-only",
+      "viewport": "wide",
+      "motion": "reduced",
+      "artifact": "output/playwright/timeline-page-root-wide-keyboard-only.png",
+      "sha256": "b38c5f7d64e01bdc198ecfb27d85531736fdd1cee1aaa8115b1e59802faf9798"
+    },
+    {
+      "experienceId": "timeline.page.about",
+      "state": "default",
+      "viewport": "mobile",
+      "motion": "reduced",
+      "artifact": "output/playwright/timeline-page-about-mobile-default.png",
+      "sha256": "1fb48d7725b146e5eef38ce96211040273726945b46f229fcbd47534ce307e04"
+    },
+    {
+      "experienceId": "timeline.page.about",
+      "state": "long-content",
+      "viewport": "mobile",
+      "motion": "reduced",
+      "artifact": "output/playwright/timeline-page-about-mobile-long-content.png",
+      "sha256": "2f626b0093ed46241620c135d740811fe45aba7d07ebdfecd09be8f08d941f28"
+    },
+    {
+      "experienceId": "timeline.page.about",
+      "state": "reduced-motion",
+      "viewport": "mobile",
+      "motion": "reduced",
+      "artifact": "output/playwright/timeline-page-about-mobile-reduced-motion.png",
+      "sha256": "1fb48d7725b146e5eef38ce96211040273726945b46f229fcbd47534ce307e04"
+    },
+    {
+      "experienceId": "timeline.page.about",
+      "state": "keyboard-only",
+      "viewport": "mobile",
+      "motion": "reduced",
+      "artifact": "output/playwright/timeline-page-about-mobile-keyboard-only.png",
+      "sha256": "33c81da9cf4eef959d3259c3e8993988aeb7e13eb594aeb65be4997639bfb3b4"
+    },
+    {
+      "experienceId": "timeline.page.about",
+      "state": "default",
+      "viewport": "tablet",
+      "motion": "reduced",
+      "artifact": "output/playwright/timeline-page-about-tablet-default.png",
+      "sha256": "538b59f2596db8679ccfc12e322403a3715dc730a77f78792211bb7c3df7ab3c"
+    },
+    {
+      "experienceId": "timeline.page.about",
+      "state": "long-content",
+      "viewport": "tablet",
+      "motion": "reduced",
+      "artifact": "output/playwright/timeline-page-about-tablet-long-content.png",
+      "sha256": "26dd3aee0f1b3e594a0f269f938a5402c9b450b394092895ce3d39f3edc0ff62"
+    },
+    {
+      "experienceId": "timeline.page.about",
+      "state": "reduced-motion",
+      "viewport": "tablet",
+      "motion": "reduced",
+      "artifact": "output/playwright/timeline-page-about-tablet-reduced-motion.png",
+      "sha256": "538b59f2596db8679ccfc12e322403a3715dc730a77f78792211bb7c3df7ab3c"
+    },
+    {
+      "experienceId": "timeline.page.about",
+      "state": "keyboard-only",
+      "viewport": "tablet",
+      "motion": "reduced",
+      "artifact": "output/playwright/timeline-page-about-tablet-keyboard-only.png",
+      "sha256": "7eb1880188b2811f1b82e3a70fc015b441cf2748ff914aafeec7b8db1d4e999e"
+    },
+    {
+      "experienceId": "timeline.page.about",
+      "state": "default",
+      "viewport": "desktop",
+      "motion": "reduced",
+      "artifact": "output/playwright/timeline-page-about-desktop-default.png",
+      "sha256": "ddffc561c766302e4ff8ecbe288452041e3b40801db90988fade8b3d6d0afdf5"
+    },
+    {
+      "experienceId": "timeline.page.about",
+      "state": "long-content",
+      "viewport": "desktop",
+      "motion": "reduced",
+      "artifact": "output/playwright/timeline-page-about-desktop-long-content.png",
+      "sha256": "700d96cba90087d908742a10ca4a789b5e35dbfb07d5e723f0b05f0c4dc2b872"
+    },
+    {
+      "experienceId": "timeline.page.about",
+      "state": "reduced-motion",
+      "viewport": "desktop",
+      "motion": "reduced",
+      "artifact": "output/playwright/timeline-page-about-desktop-reduced-motion.png",
+      "sha256": "ddffc561c766302e4ff8ecbe288452041e3b40801db90988fade8b3d6d0afdf5"
+    },
+    {
+      "experienceId": "timeline.page.about",
+      "state": "keyboard-only",
+      "viewport": "desktop",
+      "motion": "reduced",
+      "artifact": "output/playwright/timeline-page-about-desktop-keyboard-only.png",
+      "sha256": "ef55fcc14d28ba47489b4de42a0ee9ee15a7a8a3238aaaa569f252db8b1a746e"
+    },
+    {
+      "experienceId": "timeline.page.about",
+      "state": "default",
+      "viewport": "wide",
+      "motion": "reduced",
+      "artifact": "output/playwright/timeline-page-about-wide-default.png",
+      "sha256": "7b76c838b5bdaf752b78f0d60ae1615ab9e0e5d7401a83e212c8d8b49fdf0e42"
+    },
+    {
+      "experienceId": "timeline.page.about",
+      "state": "long-content",
+      "viewport": "wide",
+      "motion": "reduced",
+      "artifact": "output/playwright/timeline-page-about-wide-long-content.png",
+      "sha256": "d7905f924f0a493dacc13a2b8467bb101730723fbb0dc8630076171f0c46a8b7"
+    },
+    {
+      "experienceId": "timeline.page.about",
+      "state": "reduced-motion",
+      "viewport": "wide",
+      "motion": "reduced",
+      "artifact": "output/playwright/timeline-page-about-wide-reduced-motion.png",
+      "sha256": "7b76c838b5bdaf752b78f0d60ae1615ab9e0e5d7401a83e212c8d8b49fdf0e42"
+    },
+    {
+      "experienceId": "timeline.page.about",
+      "state": "keyboard-only",
+      "viewport": "wide",
+      "motion": "reduced",
+      "artifact": "output/playwright/timeline-page-about-wide-keyboard-only.png",
+      "sha256": "359f8d02cb336edcf9f060818e12b8869c2aa1da0008e2738b08dd8d4ce2e6cb"
+    },
+    {
+      "experienceId": "timeline.state.root-not-found",
+      "state": "error",
+      "viewport": "mobile",
+      "motion": "reduced",
+      "artifact": "output/playwright/timeline-state-root-not-found-mobile-error.png",
+      "sha256": "fb32313e11bc8ffbd5310a1660e630b64cedb4622f8462a5eae2d5464ac8279e"
+    },
+    {
+      "experienceId": "timeline.state.root-not-found",
+      "state": "keyboard-only",
+      "viewport": "mobile",
+      "motion": "reduced",
+      "artifact": "output/playwright/timeline-state-root-not-found-mobile-keyboard-only.png",
+      "sha256": "fb32313e11bc8ffbd5310a1660e630b64cedb4622f8462a5eae2d5464ac8279e"
+    },
+    {
+      "experienceId": "timeline.state.root-not-found",
+      "state": "error",
+      "viewport": "tablet",
+      "motion": "reduced",
+      "artifact": "output/playwright/timeline-state-root-not-found-tablet-error.png",
+      "sha256": "7c21a3c61eeb4d711519aa3745bec97766ac0987e9ad94b8894b4952de9d9a36"
+    },
+    {
+      "experienceId": "timeline.state.root-not-found",
+      "state": "keyboard-only",
+      "viewport": "tablet",
+      "motion": "reduced",
+      "artifact": "output/playwright/timeline-state-root-not-found-tablet-keyboard-only.png",
+      "sha256": "7c21a3c61eeb4d711519aa3745bec97766ac0987e9ad94b8894b4952de9d9a36"
+    },
+    {
+      "experienceId": "timeline.state.root-not-found",
+      "state": "error",
+      "viewport": "desktop",
+      "motion": "reduced",
+      "artifact": "output/playwright/timeline-state-root-not-found-desktop-error.png",
+      "sha256": "3eab349ebf404dae5a2a20d041325042a032d46aeab4b9730d8f8962686fb9b0"
+    },
+    {
+      "experienceId": "timeline.state.root-not-found",
+      "state": "keyboard-only",
+      "viewport": "desktop",
+      "motion": "reduced",
+      "artifact": "output/playwright/timeline-state-root-not-found-desktop-keyboard-only.png",
+      "sha256": "3eab349ebf404dae5a2a20d041325042a032d46aeab4b9730d8f8962686fb9b0"
+    },
+    {
+      "experienceId": "timeline.state.root-not-found",
+      "state": "error",
+      "viewport": "wide",
+      "motion": "reduced",
+      "artifact": "output/playwright/timeline-state-root-not-found-wide-error.png",
+      "sha256": "11c65be8621548249d7515ef8dbba61003a8ca9520bd221f6208ccacd9772aa2"
+    },
+    {
+      "experienceId": "timeline.state.root-not-found",
+      "state": "keyboard-only",
+      "viewport": "wide",
+      "motion": "reduced",
+      "artifact": "output/playwright/timeline-state-root-not-found-wide-keyboard-only.png",
+      "sha256": "11c65be8621548249d7515ef8dbba61003a8ca9520bd221f6208ccacd9772aa2"
+    },
+    {
+      "experienceId": "timeline.state.by-workspace-slug-not-found",
+      "state": "error",
+      "viewport": "mobile",
+      "motion": "reduced",
+      "artifact": "output/playwright/timeline-state-by-workspace-slug-not-found-mobile-error.png",
+      "sha256": "fb32313e11bc8ffbd5310a1660e630b64cedb4622f8462a5eae2d5464ac8279e"
+    },
+    {
+      "experienceId": "timeline.state.by-workspace-slug-not-found",
+      "state": "keyboard-only",
+      "viewport": "mobile",
+      "motion": "reduced",
+      "artifact": "output/playwright/timeline-state-by-workspace-slug-not-found-mobile-keyboard-only.png",
+      "sha256": "fb32313e11bc8ffbd5310a1660e630b64cedb4622f8462a5eae2d5464ac8279e"
+    },
+    {
+      "experienceId": "timeline.state.by-workspace-slug-not-found",
+      "state": "error",
+      "viewport": "tablet",
+      "motion": "reduced",
+      "artifact": "output/playwright/timeline-state-by-workspace-slug-not-found-tablet-error.png",
+      "sha256": "7c21a3c61eeb4d711519aa3745bec97766ac0987e9ad94b8894b4952de9d9a36"
+    },
+    {
+      "experienceId": "timeline.state.by-workspace-slug-not-found",
+      "state": "keyboard-only",
+      "viewport": "tablet",
+      "motion": "reduced",
+      "artifact": "output/playwright/timeline-state-by-workspace-slug-not-found-tablet-keyboard-only.png",
+      "sha256": "7c21a3c61eeb4d711519aa3745bec97766ac0987e9ad94b8894b4952de9d9a36"
+    },
+    {
+      "experienceId": "timeline.state.by-workspace-slug-not-found",
+      "state": "error",
+      "viewport": "desktop",
+      "motion": "reduced",
+      "artifact": "output/playwright/timeline-state-by-workspace-slug-not-found-desktop-error.png",
+      "sha256": "3eab349ebf404dae5a2a20d041325042a032d46aeab4b9730d8f8962686fb9b0"
+    },
+    {
+      "experienceId": "timeline.state.by-workspace-slug-not-found",
+      "state": "keyboard-only",
+      "viewport": "desktop",
+      "motion": "reduced",
+      "artifact": "output/playwright/timeline-state-by-workspace-slug-not-found-desktop-keyboard-only.png",
+      "sha256": "3eab349ebf404dae5a2a20d041325042a032d46aeab4b9730d8f8962686fb9b0"
+    },
+    {
+      "experienceId": "timeline.state.by-workspace-slug-not-found",
+      "state": "error",
+      "viewport": "wide",
+      "motion": "reduced",
+      "artifact": "output/playwright/timeline-state-by-workspace-slug-not-found-wide-error.png",
+      "sha256": "11c65be8621548249d7515ef8dbba61003a8ca9520bd221f6208ccacd9772aa2"
+    },
+    {
+      "experienceId": "timeline.state.by-workspace-slug-not-found",
+      "state": "keyboard-only",
+      "viewport": "wide",
+      "motion": "reduced",
+      "artifact": "output/playwright/timeline-state-by-workspace-slug-not-found-wide-keyboard-only.png",
+      "sha256": "11c65be8621548249d7515ef8dbba61003a8ca9520bd221f6208ccacd9772aa2"
+    }
+  ],
+  "coverageNotes": [
+    "Every required state is captured at every required breakpoint (mobile, tablet, desktop, wide).",
+    "Animations and transitions are frozen for deterministic digests; default and reduced-motion agree where a page's only delta is motion.",
+    "long-content is a full-page capture; keyboard-only advances focus to the first interactive controls before capture.",
+    "Capture PNGs are generated artifacts under output/playwright/; logical paths and SHA-256 digests are recorded here so a reviewer can reproduce and compare without committing binaries."
+  ]
+}
