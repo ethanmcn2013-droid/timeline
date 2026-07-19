@@ -49,3 +49,6 @@ next-env.d.ts
 
 # local lab screenshot output
 lab-shots/
+
+# experience capture artifacts (generated PNGs; digests live in experience/evidence/*.json)
+output/

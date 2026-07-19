@@ -55,13 +55,13 @@
       "auditScore": null,
       "openFindingIds": [],
       "automatedTestCoverage": "none",
-      "screenshotCoverage": "none",
-      "accessibilityCoverage": "none",
-      "fixtureCoverage": "none",
-      "lastReviewedAt": null,
-      "approvedBaselineReference": null,
+      "screenshotCoverage": "complete",
+      "accessibilityCoverage": "complete",
+      "fixtureCoverage": "complete",
+      "lastReviewedAt": "2026-07-19",
+      "approvedBaselineReference": "experience/evidence/waitlist-cta-2026-07-19.json#timeline.page.about",
       "intentionalExceptions": [],
-      "materialityHash": "27a0fa78f89140f5"
+      "materialityHash": "4016e320572e4eaa"
     },
     {
       "id": "timeline.page.app",
@@ -808,13 +808,13 @@
       "auditScore": null,
       "openFindingIds": [],
       "automatedTestCoverage": "none",
-      "screenshotCoverage": "partial",
-      "accessibilityCoverage": "partial",
-      "fixtureCoverage": "none",
-      "lastReviewedAt": "2026-07-15",
-      "approvedBaselineReference": "experience/evidence/demo-critical-2026-07-15.json#timeline.page.root",
+      "screenshotCoverage": "complete",
+      "accessibilityCoverage": "complete",
+      "fixtureCoverage": "complete",
+      "lastReviewedAt": "2026-07-19",
+      "approvedBaselineReference": "experience/evidence/waitlist-cta-2026-07-19.json#timeline.page.root",
       "intentionalExceptions": [],
-      "materialityHash": "33fb4cc3acaa9fbf"
+      "materialityHash": "7e47f8afd9230bd0"
     },
     {
       "id": "timeline.page.sign-in-by-sign-in",
@@ -1203,13 +1203,13 @@
       "auditScore": null,
       "openFindingIds": [],
       "automatedTestCoverage": "partial",
-      "screenshotCoverage": "partial",
-      "accessibilityCoverage": "partial",
+      "screenshotCoverage": "complete",
+      "accessibilityCoverage": "complete",
       "fixtureCoverage": "complete",
-      "lastReviewedAt": "2026-07-15",
-      "approvedBaselineReference": "experience/evidence/demo-critical-2026-07-15.json#timeline.state.by-workspace-slug-not-found",
+      "lastReviewedAt": "2026-07-19",
+      "approvedBaselineReference": "experience/evidence/waitlist-cta-2026-07-19.json#timeline.state.by-workspace-slug-not-found",
       "intentionalExceptions": [],
-      "materialityHash": "b27ff1b46f53e62d"
+      "materialityHash": "eac5452409591dc8"
     },
     {
       "id": "timeline.state.root-error",
@@ -1285,13 +1285,13 @@
       "auditScore": null,
       "openFindingIds": [],
       "automatedTestCoverage": "none",
-      "screenshotCoverage": "none",
-      "accessibilityCoverage": "none",
-      "fixtureCoverage": "none",
-      "lastReviewedAt": null,
-      "approvedBaselineReference": null,
+      "screenshotCoverage": "complete",
+      "accessibilityCoverage": "complete",
+      "fixtureCoverage": "complete",
+      "lastReviewedAt": "2026-07-19",
+      "approvedBaselineReference": "experience/evidence/waitlist-cta-2026-07-19.json#timeline.state.root-not-found",
       "intentionalExceptions": [],
-      "materialityHash": "ff4de80544bee37b"
+      "materialityHash": "488e66a745bf40b2"
     },
     {
       "id": "timeline.surface.milestone-card",
