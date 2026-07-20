@@ -10,6 +10,11 @@ export const metadata: Metadata = {
   description: "Account management.",
 };
 
+// Render at request time. The account UI mounts Clerk client components
+// (useClerk in DangerZone / ManageIdentityButton), so prerendering this route
+// fails without a provider in preview builds. Matches /app/(app)/page.tsx.
+export const dynamic = "force-dynamic";
+
 /**
  * /app/account
  *
