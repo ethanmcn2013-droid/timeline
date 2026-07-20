@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { GoogleTag } from "@/components/analytics/google-tag";
 import { Geist, Geist_Mono } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
 import { clerkAppearance } from "@/lib/clerk-appearance";
@@ -70,6 +71,8 @@ export default function RootLayout({
       style={{ background: "#fff", colorScheme: "light" }}
     >
       <head>
+        {/* Google tag (gtag.js) — production only, on every page. */}
+        <GoogleTag />
         {/* D4, belt-and-braces inline style: fires synchronously before the
             linked stylesheet resolves, preventing any grey flash on the
             document body. One-liner; only background is set here. */}
