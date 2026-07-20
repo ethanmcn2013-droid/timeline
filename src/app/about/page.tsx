@@ -194,7 +194,7 @@ export default function AboutPage() {
           {/* CTA */}
           <div className="mt-6 flex flex-wrap gap-3">
             <Link
-              href="/waitlist?source=about&product=timeline"
+              href="https://signalstudio.ie/waitlist?source=about&product=timeline"
               className="inline-flex items-center gap-1.5 rounded-full bg-ink px-5 py-2.5 text-[14px] font-medium text-white shadow-sm transition-transform hover:-translate-y-px hover:shadow-md"
             >
               Create your timeline →

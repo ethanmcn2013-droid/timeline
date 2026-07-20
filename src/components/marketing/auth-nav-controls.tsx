@@ -85,9 +85,9 @@ function ClerkAuthNavControls() {
 function SignedOutControl() {
   return (
     <Link
-      href="/waitlist?source=header&product=timeline"
-      className="inline-flex min-h-8 items-center rounded-full px-3.5 text-[13px] font-medium text-white transition-transform hover:-translate-y-px"
-      style={{ background: "var(--ink)" }}
+      href="https://signalstudio.ie/waitlist?source=header&product=timeline"
+      className="inline-flex min-h-8 items-center rounded-full px-3.5 text-[13px] font-medium"
+      style={{ color: "var(--ink-soft)", transition: "color 140ms ease" }}
     >
       Join the waitlist
     </Link>

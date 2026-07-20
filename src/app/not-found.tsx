@@ -29,7 +29,7 @@ export default function NotFound() {
           </p>
           <div className="flex flex-wrap justify-center gap-3">
             <Link
-              href="/waitlist?source=not_found&product=timeline"
+              href="https://signalstudio.ie/waitlist?source=not_found&product=timeline"
               className="inline-flex items-center gap-1.5 rounded-full bg-ink px-5 py-2.5 text-[14px] font-medium text-white shadow-sm transition-transform hover:-translate-y-px hover:shadow-md"
             >
               Create yours →
