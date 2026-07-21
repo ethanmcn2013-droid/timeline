@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useSyncExternalStore } from "react";
+import { useEffect } from "react";
+import { usePathname, useSearchParams } from "next/navigation";
 
 /**
  * SuiteSwitcher, canonical always-visible 4-product pill switcher.
@@ -62,23 +63,43 @@ const PRODUCTS: { slug: ProductSlug; word: string; appUrl: string }[] = [
 
 const PRODUCT_ORIGINS = [NOTES_URL, TASKS_URL, TIMELINE_URL, SIGNAL_URL];
 
-function readContextSuffix(): string {
+const CONTEXT_ID = /^[A-Za-z0-9][A-Za-z0-9_-]{0,127}$/;
+
+export function buildContextSuffix(
+  pathname: string,
+  incoming: Pick<URLSearchParams, "get">,
+): string {
   // Context ids are routing hints, never credentials. Each destination must
-  // reauthorize them against current membership. Carry only the two v2
-  // allowlisted ids and drop every other query parameter at the product seam.
-  const incoming = new URLSearchParams(window.location.search);
+  // reauthorize them against current membership. Carry only allowlisted
+  // context ids and drop every other query parameter at the product seam.
   const outgoing = new URLSearchParams();
   const workspaceId = incoming.get("workspaceId");
   const planningPeriodId = incoming.get("planningPeriodId");
-  if (workspaceId) outgoing.set("workspaceId", workspaceId);
-  if (planningPeriodId) outgoing.set("planningPeriodId", planningPeriodId);
+  const pathProject = pathname.match(/^\/app\/plan\/([^/?#]+)/)?.[1];
+  const decodedProject = pathProject
+    ? (() => {
+        try {
+          return decodeURIComponent(pathProject);
+        } catch {
+          return null;
+        }
+      })()
+    : null;
+  const projectId = decodedProject ?? incoming.get("projectId");
+
+  outgoing.set("sourceProduct", "timeline");
+  outgoing.set("contextVersion", "2");
+  if (workspaceId && CONTEXT_ID.test(workspaceId)) {
+    outgoing.set("workspaceId", workspaceId);
+  }
+  if (planningPeriodId && CONTEXT_ID.test(planningPeriodId)) {
+    outgoing.set("planningPeriodId", planningPeriodId);
+  }
+  if (projectId && CONTEXT_ID.test(projectId)) {
+    outgoing.set("projectId", projectId);
+  }
   const serialised = outgoing.toString();
   return serialised ? `?${serialised}` : "";
-}
-
-function subscribeToLocationChange(onChange: () => void): () => void {
-  window.addEventListener("popstate", onChange);
-  return () => window.removeEventListener("popstate", onChange);
 }
 
 /**
@@ -169,11 +190,9 @@ export function SuiteSwitcher({
   current?: ProductSlug;
   showUmbrella?: boolean;
 }) {
-  const contextSuffix = useSyncExternalStore(
-    subscribeToLocationChange,
-    readContextSuffix,
-    () => "",
-  );
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const contextSuffix = buildContextSuffix(pathname, searchParams);
 
   // Phase 3 (instant-jump): preconnect every sibling origin on mount so
   // the first cross-product hop has a warm TLS connection ready. The
