@@ -43,7 +43,7 @@ next-env.d.ts
 # clerk configuration (can include secrets)
 /.clerk/
 
-# local sqlite dev fallback — production uses Turso
+# local sqlite dev fallback â€” production uses Turso
 *.db
 *.db-journal
 
@@ -52,3 +52,4 @@ lab-shots/
 
 # experience capture artifacts (generated PNGs; digests live in experience/evidence/*.json)
 output/
+/.playwright-cli/

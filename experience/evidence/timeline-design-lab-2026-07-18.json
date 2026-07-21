@@ -1,0 +1,76 @@
+{
+  "schemaVersion": "signal-experience-evidence/1",
+  "capturedAt": "2026-07-18",
+  "product": "timeline",
+  "experienceId": "timeline.page.design-lab-timeline",
+  "environment": {
+    "accessMode": "review",
+    "persistence": "synthetic in-memory fixtures only",
+    "browser": "Chromium via Playwright",
+    "route": "/__design-lab/timeline",
+    "productionAvailability": "fail-closed"
+  },
+  "deployment": {
+    "id": "dpl_3W6krhr15HicXNWQ5bSkNDxMDFyH",
+    "previewUrl": "https://roadmap-m7f3csrq3-ethanmcn2013-1730s-projects.vercel.app",
+    "inspectorUrl": "https://vercel.com/ethanmcn2013-1730s-projects/roadmap/3W6krhr15HicXNWQ5bSkNDxMDFyH",
+    "readyState": "READY",
+    "target": "preview",
+    "vercelAuthentication": "preview",
+    "sourceCommit": "76998f1",
+    "requiredRuntimeFlags": {
+      "SIGNAL_ACCESS_MODE": "review",
+      "NEXT_PUBLIC_SIGNAL_ACCESS_MODE": "review",
+      "SIGNAL_TIMELINE_DESIGN_LAB": "true"
+    }
+  },
+  "automatedChecks": [
+    {
+      "command": "pnpm test:lab:model",
+      "result": "18 passed",
+      "proves": "Deterministic fixtures, exact public projection, working and published continuity, truthful edits, safe deletion, attribution parsing, and fail-closed route guards."
+    },
+    {
+      "command": "pnpm test:lab:browser",
+      "result": "52 passed",
+      "proves": "All option and surface combinations pass accessibility and responsive checks, including 320px dense data, frame-controlled reflow, keyboard movement, focus return, publishing, privacy, print, and reduced motion."
+    },
+    {
+      "command": "pnpm capture:lab",
+      "result": "94 screenshot receipts",
+      "proves": "72 primary option and surface captures, six explicit states, twelve dense edge cases, and four unchanged-root regressions were freshly captured after source freeze."
+    },
+    {
+      "command": "pnpm lint && pnpm typecheck && pnpm ds:check",
+      "result": "passed",
+      "proves": "The final lab passes repository lint, TypeScript, and design-system drift checks."
+    }
+  ],
+  "sourceMaterialityHashes": {
+    "timeline.page.design-lab-timeline": "d11ad825b4dd7327",
+    "timeline.page.root": "75606e566bdd5e27"
+  },
+  "visualEvidence": {
+    "manifest": "output/playwright/timeline-design-lab/2026-07-18/evidence.json",
+    "manifestSha256": "bb9adc69c8513146ab4090c585f0a7698dc5e3214e077ddc6482b781dec96b1a",
+    "primaryCaptures": 72,
+    "stateCaptures": 6,
+    "denseEdgeCaptures": 12,
+    "productionRegressionCaptures": 4,
+    "totalCaptures": 94,
+    "totalPngBytes": 16105082
+  },
+  "privacyAssertions": {
+    "ownerOnlySentinelExcludedFromPublicDom": true,
+    "publicProjectionUsesExactAllowlist": true,
+    "browserWriteRequests": 0,
+    "reloadResetsFixture": true,
+    "productionDataChanged": false
+  },
+  "phaseBoundary": {
+    "selectedDirection": null,
+    "productionRoutesChanged": false,
+    "productionDataChanged": false,
+    "phaseTwoRequiredForShipping": true
+  }
+}

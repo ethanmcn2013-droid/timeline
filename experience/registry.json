@@ -58,10 +58,10 @@
       "screenshotCoverage": "complete",
       "accessibilityCoverage": "complete",
       "fixtureCoverage": "complete",
-      "lastReviewedAt": "2026-07-19",
-      "approvedBaselineReference": "experience/evidence/waitlist-cta-2026-07-19.json#timeline.page.about",
+      "lastReviewedAt": "2026-07-21",
+      "approvedBaselineReference": "experience/evidence/materiality-refresh-2026-07-21.json#timeline.page.about",
       "intentionalExceptions": [],
-      "materialityHash": "4016e320572e4eaa"
+      "materialityHash": "91354e17ba373a66"
     },
     {
       "id": "timeline.page.app",
@@ -122,8 +122,8 @@
       "source": "src/app/app/(app)/account/page.tsx",
       "parentJourney": "signed-in-work",
       "archetype": "settings-and-administration",
-      "primaryJob": "Understand and use app · account.",
-      "primaryAction": "Complete the primary action on app · account.",
+      "primaryJob": "Understand and use app Ã‚Â· account.",
+      "primaryAction": "Complete the primary action on app Ã‚Â· account.",
       "roles": [
         "owner",
         "member"
@@ -146,17 +146,17 @@
       "designOwner": "product-taste-design-integrity",
       "engineeringOwner": "engineering-systems-architecture",
       "implementationStatus": "legacy",
-      "auditStatus": "registered",
+      "auditStatus": "passing",
       "auditScore": null,
       "openFindingIds": [],
-      "automatedTestCoverage": "none",
-      "screenshotCoverage": "none",
-      "accessibilityCoverage": "none",
-      "fixtureCoverage": "none",
-      "lastReviewedAt": null,
-      "approvedBaselineReference": null,
+      "automatedTestCoverage": "complete",
+      "screenshotCoverage": "complete",
+      "accessibilityCoverage": "complete",
+      "fixtureCoverage": "complete",
+      "lastReviewedAt": "2026-07-18",
+      "approvedBaselineReference": "experience/evidence/account-review-boundary-2026-07-18.json",
       "intentionalExceptions": [],
-      "materialityHash": "64c58116ed52318a"
+      "materialityHash": "3d4e0f8859efc8b6"
     },
     {
       "id": "timeline.page.app-audience",
@@ -225,8 +225,8 @@
       "source": "src/app/app/(app)/plan/[projectSlug]/page.tsx",
       "parentJourney": "signed-in-work",
       "archetype": "editor-or-canvas",
-      "primaryJob": "Understand and use app · plan · selected record.",
-      "primaryAction": "Complete the primary action on app · plan · selected record.",
+      "primaryJob": "Understand and use app Ã‚Â· plan Ã‚Â· selected record.",
+      "primaryAction": "Complete the primary action on app Ã‚Â· plan Ã‚Â· selected record.",
       "roles": [
         "owner",
         "member"
@@ -318,8 +318,8 @@
       "source": "src/app/[workspaceSlug]/[projectSlug]/page.tsx",
       "parentJourney": "public-discovery-and-proof",
       "archetype": "detail-or-record-view",
-      "primaryJob": "Understand and use selected record · selected record.",
-      "primaryAction": "Complete the primary action on selected record · selected record.",
+      "primaryJob": "Understand and use selected record Ã‚Â· selected record.",
+      "primaryAction": "Complete the primary action on selected record Ã‚Â· selected record.",
       "roles": [
         "public"
       ],
@@ -361,8 +361,8 @@
       "source": "src/app/[workspaceSlug]/[projectSlug]/[id]/page.tsx",
       "parentJourney": "public-discovery-and-proof",
       "archetype": "detail-or-record-view",
-      "primaryJob": "Understand and use selected record · selected record · selected record.",
-      "primaryAction": "Complete the primary action on selected record · selected record · selected record.",
+      "primaryJob": "Understand and use selected record Ã‚Â· selected record Ã‚Â· selected record.",
+      "primaryAction": "Complete the primary action on selected record Ã‚Â· selected record Ã‚Â· selected record.",
       "roles": [
         "public"
       ],
@@ -404,8 +404,8 @@
       "source": "src/app/[workspaceSlug]/refusals/page.tsx",
       "parentJourney": "public-discovery-and-proof",
       "archetype": "detail-or-record-view",
-      "primaryJob": "Understand and use selected record · refusals.",
-      "primaryAction": "Complete the primary action on selected record · refusals.",
+      "primaryJob": "Understand and use selected record Ã‚Â· refusals.",
+      "primaryAction": "Complete the primary action on selected record Ã‚Â· refusals.",
       "roles": [
         "public"
       ],
@@ -447,8 +447,8 @@
       "source": "src/app/[workspaceSlug]/update/page.tsx",
       "parentJourney": "public-discovery-and-proof",
       "archetype": "detail-or-record-view",
-      "primaryJob": "Understand and use selected record · update.",
-      "primaryAction": "Complete the primary action on selected record · update.",
+      "primaryJob": "Understand and use selected record Ã‚Â· update.",
+      "primaryAction": "Complete the primary action on selected record Ã‚Â· update.",
       "roles": [
         "owner",
         "guest",
@@ -569,6 +569,71 @@
       "approvedBaselineReference": null,
       "intentionalExceptions": [],
       "materialityHash": "98790aca92455b26"
+    },
+    {
+      "id": "timeline.page.design-lab-timeline",
+      "product": "timeline",
+      "surfaceType": "page",
+      "route": "/__design-lab/timeline",
+      "source": "src/app/%5F%5Fdesign-lab/timeline/page.tsx",
+      "parentJourney": "timeline-direction-review",
+      "archetype": "review-and-approval-workspace",
+      "primaryJob": "Compare three complete Timeline directions across four connected surfaces.",
+      "primaryAction": "Review evidence and make an explicit direction selection outside the lab.",
+      "roles": [
+        "owner",
+        "reviewer"
+      ],
+      "requiredStates": [
+        "default",
+        "empty",
+        "populated",
+        "loading",
+        "error",
+        "restricted",
+        "read-only",
+        "dense",
+        "long-content",
+        "saved",
+        "unsaved",
+        "reduced-motion",
+        "keyboard-only"
+      ],
+      "requiredBreakpoints": [
+        "mobile",
+        "tablet",
+        "desktop",
+        "wide"
+      ],
+      "componentDependencies": [
+        "src/components/design-lab/timeline/timeline-design-lab.tsx",
+        "src/components/design-lab/timeline/options/option-a.tsx",
+        "src/components/design-lab/timeline/options/option-b.tsx",
+        "src/components/design-lab/timeline/options/option-c.tsx"
+      ],
+      "patternDependencies": [
+        "fixture-only-review-boundary",
+        "working-copy-and-published-snapshot",
+        "exact-public-projection",
+        "four-surface-continuity"
+      ],
+      "reviewTier": "critical",
+      "designOwner": "product-taste-design-integrity",
+      "engineeringOwner": "engineering-systems-architecture",
+      "implementationStatus": "preview",
+      "auditStatus": "passing",
+      "auditScore": null,
+      "openFindingIds": [],
+      "automatedTestCoverage": "complete",
+      "screenshotCoverage": "complete",
+      "accessibilityCoverage": "complete",
+      "fixtureCoverage": "complete",
+      "lastReviewedAt": "2026-07-18",
+      "approvedBaselineReference": "experience/evidence/timeline-design-lab-2026-07-18.json",
+      "intentionalExceptions": [
+        "Protected Phase 1 review artifact; never available on a production deployment."
+      ],
+      "materialityHash": "d11ad825b4dd7327"
     },
     {
       "id": "timeline.page.s-by-token",
@@ -693,8 +758,8 @@
       "source": "src/app/onboarding/from-template/[id]/page.tsx",
       "parentJourney": "access-and-onboarding",
       "archetype": "onboarding-and-authentication",
-      "primaryJob": "Understand and use onboarding · from template · selected record.",
-      "primaryAction": "Complete the primary action on onboarding · from template · selected record.",
+      "primaryJob": "Understand and use onboarding Ã‚Â· from template Ã‚Â· selected record.",
+      "primaryAction": "Complete the primary action on onboarding Ã‚Â· from template Ã‚Â· selected record.",
       "roles": [
         "public"
       ],
@@ -807,14 +872,14 @@
       "auditStatus": "registered",
       "auditScore": null,
       "openFindingIds": [],
-      "automatedTestCoverage": "none",
+      "automatedTestCoverage": "complete",
       "screenshotCoverage": "complete",
       "accessibilityCoverage": "complete",
       "fixtureCoverage": "complete",
-      "lastReviewedAt": "2026-07-19",
-      "approvedBaselineReference": "experience/evidence/waitlist-cta-2026-07-19.json#timeline.page.root",
+      "lastReviewedAt": "2026-07-21",
+      "approvedBaselineReference": "experience/evidence/materiality-refresh-2026-07-21.json#timeline.page.root",
       "intentionalExceptions": [],
-      "materialityHash": "7e47f8afd9230bd0"
+      "materialityHash": "e2752b8d4465f1c0"
     },
     {
       "id": "timeline.page.sign-in-by-sign-in",
@@ -824,8 +889,8 @@
       "source": "src/app/sign-in/[[...sign-in]]/page.tsx",
       "parentJourney": "access-and-onboarding",
       "archetype": "onboarding-and-authentication",
-      "primaryJob": "Understand and use sign in · selected record.",
-      "primaryAction": "Complete the primary action on sign in · selected record.",
+      "primaryJob": "Understand and use sign in Ã‚Â· selected record.",
+      "primaryAction": "Complete the primary action on sign in Ã‚Â· selected record.",
       "roles": [
         "public"
       ],
@@ -869,8 +934,8 @@
       "source": "src/app/sign-up/[[...sign-up]]/page.tsx",
       "parentJourney": "access-and-onboarding",
       "archetype": "onboarding-and-authentication",
-      "primaryJob": "Understand and use sign up · selected record.",
-      "primaryAction": "Complete the primary action on sign up · selected record.",
+      "primaryJob": "Understand and use sign up Ã‚Â· selected record.",
+      "primaryAction": "Complete the primary action on sign up Ã‚Â· selected record.",
       "roles": [
         "public"
       ],
@@ -1135,8 +1200,8 @@
       "source": "src/app/app/(app)/plan/[projectSlug]/loading.tsx",
       "parentJourney": "signed-in-work",
       "archetype": "feedback-interruption-and-exception",
-      "primaryJob": "Understand and use app · plan · selected record.",
-      "primaryAction": "Complete the primary action on app · plan · selected record.",
+      "primaryJob": "Understand and use app Ã‚Â· plan Ã‚Â· selected record.",
+      "primaryAction": "Complete the primary action on app Ã‚Â· plan Ã‚Â· selected record.",
       "roles": [
         "owner",
         "member"
@@ -1206,10 +1271,10 @@
       "screenshotCoverage": "complete",
       "accessibilityCoverage": "complete",
       "fixtureCoverage": "complete",
-      "lastReviewedAt": "2026-07-19",
-      "approvedBaselineReference": "experience/evidence/waitlist-cta-2026-07-19.json#timeline.state.by-workspace-slug-not-found",
+      "lastReviewedAt": "2026-07-21",
+      "approvedBaselineReference": "experience/evidence/materiality-refresh-2026-07-21.json#timeline.state.by-workspace-slug-not-found",
       "intentionalExceptions": [],
-      "materialityHash": "eac5452409591dc8"
+      "materialityHash": "08403df21827c0f5"
     },
     {
       "id": "timeline.state.root-error",
@@ -1288,10 +1353,10 @@
       "screenshotCoverage": "complete",
       "accessibilityCoverage": "complete",
       "fixtureCoverage": "complete",
-      "lastReviewedAt": "2026-07-19",
-      "approvedBaselineReference": "experience/evidence/waitlist-cta-2026-07-19.json#timeline.state.root-not-found",
+      "lastReviewedAt": "2026-07-21",
+      "approvedBaselineReference": "experience/evidence/materiality-refresh-2026-07-21.json#timeline.state.root-not-found",
       "intentionalExceptions": [],
-      "materialityHash": "488e66a745bf40b2"
+      "materialityHash": "caa6c68c50694e86"
     },
     {
       "id": "timeline.surface.milestone-card",

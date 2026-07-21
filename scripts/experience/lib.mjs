@@ -140,7 +140,11 @@ function visibleRouteSegments(relativeDirectory) {
     .split(path.sep)
     .filter(Boolean)
     .filter((segment) => !(segment.startsWith("(") && segment.endsWith(")")))
-    .filter((segment) => !segment.startsWith("@"));
+    .filter((segment) => !segment.startsWith("@"))
+    // Next.js uses percent-encoded leading underscores for routable folders;
+    // literal underscore folders are private. The public route contract uses
+    // the decoded segment, so the registry must do the same.
+    .map((segment) => segment.replace(/%5f/gi, "_"));
 }
 
 export function normalizeRoute(appRoot, sourceFile) {

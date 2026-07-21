@@ -9,6 +9,9 @@
     "lint": "eslint",
     "ds:check": "node scripts/ds/ds-check.mjs",
     "typecheck": "tsc --noEmit",
+    "test:lab:model": "tsx --test src/components/design-lab/timeline/model.test.ts src/components/design-lab/timeline/query.test.ts src/lib/design-lab/timeline-lab-guard.test.ts",
+    "test:lab:browser": "playwright test tests/design-lab/timeline-lab.spec.ts",
+    "capture:lab": "playwright test tests/design-lab/timeline-lab.capture.spec.ts --reporter=line",
     "db:migrate": "drizzle-kit migrate",
     "db:push:unsafe": "drizzle-kit push --force",
     "db:contract": "node scripts/check-migration-contract.mjs",
@@ -33,6 +36,8 @@
     "remark-gfm": "^4.0.1"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.12.1",
+    "@playwright/test": "^1.61.1",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",

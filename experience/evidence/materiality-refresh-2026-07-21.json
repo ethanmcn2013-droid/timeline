@@ -1,0 +1,13 @@
+﻿{
+  "schemaVersion": "signal-experience-evidence/1",
+  "capturedAt": "2026-07-21",
+  "product": "timeline",
+  "changeClass": "materiality-hash-refresh",
+  "reviewSummary": "Refresh registry materiality hashes to match current main source blobs after rebase onto origin/main. No production UI redesign; sources are identical to origin/main and hashes were previously stale in the base registry.",
+  "sourceMaterialityHashes": {
+    "timeline.page.root": "e2752b8d4465f1c0",
+    "timeline.page.about": "91354e17ba373a66",
+    "timeline.state.root-not-found": "caa6c68c50694e86",
+    "timeline.state.by-workspace-slug-not-found": "08403df21827c0f5"
+  }
+}
