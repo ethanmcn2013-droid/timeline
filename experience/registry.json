@@ -61,7 +61,7 @@
       "lastReviewedAt": "2026-07-19",
       "approvedBaselineReference": "experience/evidence/waitlist-cta-2026-07-19.json#timeline.page.about",
       "intentionalExceptions": [],
-      "materialityHash": "4016e320572e4eaa"
+      "materialityHash": "91354e17ba373a66"
     },
     {
       "id": "timeline.page.app",
@@ -879,7 +879,7 @@
       "lastReviewedAt": "2026-07-19",
       "approvedBaselineReference": "experience/evidence/waitlist-cta-2026-07-19.json#timeline.page.root",
       "intentionalExceptions": [],
-      "materialityHash": "7e47f8afd9230bd0"
+      "materialityHash": "e2752b8d4465f1c0"
     },
     {
       "id": "timeline.page.sign-in-by-sign-in",
@@ -1274,7 +1274,7 @@
       "lastReviewedAt": "2026-07-19",
       "approvedBaselineReference": "experience/evidence/waitlist-cta-2026-07-19.json#timeline.state.by-workspace-slug-not-found",
       "intentionalExceptions": [],
-      "materialityHash": "eac5452409591dc8"
+      "materialityHash": "08403df21827c0f5"
     },
     {
       "id": "timeline.state.root-error",
@@ -1356,7 +1356,7 @@
       "lastReviewedAt": "2026-07-19",
       "approvedBaselineReference": "experience/evidence/waitlist-cta-2026-07-19.json#timeline.state.root-not-found",
       "intentionalExceptions": [],
-      "materialityHash": "488e66a745bf40b2"
+      "materialityHash": "caa6c68c50694e86"
     },
     {
       "id": "timeline.surface.milestone-card",

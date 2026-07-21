@@ -134,12 +134,5 @@ test("removed Tasks membership blocks create, publish, and rotate before any URL
     restoreEnv("TASKS_DATABASE_URL", previousUrl);
     restoreEnv("TASKS_AUTH_TOKEN", previousToken);
     client.close();
-    await rm(directory, {
-      recursive: true,
-      force: true,
-      // libSQL can release its Windows file handle slightly after close().
-      // Keep cleanup deterministic without weakening any assertion.
-      maxRetries: 20,
-      retryDelay: 100,
-    });  }
+  }
 });
