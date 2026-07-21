@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * Chrome contract gate — headers and footers hold still across the suite.
+ * Chrome contract gate â€” headers and footers hold still across the suite.
  *
  * Encodes two HQ decisions as executable checks:
  *   - content/hq/decisions/product-header-contract.md (studio repo)
@@ -64,10 +64,10 @@ const product = pkg.name;
 const isNotes = product === "notes";
 const isUmbrella = product === "studio";
 
-/* ── Header shell ──────────────────────────────────────────────── */
+/* â”€â”€ Header shell â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 if (isUmbrella) {
-  // The umbrella (signalstudio.ie) keeps its own top nav — it is the suite
+  // The umbrella (signalstudio.ie) keeps its own top nav â€” it is the suite
   // home, not one of the four products that must hold still. Geometry only.
   const nav = readRequired("umbrella site-nav", [
     "src/components/layout/site-nav.tsx",
@@ -95,13 +95,13 @@ if (isUmbrella) {
     mustNotContain(wrapper.file, wrapper.source, "217, 221, 207", "the retired Notes green-grey hairline must not return");
 
     // Nav CONTENT contract (product-header-contract.md, 2026-07-06): the
-    // marketing header nav is EXACTLY Pricing · Design, both umbrella links.
+    // marketing header nav is EXACTLY Pricing Â· Design, both umbrella links.
     // Geometry + byte-seal held the shell identical while the words inside it
     // drifted four ways (Signal ran Ten rules/Refusals/About, Tasks ran
     // Demo/Anatomy/App, Timeline ran About/Demo/Dispatch, Notes ran nothing).
     // Asserting the label set makes that divergence impossible, not just
     // discouraged. Everything else lives in the footer and page body.
-    const CANON_NAV = ["Pricing", "Design"];
+    const CANON_NAV = ["Pricing", "Design", "About"];
     const navLabels = [...wrapper.source.matchAll(/\blabel:\s*"([^"]+)"/g)].map((m) => m[1]);
     const navMatchesCanon =
       navLabels.length === CANON_NAV.length &&
@@ -134,7 +134,7 @@ if (isUmbrella) {
   }
 }
 
-/* App-surface chrome — the authed /app top bar. It rides the SAME shared
+/* App-surface chrome â€” the authed /app top bar. It rides the SAME shared
    SuiteHeader shell as the marketing header (switcher lockup, no wordmark), so
    a cross-product jump swaps only the body. Each repo's app chrome must USE
    SuiteHeader; the geometry + hairline live in the shell (checked above). */
@@ -169,7 +169,7 @@ if (appChrome) {
   }
 }
 
-/* ── Footer shell ──────────────────────────────────────────────── */
+/* â”€â”€ Footer shell â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 const footer = readRequired("site-footer", [
   "src/components/marketing/site-footer.tsx",
@@ -193,13 +193,13 @@ if (footer.file) {
     footer.file,
     footer.source,
     "border-border-soft",
-    "deprecated alias — the contract token is border-hairline-soft",
+    "deprecated alias â€” the contract token is border-hairline-soft",
   );
   mustNotContain(
     footer.file,
     footer.source,
     "border-line-soft",
-    "deprecated alias — the contract token is border-hairline-soft",
+    "deprecated alias â€” the contract token is border-hairline-soft",
   );
   mustContain(
     footer.file,
@@ -239,7 +239,7 @@ if (footer.file) {
   }
 }
 
-/* ── Verdict ───────────────────────────────────────────────────── */
+/* â”€â”€ Verdict â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 if (failures.length > 0) {
   console.error(`[chrome-contract] FAIL (${product})`);
