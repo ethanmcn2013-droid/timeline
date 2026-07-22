@@ -3,6 +3,7 @@ import type { LibSQLDatabase } from "drizzle-orm/libsql";
 import {
   activity,
   audienceShares,
+  audienceViewReceipts,
   comments,
   nodeOverlays,
   projectSources,
@@ -58,6 +59,9 @@ export async function eraseAccountData(
     .where(inArray(timelinePublications.workspaceSlug, slugs));
   if (publicationRows.length > 0) {
     const publicationIds = publicationRows.map((row) => row.id);
+    await database
+      .delete(audienceViewReceipts)
+      .where(inArray(audienceViewReceipts.publicationId, publicationIds));
     await database
       .delete(audienceShares)
       .where(inArray(audienceShares.publicationId, publicationIds));

@@ -1,8 +1,69 @@
 # Timeline redesign decision log
 
-Current status: Phase 1 unselected
+Current status: Option D selected; production integration in progress
 Decision authority: Ethan McNamara
-Production implementation: blocked by the explicit selection gate
+Production implementation: authorised; deployment evidence pending
+
+## 2026-07-22: Option D selected
+
+Founder decision: **SELECT D — The Current**.
+
+Ethan's explicit instruction to "lock in on option d" closes the selection
+gate. Option D was added during the live review after the original A/B/C package,
+so the founder's plain-language selection is the authority even though the first
+protocol did not yet list D.
+
+### Selected production composition
+
+- The shared artefact is one horizontal, date-aware line with milestones as
+  points and completion visible in the line itself.
+- A separate vertical `Today` dash shows the real calendar position between
+  milestones.
+- The first unfinished milestone reads `Our next milestone`.
+- The upper-right time lens switches between exact milestone completion and
+  days remaining to the primary date with restrained, reduced-motion-safe
+  motion.
+- Selecting a point reveals its detail in place. Hover is an enhancement;
+  focus, click, Enter, Space, and touch must expose the same content.
+- The private owner route presents the same artefact at full size and in a
+  real phone frame. Owner previews do not count as views.
+- The bearer-link recipient route has no black operating rail, no owner tools,
+  no public directory, and no indexable discovery path.
+- A qualified view is recorded only after two seconds of continuous visibility,
+  deduplicated at publication level, and shown only to the owner as views rather
+  than people.
+
+The selected implementation uses the existing frozen `AudienceTimelineDto`
+allowlist. It does not introduce a second public data interpretation. The
+`covered / now / next / later / cancelled` states become complete, next, future,
+future, and excluded-planning-decision treatments respectively. Completion is
+`covered / all non-cancelled milestones`; it is never confidence.
+
+### Rejected directions and tradeoffs
+
+- A retained useful restraint and the compact completion fact, but read as a
+  ledger rather than a project journey.
+- B retained useful editorial warmth, but its document hierarchy delayed the
+  at-a-glance progress read.
+- C retained useful spatial hierarchy, but carried more interface structure
+  than the shared artefact needs.
+- D is selected because the line itself communicates progress, timing, and the
+  next milestone before the viewer reads supporting copy.
+
+### Production record
+
+- Unified-app implementation: `tasks` branch `feat/timeline-artifact`.
+- Qualified-view schema record: `roadmap` branch
+  `feat/timeline-qualified-views`.
+- Pull requests: pending.
+- Database migration receipt: pending.
+- Production deployment: pending.
+- Live owner, phone-preview, bearer-link, privacy-header, and qualified-view
+  verification: pending.
+- Rollback reference: pending release commit and migration receipt.
+
+No line in this entry is deployment evidence. The status must remain pending
+until those receipts are replaced with concrete references.
 
 ## 2026-07-18: Phase 1 review package
 
@@ -12,9 +73,10 @@ Three coded directions were prepared for review:
 - Option B: Editorial Plan Room
 - Option C: Signal Horizon
 
-The options share one fixture state contract and cover owner plan, public timeline, shared update, and item detail. They are isolated review directions. No option is selected by its score, recommendation, branch status, deployment status, or visual similarity to production.
+The options share one fixture state contract and cover owner plan, public timeline, shared update, and item detail. They are isolated review directions. No option in this original package was selected by its score, recommendation, branch status, deployment status, or visual similarity to production.
 
-Decision: **Pending**
+Decision at package close: **Pending**. Superseded by the Option D selection on
+2026-07-22.
 
 Production routes and production data remain unchanged during Phase 1.
 
@@ -43,6 +105,10 @@ Deployment: `dpl_3W6krhr15HicXNWQ5bSkNDxMDFyH`, Vercel Preview, READY, Vercel Au
 
 The protected links require authorised Vercel access. The lab route still returns not found on Vercel Production even if all three review flags are present.
 
+Option D was reviewed in the later local lab at
+`http://127.0.0.1:4320/__design-lab/timeline?option=d&surface=public&dataset=wedding&density=normal&state=default&viewport=responsive&preview=working&presentation=product`.
+It has no protected-preview or production deployment receipt in this record.
+
 ## Valid selection commands
 
 The decision must use one of these exact commands:
@@ -51,6 +117,7 @@ The decision must use one of these exact commands:
 SELECT A — Quiet Direction Ledger
 SELECT B — Editorial Plan Room
 SELECT C — Signal Horizon
+SELECT D — The Current
 SELECT HYBRID — followed by the exact components to combine
 ```
 
@@ -72,13 +139,12 @@ Selection authorises Phase 2 implementation planning and production work for the
 
 ## Next log entry
 
-After explicit selection, append:
+After production release, append:
 
-- exact selection command;
-- selected surfaces and components;
-- decision date and rationale;
-- rejected alternatives and relevant tradeoffs;
-- Phase 2 branch, pull request, deployment, and rollback references;
-- production verification receipts.
+- merged pull request and release commit;
+- migration dry-run and production receipts;
+- deployment and rollback references;
+- live owner and shared-route verification;
+- privacy, accessibility, reduced-motion, and qualified-view receipts.
 
-Until that entry exists, Phase 2 must not replace owner, public, update, or detail routes.
+Until that entry exists, Option D is selected but not recorded as deployed.

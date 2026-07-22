@@ -1,8 +1,11 @@
 # Timeline design-lab council reviews
 
 Review status: authoring, red-team, and final acceptance reviews complete
-Selection status: no option selected
-Production status: unchanged
+Selection status: historical A/B/C review; Option D selected on 2026-07-22
+Production status: Option D integration in progress; deployment evidence pending
+
+Option D was reviewed after this council package. The binding selection and
+remaining production evidence are recorded in `09-decision-log.md`.
 
 ## Review basis
 

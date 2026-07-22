@@ -1,8 +1,12 @@
 # Design direction decision rationale
 
-Decision status: pending explicit founder selection
-Allowed outcomes: Option A, Option B, Option C, or a hybrid naming exact components
-Production status: unchanged
+Decision status: superseded by `SELECT D — The Current` on 2026-07-22
+Historical scope: Option A, Option B, Option C, or a hybrid naming exact components
+Production status: Option D integration in progress; deployment evidence pending
+
+This document records the original A/B/C decision frame. The binding selection,
+selected composition, and pending production receipts live in
+`09-decision-log.md`.
 
 ## Why this is a direction decision
 
