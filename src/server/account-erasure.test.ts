@@ -117,7 +117,8 @@ async function freshDb() {
       label text NOT NULL, primary_date_label text, primary_date text,
       audience_kind text NOT NULL, timezone text NOT NULL, owner_display_label text, state text NOT NULL,
       last_updated_at integer NOT NULL, created_at integer NOT NULL,
-      updated_at integer NOT NULL, published_at integer, unpublished_at integer
+      updated_at integer NOT NULL, published_at integer, unpublished_at integer,
+      qualified_view_count integer NOT NULL DEFAULT 0, last_qualified_view_at integer
     );
     CREATE TABLE timeline_publication_items (
       public_id text PRIMARY KEY NOT NULL, publication_id text NOT NULL,
@@ -132,6 +133,11 @@ async function freshDb() {
       token_hash text NOT NULL, state text NOT NULL, version integer NOT NULL,
       expires_at integer, created_at integer NOT NULL, rotated_at integer,
       revoked_at integer, last_access_at integer, visit_count integer NOT NULL
+    );
+    CREATE TABLE audience_view_receipts (
+      publication_id text NOT NULL, session_hash text NOT NULL,
+      created_at integer NOT NULL, expires_at integer NOT NULL,
+      PRIMARY KEY (publication_id, session_hash)
     );
   `);
   const db = drizzle(client, { schema });
@@ -173,6 +179,10 @@ async function seed(client: Client) {
       (id, publication_id, token_hash, state, version, created_at, visit_count)
       VALUES ('sh-a','pub-a','hash-a','active',1,1,0),
              ('sh-b','pub-b','hash-b','active',1,1,0);
+    INSERT INTO audience_view_receipts
+      (publication_id, session_hash, created_at, expires_at)
+      VALUES ('pub-a','${"a".repeat(64)}',1,999999),
+             ('pub-b','${"b".repeat(64)}',1,999999);
   `);
 }
 
@@ -195,6 +205,7 @@ test("erasure clears every workspace-scoped table incl. comments; bystander inta
       "timeline_publications WHERE workspace_slug='ws-a'",
       "timeline_publication_items WHERE publication_id='pub-a'",
       "audience_shares WHERE publication_id='pub-a'",
+      "audience_view_receipts WHERE publication_id='pub-a'",
     ]) {
       assert.equal(await count(client, where), 0, `residual rows in ${where}`);
     }
@@ -204,6 +215,7 @@ test("erasure clears every workspace-scoped table incl. comments; bystander inta
       "workspaces", "projects", "tasks", "subtasks",
       "activity", "comments", "project_sources", "node_overlays",
       "timeline_publications", "timeline_publication_items", "audience_shares",
+      "audience_view_receipts",
     ]) {
       assert.equal(await count(client, table), 1, `bystander row lost in ${table}`);
     }

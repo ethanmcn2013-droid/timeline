@@ -1,9 +1,12 @@
 # Timeline design-lab comparison scorecard
 
 Status: final frozen-build review complete
-Selection status: no option selected
+Selection status: historical A/B/C scorecard; Option D selected on 2026-07-22
 Target: 9.9 average with no category below 9.5
 Evidence set: 18 model/query/guard checks, 52 browser checks, 94 fresh captures, the complete repository test command, and an optimized production build
+
+Option D was added after this frozen evidence set and is not scored here. Its
+selection and production gates are recorded in `09-decision-log.md`.
 
 The 9.9 target is a quality aspiration, not permission to inflate scores. Every option clears the 9.5 minimum; none honestly reaches a 9.9 average.
 

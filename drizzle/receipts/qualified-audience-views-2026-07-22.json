@@ -1,0 +1,49 @@
+{
+  "schemaVersion": "timeline-migration-receipt/1",
+  "id": "timeline-qualified-audience-views-2026-07-22",
+  "authorizedBy": "Ethan McNamara",
+  "reviewedBy": "Codex, delegated implementation",
+  "authorizationSource": "Signal Timeline product integration request, 2026-07-22",
+  "migrations": [
+    {
+      "id": "0008_qualified_audience_views",
+      "sha256": "e795a0383536d12f2a023ae10ff4fbe6b87c997f496f3a1183c6448736460ae1",
+      "reviewedAt": "2026-07-22T12:00:00.000Z",
+      "risk": "additive-columns-table-and-index",
+      "rollbackPlan": "Disable qualified-view writes first. Preserve the aggregate and receipts for a forward fix, or restore the verified pre-migration snapshot if data rollback is required.",
+      "postconditions": [
+        "publication-qualified-view-aggregate-columns-present",
+        "minimal-publication-session-receipt-table-present",
+        "receipt-expiry-index-present",
+        "foreign-keys-clean"
+      ],
+      "proofs": [
+        {
+          "id": "publication-aggregate-columns",
+          "sql": "SELECT COUNT(*) AS value FROM pragma_table_info('timeline_publications') WHERE name IN ('qualified_view_count','last_qualified_view_at')",
+          "expected": 2
+        },
+        {
+          "id": "receipt-column-allowlist",
+          "sql": "SELECT COUNT(*) AS value FROM pragma_table_info('audience_view_receipts') WHERE name IN ('publication_id','session_hash','created_at','expires_at')",
+          "expected": 4
+        },
+        {
+          "id": "receipt-no-sensitive-columns",
+          "sql": "SELECT COUNT(*) AS value FROM pragma_table_info('audience_view_receipts') WHERE lower(name) LIKE '%ip%' OR lower(name) LIKE '%referrer%' OR lower(name) LIKE '%agent%' OR lower(name) LIKE '%token%' OR lower(name) LIKE '%raw%'",
+          "expected": 0
+        },
+        {
+          "id": "receipt-expiry-index",
+          "sql": "SELECT COUNT(*) AS value FROM pragma_index_list('audience_view_receipts') WHERE name = 'idx_audience_view_receipts_expiry'",
+          "expected": 1
+        },
+        {
+          "id": "foreign-keys",
+          "sql": "SELECT COUNT(*) AS value FROM pragma_foreign_key_check",
+          "expected": 0
+        }
+      ]
+    }
+  ]
+}

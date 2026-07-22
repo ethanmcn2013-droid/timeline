@@ -17,6 +17,29 @@ import * as schema from "./db/schema";
 
 export type ExportDb = LibSQLDatabase<typeof schema>;
 
+type AudienceShareExport = Pick<
+  typeof audienceShares.$inferSelect,
+  | "id"
+  | "publicationId"
+  | "state"
+  | "version"
+  | "expiresAt"
+  | "createdAt"
+  | "rotatedAt"
+  | "revokedAt"
+>;
+
+const audienceShareExportColumns = {
+  id: audienceShares.id,
+  publicationId: audienceShares.publicationId,
+  state: audienceShares.state,
+  version: audienceShares.version,
+  expiresAt: audienceShares.expiresAt,
+  createdAt: audienceShares.createdAt,
+  rotatedAt: audienceShares.rotatedAt,
+  revokedAt: audienceShares.revokedAt,
+};
+
 /**
  * GDPR Art. 20 (data portability), assemble everything Roadmap holds for a
  * user. Ownership is keyed at the workspace layer (`workspaces.ownerUserId`),
@@ -45,7 +68,8 @@ export async function exportAccountData(database: ExportDb, clerkId: string) {
     nodeOverlays: [] as (typeof nodeOverlays.$inferSelect)[],
     timelinePublications: [] as (typeof timelinePublications.$inferSelect)[],
     timelinePublicationItems: [] as (typeof timelinePublicationItems.$inferSelect)[],
-    audienceShares: [] as (typeof audienceShares.$inferSelect)[],
+    // Link lifecycle belongs in the export. Token/session digests do not.
+    audienceShares: [] as AudienceShareExport[],
   };
   if (slugs.length === 0) return empty;
 
@@ -67,7 +91,10 @@ export async function exportAccountData(database: ExportDb, clerkId: string) {
         ? database.select().from(timelinePublicationItems).where(inArray(timelinePublicationItems.publicationId, publicationIds))
         : Promise.resolve([]),
       publicationIds.length > 0
-        ? database.select().from(audienceShares).where(inArray(audienceShares.publicationId, publicationIds))
+        ? database
+            .select(audienceShareExportColumns)
+            .from(audienceShares)
+            .where(inArray(audienceShares.publicationId, publicationIds))
         : Promise.resolve([]),
     ]);
 

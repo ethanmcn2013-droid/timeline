@@ -1,17 +1,129 @@
 # Signal Timeline redesign: public direction contract
 
-This document separates confirmed product rules from the proposed design-lab data contract. The proposed types are fixture-only until a direction is selected and a production migration is approved.
+Status: **Option D selected; production deployment evidence pending**.
 
-## Confirmed publication rules
+This document now has two layers. The production addendum records the selected
+Audience Timeline contract. The Phase 1 object model remains below as design
+history; its richer fixture-only types are not a second production data model.
 
-1. Signal Timeline is public by default and must be readable without an account.
+## Selected production contract: Option D, The Current
+
+### Access and route boundary
+
+1. The working Timeline and publication controls are owner-only inside the
+   unified app.
+2. The shared artefact is readable without an account only when the recipient
+   has the exact, high-entropy bearer link.
+3. Shared links are unlisted and must be `noindex`, `nofollow`, `noarchive`, and
+   absent from navigation, sitemaps, public directories, and guessable slug
+   routes.
+4. Revocation, expiry, unpublish, or token rotation must take effect on an
+   uncached read.
+5. The shared route has its own document boundary: no Signal Studio operating
+   rail, no owner controls, no owner analytics, and no third-party page-view
+   analytics that receive the bearer path.
+6. Responses use `Cache-Control: private, no-store`, `Referrer-Policy:
+   no-referrer`, a same-origin resource policy, and an allowlisted content
+   security policy.
+
+The branded recipient URL remains `timeline.signalstudio.ie/s/[token]`. The
+active runtime may resolve it through the unified app, but the bearer path must
+not be sent to a general marketing catch-all. Deployment and host-handoff
+receipts are still pending.
+
+### One projection, two presentations
+
+The existing runtime-validated `AudienceTimelineDto` is the only input to the
+selected artefact. It allows the publication ID, audience kind, label, optional
+owner display label, optional primary date, update time, calendar-correct
+`today`, and sections containing only public IDs, titles, optional dates, and
+completion states.
+
+- The shared route renders the DTO as the recipient will see it.
+- The owner artefact route renders that same component at full size and inside
+  a phone frame.
+- Tracking is outside the visual component, so neither owner rendering can
+  accidentally record a view.
+- No owner note, workspace identifier, source relation, digest, email,
+  attachment, comment, raw task description, or hidden item may enter the DTO.
+
+### Line and milestone semantics
+
+| Frozen state | Line treatment | Completion math |
+| --- | --- | --- |
+| `covered` | Complete point behind the progress head | Included in numerator and denominator |
+| `now` | First unfinished point, labelled `Our next milestone` | Included in denominator |
+| `next` | Future point | Included in denominator |
+| `later` | Future point | Included in denominator |
+| `cancelled` | Planning decision outside the progress line | Excluded |
+
+If no item is explicitly `now`, the first unfinished non-cancelled item becomes
+`Our next milestone`. `Now` and `Current` are not displayed as a claim that the
+milestone occurs today.
+
+Milestone positions follow their calendar dates when the DTO supplies a usable
+date range. Undated points interpolate between dated neighbours. Collision
+handling may separate point controls visually, but it must preserve milestone
+order and may not invent date precision.
+
+The `Today` marker is a separate vertical dash positioned from `dto.today`. It
+can sit between milestones and does not snap to the next point. The completed
+line is exact completion arithmetic:
+
+```text
+covered milestones / all non-cancelled milestones
+```
+
+The time lens switches between that percentage and calendar days remaining to
+the primary date. If the primary date is absent or past, completion remains the
+only metric. Neither face is a confidence score, prediction, or health label.
+
+### Interaction and motion
+
+- Each point is a real button with a 44-pixel minimum target.
+- Arrow Left and Arrow Right move between points; Home and End jump to the
+  edges; Enter, Space, click, and tap select; Escape closes detail.
+- Hover may preview but never owns content unavailable to focus or touch.
+- Selection opens one inline detail region and keeps the point, title, timing,
+  and next action in one reading path.
+- The progress draw, point settling, detail transition, and time-lens switch
+  are short and state-led. The settled state is always the baseline.
+- `prefers-reduced-motion` removes travel and flourish without removing facts
+  or interaction feedback.
+
+### Qualified Timeline views
+
+A view is recorded only after the shared document is visible continuously for
+at least two seconds. The client posts a publication-scoped session nonce to a
+same-origin endpoint. The server deduplicates a hashed receipt at publication
+level for a 30-minute session window, so token rotation preserves the lifetime
+count while short-lived dedupe material expires quickly.
+
+Do not count owner previews, metadata requests, HEAD requests, prefetch,
+known-bot traffic, revoked or expired shares, or duplicate receipts inside the
+retention window. Do not persist raw IP addresses, user agents, referrers, raw
+tokens, or cross-product identifiers. The owner interface says `Timeline
+views`; it never claims unique people. The shared artefact does not expose the
+count.
+
+## Phase 1 direction contract retained for history
+
+The object model and lab state machine below describe the original A/B/C fixture
+contract. They remain useful for provenance, but production Option D maps from
+`AudienceTimelineDto` as specified above.
+
+## Phase 1 confirmed publication rules
+
+1. A working Timeline is owner-only. A published Audience Timeline is readable
+   without an account only through its exact bearer link.
 2. The public primary ladder is `Now / Soon / Later / Done / Refused`.
 3. `Waiting on you / Underway / Coming up / Done` are secondary states, not parallel lanes.
 4. `Waiting on you` is the only secondary state with strong colour presence.
 5. Refused work is a dated decision.
 6. Audience Timelines remain a separate frozen projection and bearer-link boundary.
-7. Timeline v1 does not add private workspaces, comments, a team tier, or a public directory.
-8. Public copy must not expose internal project-management vocabulary or unsupported product claims.
+7. Timeline v1 does not add comments, a team tier, or a public directory. The
+   owner-only working view is not a new workspace visibility mode.
+8. Shared copy must not expose internal project-management vocabulary or unsupported product claims.
 
 ## Proposed object model
 

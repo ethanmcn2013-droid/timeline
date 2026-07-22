@@ -1,9 +1,12 @@
 # Timeline redesign council scorecard
 
 Status: pending final independent council review
-Selection status: no option selected
+Selection status: archived A/B/C template; Option D selected on 2026-07-22
 Scoring target: 9.9 average, with no category below 9.5
 Evidence rule: no score may be entered without a linked observation, test, screenshot, or source finding
+
+This template was not used to score Option D. Do not backfill a score without a
+new evidence run; use `09-decision-log.md` for the selection record.
 
 This file is deliberately a template. It contains no fabricated scores or test receipts.
 

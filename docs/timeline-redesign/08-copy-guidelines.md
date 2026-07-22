@@ -1,7 +1,7 @@
 # Timeline copy guidelines
 
-Scope: owner plan, public timeline, shared update, and item detail
-Status: proposed language contract for the design lab and any selected Phase 2 direction
+Scope: owner plan, shared Timeline artefact, shared update, and item detail
+Status: selected Option D language contract; production runtime evidence pending
 
 ## Voice
 
@@ -19,13 +19,16 @@ Timeline copy is calm, specific, and useful without product knowledge. It descri
 
 | Meaning | Use | Avoid |
 | --- | --- | --- |
-| Product | plan, direction, public link, update, decision | roadmap software, PM tool, all-in-one workspace |
+| Product | plan, direction, share link, update, decision | public listing, roadmap software, PM tool, all-in-one workspace |
 | Primary time | Now, Soon, Later, Done, Refused | Next, In flight, Shipped, To do, Doing, Dropped |
 | Secondary state | Waiting on you, Underway, Coming up, Done | Blocked, Needs attention, At risk |
 | Change | moved, changed, restored, hidden from the public plan | transitioned, progressed, updated status |
 | Publication | working plan, working preview, not published, published plan, revision | synced, live, saved, secure copy |
 | Uncertainty | timing open, direction set, clear | 80% confidence, low risk, on track |
 | People | owner, couple, venue, client, supplier, customer | stakeholder, resource, assignee |
+| Line position | Our next milestone, Today, coming up, complete | Current, Now as a claim about today, active node |
+| Time lens | Milestones complete, days remaining, days left | health score, confidence score, percent on track |
+| Audience receipt | Timeline view, Timeline views | visitor, unique person, reach |
 
 `Waiting on you` is used only when the reader can take a real action. It is not a general warning label.
 
@@ -72,14 +75,47 @@ Use only language the current facts justify.
 - `Direction set` means the route is understood while details may move.
 - `Still open` means a choice or timing remains unresolved.
 
-Never convert those phrases into a percentage, score, traffic light, or prediction.
+Never convert those phrases into a percentage, score, traffic light, or
+prediction. The selected artefact may show an exact completion percentage when
+it is derived only from completed milestones divided by all non-cancelled
+milestones. That percentage describes settled work, never confidence.
+
+### Selected line and countdown
+
+- Use `Our next milestone` for the first unfinished point.
+- Use `Today` only on the calendar-position dash derived from the publication's
+  date context.
+- Use `Milestones complete` for exact completion arithmetic.
+- Use `N days remaining` or `N days left` for a future primary date.
+- Use the primary date's own label in supporting copy, for example `Wedding
+  day, 14 September 2026`.
+- Do not call an overdue or unfinished milestone `Current` or `Now` merely
+  because it is the next point on the line.
+- Do not animate by changing facts. Motion may move between two already true
+  readings and must leave the active reading available to assistive technology.
+
+### Views
+
+- Zero: `No views yet`.
+- One: `1 Timeline view`.
+- More than one: `184 Timeline views`.
+- Never say `people`, `unique viewers`, or `reach` when an anonymous bearer
+  link cannot prove identity.
+- View counts are owner-only. The shared artefact never mentions them.
+
+### Product identity
+
+The visual wordmark in the selected artefact reads lowercase `timeline`.
+Product prose still uses the full name `Signal Timeline`. The shared artefact
+does not show the Signal Studio operating rail. `A Signal Studio product` may
+appear once as restrained attribution.
 
 ## Surface-specific rules
 
 | Surface | Copy priority | Boundary |
 | --- | --- | --- |
 | Owner plan | Action, publication state, recovery, and consequence. | Owner notes may appear, but public wording must remain separately identifiable. |
-| Public timeline | Purpose, Now, any action required, horizon, and dated decisions. | No owner controls, raw Notes content, internal source identifiers, or draft ambiguity. |
+| Shared Timeline | Purpose, completion, Our next milestone, Today, horizon, and dated decisions. | No owner controls, view count, raw Notes content, internal source identifiers, or draft ambiguity. |
 | Shared update | Current direction, what changed, why, and what comes next. | No invented progress metrics or claims derived from counts alone. |
 | Item detail | Meaning now, timing, next practical step, decision, and history. | No fallback to owner-only data when a public item is absent. |
 
@@ -97,6 +133,18 @@ Never convert those phrases into a percentage, score, traffic light, or predicti
 
 Accessible names include the item title and action: `Move Menu tasting and dietary sign-off to Soon`. Live announcements state the result and position without repeating the entire row. Link text should identify the item; do not use `Read more` as the only label.
 
-## Phase 2 boundary
+## Planned milestone-memory copy
 
-The lab copy proves a proposed vocabulary, not production truth. Before launch, every production string, metadata field, share preview, error response, and legacy status mapping must be audited against this contract. Claims about privacy, publication, sync, or anonymous access require implementation and runtime evidence.
+`Add the moment` is the proposed owner prompt after a milestone is complete.
+Captions should name the people and moment plainly. Shared Timelines must not
+show empty media placeholders. Media upload and publication remain planned, so
+no production copy may imply that a photograph can be added until that flow is
+implemented and verified.
+
+## Production boundary
+
+The selected vocabulary is a contract, not production evidence. Before release,
+every production string, metadata field, share preview, error response, and
+legacy state mapping must be audited against it. Claims about privacy,
+publication, link-only access, view counting, sync, or anonymous access require
+implementation and runtime receipts.

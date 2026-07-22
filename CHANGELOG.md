@@ -3,6 +3,16 @@
 Convention: BRAND.md §6.5. Entries before 2026-05-14 keep their
 original shape; the new shape starts at the next cycle.
 
+## 2026-07-22 · R·34 · holds · the shared timeline becomes one line
+
+Release status: **selected and in production integration; deployment evidence pending**.
+
+**Signal Timeline now has one selected product direction: Option D, The Current, a shareable horizontal line whose progress is legible before any copy is read.** Completed distance fills the line, milestones sit as points, a separate Today dash shows the real calendar position between them, and the first unfinished point reads `Our next milestone`. A restrained time lens switches between exact milestone completion and days remaining to the primary date; neither value is a confidence score.
+
+The production contract places the private working plan and its exact phone preview inside the unified owner app, while the shared artefact opens from an unlisted bearer link without the operating rail. The same public-safe projection and visual component must drive both views; owner preview sessions must not record a view. A qualified Timeline view is counted only after the shared page remains visible for two seconds, deduplicated at publication level, and reported only to the owner as views rather than people.
+
+This is a selection and release-candidate record, not a ship claim. R·34 becomes deployed only after the schema migration, unified-app release, branded-link handoff, owner and shared-route checks, qualified-view verification, and rollback receipt are recorded.
+
 ## 2026-07-17 · R·33 · opens · the homepage leads with one public line
 
 **The Timeline homepage now opens on "The Line": a single public plan that reads left to right.** Three short sentences name the job, then one horizontal line draws in and four dated moments settle onto it: now, soon, later, and done. It replaces the browser-and-link opener with the plainest statement of what Timeline makes, one public plan anyone can read without an account or an app. The motion plays once and respects reduced-motion, and the settled plan is the default state, so the page is legible before any animation runs. The previous "The Link" opener stays in the codebase as an alternate.

@@ -22,6 +22,48 @@
       "when": 1779984000000,
       "tag": "0002_workspace_owner_template",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1780487434000,
+      "tag": "0003_workspace_is_demo",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
+      "when": 1780487434001,
+      "tag": "0004_add_published_at",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "6",
+      "when": 1780487434002,
+      "tag": "0005_add_nodeOverlays_sourceTasksWorkspaceId",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
+      "when": 1780777918000,
+      "tag": "0006_rename_status_blocked_to_waiting",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "6",
+      "when": 1783899365000,
+      "tag": "0007_audience_timeline_publications",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "6",
+      "when": 1784721600000,
+      "tag": "0008_qualified_audience_views",
+      "breakpoints": true
     }
   ]
 }

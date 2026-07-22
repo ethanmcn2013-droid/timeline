@@ -1,0 +1,23 @@
+{
+  "schemaVersion": "timeline-qualified-view-production-receipt/1",
+  "receiptId": "timeline-qualified-audience-views-2026-07-22",
+  "appliedAt": "2026-07-22T19:34:42.122Z",
+  "authorizationSource": "Signal Timeline production integration request, 2026-07-22",
+  "migrationSha256": "e795a0383536d12f2a023ae10ff4fbe6b87c997f496f3a1183c6448736460ae1",
+  "migration0006Sha256": "8b56bf6ee8c22429e4201ae7292f7470df8a71168b941abddb49be21302d7632",
+  "snapshotDatabaseSha256": "9c1e9652702c0e513eed4c2b339ca653cd8a0beed40722b061cac6409028f423",
+  "snapshotManifestSha256": "c619a71a416423bbf348763bfc5c0e8d1ef0082c2bf38b182ea291f7bfe6e55a",
+  "dryRunDatabaseSha256": "ca6850388009a01de0aca651057f48614d4e0a6b1dadb8b9c1d6e1369c57317e",
+  "dryRunReportSha256": "faa5d9c94754aa9626408a094b22818a1d399020d87177ff5a8890f5a5f65152",
+  "privateExecutionReceiptSha256": "2eef5de3486424fd9d16e0fe3a986402f2d91659f4319117070ecc3ff98cfcb5",
+  "statusReconciliation": {
+    "tasksUpdated": 3,
+    "nodeOverlaysUpdated": 0
+  },
+  "finalLedgerLength": 9,
+  "adoptionProofsPassed": 22,
+  "migrationProofsPassed": 5,
+  "integrityCheck": "ok",
+  "foreignKeyViolations": 0,
+  "backupRetentionThrough": "2026-08-05"
+}
