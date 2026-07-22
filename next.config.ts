@@ -68,6 +68,29 @@ const nextConfig: NextConfig = {
     // client deps and only a subset of each is used per route.
     optimizePackageImports: ["motion", "@clerk/nextjs"],
   },
+  // Stage C — traffic convergence into the unified app (tasks.signalstudio.ie).
+  // The authed Timeline surface now lives at /app/plan in the unified app.
+  // /app/account stays served here (GDPR — MIGRATION-P08-007). Public pages
+  // (/:workspaceSlug, /s/:token), marketing and /api routes are untouched.
+  async redirects() {
+    return [
+      {
+        source: "/app",
+        destination: "https://tasks.signalstudio.ie/app/plan",
+        permanent: true,
+      },
+      {
+        source: "/app/audience",
+        destination: "https://tasks.signalstudio.ie/app/plan/audience",
+        permanent: true,
+      },
+      {
+        source: "/app/plan/:slug*",
+        destination: "https://tasks.signalstudio.ie/app/plan/:slug*",
+        permanent: true,
+      },
+    ];
+  },
   async headers() {
     return [
       {
