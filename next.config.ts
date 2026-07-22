@@ -89,6 +89,16 @@ const nextConfig: NextConfig = {
         destination: "https://tasks.signalstudio.ie/app/plan/:slug*",
         permanent: true,
       },
+      // Marketing → umbrella (1:1 where it exists, else the umbrella home).
+      // Public roadmap pages (/:workspaceSlug, /s/:token) and /api are NOT
+      // matched — only these exact marketing paths are.
+      { source: "/", destination: "https://signalstudio.ie/", permanent: true },
+      { source: "/about", destination: "https://signalstudio.ie/about", permanent: true },
+      { source: "/pricing", destination: "https://signalstudio.ie/pricing", permanent: true },
+      { source: "/changelog", destination: "https://signalstudio.ie/changelog", permanent: true },
+      { source: "/waitlist", destination: "https://signalstudio.ie/waitlist", permanent: true },
+      { source: "/demo", destination: "https://signalstudio.ie/", permanent: true },
+      { source: "/the-wedding", destination: "https://signalstudio.ie/", permanent: true },
     ];
   },
   async headers() {
